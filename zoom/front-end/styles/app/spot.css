@@ -1,0 +1,18 @@
+body{background-color: #F7F7F6;}
+
+.login{padding-top: 65px;}
+
+.center {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table{width: 100%;}
+
+tr{background-color: lightblue;}
+
+.table tbody>tr>td.vert-align
+{
+    vertical-align: bottom;
+}
