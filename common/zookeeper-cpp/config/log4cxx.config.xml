@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<log4j:configuration debug="false" xmlns:log4j='http://jakarta.apache.org/log4cxx/'>      
+  <root>
+    <level value="INFO"/>
+      <appender-ref ref="RollingFileAppender"/>
+  </root>
+                              
+  <appender name="RollingFileAppender" class="log4cxx.rolling.RollingFileAppender">
+    <param name="Append" value="true" />
+    <rollingPolicy class="log4cxx.rolling.TimeBasedRollingPolicy">
+      <param name="FileNamePattern" value="./logs/configuration-cpp.%d{yyyyMMdd}.log"/>
+    </rollingPolicy>
+    <layout class="log4cxx.PatternLayout">
+      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%method(%line)] %m%n" />
+    </layout>
+  </appender>
+
+</log4j:configuration>
