@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Script to find string in a file. 
+# Required:
+# -f FILENAME 	file to search
+# -s STRING 	string to find
+#
+# Optional:
+# -k	 		whether to exit with 1 if the string is found
+#
+USAGE="USAGE: $0 -f FILENAME -s STRING [-k] "
+KILL=false
+
+# Parse Parameters
+while getopts ":f:s:k" param
+do
+  case "$param" in
+    "f")
+      FILENAME=$OPTARG;
+      /bin/echo "FILENAME=$FILENAME";
+      ;;
+    "s")
+      STRING="$OPTARG";
+      /bin/echo "STRING='$STRING'";
+      ;;
+	"k")
+	  KILL=true;
+	  /bin/echo "KILL=True";
+	  ;;
+  esac
+done;
+
+# Make sure parameters are set/file exists.
+if [ -z "$FILENAME" ]
+then
+  /bin/echo $USAGE
+  /bin/echo "FILENAME parameter not set. Exiting with 2." 1>&2;
+  exit 2;
+elif [ -z "$STRING" ] 
+then
+  /bin/echo $USAGE
+  /bin/echo "STRING parameter not set. Exiting with 2." 1>&2;
+  exit 2;
+elif [ ! -f $FILENAME ];
+then
+  /bin/echo "FILENAME $FILENAME does not exist or is not a file. Exiting with 1." 1>&2;
+  exit 1;
+fi;
+
+# evaluate exit code to use if KILL is set
+if $KILL;
+then
+  EXIT=1;
+else
+  EXIT=0
+fi;
+
+# Check file for string:
+RESULT=$(/bin/grep "$STRING" $FILENAME)
+if [ -n "$RESULT" ];
+then
+  /bin/echo "Found string \"$STRING\".";
+  /bin/echo "String: \"$RESULT\".";
+  /bin/echo "Exiting with $EXIT."
+  exit $EXIT
+else
+  /bin/echo "Did not find string. Exiting with $EXIT.";
+  exit $EXIT
+fi;
