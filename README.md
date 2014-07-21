@@ -4,7 +4,7 @@ Zoom is the "ZooKeeper Manager" project created by Spot Trading, LLC's DevOps te
 
 ## About
 
-- Describe the Zookeeper agent.
+- Describe the backend Zookeeper agent.
 - Describe the web frontend.
 - Describe the technologies used (ie. Zookeeper, Tornado, web frameworks/JavaScript libraries).
 
@@ -12,7 +12,6 @@ Zoom's web front-end is powered by [Tornadoweb](https://github.com/tornadoweb)'s
 
 ## Motivation
 
-Test 
 
 ## System Requirements and Prerequisites
 
