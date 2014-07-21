@@ -1,31 +1,22 @@
-zoom
-====
-h1. What is Exhibitor?
+Zoom
+========
+Zoom is the "ZooKeeper Manager" project created by Spot Trading, LLC. Inspired by [Netflix](https://github.com/Netflix)'s [Exhibitor](https://github.com/Netflix/exhibitor), Zoom provides a server-side agent and front-end user interface to allow for easy administration of services across a ZooKeeper instance.
 
-_Use links at right --------->_
+## About
 
-According to the "ZooKeeper documentation":http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering
+- Describe the Zookeeper agent.
+- Describe the web frontend.
+- Describe the technologies used (ie. Zookeeper, Tornado, web frameworks/JavaScript libraries).
 
-bq. You will want to have a supervisory process that manages each of your ZooKeeper server processes (JVM).
+## Motivation
 
-Exhibitor is a Java supervisor system for ZooKeeper. It provides a number of features:
-* Watches a ZK instance and makes sure it is running
-* Performs periodic backups
-* Perform periodic cleaning of ZK log directory
-* A GUI explorer for viewing ZK nodes
-* A rich REST API
+- Describe why we chose ZooKeeper and why we decided to write our own manager for ZooKeeper instances.
 
-h1. Requirements/Prerequisites
 
-* It's assumed that you are familiar with ZooKeeper and the basics of administering it (see the "ZooKeeper Administrator's Guide":http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering for details).
-* Exhibitor is a Java-based application
-* Exhibitor is designed to be run on Unix/Linux based systems (as is Apache ZooKeeper).
-* The java CLI tool <code>jps</code> must be in the command line PATH.
+## System Requirements and Prerequisites
 
-h1. Maven / Artifacts
+It's assumed that you are familiar with ZooKeeper and the basics of administering it. Lots of useful information regarding ZooKeeper can be found in the [ZooKeeper Administrator's Guide](http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering).
 
-Exhibitor binaries are published to Maven Central.
+## Goals
 
-|_.GroupID/Org|_.ArtifactID/Name|_.Description|
-|com.netflix.exhibitor|exhibitor-standalone|Self-containing, runnable version of Exhibitor (as an application or a WAR file)|
-|com.netflix.exhibitor|exhibitor-core|Library version of Exhibitor that can be integrated into your application|
+- Describe why we open-sourced the project and what we hope to bring about by collaborating with the GitHub community.
