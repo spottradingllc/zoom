@@ -1,8 +1,8 @@
-zoom
-====
-h1. What is Exhibitor?
+Zoom
+========
+Zoom is the "Zookeeper Manager" project created by Spot Trading, LLC. Inspired by [Netflix](https://github.com/Netflix)'s [Exhibitor](https://github.com/Netflix/exhibitor), Zoom provides a server-side agent and front-end user interface to allow for easy administration of services across a Zookeeper instance.
 
-_Use links at right --------->_
+## About
 
 According to the "ZooKeeper documentation":http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering
 
@@ -15,17 +15,15 @@ Exhibitor is a Java supervisor system for ZooKeeper. It provides a number of fea
 * A GUI explorer for viewing ZK nodes
 * A rich REST API
 
-h1. Requirements/Prerequisites
+## Motivation
+
+
+
+## System Requirements and Prerequisites
 
 * It's assumed that you are familiar with ZooKeeper and the basics of administering it (see the "ZooKeeper Administrator's Guide":http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering for details).
 * Exhibitor is a Java-based application
 * Exhibitor is designed to be run on Unix/Linux based systems (as is Apache ZooKeeper).
 * The java CLI tool <code>jps</code> must be in the command line PATH.
 
-h1. Maven / Artifacts
-
-Exhibitor binaries are published to Maven Central.
-
-|_.GroupID/Org|_.ArtifactID/Name|_.Description|
-|com.netflix.exhibitor|exhibitor-standalone|Self-containing, runnable version of Exhibitor (as an application or a WAR file)|
-|com.netflix.exhibitor|exhibitor-core|Library version of Exhibitor that can be integrated into your application|
+## Goals
