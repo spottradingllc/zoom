@@ -189,3 +189,4 @@ logger -t %{name} "Exiting postun section for build: %{SNAME}"
 # Changelog, this is filled in automaticly from stash, no need to deal with this area at all.
 %changelog
 * %{DATE}  <%{EMAIL}> - %{version}
+- TEST COMMIT
