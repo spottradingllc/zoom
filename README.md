@@ -1,14 +1,14 @@
 # Zoom
 
-Zoom is the "ZooKeeper Manager" project created by Spot Trading, LLC's DevOps team. Inspired by [Netflix](https://github.com/Netflix)'s [Exhibitor](https://github.com/Netflix/exhibitor), Zoom provides a server-side agent and front-end user interface to allow for easy administration of services across a ZooKeeper instance.
+Zoom is a platform created by Spot Trading to manage real-time application startup, configuration and dependency management. Zoom provides a server-side agent and front-end web interface to allow for easy administration of our software infrastructure.
 
 ## About
 
 - Describe the backend Zookeeper agent.
-- Describe the web frontend.
-- Describe the technologies used (ie. Zookeeper, Tornado, web frameworks/JavaScript libraries).
+- Describe the web front end.
+- Describe the technologies used (i.e. Apache Zookeeper, Tornado, web frameworks/JavaScript libraries).
 
-Zoom's web front-end is powered by [Tornadoweb](https://github.com/tornadoweb)'s [Tornado](https://github.com/tornadoweb/tornado) web server. Our web interface was designed using Twitter's [Bootstrap](http://getbootstrap.com/) framework. In implementing Zoom's front-end, we used a handful of open-source JavaScript libraries. We simplified the inclusion and handling of these modules using [jrburke](https://github.com/jrburke)'s [RequireJS](http://requirejs.org/) library. To support real-time updates to Zoom's web portal, we used the [Sammy.js](http://sammyjs.org/), [Knockout](http://knockoutjs.com/index.html), and [jQuery](http://jquery.com/) libraries. We implemented dependency visualization using [mbostock](https://github.com/mbostock)'s [D3.js](http://d3js.org/) library, and we provide users with formatted XML in our server configuration tool using [vkiryukhin](https://github.com/vkiryukhin)'s elegant  [vkBeautify](http://www.eslinstructor.net/vkbeautify/) formatter.
+Zoom's web front-end is powered by [Tornado Web](https://github.com/tornadoweb)'s [Tornado](https://github.com/tornadoweb/tornado) web server. Our web interface was designed using Twitter's [Bootstrap](http://getbootstrap.com/) framework. In implementing Zoom's front-end, we used a handful of open-source JavaScript libraries. We simplified the inclusion and handling of these modules using [jrburke](https://github.com/jrburke)'s [RequireJS](http://requirejs.org/) library. To support real-time updates to Zoom's web portal, we used the [Sammy.js](http://sammyjs.org/), [Knockout](http://knockoutjs.com/index.html), and [jQuery](http://jquery.com/) libraries. We implemented dependency visualization using [mbostock](https://github.com/mbostock)'s [D3.js](http://d3js.org/) library, and we provide users with formatted XML in our server configuration tool using [vkiryukhin](https://github.com/vkiryukhin)'s elegant  [vkBeautify](http://www.eslinstructor.net/vkbeautify/) formatter.
 
 ## Motivation
 
