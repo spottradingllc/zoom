@@ -18,7 +18,7 @@
 
 APP="ZKagent"
 LOGDATE=`date +%C%y%m%d`
-APPPATH="/opt/spot/sentinel"
+APPPATH="/opt/spot/zoom/sentinel/agent"
 STARTCMD="python $APPPATH"
 TIMEOUT=30
 RUNLOG=$APPPATH/logs/stdout

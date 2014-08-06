@@ -15,7 +15,7 @@ index-url = http://spotpypi01.spottrading.com/pypi/3rdparty/python/simple
 index-url = http://spotpypi01.spottrading.com/pypi/3rdparty/python/simple
 EOF
 
-VENV=/opt/spot/sentinel/venv
+VENV=/opt/spot/zoom/sentinel/agent/venv
 if [ -d $VENV ]; then
     /bin/rm -rf $VENV >> bootstrap_log.txt 2>&1|| exit 2
 fi

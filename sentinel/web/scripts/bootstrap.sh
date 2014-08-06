@@ -2,7 +2,7 @@
 
 WEB_SERVER=http://spotpypi01.spottrading.com/pypi
 PY_3RDPARTY=${WEB_SERVER}/3rdparty/python
-VENV_DIR=/opt/spot/zoom/venv
+VENV_DIR=/opt/spot/zoom/sentinel/web/venv
 
 
 /bin/cat >  ~/.pydistutils.cfg << EOF
