@@ -8,7 +8,7 @@ from sentinel.common.task import Task
 
 class TaskClient(object):
     def __init__(self, zkclient, children):
-        self.log = logging.getLogger('sent.task_client')
+        self._log = logging.getLogger('sent.task_client')
         self._children = children
         self._zkclient = zkclient
         self._host = platform.node()
@@ -23,17 +23,18 @@ class TaskClient(object):
                 jsonstr, stat = self._zkclient.get(self._path)
                 data = json.loads(jsonstr)
                 work = data.get('work', None)
+                argument = [data.get('argument', None)]
                 target = data.get('target', None)
 
                 if work in ALLOWED_WORK:
                     if target is not None:
-                        result = self._send_work_single(work, target)
+                        result = self._send_work_single(work, target, args=argument)
                     else:
-                        result = self._send_work_all(work)
+                        result = self._send_work_all(work, args=argument)
                     logging.info("just {}'d {}".format(work, target))
                 else:
                     err = 'Invalid work submitted: {0}'.format(work)
-                    self.log.warning(err)
+                    self._log.warning(err)
 
                 self._zkclient.delete(self._path)
             except Exception as e:
@@ -43,18 +44,18 @@ class TaskClient(object):
         if self._zkclient.exists(self._path, self.onExists) is not None:
             self.onExists(None)
 
-    def _send_work_all(self, work):
+    def _send_work_all(self, work, args=()):
         """
         :type work: str
         :rtype: list
         """
         result = list()
         for child in self._children.keys():
-            result.append(self._send_work_single(work, child))
+            result.append(self._send_work_single(work, child, args=args))
         return result
 
 
-    def _send_work_single(self, work, target):
+    def _send_work_single(self, work, target, args=()):
         """
         :type work: str
         :type target: str
@@ -62,12 +63,12 @@ class TaskClient(object):
         """
         child = self._children.get(target, None)
         if child is None:
-            self.log.warning('The targeted child "{0}" does not exists.'
+            self._log.warning('The targeted child "{0}" does not exists.'
                              .format(target))
             return {'target': target, 'work': work, 'result': '404: Not Found'}
         else:
             process = child['process']
-            process.add_work(Task(work, block=True, pipe=True), immediate=True)
+            process.add_work(Task(work, args=args, block=True, pipe=True), immediate=True)
             result = process.parent_conn.recv()  # will block until done
             return {'target': target, 'work': work, 'result': result}
                 

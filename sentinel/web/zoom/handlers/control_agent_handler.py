@@ -17,6 +17,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             self.component_id = self.get_argument("componentId")
             application_host = self.get_argument("applicationHost")
             self.command = self.get_argument("command")
+            self.argument = self.get_argument("argument")
             user = self.get_argument("user")
     
             logging.info("Received {0} command from user '{1}' for host '{2}' for "
@@ -40,7 +41,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     def add_command(self, event):
         if self.application.zk.exists(self.path) is None:
             logging.info("command {}  going to zk path {}".format(self.command, self.path))
-            self.application.zk.create(self.path, json.dumps({'work':self.command, 'target':self.component_id}))
+            self.application.zk.create(self.path, json.dumps({'work':self.command, 'argument':self.argument, 'target':self.component_id}))
         else:
              self.application.zk.exists(self.path, watch=self.add_command)
         

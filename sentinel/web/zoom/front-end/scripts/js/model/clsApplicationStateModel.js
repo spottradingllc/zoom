@@ -19,7 +19,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
 
     // functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
-    self.executeGroupControl = function (com, no_confirm) {
+    self.executeGroupControl = function (com, argument, no_confirm) {
         var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
                 self.groupControl().length + " selected agents by pressing OK."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
@@ -31,6 +31,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                     "configurationPath": applicationState.configurationPath,
                     "applicationHost": applicationState.applicationHost,
                     "command": com,
+                    "argument": argument,
                     "user": self.login.elements.username()
                 };
 
@@ -55,7 +56,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
             interval = setInterval(self.checkDown, 5000);
             return;
         } else {
-            self.executeGroupControl('dep_restart', true);
+            self.executeGroupControl('dep_restart', null, true);
             return;
         }
     }
@@ -66,8 +67,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (confirm(confirmString)) {
-            self.executeGroupControl('ignore', true);
-            self.executeGroupControl('stop', true);
+            self.executeGroupControl('ignore', null, true);
+            self.executeGroupControl('stop', null, true);
             self.checkDown();
         }
     }

@@ -179,11 +179,12 @@ class Application(object):
         return result
 
     @time_this
-    def stop(self, reset=True, pause=False):
+    def stop(self, reset=True, pause=False, *args):
         """
         Stop actual process
         This is called by REST
         """
+        self._log.info('### Does it get here: {0}'.format(args))
         if reset:
             self._proc_client.reset_counters()
         if pause:
@@ -192,7 +193,7 @@ class Application(object):
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()
 
-        result = self._proc_client.stop()
+        result = self._proc_client.stop(args)
 
         if result != 0:
             self._state.set_value(ApplicationState.ERROR)

@@ -120,9 +120,11 @@ class ProcessClient(object):
         self._restart_logic.set_false()
         return returncode
 
-    def stop(self):
+    def stop(self, *args):
         """Stop process"""
-        self._restart_logic.set_true()
+        self._log.info('### The args is {0}'.format(args))
+        if args is None:
+            self._restart_logic.set_true()
         returncode = -1
         if self._apptype == ApplicationType.JOB:
             returncode = self._job_stop()
