@@ -209,8 +209,6 @@
                                         data-placement="top"
                                         title="View filtering options.">
                                     Filters
-                                    <span class="badge" data-bind="text: applicationState.customFilteredItems().length,
-                                                                   visible: applicationState.customFilteredItems().length > 0">
                                     </span>
                                     <span class="caret"></span>
                                 </button>
@@ -316,8 +314,7 @@
                                                 data-placement="top"
                                                 title="Close the filter.">
                                             <span class="glyphicon glyphicon-remove"></span>
-                                            <span class="badge" data-bind="text: $data.customFilteredItems().length,
-                                                                           visible: enabled() "></span>
+                                            <span class="badge" data-bind="text: numberPassed()"></span>
                                         </button>
                                         <button class="btn btn-default"
                                                 data-bind="click: toggleEnabled, visible: !enabled()"

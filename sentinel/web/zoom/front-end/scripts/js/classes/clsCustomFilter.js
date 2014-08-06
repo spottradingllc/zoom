@@ -1,6 +1,5 @@
 function CustomFilter(ko, $, parent) {
     var self = this;
-    var parent = parent;
 
     // trickle-down dictionaries
     self.parameters = {
@@ -20,13 +19,12 @@ function CustomFilter(ko, $, parent) {
     self.searchTerm = ko.observable("");
     self.enabled = ko.observable(false);
     self.inversed = ko.observable(false);
-    self.customFilteredItems = ko.observableArray([]);
+    self.numberPassed = ko.observable("");
 
     self.tearDown = function() {
       self.searchTerm("");
       self.enabled(false);
       self.inversed(false);
-      self.customFilteredItems.removeAll();
     };
 
     self.setParameter = function(param) {
@@ -63,53 +61,50 @@ function CustomFilter(ko, $, parent) {
         parent.customFilters.push(self);
     };
 
-    // Filtering operations
-    self.pushMatchedItem = function(item) {
-        // push only unique items
-        if (self.customFilteredItems.indexOf(item) == -1){
-            self.customFilteredItems.push(item);
+    self.filter = function(ret) {
+
+        if (self.enabled()) {
+            ret = ko.utils.arrayFilter(ret, function(item){
+                return self.passes(item);
+            });
+
+            self.numberPassed(ret.length);
+        }
+        return ret;
+    };
+
+    self.passes = function(appState) {
+
+        if (self.parameter() == self.parameters.applicationStatus) {
+            return self.applyLogicalFilter(appState.applicationStatus().toLowerCase(), appState);
+        }
+        else if (self.parameter() == self.parameters.configurationPath) {
+            return self.applyLogicalFilter(appState.configurationPath, appState);
+        }
+        else if (self.parameter() == self.parameters.applicationHost) {
+            self.searchTerm(self.searchTerm().toUpperCase());
+            return self.applyLogicalFilter(appState.applicationHost().toUpperCase(), appState);
+        }
+        else if (self.parameter() == self.parameters.startTime) {
+            return self.applyLogicalFilter(appState.startTime().toLowerCase(), appState);
+        }
+        else if (self.parameter() == self.parameters.errorState) {
+            return self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);
+        }
+        else { // perform dependency filtering
+            return self.applyDependencyFilter(appState);
         }
     };
 
-    self.applyFilter = ko.computed(function() {
-        self.customFilteredItems.removeAll();
-
-        if (self.enabled()) {
-            // check each application state for matches, perform appropriate filtering technique
-            ko.utils.arrayForEach(parent.applicationStates(), function(appState) {
-
-                if (self.parameter() == self.parameters.applicationStatus) {
-                    self.applyLogicalFilter(appState.applicationStatus().toLowerCase(), appState);
-                }
-                else if (self.parameter() == self.parameters.configurationPath) {
-                    self.applyLogicalFilter(appState.configurationPath, appState);
-                }
-                else if (self.parameter() == self.parameters.applicationHost) {
-                    self.searchTerm(self.searchTerm().toUpperCase());
-                    self.applyLogicalFilter(appState.applicationHost().toUpperCase(), appState);
-                }
-                else if (self.parameter() == self.parameters.startTime) {
-                    self.applyLogicalFilter(appState.startTime().toLowerCase(), appState);
-                }
-                else if (self.parameter() == self.parameters.errorState) {
-                    self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);
-                }
-                else { // perform dependency filtering
-                    self.applyDependencyFilter(appState);
-                }
-            });
-        }
-    });
-
     self.applyLogicalFilter = function(appParameter, appState) {
         if (appParameter.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
-            self.pushMatchedItem(appState);
+            return true;
         }
         else if (appParameter.indexOf(self.searchTerm()) == -1 && self.inversed()) {
-            self.pushMatchedItem(appState);
+            return true;
         }
         else {
-            // do nothing
+            return false;
         }
     };
 
@@ -117,14 +112,14 @@ function CustomFilter(ko, $, parent) {
         if (self.parameter() == self.parameters.requires && !self.inversed()) {
             ko.utils.arrayForEach(appState.requires(), function(requirement) {
                 if (requirement.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()){
-                    self.pushMatchedItem(appState);
+                    return true;
                 }
             });    
         }
         else if (self.parameter() == self.parameters.requiredBy && !self.inversed()) {
             ko.utils.arrayForEach(appState.requiredBy(), function(dependent) {
                 if (dependent.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()){
-                    self.pushMatchedItem(appState);
+                    return true;
                 }
             });
         }
@@ -141,7 +136,7 @@ function CustomFilter(ko, $, parent) {
 
             // if no required config path contains the search term, push the application state
             if (!matchingConfigPath) {
-                self.pushMatchedItem(appState);
+                return true;
             }
         }
         else { // (self.parameter() == "requiredBy" && self.inversed()) case
@@ -152,9 +147,11 @@ function CustomFilter(ko, $, parent) {
 
             // if no dependent config path contains the search term, push the application state
             if (!matchingConfigPath) {
-                self.pushMatchedItem(appState);
+                return true;
             }
         }
+
+        return false;
     };
 
     // Operations for remote saving/deleting

@@ -5,6 +5,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = ko.observable("Unknown");
+    self.time = ko.observable(Date.now());
+    self.filterByTime = ko.observable(false);
 
     var operationTypes = {add: "add", remove: "remove"};
 
@@ -16,6 +18,152 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
+
+    // Sorting
+    self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
+    self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
+    self.sort = function (header) {
+        if (header.title == "Control") { return }  // ignore sorting on Control header
+
+        //if this header was just clicked a second time...
+        if (self.activeSort() == header && !self.holdSortDirection()) {
+            header.asc(!header.asc()); // ...toggle the direction of the sort
+        } else {
+            self.activeSort(header); // first click, remember it
+        }
+
+        var prop = self.activeSort().sortPropertyName;
+
+        var ascSort = function (a, b) {
+            var aprop = ko.unwrap(a[prop]);
+            var bprop = ko.unwrap(b[prop]);
+            return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop == bprop ? 0 : 0;
+        };
+        var descSort = function (a, b) {
+            return ascSort(b, a);
+        };
+        var sortFunc = self.activeSort().asc() ? ascSort : descSort;
+
+        self.applicationStates.sort(sortFunc);
+        self.holdSortDirection(false);
+    };
+
+    self.clearSearch = function () {
+        self.textFilter("");
+    };
+
+    // Custom Filtering
+    self.customFilters = ko.observableArray([]);
+
+    self.enabledCustomFilters = ko.computed(function() {
+        return ko.utils.arrayFilter(self.customFilters(), function(customFilter) {
+            return customFilter.enabled();
+        });
+    });
+
+    self.addCustomFilter = function() {
+        var filter = new CustomFilter(ko, $, self);
+        self.customFilters.push(filter);
+    };
+
+    self.clearAllFilters = function() {
+        self.customFilters.removeAll();
+    };
+
+    self.remoteCustomFilters = ko.observableArray([]);
+    self.fetchAllFilters = function() {
+        var dict = {loginName : self.login.elements.username()};
+
+        if (self.login.elements.authenticated()) {
+            self.remoteCustomFilters.removeAll();
+            $.getJSON("/api/filters/", dict, function(data) {
+                $.each(data, function(index, filterDict) { 
+                    var filter = new CustomFilter(ko, $, self);
+                    filter.filterName(filterDict["name"]);
+                    filter.parameter(filterDict["parameter"]);
+                    filter.searchTerm(filterDict["searchTerm"]);
+                    filter.inversed(filterDict["inversed"]);
+                    filter.enabled(false);
+
+                    self.remoteCustomFilters.push(filter);
+                });
+            });
+        }
+    };
+
+    self.getFiltersForUser = ko.computed(function() {
+        if (self.login.elements.authenticated) {
+            self.fetchAllFilters();
+        }
+        else {
+            self.remoteCustomFilters.removeAll();
+        }
+    });
+
+    // Setup default filters
+    self.defaultFilters = ko.observableArray([]);
+
+    var downFilter = new CustomFilter(ko, $, self);
+    downFilter.filterName("Down");
+    downFilter.parameter(downFilter.parameters.applicationStatus);
+    downFilter.searchTerm(downFilter.searchTerms.stopped);
+    self.defaultFilters.push(downFilter);
+
+
+    var errorFilter = new CustomFilter(ko, $, self);
+    errorFilter.filterName("Error");
+    errorFilter.parameter(errorFilter.parameters.errorState);
+    errorFilter.searchTerm(errorFilter.searchTerms.error);
+    self.defaultFilters.push(errorFilter);
+
+    self.enableTimeFilter = function() {
+        //Reset filter time on double click
+        if (self.filterByTime()){
+            self.time(Date.now());
+        }
+        self.filterByTime(true);
+        self.sortByTime();
+    };
+
+    self.timeToolTip = ko.computed(function() {
+        if (self.filterByTime()){
+            return "Click to clear old updates";
+        }
+        return "Click to enable update mode";
+    });
+    
+    self.sortByTime = function() {
+        var timeheader = {title: 'Time', sortPropertyName: 'mtime', asc: ko.observable(true)};
+        self.activeSort(timeheader);
+        self.sort(self.activeSort());
+    };
+
+    self.filteredItems = ko.computed(function() {
+
+        var filter = self.textFilter().toLowerCase();
+        var re = new RegExp(filter, "i");
+        var ret = ko.utils.arrayFilter(self.applicationStates(), function(item){
+            if (filter) { 
+                return (item.configurationPath.match(re) || item.applicationHost().match(re));
+            }
+            return true;
+        });
+
+        ret = ko.utils.arrayFilter(ret, function(item){
+            if(self.filterByTime()) {
+                return (item.mtime > self.time());
+            }
+            return true;
+        });
+
+        ko.utils.arrayForEach(self.customFilters(), function(customFilter) { // loop over all filters
+            ret = customFilter.filter(ret);
+        });
+
+        return ret;
+
+    }, self);
+    self.filteredItems.extend({rateLimit: 500});
 
     // functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
@@ -95,190 +243,6 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                 self.groupControl.push(applicationState);
             }
         });
-    };
-
-    // Sorting
-    self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
-    self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
-    self.sort = function (header) {
-        if (header.title == "Control") { return }  // ignore sorting on Control header
-
-        //if this header was just clicked a second time...
-        if (self.activeSort() == header && !self.holdSortDirection()) {
-            header.asc(!header.asc()); // ...toggle the direction of the sort
-        } else {
-            self.activeSort(header); // first click, remember it
-        }
-
-        var prop = self.activeSort().sortPropertyName;
-
-        var ascSort = function (a, b) {
-            var aprop = ko.unwrap(a[prop]);
-            var bprop = ko.unwrap(b[prop]);
-            return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop == bprop ? 0 : 0;
-        };
-        var descSort = function (a, b) {
-            return ascSort(b, a);
-        };
-        var sortFunc = self.activeSort().asc() ? ascSort : descSort;
-
-        self.applicationStates.sort(sortFunc);
-        self.holdSortDirection(false);
-    };
-
-    self.clearSearch = function () {
-        self.textFilter("");
-    };
-
-    // Custom Filtering
-    self.customFilters = ko.observableArray([]);
-
-    self.enabledCustomFilters = ko.computed(function() {
-        return ko.utils.arrayFilter(self.customFilters(), function(customFilter) {
-            return customFilter.enabled();
-        });
-    });
-
-    self.customFilteredItems = ko.computed(function () {
-        // first aggregate all items from all custom filters
-        var allCustomFilteredItems = ko.observableArray([]);
-        ko.utils.arrayForEach(self.enabledCustomFilters(), function(customFilter) { // loop over all enabled filters
-            ko.utils.arrayForEach(customFilter.customFilteredItems(), function(item) {
-                if (allCustomFilteredItems.indexOf(item) == -1) {
-                    // only push unique items
-                    allCustomFilteredItems.push(item);
-                }
-            });
-        });
-
-        // take the intersection of all the custom filtered items
-        var intersection = ko.observableArray(allCustomFilteredItems().slice());
-        ko.utils.arrayForEach(allCustomFilteredItems(), function(filteredItem) { // loop over all items
-            ko.utils.arrayForEach(self.enabledCustomFilters(), function(customFilter) { // loop over all filters
-                if (customFilter.customFilteredItems().indexOf(filteredItem) == -1) {
-                    // remove the item if it is missing in any filter
-                    intersection(intersection.remove(function(item) {return item != filteredItem}));
-                }
-            });
-        });
-
-        return intersection().slice();
-    });
-
-    // rate-limit how often filtered items are populated
-    self.customFilteredItems.extend({rateLimit: 500});
-
-    self.addCustomFilter = function() {
-        var filter = new CustomFilter(ko, $, self);
-        self.customFilters.push(filter);
-    };
-
-    self.clearAllFilters = function() {
-        self.customFilters.removeAll();
-    };
-
-    self.remoteCustomFilters = ko.observableArray([]);
-    self.fetchAllFilters = function() {
-        var dict = {loginName : self.login.elements.username()};
-
-        if (self.login.elements.authenticated()) {
-            self.remoteCustomFilters.removeAll();
-            $.getJSON("/api/filters/", dict, function(data) {
-                $.each(data, function(index, filterDict) { 
-                    var filter = new CustomFilter(ko, $, self);
-                    filter.filterName(filterDict["name"]);
-                    filter.parameter(filterDict["parameter"]);
-                    filter.searchTerm(filterDict["searchTerm"]);
-                    filter.inversed(filterDict["inversed"]);
-                    filter.enabled(false);
-
-                    self.remoteCustomFilters.push(filter);
-                });
-            });
-        }
-    };
-
-    self.getFiltersForUser = ko.computed(function() {
-        if (self.login.elements.authenticated) {
-            self.fetchAllFilters();
-        }
-        else {
-            self.remoteCustomFilters.removeAll();
-        }
-    });
-
-    // Setup default filters
-    self.defaultFilters = ko.observableArray([]);
-
-    var downFilter = new CustomFilter(ko, $, self);
-    downFilter.filterName("Down");
-    downFilter.parameter(downFilter.parameters.applicationStatus);
-    downFilter.searchTerm(downFilter.searchTerms.stopped);
-    self.defaultFilters.push(downFilter);
-
-
-    var errorFilter = new CustomFilter(ko, $, self);
-    errorFilter.filterName("Error");
-    errorFilter.parameter(errorFilter.parameters.errorState);
-    errorFilter.searchTerm(errorFilter.searchTerms.error);
-    self.defaultFilters.push(errorFilter);
-
-    self.time = ko.observable(Date.now());
-    self.filterByTime = ko.observable(false);
-    self.enableTimeFilter = function() {
-        //Reset filter time on double click
-        if (self.filterByTime()){
-            self.time(Date.now());
-        }
-        self.filterByTime(true);
-        self.sortByTime();
-    };
-
-    self.timeToolTip = ko.computed(function() {
-        if (self.filterByTime()){
-            return "Click to clear old updates";
-        }
-        return "Click to enable update mode";
-    });
-    
-    self.sortByTime = function() {
-        var timeheader = {title: 'Time', sortPropertyName: 'mtime', asc: ko.observable(true)};
-        self.activeSort(timeheader);
-        self.sort(self.activeSort());
-    };
-
-    // Filtering from the search bar
-    self.filteredItems = ko.dependentObservable(function() {
-        var filter = self.textFilter().toLowerCase();
-        // check for enabled custom filters, otherwise use global appStates array
-        var ret;
-        if (!filter && self.enabledCustomFilters().length == 0) {
-            ret = self.applicationStates();
-        } 
-        else if(self.enabledCustomFilters().length > 0) {
-            ret = ko.utils.arrayFilter(self.customFilteredItems(), function(item) {
-                var re = new RegExp(filter, "i");
-                return (item.configurationPath.match(re) || item.applicationHost().match(re));
-            });
-        } else {
-            ret = ko.utils.arrayFilter(self.applicationStates(), function(item) {
-                var re = new RegExp(filter, "i");
-                return (item.configurationPath.match(re) || item.applicationHost().match(re));
-            });
-        }
-
-        //filter for time last
-        return ko.utils.arrayFilter(ret, function(item) {
-            if(self.filterByTime()){
-                return (item.mtime > self.time());
-            }else{
-                return true;
-            }
-        });
-    }, self);
-
-    self.filterBy = function(param) {
-        self.textFilter(param);
     };
 
     // hiding/showing all dependencies
