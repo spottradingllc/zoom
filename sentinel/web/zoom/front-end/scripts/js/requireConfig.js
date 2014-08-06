@@ -12,6 +12,7 @@ require.config({
         jquery: './libs/jquery-2.1.1.min',
         knockout: './libs/knockout-3.1.0',
         bootstrap: './libs/bootstrap.min',
-        sammy: './libs/sammy-0.7.4.min'
+        sammy: './libs/sammy-0.7.4.min',
+        d3: './libs/d3'
     }
 });

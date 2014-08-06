@@ -11,7 +11,7 @@ function SearchUpdateViewModel() {
         }
         else {
             // get XML configuration, catch callback message (allow editing on success)
-            $.get("/api/get_server_XML/" + ServerConfigViewModel.serverName(), function(data) {
+            $.get("/api/config/" + ServerConfigViewModel.serverName(), function(data) {
                 if (data != "Node does not exist.") {
                     self.show();
                     self.serverConfig(vkbeautify.xml(data));
@@ -26,16 +26,26 @@ function SearchUpdateViewModel() {
 
     self.pushConfig = function() {
         // post JSON dictionary to server, catch callback message
-        var data = {"XML" : self.serverConfig(),
-                    "serverName" : ServerConfigViewModel.serverName()};
-        $.post("/api/update_server_XML/" + ServerConfigViewModel.serverName(), data, function(data) {
-            if (data == "Node successfully updated.") {
-                AlertsViewModel.displaySuccess("Node " + ServerConfigViewModel.serverName() + " was successfully updated!");
+        // update existing config
+        var params = {
+            "XML" : self.serverConfig(),
+            "serverName" : ServerConfigViewModel.serverName()
+        };
+
+        $.ajax({
+                url: "/api/config/" + ServerConfigViewModel.serverName(),
+                type: 'PUT',
+                data: JSON.stringify(params),
+                success: function (returnData) {
+                    if (returnData == "Node successfully updated.") {
+                        AlertsViewModel.displaySuccess("Node " + ServerConfigViewModel.serverName() + " was successfully updated!");
+                    }
+                    else {
+                        AlertsViewModel.displayError(returnData);
+                    }
+                }
             }
-            else {
-                AlertsViewModel.displayError(data);
-            }
-        });
+        )
     };
 
     self.validateXML = function() {
@@ -55,16 +65,20 @@ function SearchUpdateViewModel() {
     self.deleteConfig = function() {
         if (confirm("Please confirm that you want to delete the configuration for " + ServerConfigViewModel.serverName() + " by pressing OK.")) {
             // attempt to delete the server configuration, catch callback message
-            $.get("/api/delete_server/" + ServerConfigViewModel.serverName(), function(data) {
-                if (data == 'Node successfully deleted.') {
-                    AlertsViewModel.displaySuccess("Node " + ServerConfigViewModel.serverName() + " was successfully deleted!");
-                    ServerConfigViewModel.getAllServerNames();
-                    self.hide();
+            $.ajax({
+                url: "/api/config/" + ServerConfigViewModel.serverName(),
+                type: 'DELETE',
+                success: function (data) {
+                    if (data == 'Node successfully deleted.') {
+                        AlertsViewModel.displaySuccess("Node " + ServerConfigViewModel.serverName() + " was successfully deleted!");
+                        ServerConfigViewModel.getAllServerNames();
+                        self.hide();
+                    }
+                    else {
+                        AlertsViewModel.displayError(data);
+                    }
                 }
-                else {
-                    AlertsViewModel.displayError(data);
-                }
-            });
+            })
         }
     };
 

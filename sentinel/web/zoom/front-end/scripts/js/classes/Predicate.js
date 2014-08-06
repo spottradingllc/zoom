@@ -10,7 +10,7 @@ function Predicate() {
                    "command='" + this.command() + "' ",
                    "path='" + this.path() +"'>",
                    "</Predicate>"].join('\n');
-        XML = XML.replace(/(\r\n|\n|\r)/gm,"");;
+        XML = XML.replace(/(\r\n|\n|\r)/gm,"");
 
         return XML;
     };

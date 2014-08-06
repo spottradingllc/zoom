@@ -1,20 +1,22 @@
 import httplib
 import json
 import logging
-
 import tornado.web
+from zoom.utils.decorators import timethis
 
 
-class GetApplicationStateHandler(tornado.web.RequestHandler):
+class ApplicationStateHandler(tornado.web.RequestHandler):
+
+    @timethis(__file__)
     def get(self):
         try:
+            logging.info('Retrieving Application State Cache')
             result = self.application.data_store.load_application_state_cache()
-
-            self.write(json.dumps(result))
+            self.write(result.to_json())
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write(json.dumps({'errorText': str(e)}))
-            logging.error(e)
+            logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')

@@ -1,31 +1,28 @@
-function GlobalMode(service, ko, $) {
+function GlobalMode(service, ko, $, login) {
     var self = this;
 
+    self.login = login;
     self.current = ko.observable("Unknown");
-    self.reactClass = ko.computed(function() {
-        if (self.current() == 'Reacting to ZK changes.') {
-            return "btn btn-success";
+    self.OnClass = ko.computed(function() {
+        if (self.current() == 'auto') {
+            return "btn btn-default active";
         }
         else {
             return "btn btn-default";
         }
     });
-    self.ignoreClass = ko.computed(function() {
-        if (self.current() == 'Ignoring ZK changes.') {
-            return "btn btn-success";
+    self.OffClass = ko.computed(function() {
+        if (self.current() == 'manual') {
+            return "btn btn-default active";
         }
         else {
             return "btn btn-default";
         }
     });
 
-    var fnOnGlobalModeSuccess = function(data) {
-        if (data.mode == 'manual') {
-            self.current('Ignoring ZK changes.');
-        }
-        else if (data.mode == 'auto') {
-            self.current('Reacting to ZK changes.');
-        }
+    self.fnHandleUpdate = function(data) {
+        update = JSON.parse(data.global_mode);
+        self.current(update.mode);
     };
 
     var fnOnGlobalModeError = function(data) {
@@ -33,13 +30,16 @@ function GlobalMode(service, ko, $) {
     };
 
     self.fnGetGlobalMode = function() {
-      return service.get('api/get_global_mode/', fnOnGlobalModeSuccess, fnOnGlobalModeError);
+      return service.get('api/mode/', self.fnHandleUpdate, fnOnGlobalModeError);
     };
 
     self.fnSetGlobalMode = function (mode) {
         if (confirm("Please confirm that you want to set Zookeeper to " + mode + " mode by pressing OK.")) {
-            var dict = {"command" : mode};
-            $.post("/api/control_zk/", dict);
+            var dict = {
+                "command" : mode,
+                "user": self.login.elements.username()
+            };
+            $.post("/api/mode/", dict);
         }
     };
 

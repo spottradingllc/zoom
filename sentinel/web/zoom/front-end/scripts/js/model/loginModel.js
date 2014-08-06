@@ -1,51 +1,56 @@
-define(['knockout', 'jquery', 'service', 'sammyApp'],
-function(ko, $, service, sammyApp) {
+function LoginModel(service, ko, sammyApp) {
+    var self = this;
 
-    var impl;
-    impl = {};
-
-
-    impl.elements = {
+    self.elements = {
         username: ko.observable(""),
         password: ko.observable(""),
         showError: ko.observable(false),
-        error: ko.observable("")
+        error: ko.observable(""),
+        readWrite: ko.observable(false),
+        authenticated: ko.observable(false)
     };
 
+    var setUserFromCookie = function () {
+        self.elements.username(service.getCookie("username"));
+        if (service.getCookie("read_write")) {
+            self.elements.readWrite(true)
+        }
 
-    impl.reset = function () {
-        impl.elements.username("");
-        impl.elements.password("");
+        if (self.elements.username() && self.elements.readWrite()) {
+            self.elements.authenticated(true)
+        }
     };
 
+    // If there is a cookie w/ a username, consider the user to be authenticated
+    setUserFromCookie();
 
-    impl.submit = function (params) {
-//        console.log(JSON.stringify(params));
+    self.submit = function () {
+        var params = {
+            username: self.elements.username(),
+            password: self.elements.password()
+        };
 
         return service.post('login', params, onSuccess, onFailure);
     };
 
 
-    var onSuccess = function(data) {
-//        console.log(JSON.stringify(data));
+    self.reset = function () {
+        self.elements.username("");
+        self.elements.password("");
+        self.elements.authenticated(false);
+        self.submit();
+    };
 
+
+    var onSuccess = function(data) {
+        setUserFromCookie();
         return sammyApp.app().setLocation('#/application_state');
     };
 
 
     var onFailure = function(data) {
-//        console.log(JSON.stringify(data));
-
-        return alert('onFailure');
+        console.log(JSON.stringify(data));
+        return alert(JSON.stringify(data));
     };
 
-
-    return {
-        model: function() {
-
-            impl.reset();
-
-            return impl;
-        }
-    };
-});
+}

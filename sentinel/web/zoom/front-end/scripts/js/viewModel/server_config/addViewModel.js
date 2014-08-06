@@ -50,9 +50,12 @@ function AddViewModel() {
 
     self.pushConfig = function() {
         // post JSON dictionary to server, catch callback message
-        var data = {"XML" : self.serverXML(),
-                    "serverName" : ServerConfigViewModel.serverName()};
-        $.post("/api/add_server/" + ServerConfigViewModel.serverName(), data, function(data) {
+        var data = {
+            "XML" : self.serverXML(),
+            "serverName" : ServerConfigViewModel.serverName()
+        };
+
+        $.post("/api/config/" + ServerConfigViewModel.serverName(), data, function(data) {
             if (data == "Node successfully added.") {
                 ServerConfigViewModel.getAllServerNames();
                 ServerConfigViewModel.search();

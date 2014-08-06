@@ -29,6 +29,7 @@ class Session(object):
 
     def start(self):
         self._zoo_keeper.start()
+        self._data_store.load()
         self._web_server.start()
 
     def stop(self):

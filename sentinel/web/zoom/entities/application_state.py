@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import datetime
 from zoom.entities.types import ApplicationStatus
 
 
@@ -25,10 +24,10 @@ class ApplicationState(object):
         pass
 
     def __eq__(self, other):
-        return self._configuration_path == other._configuration_path
+        return self._configuration_path == other.configuration_path
 
     def __ne__(self, other):
-        return self._configuration_path != other._configuration_path
+        return self._configuration_path != other.configuration_path
 
     def __repr__(self):
         return (
@@ -74,7 +73,8 @@ class ApplicationState(object):
     @property
     def start_time(self):
         if self._start_time is not None:
-            return datetime.datetime.fromtimestamp(self._start_time).strftime('%Y-%m-%d %H:%M:%S')
+            return datetime.fromtimestamp(
+                self._start_time).strftime('%Y-%m-%d %H:%M:%S')
 
         return ""
 

@@ -1,14 +1,19 @@
-define(['jquery', 'knockout', 'service',
+define(
+    ['jquery', 'knockout', 'service', 'sammyApp', 'd3',
         'model/clsApplicationStateModel',
         'model/clsGlobalMode',
         'model/clsApplicationState',
-        'classes/clsCustomFilter'],
-function($, ko, service) {
+        'classes/clsCustomFilter',
+        'classes/dependency-maps/clsDependencyMaps',
+        'classes/dependency-maps/clsIndentedDependencyTree',
+        'classes/dependency-maps/clsPartitionChart'],
+function($, ko, service, sam, d3) {
 
     function ViewModel() {
         var self = this;
-        self.applicationState = new ApplicationStateModel(service, ko, $);
-        self.mode = new GlobalMode(service, ko, $);
+        self.login = new LoginModel(service, ko, sam);
+        self.applicationState = new ApplicationStateModel(service, ko, $, self.login, d3);
+        self.mode = new GlobalMode(service, ko, $, self.login);
 
         var connection;
         $(document).ready(function () {
@@ -27,40 +32,36 @@ function($, ko, service) {
                 console.log("websocket message: " + evt.data);
                 var message = JSON.parse(evt.data);
 
-                if ('type' in message) {
+                if ('update_type' in message) {
 
-                    if (message['type'] == 'application_state') {
-                        // This should always be one update.
-                        var item = message.payload.application_states[0];
-                        // Search the array for row with matching path
-                        var row = ko.utils.arrayFirst(self.applicationState.applicationStates(), function (currentRow) {
-                            return currentRow.configurationPath == item.configuration_path;
+                    if (message.update_type == 'application_state') {
+                        // handle each update
+                        var operationType = message.operation_type;
+
+                        $.each(message.application_states, function() {
+                            self.applicationState.handleApplicationStatusUpdate(this, operationType)
                         });
-                        // If row was found in the lookup
-                        if (row) {
-                            row.applicationStatus(item.application_status);
-                            row.startTime(item.start_time);
-                            row.applicationHost(item.application_host);
-                            row.errorState(item.error_state)
-                        }
-                        else {
-                            console.log('No rows in the array match the update');
-                        }
 
                         // resort the column, holding its sorted direction
                         self.applicationState.holdSortDirection(true);
                         self.applicationState.sort(self.applicationState.activeSort());
                     }
 
-                    else if (message['type'] == 'global_mode') {
-                        payload = JSON.parse(message.payload);
-                        if (payload.mode == 'manual') {
-                            self.mode.current('Ignoring ZK changes.');
-                        }
-                        else if (payload.mode == 'auto') {
-                            self.mode.current('Reacting to ZK changes.');
-                        }
+                    else if (message.update_type == 'global_mode') {
+                        self.mode.fnHandleUpdate(message)
                     }
+
+                    else if (message.update_type == 'application_dependency') {
+                        self.applicationState.handleApplicationDependencyUpdate(message);
+                    }
+                    else
+                    {
+                        console.log('unknown type in message: ' + message.update_type);
+                    }
+                }
+                else
+                {
+                    console.log('no type in message');
                 }
             }
         });
@@ -68,7 +69,8 @@ function($, ko, service) {
 
         return {
             applicationState: self.applicationState,
-            mode: self.mode
+            mode: self.mode,
+            login: self.login
         };
     }
 

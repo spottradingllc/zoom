@@ -173,16 +173,6 @@ logger -t %{name} "Exiting preun section for build: %{SNAME}"
 %postun
 logger -t %{name} "Entering postun section for build: %{SNAME}"
 # Post Uninstall ( After your package is removed/upgraded )
-if [ -h %{SYMLNK} ]
-  then
-    logger -t %{name} "Removing symlink for package %{SNAME}"
-    rm %{SYMLNK}
-  else
-    logger -t %{name} "No Symlink to remove for package %{SNAME}"
-fi
-
-  logger -t %{name} "setting ln for application %{SNAME}"
-  ln -s /opt/spot/%{name}-%{version} %{SYMLNK}
 
 
 logger -t %{name} "Exiting postun section for build: %{SNAME}"

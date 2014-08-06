@@ -3,9 +3,9 @@ function(sammyApp, loginViewModel, applicationStateViewModel) {
 
     var app = sammyApp.initialize();
 
-    app.get('#/login', loginViewModel.login);
+//    app.get('#/login', loginViewModel.login);
     app.get('#/application_state', applicationStateViewModel.application_state);
 //    app.get('#/serverConfig');
 
-    return app.run('#/login');
+    return app.run('#/application_state');
 });

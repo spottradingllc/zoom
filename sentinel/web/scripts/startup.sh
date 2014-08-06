@@ -21,7 +21,8 @@ LOGDATE=`date +%C%y%m%d`
 APPPATH="/opt/spot/zoom"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
-RUNLOG=$APPPATH/logs/stdout
+#RUNLOG=$APPPATH/logs/stdout
+RUNLOG="/dev/null"
 
 export PATH=$PATH:/bin
 if [ -f /etc/profile.d/spotdev.sh ]; then

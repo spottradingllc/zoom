@@ -154,7 +154,7 @@
         };
 
         ServerConfigViewModel.getAllServerNames = function () {
-            $.getJSON("/api/list_servers/", function(data) {
+            $.getJSON("/api/config/list_servers/", function(data) {
                 ServerConfigViewModel.serverList.removeAll();
                 for (i = 0; i < data.length; i++) {
                     ServerConfigViewModel.serverList.push(data[i]);

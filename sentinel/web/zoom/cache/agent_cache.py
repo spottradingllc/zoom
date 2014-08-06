@@ -14,55 +14,90 @@ class AgentCache(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._update_callbacks = list()
-        self._cache_by_host = dict()
         self._cache_by_path = dict()
+        self._cache_by_host = dict()
 
     def add_callback(self, cb):
         self._update_callbacks.append(cb)
 
-    def load(self, callback=None):
+    def load(self):
         """
-        :type callback: types.funcType
+        Get agent data from Zookeeper
         """
-        self._cache_by_host.clear()
-        self._cache_by_path.clear()
-
-        agents = self._zoo_keeper.client.get_children(
-            self._configuration.agent_state_path
+        agents = self._zoo_keeper.get_children(
+            self._configuration.agent_state_path,
+            watch=self._identify_change
         )
-        for agent in agents:
-            self._update_cache(str(agent), send_update=False)
 
+        for agent in agents:
+            self._update_cache(str(agent), run_callbacks=False)
+
+    def reload(self):
+        """
+        Clear existing and query for new data.
+        """
+        self._cache_by_path.clear()
+        self._cache_by_host.clear()
+        self.load()
 
     def get_agent_data(self, agent, callback=None):
         """
+        Get agent data from Zookeeper
         :type agent: str
-        :type callback: types.funcType
+        :type callback: types.funcType or None
         :rtype: dict
         """
-        result = dict()
+        result = None
         agent_path = os.path.join(self._configuration.agent_state_path, agent)
         try:
-            data, stat = self._zoo_keeper.client.get(agent_path, watch=callback)
+            data, stat = self._zoo_keeper.get(agent_path, watch=callback)
             result = json.loads(data)
+
         except ValueError:
             logging.error('Error parsing data at {0}'.format(agent_path))
         except NoNodeError:
-            logging.warning('Node does not exist at {0}'.format(agent_path))
+            logging.info('Node does not exist at {0}'.format(agent_path))
         finally:
             return result
 
-    def get_app_data_by_path(self, path, callback=None):
+    def get_app_data_by_path(self, path):
+        """
+        :rtype: dict
+        """
         return self._cache_by_path.get(path, {})
 
     def get_host_by_path(self, path):
+        """
+        :rtype: str or None
+        """
         data = self.get_app_data_by_path(path)
         return data.get('host', None)
 
-    def _update_cache(self, arg, send_update=True):
+    def get_paths_by_host(self, host):
         """
-        :param arg: str or kazoo.protocol.states.WatchedEvent
-        :param send_update: bool
+        :rtype: list
+        """
+        data = self._cache_by_host.get(host, {})
+        return [app_data.get('register_path') for app_data in data.values()]
+
+    def _identify_change(self, event):
+        """
+        Watch callback for the agent state path to catch when agents are added
+        and deleted. This is a supplement to the existing data watches.
+
+        :type event: kazoo.protocol.states.WatchedEvent
+        """
+        agents = self._zoo_keeper.get_children(event.path,
+                                               watch=self._identify_change)
+        changes = set(agents).symmetric_difference(set(self._cache_by_host.keys()))
+
+        for agent in changes:
+            self._update_cache(str(agent), run_callbacks=True)
+
+    def _update_cache(self, arg, run_callbacks=True):
+        """
+        :type arg: str or kazoo.protocol.states.WatchedEvent
+        :type run_callbacks: bool
         """
         updates_to_send = list()
         if not isinstance(arg, str):
@@ -71,16 +106,34 @@ class AgentCache(object):
             agent = arg
 
         data = self.get_agent_data(agent, callback=self._update_cache)
-        self._cache_by_host[agent] = data
-        for app_data in data.values():
-            key = app_data.get('register_path')
-            updates_to_send.append(key)
-            self._cache_by_path[key] = app_data
 
-        if send_update:
-            FakeWatchedEvent = namedtuple('WatchedEvent',
-                                          ('type', 'state', 'path'))
-            for path in updates_to_send:
-                update = FakeWatchedEvent(None, None, path)
-                for callback in self._update_callbacks:
-                    callback(update)
+        if data:
+            self._cache_by_host[agent] = data
+            for app_data in data.values():
+                path = app_data.get('register_path')
+                updates_to_send.append(path)
+                self._cache_by_path[path] = app_data
+
+        else:
+            # find paths to update from cached data
+            for path in self.get_paths_by_host(agent):
+                updates_to_send.append(path)
+                try:
+                    del self._cache_by_path[path]
+                except KeyError:
+                    pass
+
+        if run_callbacks:
+            self._run_update_callbacks(updates_to_send)
+
+    def _run_update_callbacks(self, updates):
+        """
+        Run update callback for each item in update list
+        :type updates: list of str
+        """
+        FakeWatchedEvent = namedtuple('WatchedEvent',
+                                      ('type', 'state', 'path'))
+        for path in updates:
+            update = FakeWatchedEvent(None, None, path)
+            for callback in self._update_callbacks:
+                callback(update)

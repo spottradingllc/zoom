@@ -23,7 +23,15 @@ fi
 
 source ${VENV_DIR}/bin/activate || exit 1
 
-for PACKAGE in python-ldap-2.4.10.tar.gz tornado-3.1.1.tar.gz kazoo-1.3.1dev.tar.gz setproctitle-1.1.8.tar.gz requests-2.2.1.tar.gz
+for PACKAGE in python-ldap-2.4.10.tar.gz \
+            tornado-3.1.1.tar.gz \
+            kazoo-1.3.1dev.tar.gz \
+            setproctitle-1.1.8.tar.gz \
+            requests-2.2.1.tar.gz \
+            pyodbc-3.0.6-py2.7-linux-x86_64.egg \
+            nose-1.3.0.tar.gz \
+            mox-0.5.3.tar.gz \
+            coverage-3.6.tar.gz
 do
     FULLPATH=${PY_3RDPARTY}/${PACKAGE}
 	/bin/echo "## Installing ${FULLPATH} ##";
