@@ -37,6 +37,19 @@
     <script type="text/html" id="application_state">
         <div id="application_state_page" class="container-fluid" style="margin-top: 20px">
 
+            <!-- Big Modal -->
+            <div class="modal" 
+                 id="big-modal"
+                 tabindex="-1" 
+                 role="dialog" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body big-modal-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Navigation Bar -->
             <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="container-fluid">
@@ -259,17 +272,20 @@
                                                   data-bind="click: function(){applicationState.executeGroupControl('stop')}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
-                                                  title="Stop the starred services.">Stop</button>
+                                                  title="Stop the starred services.">
+                                <span class="glyphicon glyphicon-stop"></span></button>
                             <button type="button" class="btn btn-default"
                                                   data-bind="click: function(){applicationState.executeGroupControl('restart')}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
-                                                  title="Restart the starred services.">Restart</button>
+                                                  title="Restart the starred services.">
+                                <span class="glyphicon glyphicon-retweet"></span></button>
                             <button type="button" class="btn btn-default"
                                                   data-bind="click: function(){applicationState.executeDepRestart('Restart w/ Dep')}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
-                                                  title="Restart the starred services.">Restart w/ Dependencies</button>
+                                                  title="Restart the starred services."> 
+                                <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                             <button type="button" class="btn btn-default"
                                                   data-bind="click: function(){applicationState.executeGroupControl('ignore')}"
                                                   data-toggle="tooltip"
@@ -443,12 +459,12 @@
                         </tr>
                     </thead>
                     <!-- END Headers -->
-
                     <!-- Rows -->
                     <tbody data-bind="foreach: applicationState.filteredItems">
                         <tr>
                             <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
-                                <span data-bind="attr : {class : applicationStatusClass}"></span>
+                                <span data-bind="attr : {class : applicationStatusClass},
+                                                 click: function(){modalShow([graphiteApplicationURL()])} "></span>
                             </td>
                             <td data-toggle="tooltip"
                                 data-placement="top"
@@ -474,12 +490,38 @@
                                      data-bind="visible: (showInfo() && !$parent.login.elements.authenticated()), text: serviceInfo">
                                 </div>
                             </td>
-                            <td data-bind="text: applicationHost"></td>
+                            <td class="text-left">
+                                <div class="dropdown" style="margin-right: 10px">
+                                    <div class="dropdown-toggle" 
+                                       tabindex="-1"
+                                        href="#"
+                                        data-toggle="dropdown" >
+                                        <span data-bind="text: applicationHost"/>
+                                    </div>
+                                    <ul class="dropdown-menu" role=menu >
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteCPUURL(),
+                                                                                                           graphiteNetworkURL(), 
+                                                                                                           graphiteMemoryURL(),
+                                                                                                           graphiteDiskSpaceURL(),
+                                                                                                           graphiteBufferErrorsURL()])}">All Metrics</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteCPUURL()])}">CPU Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteMemoryURL()])}">Memory Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteNetworkURL()])}">Network Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteDiskSpaceURL()])}">Disk Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteBufferErrorsURL()])}">Buffer Errors</a></li>
+                                    </ul>
+                                </div>
+                            </td>
                             <td data-bind="text: startTime"></td>
                             <td data-bind="style : {backgroundColor : errorStateBg}" class="text-center" >
-                                <span title="click to open graphite"
-                                      data-bind="attr : {class : errorStateClass},
-                                                 click: launchGraphiteData "></span>
+                                <span data-bind="attr : {class : errorStateClass,
+                                                         title : errorState}"/>
                             </td>
                             <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
                                 <div class="btn-group" >

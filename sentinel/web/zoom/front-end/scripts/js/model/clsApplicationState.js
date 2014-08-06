@@ -1,5 +1,6 @@
 function ApplicationState (ko, data, parent) {
     var self = this;
+    self.parent = parent;
 
     var colors = {
         actionBlue: '#057D9F',
@@ -58,8 +59,7 @@ function ApplicationState (ko, data, parent) {
         }
     }, self);
 
-    self.launchGraphiteData = function(){
-        //http://graphite.readthedocs.org/en/latest/render_api.html
+    self.graphiteApplicationURL = function(){
         var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
         var appName = self.configurationPath.replace("/spot/software/state/", "");
         var dotname = appName.replace(/\//g, ".");
@@ -70,13 +70,79 @@ function ApplicationState (ko, data, parent) {
         url = url + "&yMaxRight=2";
         url = url + "&yStepRight=1";
         url = url + "&lineMode=staircase";
-        url = url + "&width=900";
+        url = url + "&width=850";
         url = url + "&height=500";
         url = url + "&vtitle=Startup Time (seconds)";
-        url = url + '&vtitleRight=Exit Code%0A(0 = Success)';
+        url = url + '&vtitleRight=Exit Code (0 = Success)';
         url = url + '&title='+appName;
-             
-        window.open(url, "GraphiteData");
+        return encodeURI(url);
+    };
+
+    self.modalShow = function(urls){
+        $('.big-modal-body').empty();
+
+        for(i=0; i< urls.length; ++i){
+            var url = urls[i];
+            //console.log("getting "+ url);
+            var html = '<img style="-webkit-user-select: none" src="'+url+'"/>';
+            $('.big-modal-body').append($.parseHTML(html));
+        }
+
+        $('#big-modal').modal('show');
+    }
+
+    self.graphiteBaseURL = function(){
+        //http://graphite.readthedocs.org/en/latest/render_api.html
+        var url = "http://graphite" + self.parent.environment.toLowerCase() + "/render?";
+        url = url + "&from=-7d";
+        url = url + "&width=850";
+        url = url + "&height=500";
+        return (url);
+
+    }
+    self.graphiteCPUURL = function(){
+        var url = self.graphiteBaseURL();
+        url = url + "&target=alias("+self.applicationHost() + '.cpuload.avg1,"CPU avg1 Load")';
+        url = url + "&yRight=0";
+        url = url + '&title='+self.applicationHost() + "'s CPU";
+        url = url + "&vtitle=Load";
+        return encodeURI(url);
+    };
+
+    self.graphiteMemoryURL = function(){
+        var url = self.graphiteBaseURL();
+        url = url + "&target=alias("+self.applicationHost() + '.meminfo.tot, "Total Memory")';
+        url = url + "&target=alias("+self.applicationHost() + '.meminfo.used, "Memory Usage")';
+        url = url + '&title='+self.applicationHost() + "'s Memory";
+        url = url + "&vtitle=Bytes";
+        return encodeURI(url);
+    };
+
+    self.graphiteNetworkURL = function(){
+        var url = self.graphiteBaseURL();
+        url = url + "&target="+self.applicationHost() + '.nettotals.kbin.*';
+        url = url + "&target="+self.applicationHost() + '.nettotals.kbout.*';
+        url = url + '&title='+self.applicationHost() + "'s Network Usage";
+        url = url + "&vtitle=KB sent/recieved";
+        return encodeURI(url);
+    };
+
+    self.graphiteDiskSpaceURL = function(){
+        var url = self.graphiteBaseURL();
+        url = url + "&target="+self.applicationHost() + '.diskinfo.opt.total_bytes';
+        url = url + "&target="+self.applicationHost() + '.diskinfo.opt.used_bytes';
+        url = url + '&title='+self.applicationHost() + "'s Disk Space";
+        url = url + "&vtitle= Bytes of Disk Space";
+        return encodeURI(url);
+    };
+
+    self.graphiteBufferErrorsURL = function(){
+        var url = self.graphiteBaseURL();
+        url = url + "&target="+self.applicationHost() + '.tcpinfo.udperrs';
+        url = url + "&target="+self.applicationHost() + '.nicinfo.*.*';
+        url = url + '&title='+self.applicationHost() + "'s Buffer Errors";
+        url = url + "&vtitle= Errors";
+        return encodeURI(url);
     };
 
 
