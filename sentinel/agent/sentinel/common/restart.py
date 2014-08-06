@@ -30,10 +30,10 @@ class RestartLogic(object):
         """
         self._log.debug('The restart mode is set to {0}'
                         .format(self._restart_on_crash))
-        if self._restart_on_crash is False:
-            return self._allowed
-        else:
+        if self._restart_on_crash is True:
             return True
+        else:
+            return self._allowed
 
     @property
     def restart_max_reached(self):
