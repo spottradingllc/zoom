@@ -69,7 +69,7 @@ class Application(object):
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = SimpleObject(ApplicationState.OK)
         self._start_allowed = SimpleObject(False)  # allowed_instances
-        self._run_check_mode = 'False'
+        self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
         self._paths = self._init_paths(self.config, application_type)
