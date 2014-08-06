@@ -17,10 +17,9 @@ Zoom's web front-end is powered by [Tornado Web](https://github.com/tornadoweb)'
 
 It's assumed that you are familiar with [Apache](https://github.com/apache)'s [ZooKeeper](https://github.com/apache/zookeeper) and the basics of administering it. Lots of useful information regarding ZooKeeper can be found in the [ZooKeeper Administrator's Guide](http://zookeeper.apache.org/doc/trunk/zookeeperAdmin.html#sc_administering). 
 
-To use Zoom, you must have [Python](https://www.python.org/) installed. For your convenience, we have provided a ```bootsrap.sh``` file in ```agent/scripts/``` which uses Python's ```easy_install``` module to include the ```python-ldap```, ```tornado```, ```kazoo```, ```setproctitle```, ```requests```, and ```pyodbc``` Python packages. 
+To use Zoom, you must have [Python](https://www.python.org/) installed. For your convenience, we have provided a ```bootstrap.sh``` file in ```sentinel/agent/scripts/``` which uses Python's ```easy_install``` module to include the ```python-ldap```, ```tornado```, ```kazoo```, ```setproctitle```, ```requests```, and ```pyodbc``` Python packages. 
 
 
 ## Goals
 
-- Describe why we open-sourced the project and what we hope to bring about by collaborating with the GitHub community.
-
+Why are we open-sourcing? Read about at Spot's engineering blog [here](http://www.spottradingllc.com/hello-world/).
