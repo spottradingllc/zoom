@@ -15,7 +15,7 @@ class Configuration(object):
         try:
             # default configuration file
             if len(args) == 0:
-                configuration_file_name = 'sentinel.config'
+                configuration_file_name = 'zoom/zoom.config'
             else:
                 # override default configuration file
                 configuration_file_name = args[0]
