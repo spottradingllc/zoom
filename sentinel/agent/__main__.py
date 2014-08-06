@@ -4,8 +4,8 @@ import logging
 import tornado.ioloop
 import platform
 
-from source.util.helpers import setup_logging
-from source.common.daemon import SentinelDaemon
+from sentinel.util.helpers import setup_logging
+from sentinel.common.daemon import SentinelDaemon
 
 
 if __name__ == '__main__':

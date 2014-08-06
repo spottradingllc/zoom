@@ -122,6 +122,10 @@ function post () {
 case "$1" in
     start)
 	dostart
+	;;
+	startv)
+	STARTCMD="$STARTCMD -v"
+	dostart
     ;;
     stop)
         dostop
@@ -140,7 +144,7 @@ case "$1" in
         post "ignore"
     ;;
     *)
-    echo $"Usage: $0 {start|stop|restart|status|react|ignore}"
+    echo $"Usage: $0 {start|startv|stop|restart|status|react|ignore}"
     exit 1
 
 esac

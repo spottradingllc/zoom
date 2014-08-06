@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Application>
+  <Automation>
+    <Component id="SAMPLE" type="application" script="SampleService" restartmax="3" restartoncrash="False"
+        registrationpath="/spot/software/state/application/SampleService" >
+        <Actions>
+          <Action id="start" staggerpath="/spot/software/temp/example"
+                  staggertime="60" mode_controlled="1">
+            <Dependency>
+              <Predicate type="and">
+                <Operands>
+                  <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1"/>
+                  <Predicate type="ZookeeperHasGrandChildren" path="/application/state/service/example2"/>
+                </Operands>
+              </Predicate>
+            </Dependency>
+          </Action>
+          <Action id="stop" mode_controlled="1">
+            <Dependency>
+              <Predicate type="or">
+                <Operands>
+                  <Predicate type="not">
+                    <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example1"/>
+                  </Predicate>
+                  <Predicate type="not">
+                    <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2"/>
+                  </Predicate>
+                </Operands>
+              </Predicate>
+            </Dependency>
+          </Action>
+          <Action id="notify" >
+            <Dependency>
+                <Predicate type="and">
+                    <Operands>
+                        <Predicate type="not">
+                            <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2" />
+                        </Predicate>
+                        <Predicate type="process" interval="5" />
+                    </Operands>
+                </Predicate>
+            </Dependency>
+        </Action>
+          <Action id="register">
+            <Dependency>
+                <Predicate type="process" interval="1" />
+                <Predicate type="health" interval="5" command="/opt/spot/sentinel/agent-python/sentinel/check/always_fail --succeed" />
+            </Dependency>
+          </Action>
+          <Action id="unregister">
+            <Dependency>
+                <Predicate type="not">
+                   <Predicate type="process" interval="1" />
+                </Predicate>
+            </Dependency>
+          </Action>
+        </Actions>
+    </Component>
+  </Automation>
+</Application>
+<!--
+    Supported Component attributes (* = Required):
+        id *
+        type *
+        script
+        command
+        restartmax
+        registrationpath
+        restartoncrash
+
+    Supported Action attributes (* = Required):
+        id * => Note: id's, by convention, map to public methods of the Application class
+        staggerpath => Note: this is for coordination between services of the same type
+        staggertime => Note: this is in seconds
+        mode_controlled => Note: Whether or not the action will run based on the ApplicationMode
+
+    Supported Predicate attributes (* = Required):
+        type *
+        interval (required for specific predicate types)
+        command (required for specific predicate types)
+
+    Supported Predicate types:
+        ZookeeperHasChildren
+            - requires path attribute
+        ZookeeperHasGrandChildren
+            - requires path attribute
+        ZookeeperNodeExists
+            - requires path attribute
+        ZookeeperGoodUntilTime
+            - requires path attribute
+        Process
+            - requires interval attribute
+        Health
+            - requires interval and command attribute
+        And
+            - should wrap more than one attribute
+        Or
+            - should wrap more than one attribute
+        Not
+            - should only wrap one other Predicate
+
+    -->

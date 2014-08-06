@@ -20,11 +20,20 @@ if [ -d $VENV ]; then
     /bin/rm -rf $VENV >> bootstrap_log.txt 2>&1|| exit 2
 fi
 
+
 /opt/python-2.7.3/bin/virtualenv $VENV >> bootstrap_log.txt 2>&1|| exit 2
 
 source $VENV/bin/activate || exit 2
 
-for PACKAGE in zope.interface kazoo psutil tornado setproctitle requests
+for PACKAGE in zope.interface \
+               kazoo \
+               psutil \
+               tornado \
+               setproctitle \
+               requests \
+               nose \
+               mox \
+               coverage
 do
 	/bin/echo "## Installing $PACKAGE ##" >> bootstrap_log.txt 2>&1;	
     pip install $PACKAGE >> bootstrap_log.txt 2>&1 || exit 2; 

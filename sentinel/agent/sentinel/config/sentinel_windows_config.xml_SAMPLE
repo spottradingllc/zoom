@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Applicaiontion>
+  <Automation>
+    <Component id="example" type="application" script="Example Service"
+               command='"C:\\Python27\python.exe" "C:\\Utilities\\mpy\\restart_service.py" --log_path "\\\\EXAMPLE\\C\\Program Files\\Spot Trading LLC\\EXPAMPLE\\Logs\\01_01_1970\\Error\\AppLog.txt" --service_name "Example Service" --time_to_live 500  --regex "Example Starting" "Initialization complete" --move_logfile'>
+        <Actions>
+          <Action id="start">
+            <Dependency>
+              <Predicate type="and">
+                <Operands>
+                  <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1"/>
+                  <Predicate type="ZookeeperHasChildren" path="/application/state/service/example2"/>
+                </Operands>
+              </Predicate>
+            </Dependency>
+          </Action>
+          <Action id="register">
+            <Dependency>
+                <Predicate type="process" interval="1" />
+                <Predicate type="health" interval="5" command="/opt/spot/sentinel/agent-python/sentinel/check/always_fail.bat --succeed" />
+            </Dependency>
+          </Action>
+          <Action id="unregister">
+            <Dependency>
+                <Predicate type="not">
+                   <Predicate type="process" interval="1" />
+                </Predicate>
+            </Dependency>
+          </Action>
+        </Actions>
+    </Component>
+  </Automation>
+</Applicaiontion>
