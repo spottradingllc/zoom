@@ -18,7 +18,7 @@
 
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
-APPPATH="/opt/spot/zoom"
+APPPATH="/opt/spot/zoom/sentinel/web"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
 #RUNLOG=$APPPATH/logs/stdout
