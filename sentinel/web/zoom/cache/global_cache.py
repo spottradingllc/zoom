@@ -13,6 +13,12 @@ class GlobalCache(object):
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
 
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
     def get_mode(self):
         data, stat = self._zoo_keeper.get(
             self._configuration.global_mode_path, watch=self.on_update)

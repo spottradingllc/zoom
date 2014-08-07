@@ -17,6 +17,12 @@ class AgentCache(object):
         self._cache_by_path = dict()
         self._cache_by_host = dict()
 
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
     def add_callback(self, cb):
         self._update_callbacks.append(cb)
 
@@ -118,10 +124,8 @@ class AgentCache(object):
             # find paths to update from cached data
             for path in self.get_paths_by_host(agent):
                 updates_to_send.append(path)
-                try:
-                    del self._cache_by_path[path]
-                except KeyError:
-                    pass
+                self._cache_by_path[path]['mode'] = "unknown"
+                self._cache_by_path[path]['state'] = "unknown"
 
         if run_callbacks:
             self._run_update_callbacks(updates_to_send)

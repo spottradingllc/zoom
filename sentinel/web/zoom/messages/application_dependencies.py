@@ -23,6 +23,12 @@ class ApplicationDependenciesMessage(object):
         """
         self._application_dependencies.update(item)
 
+    def combine(self, message):
+        """
+        :type message: ApplicationDependenciesMessage
+        """
+        self._application_dependencies.update(message.application_dependencies)
+
     def remove(self, item):
         """
         :type item: dict
