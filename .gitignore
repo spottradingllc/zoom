@@ -78,7 +78,6 @@ bld/
 # ReSharper #
 #############
 _ReSharper*/
-*.[Rr]e[Ss]harper
 
 # Visual Studio profiler #
 ##########################
