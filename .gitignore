@@ -75,8 +75,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 
-# ReSharper #
-
 # Visual Studio profiler #
 ##########################
 *.psess
@@ -89,7 +87,6 @@ ipch/
 *.aps
 *.ncb
 *.opensdf
-*.sdf
 
 # Testing               #
 #########################
