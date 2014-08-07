@@ -87,7 +87,7 @@ class LoginHandler(tornado.web.RequestHandler):
 
     def _get_full_username(self, username):
         if '@spottrading.com' not in username:
-            return username + '@spottrading.com'
+            return '{0}@spottrading.com'.format(username)
         else:
             return username
 
