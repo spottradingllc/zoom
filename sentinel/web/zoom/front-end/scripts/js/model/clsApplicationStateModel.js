@@ -5,6 +5,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = ko.observable("Unknown");
+    self.name = "Application State Table";
 
     var operationTypes = {add: "add", remove: "remove"};
 
@@ -303,7 +304,12 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         }
     });
 
-    // dependency mapping
+    // view toggling
+    self.currentView = ko.observable(self);
+    self.views = ko.observableArray([]);
+    self.views.push(self);
+
+    // dependency maps
     self.dependencyMaps = new DependencyMaps(ko, $, d3, self);
 
     // create new app state
