@@ -1,6 +1,5 @@
 function ApplicationState (ko, data, parent) {
     var self = this;
-    self.parent = parent;
 
     var colors = {
         actionBlue: '#057D9F',
