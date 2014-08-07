@@ -159,6 +159,8 @@
                 for (i = 0; i < data.length; i++) {
                     ServerConfigViewModel.serverList.push(data[i]);
                 }
+            }).fail(function(data){
+                alert("Failed Get for list servers " + JSON.stringify(data));
             });
             ServerConfigViewModel.serverList.sort();
         };

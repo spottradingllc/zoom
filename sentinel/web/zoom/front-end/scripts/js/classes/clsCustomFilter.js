@@ -174,6 +174,8 @@ function CustomFilter(ko, $, parent) {
         else {
             $.post("/api/filters/", dict, function(data) {
                 alert(data);
+            }).fail(function(data) {
+                alert( "Error Posting Save Filter " + JSON.stringify(data) );
             });
         }
     };
@@ -188,7 +190,9 @@ function CustomFilter(ko, $, parent) {
             inversed : self.inversed()
         };
         $.post("/api/filters/", dict, function (returnData) {
-                    alert(returnData);
+            alert(returnData);
+        }).fail(function(data) {
+            alert( "Error Posting Delete Filter " + JSON.stringify(data) );
         });
 
     };
