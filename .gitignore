@@ -86,7 +86,6 @@ bld/
 ipch/
 *.aps
 *.ncb
-*.opensdf
 
 # Testing               #
 #########################
