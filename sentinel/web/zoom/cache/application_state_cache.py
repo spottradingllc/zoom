@@ -9,7 +9,7 @@ from zoom.messages.application_states import ApplicationStatesMessage
 
 class ApplicationStateCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
-                 agent_cache):
+                 agent_cache, time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
@@ -24,6 +24,8 @@ class ApplicationStateCache(object):
 
         self._agent_cache = agent_cache
         self._agent_cache.add_callback(self._on_update)
+
+        self._time_estimate_cache = time_estimate_cache;
 
     def load(self):
         """
@@ -48,6 +50,8 @@ class ApplicationStateCache(object):
         self._walk(self._configuration.application_state_path, self._cache)
         logging.info("Application state cache loaded from ZooKeeper {0}"
                      .format(self._configuration.application_state_path))
+
+        self._time_estimate_cache.update_appplication_states(self._cache.application_states)
 
     def _walk(self, path, result):
         """
@@ -146,6 +150,8 @@ class ApplicationStateCache(object):
 
             for client in self._web_socket_clients:
                 client.write_message(message.to_json())
+
+            self._time_estimate_cache.update_appplication_states(self._cache.application_states)
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')

@@ -48,9 +48,11 @@ function($, ko, service, sam, d3) {
                     }
 
                     else if (message.update_type == 'global_mode') {
-                        self.mode.fnHandleUpdate(message)
+                        self.mode.fnHandleModeUpdate(message)
                     }
-
+                    else if (message.update_type == 'timing_estimate') {
+                        self.mode.fnHandleTimingUpdate(message);
+                    }
                     else if (message.update_type == 'application_dependency') {
                         self.applicationState.handleApplicationDependencyUpdate(message);
                     }

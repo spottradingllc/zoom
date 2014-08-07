@@ -3,8 +3,19 @@ function GlobalMode(service, ko, $, login) {
 
     self.login = login;
     self.current = ko.observable("Unknown");
-    self.OnClass = ko.computed(function() {
+    self.timingEstimate = ko.observable("");
+
+    self.isOn = ko.computed(function() {
         if (self.current() == 'auto') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
+
+    self.OnClass = ko.computed(function() {
+        if (self.isOn()) {
             return "btn btn-default active";
         }
         else {
@@ -20,9 +31,16 @@ function GlobalMode(service, ko, $, login) {
         }
     });
 
-    self.fnHandleUpdate = function(data) {
+    self.fnHandleModeUpdate = function(data) {
         update = JSON.parse(data.global_mode);
         self.current(update.mode);
+    };
+
+    self.fnHandleTimingUpdate = function(data) {
+        maxtime = JSON.parse(data.maxtime);
+        var endMs = Date.now() + maxtime*1000;
+        var end = new Date(endMs);
+        self.timingEstimate(end.toLocaleTimeString());
     };
 
     var fnOnGlobalModeError = function(data) {
@@ -30,7 +48,13 @@ function GlobalMode(service, ko, $, login) {
     };
 
     self.fnGetGlobalMode = function() {
-      return service.get('api/mode/', self.fnHandleUpdate, fnOnGlobalModeError);
+      return service.get('api/mode/', self.fnHandleModeUpdate, fnOnGlobalModeError);
+    };
+
+    self.fnGetTimingEstimate = function() {
+        return service.get('api/timingestimate', 
+                           self.fnHandleTimingUpdate, 
+                           function(){alert("An Error has occurred while getting the initial time estimate")});
     };
 
     self.fnSetGlobalMode = function (mode) {
@@ -44,4 +68,5 @@ function GlobalMode(service, ko, $, login) {
     };
 
     self.fnGetGlobalMode();  // get initial data
+    self.fnGetTimingEstimate();  // get initial data
 }

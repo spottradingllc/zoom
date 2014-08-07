@@ -9,7 +9,7 @@ from zoom.messages.application_dependencies import ApplicationDependenciesMessag
 
 class ApplicationDependencyCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
-                 agent_cache):
+                 agent_cache, time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
@@ -20,6 +20,7 @@ class ApplicationDependencyCache(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
+        self._time_estimate_cache = time_estimate_cache;
 
     def load(self):
         """
@@ -47,6 +48,8 @@ class ApplicationDependencyCache(object):
         self._walk(self._configuration.agent_configuration_path, self._cache)
         logging.info("Application dependency cache loaded from ZooKeeper {0}"
                      .format(self._configuration.agent_configuration_path))
+
+        self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 
     def _walk(self, path, result_dict):
         """
@@ -138,6 +141,8 @@ class ApplicationDependencyCache(object):
 
             for client in self._web_socket_clients:
                 client.write_message(message.to_json())
+
+            self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')

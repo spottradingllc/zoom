@@ -18,25 +18,27 @@ class DataStore(object):
 
         self._agent_cache = AgentCache(self._configuration, self._zoo_keeper)
 
+        self._time_estimate_cache = TimeEstimateCache(
+                                         self._configuration,
+                                         self._web_socket_clients)
+
         self._application_dependency_cache = \
             ApplicationDependencyCache(self._configuration,
                                        self._zoo_keeper,
                                        self._web_socket_clients,
-                                       self._agent_cache)
+                                       self._agent_cache,
+                                       self._time_estimate_cache)
 
         self._application_state_cache = \
             ApplicationStateCache(self._configuration,
                                   self._zoo_keeper,
                                   self._web_socket_clients,
-                                  self._agent_cache)
+                                  self._agent_cache,
+                                  self._time_estimate_cache)
 
         self._global_cache = GlobalCache(self._configuration,
                                          self._zoo_keeper,
                                          self._web_socket_clients)
-        self._time_estimate_cache = TimeEstimateCache(
-                                         self._configuration,
-                                         self._application_state_cache,
-                                         self._application_dependency_cache)
 
 
 
@@ -82,6 +84,7 @@ class DataStore(object):
         """
         self._global_cache.on_update(None)
         self._agent_cache.load()
+        self._time_estimate_cache.load()
         self._application_state_cache.load()
         self._application_dependency_cache.load()
         return {'cache_load': 'okay'}

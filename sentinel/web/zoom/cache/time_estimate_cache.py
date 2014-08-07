@@ -4,40 +4,62 @@ import logging
 import requests
 import tornado.web
 from zoom.entities.types import DependencyType
+from zoom.entities.types import UpdateType
 
 
 class TimeEstimateCache(object):
 
-    def __init__(self, configuration, application_state_cache, application_dependency_cache):
+    def __init__(self, configuration, web_socket_clients):
 
-        self.dep_cache = application_dependency_cache
-        self.state_cache = application_state_cache
         self.graphite_cache = {}
         self.configuration = configuration
+        self._web_socket_clients = web_socket_clients
+        self.deps = {}
+        self.states = {}
+        self.message = {}
 
     def reload(self):
         self.graphite_cache.clear()
 
+    def update_appplication_states(self, states):
+        self.states = states
+        self.update_send_if_new()
+
+    def update_appplication_deps(self, deps):
+        self.deps = deps
+        self.update_send_if_new()
+
+    def update_send_if_new(self):
+        message = self.message
+        if message != self.recompute():
+            self.message = message
+            for client in self._web_socket_clients:
+                client.write_message(json.dumps(self.message))
+
     def load(self):
         logging.info("Loading Timing Estimates...")
+        return self.recompute()
+   
+    def recompute(self):
         try:
-            self.deps = self.dep_cache.load().application_dependencies
-            self.states = self.state_cache.load().application_states
             maxcost = 0
-            maxpath = "Error"
+            maxpath = "None"
             searchdata = {} 
 
-            for path in self.deps.iterkeys():
-                if self.rec_fn(path, searchdata) > maxcost:
-                    maxcost = self.rec_fn(path, searchdata)
-                    maxpath = path
+            if self.states != {}:
+                for path in self.deps.iterkeys():
+                    if self.rec_fn(path, searchdata) > maxcost:
+                        maxcost = self.rec_fn(path, searchdata)
+                        maxpath = path
 
-            #logging.debug("Max Path {} has cost {}".format(maxpath, maxcost))
-            logging.info("Timing Estimates Loaded")
-            return {
+            self.message = {
+                "update_type": UpdateType.TIMING_UPDATE,
                 'maxtime' : maxcost,
                 'maxpath' : maxpath
             }
+
+            return self.message
+
         except Exception as e:
             logging.exception(e)
 
