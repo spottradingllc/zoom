@@ -3,7 +3,9 @@ function ApplicationStateModel(service, ko, $, login, d3) {
 
     self.login = login;
     self.applicationStates = ko.observableArray([]);
+    self.applicationStates.extend({rateLimit: 100});
     self.textFilter = ko.observable("");
+    self.textFilter.extend({rateLimit: { timeout: 500, method: "notifyWhenChangesStop"}});
     self.environment = ko.observable("Unknown");
     self.time = ko.observable(Date.now());
     self.filterByTime = ko.observable(false);
@@ -163,7 +165,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         return ret;
 
     }, self);
-    self.filteredItems.extend({rateLimit: 500});
+    self.filteredItems.extend({rateLimit: 100});
 
     // functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);

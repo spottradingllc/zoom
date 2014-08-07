@@ -45,6 +45,7 @@ function ApplicationState (ko, data, parent) {
             return glyphs.unknownQMark;
         }
     }, self);
+    self.applicationStatusClass.extend({rateLimit: 100});
 
     self.applicationStatusBg = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -57,6 +58,7 @@ function ApplicationState (ko, data, parent) {
             return colors.unknownGray;
         }
     }, self);
+    self.applicationStatusBg.extend({rateLimit: 100});
 
     self.launchGraphiteData = function(){
         //http://graphite.readthedocs.org/en/latest/render_api.html
@@ -100,6 +102,8 @@ function ApplicationState (ko, data, parent) {
             return glyphs.unknownQMark;
         }
     }, self);
+    self.errorStateClass.extend({rateLimit: 100});
+
 
     self.errorStateBg = ko.computed(function () {
         if (self.errorState() && self.errorState().toLowerCase() == errorStates.ok) {
@@ -121,6 +125,8 @@ function ApplicationState (ko, data, parent) {
             return colors.unknownGray;
         }
     }, self);
+    self.errorStateBg.extend({rateLimit: 100});
+
 
     // Controlling
     self.groupControlStar = ko.computed(function() {
@@ -131,7 +137,7 @@ function ApplicationState (ko, data, parent) {
             return glyphs.filledStar;
         }
     });
-    self.groupControlStar.extend({rateLimit: 10});
+    self.groupControlStar.extend({rateLimit: 100});
 
     self.toggleGroupControl = function () {
         if (parent.groupControl.indexOf(self) == -1) {
@@ -249,7 +255,7 @@ function ApplicationState (ko, data, parent) {
         });
     };
 
-    self.requires.extend({rateLimit: 2000});
+    self.requires.extend({rateLimit: 100});
 
     self.requirementsAreUp = ko.computed(function() {
         if (self.requires().length > 0) {
@@ -275,5 +281,5 @@ function ApplicationState (ko, data, parent) {
 
         return dependencies().slice();
     });
-    self.requiredBy.extend({rateLimit: 1000});
+    self.requiredBy.extend({rateLimit: 100});
 }

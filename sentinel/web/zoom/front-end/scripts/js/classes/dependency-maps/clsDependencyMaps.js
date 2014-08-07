@@ -6,7 +6,7 @@ function DependencyMaps(ko, $, d3, parent) {
 
 	self.applicationStates = ko.computed(function()	{
 		return self.parent.filteredItems().slice();
-	});
+	}).extend({rateLimit: 200});
 
 	self.createDependentsDict = function(appState) {
 		var name = appState.configurationPath.substring(appState.configurationPath.indexOf("application/") + "application/".length);
@@ -110,7 +110,7 @@ function DependencyMaps(ko, $, d3, parent) {
 		});
 
 		return {name : 'Zoom', children: dict.slice(), status : "running", size : dict.length + 1};
-	}).extend({rateLimit: 2000});
+	}).extend({rateLimit: 200});
 
 	self.requirements = ko.computed(function() {
 		var dict = ko.observableArray([]);
@@ -149,7 +149,7 @@ function DependencyMaps(ko, $, d3, parent) {
 		});
 
 		return {name : 'Zoom', children: dict.slice(), status : "running", errorState : "ok"};
-	}).extend({rateLimit: 1000});
+	}).extend({rateLimit: 100});
 
 	// VIEW OPERATIONS
 	self.views = ko.observableArray([]);
