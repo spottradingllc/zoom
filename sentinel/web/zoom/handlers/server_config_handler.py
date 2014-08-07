@@ -76,7 +76,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
                 self.write('Node successfully added.')
                 logging.info('Added {0}'.format(server))
             except NoNodeError:
-                output = 'Parent nodes are missing.'
+                output = 'Parent nodes are missing for ' + path
                 self.write(output)
                 logging.info(output)
 

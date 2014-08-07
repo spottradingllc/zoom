@@ -13,4 +13,6 @@ class ReloadCacheHandler(tornado.web.RequestHandler):
             self.write('Cache Reloaded')
             self.set_header('Content-Type', 'text/html')
         except Exception as e:
+            self.set_status(httplib.INTERNAL_SERVER_ERROR)
+            self.write(json.dumps({'errorText': str(e)}))
             logging.exception(e)

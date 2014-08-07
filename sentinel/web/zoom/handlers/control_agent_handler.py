@@ -35,6 +35,8 @@ class ControlAgentHandler(tornado.web.RequestHandler):
 
 
         except Exception as e:
+            self.set_status(httplib.INTERNAL_SERVER_ERROR)
+            self.write(json.dumps({'errorText': str(e)}))
             logging.exception(e)
 
     def add_command(self, event):
