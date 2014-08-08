@@ -65,7 +65,7 @@ class LoginHandler(tornado.web.RequestHandler):
                     self.set_cookie("read_write", user)
                 self.write(json.dumps({'message': "Login successful"}))
 
-        except ldap.INVALID_CREDENTIALS as e:
+        except ldap.INVALID_CREDENTIALS:
             self.set_status(httplib.UNAUTHORIZED)
             self.write(json.dumps({'errorText': 'Invalid username or password'}))
             logging.error('Invalid username or password')

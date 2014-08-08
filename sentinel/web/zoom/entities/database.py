@@ -1,5 +1,5 @@
+import logging
 import pyodbc
-
 from zoom.entities.custom_filter import CustomFilter
 
 
@@ -114,10 +114,17 @@ class SQLDatabase(Database):
         return "Info for {} was successfully saved in the database!".format(configuration_path)
 
     def fetch_service_info(self, configuration_path):
+        """
+        :rtype: str
+        """
         connection = pyodbc.connect(self.connection_string)
         cursor = connection.cursor()
 
         cursor.execute("select * from services_info where configuration_path='%s'" % configuration_path)
         row = cursor.fetchone()
-
-        return row.service_info
+        if row:
+            return row.service_info
+        else:
+            logging.debug('Found no service info row for {0}'
+                          .format(configuration_path))
+            return ""
