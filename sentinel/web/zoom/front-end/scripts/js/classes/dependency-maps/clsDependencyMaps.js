@@ -156,27 +156,18 @@ function DependencyMaps(ko, $, d3, parent) {
 
 	self.dependencyDrawer = new IndentedDependencyTree(d3, ko, self, "dependency-drawer");
 	self.views.push(self.dependencyDrawer);
+	self.parent.views.push(self.dependencyDrawer);
 
 	self.partitionChart = new PartitionChart(d3, ko, self, "partition-chart");
 	self.views.push(self.partitionChart);
-		
-	self.viewOpen = ko.computed(function() {
-		for (var i = 0; i < self.views().length; i++) {
-			if (self.views()[i].visible()) {
-				return true;
-			}
-		}
-		return false;
-	});
+	self.parent.views.push(self.partitionChart);
 
-	self.showView = function(viewName) {
+	parent.currentView.subscribe(function(newView) {
 		self.closeAllViews();
-
-		var view = ko.utils.arrayFirst(self.views(), function(view) {
-				  	   return (view.name == viewName);
-					});
-		view.show();
-	}
+		if (newView != parent) {
+			newView.show();
+		}
+	});
 
 	self.closeAllViews = function() {
 		ko.utils.arrayForEach(self.views(), function(view) {

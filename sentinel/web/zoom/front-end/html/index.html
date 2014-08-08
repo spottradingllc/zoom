@@ -144,27 +144,9 @@
                 <!-- View Toggling -->
                 <div class="row" style="margin-bottom: 5px">
                     <div class="col-md-6 text-left">
-                        <div class="btn-group">
-                            <button class="btn btn-default" data-bind="click: function(){applicationState.dependencyMaps.closeAllViews()},
-                                    attr: {class: ('btn btn-default' + (!applicationState.dependencyMaps.viewOpen() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="View the application state agent table.">
-                                Table
-                            </button>
-                            <button data-bind="click: function(){applicationState.dependencyMaps.showView('indented-dependency-tree')},
-                                    attr: {class: ('btn btn-default' + (applicationState.dependencyMaps.dependencyDrawer.visible() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Open the dependency drawer.">
-                                Indented Drawer
-                            </button>
-                            <button data-bind="click: function(){applicationState.dependencyMaps.showView('partition-chart')},
-                                    attr: {class: ('btn btn-default' + (applicationState.dependencyMaps.partitionChart.visible() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Open the partition chart.">
-                                Partition Chart
+                        <div class="btn-group" data-bind="foreach: applicationState.views">
+                            <button class="btn btn-default" data-bind="radio: $parent.applicationState.currentView">
+                                <span data-bind="text: name"></span>
                             </button>
                         </div>
                     </div>
@@ -425,7 +407,7 @@
             </div>
 
             <div class="page-body">
-                <table class="table table-bordered table-condensed" data-bind="visible: !applicationState.dependencyMaps.viewOpen()">
+                <table class="table table-bordered table-condensed" data-bind="visible: applicationState.currentView() == applicationState">
                     <!-- Headers -->
                     <thead>
                         <tr data-bind="foreach: applicationState.headers">
