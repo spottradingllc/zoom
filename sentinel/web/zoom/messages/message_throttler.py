@@ -18,7 +18,7 @@ class MessageThrottle(object):
         self._thread.start()
 
     def add_message(self, message):
-        logging.debug('Adding message: {0}'.format(message))
+        logging.debug('Adding message: {0}'.format(message.to_json()))
         self._lock.acquire()
         try:
             if self._message is None:
@@ -47,7 +47,8 @@ class MessageThrottle(object):
 
 
     def stop(self):
-        self._running = False
-        self._thread.join()
+        if self._thread.is_alive():
+            self._running = False
+            self._thread.join()
             
             

@@ -1,10 +1,9 @@
 import httplib
-import json
 import logging
 import requests
-import tornado.web
 from zoom.entities.types import DependencyType
-from zoom.entities.types import UpdateType
+from zoom.messages.timing_estimate import TimeEstimateMessage
+from zoom.messages.message_throttler import MessageThrottle
 
 
 class TimeEstimateCache(object):
@@ -16,7 +15,13 @@ class TimeEstimateCache(object):
         self._web_socket_clients = web_socket_clients
         self.deps = {}
         self.states = {}
-        self.message = {}
+        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+
+    def start(self):
+        self._message_throttle.start()
+
+    def stop(self):
+        self._message_throttle.stop()
 
     def reload(self):
         self.graphite_cache.clear()
@@ -24,28 +29,20 @@ class TimeEstimateCache(object):
 
     def update_appplication_states(self, states):
         self.states = states
-        self.update_send_if_new()
+        self._message_throttle.add_message(self.recompute())
 
     def update_appplication_deps(self, deps):
         self.deps = deps
-        self.update_send_if_new()
-
-    def update_send_if_new(self):
-        message = self.recompute()
-        if message != self.message:
-            logging.debug('Sending time update: {0}'.format(json.dumps(message)))
-            self.message = message
-            for client in self._web_socket_clients:
-                client.write_message(json.dumps(self.message))
+        self._message_throttle.add_message(self.recompute())
 
     def load(self):
         logging.info("Loading Timing Estimates...")
         ret = self.recompute()
-        logging.info("Timing Estimates Loaded...")
         return ret
    
     def recompute(self):
         try:
+            message = TimeEstimateMessage()
             maxcost = 0
             maxpath = "None"
             searchdata = {} 
@@ -56,13 +53,12 @@ class TimeEstimateCache(object):
                         maxcost = self.rec_fn(path, searchdata)
                         maxpath = path
 
-            self.message = {
-                "update_type": UpdateType.TIMING_UPDATE,
+            message.update({
                 'maxtime' : maxcost,
                 'maxpath' : maxpath
-            }
+            })
 
-            return self.message
+            return message
 
         except Exception as e:
             logging.exception(e)
@@ -110,14 +106,12 @@ class TimeEstimateCache(object):
 
     def get_graphtite_data(self, path):
         if self.graphite_cache.get(path, None) is not None:
-            return self.graphite_cache[path];
+            return self.graphite_cache[path]
 
         try:
             url = path.split('/spot/software/state/')[1]
             url = url.replace('/', '.')
-            #aggregateLine defaults to average
-            url = 'http://{0}/render?target=aggregateLine(Infrastructure.startup.\
-                          {1}.runtime)&format=json&from=-5d'.format(self.configuration.graphite_host, url)
+            url = 'http://{0}/render?target=aggregateLine(Infrastructure.startup.{1}.runtime)&format=json&from=-5d'.format(self.configuration.graphite_host, url)
             response = requests.post(url, timeout=5.0)
             if response.status_code != httplib.OK:
                 self.graphite_cache[path] = 0

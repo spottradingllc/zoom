@@ -14,7 +14,7 @@ class TimeEstimateHandler(tornado.web.RequestHandler):
         try:
             logging.info('Retrieving Timing Estimate')
 
-            self.write(json.dumps(self.application.data_store.load_time_estimate_cache()))
+            self.write(self.application.data_store.load_time_estimate_cache().to_json())
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)

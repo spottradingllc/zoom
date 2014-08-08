@@ -25,6 +25,7 @@ class ApplicationStateCache(object):
 
         self._agent_cache = agent_cache
         self._agent_cache.add_callback(self._on_update)
+        self._time_estimate_cache = time_estimate_cache
         self._message_throttle = MessageThrottle(configuration, web_socket_clients)
 
     def start(self):
@@ -32,8 +33,6 @@ class ApplicationStateCache(object):
 
     def stop(self):
         self._message_throttle.stop()
-
-        self._time_estimate_cache = time_estimate_cache;
 
     def load(self):
         """
@@ -60,7 +59,7 @@ class ApplicationStateCache(object):
                      .format(self._configuration.application_state_path))
 
         self._time_estimate_cache.update_appplication_states(self._cache.application_states)
-        self._cache.remove_deletes();
+        self._cache.remove_deletes()
 
     def _walk(self, path, result):
         """
@@ -148,9 +147,9 @@ class ApplicationStateCache(object):
             self._walk(path, message)
 
             self._cache.update(message.application_states)
-            self._cache.remove_deletes();
+            self._cache.remove_deletes()
 
-            self._message_throttle.add_message(message);
+            self._message_throttle.add_message(message)
 
             self._time_estimate_cache.update_appplication_states(self._cache.application_states)
 

@@ -43,12 +43,14 @@ class DataStore(object):
     def start(self):
         self._global_cache.start()
         self._agent_cache.start()
+        self._time_estimate_cache.start()
         self._application_state_cache.start()
         self._application_dependency_cache.start()
 
     def stop(self):
         self._global_cache.stop()
         self._agent_cache.stop()
+        self._time_estimate_cache.stop()
         self._application_state_cache.stop()
         self._application_dependency_cache.stop()
 
