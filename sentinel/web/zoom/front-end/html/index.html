@@ -256,32 +256,32 @@
                     <div class="col-md-6 text-right">
                         <div class="btn-group" data-bind="visible: login.elements.authenticated">
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('stop', 'true')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Stop the starred services.">Stop</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('restart')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':'', 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Restart the starred services.">Restart</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeDepRestart('Restart w/ Dep')}"
+                                                  data-bind="click: function(){applicationState.executeDepRestart({'com':'dep_restart', 'arg':'', 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Restart the starred services.">Restart w/ Dependencies</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('ignore')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':'', 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('react')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':'', 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Command the starred agents to react to Zookeeper changes.">React</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('cancel')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':'', 'no_confirm':''})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Cancel pending commands for the starred agents.">Cancel</button>

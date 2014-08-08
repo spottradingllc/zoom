@@ -18,20 +18,52 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     ];
 
     // functions/variables for group control of agents
+//    self.groupControl = ko.observableArray([]);
+//    self.executeGroupControl = function (com, argument, no_confirm) {
+//        var confirmString = ["Pleaseeeee confirm that you want to send a " + com + " command to the ",
+//                self.groupControl().length + " selected agents by pressing OK."].join('\n');
+//        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
+//
+//        if (no_confirm || confirm(confirmString)) {
+//            ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
+//                var dict = {
+//                    "componentId": applicationState.componentId,
+//                    "configurationPath": applicationState.configurationPath,
+//                    "applicationHost": applicationState.applicationHost,
+//                    "command": com,
+//                    "argument": argument,
+//                    "user": self.login.elements.username()
+//                };
+//
+//                if (applicationState.isHostEmpty()) {
+//                    alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
+//                }
+//                else {
+//                    $.post("/api/agent/", dict);
+//                }
+//            });
+//        }
+//    };
+
+
     self.groupControl = ko.observableArray([]);
-    self.executeGroupControl = function (com, argument, no_confirm) {
-        var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
+    self.executeGroupControl = function (options) {
+        //options.com: command
+        //options.arg: command argument
+        //option.no_confirm: confirm bool
+        if (options == undefined) options = {};
+        var confirmString = ["Please confirm that you want to send a " + options.com + " command to the ",
                 self.groupControl().length + " selected agents by pressing OK."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (no_confirm || confirm(confirmString)) {
+        if (options.no_confirm || confirm(confirmString)) {
             ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
                 var dict = {
                     "componentId": applicationState.componentId,
                     "configurationPath": applicationState.configurationPath,
                     "applicationHost": applicationState.applicationHost,
-                    "command": com,
-                    "argument": argument,
+                    "command": options.com,
+                    "argument": options.arg,
                     "user": self.login.elements.username()
                 };
 
@@ -56,7 +88,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
             interval = setInterval(self.checkDown, 5000);
             return;
         } else {
-            self.executeGroupControl('dep_restart', null, true);
+            self.executeGroupControl({'com':'dep_restart', 'arg':'', 'no_confirm':true});
             return;
         }
     }
@@ -67,8 +99,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (confirm(confirmString)) {
-            self.executeGroupControl('ignore', null, true);
-            self.executeGroupControl('stop', null, true);
+            self.executeGroupControl({'com':'ignore', 'arg':'', 'no_confirm':true});
+            self.executeGroupControl({'com':'stop', 'arg':'', 'no_confirm':true});
             self.checkDown();
         }
     }
