@@ -38,7 +38,6 @@ class MessageThrottle(object):
                     for client in self._clients:
                         client.write_message(self._message.to_json())
                     self._message = None
-                    logging.debug('Sent')
             
             finally:
                 self._lock.release()
