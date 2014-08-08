@@ -124,8 +124,8 @@ class AgentCache(object):
             # find paths to update from cached data
             for path in self.get_paths_by_host(agent):
                 updates_to_send.append(path)
-                self._cache_by_path[path]['mode'] = "unknown"
-                self._cache_by_path[path]['state'] = "unknown"
+                self._cache_by_path[path].pop('mode', None)
+                self._cache_by_path[path].pop('state', None)
 
         if run_callbacks:
             self._run_update_callbacks(updates_to_send)
