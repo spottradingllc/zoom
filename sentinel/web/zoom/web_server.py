@@ -82,6 +82,7 @@ class WebServer(tornado.web.Application):
         logging.info("Web server initialized")
 
     def start(self):
+        self._data_store.start()
         logging.info("Web server started on port <{0}>"
                      .format(self._configuration.port))
         self.listen(self._configuration.port)
@@ -91,6 +92,7 @@ class WebServer(tornado.web.Application):
     def stop(self):
         if tornado.ioloop.IOLoop.instance().initialized():
             tornado.ioloop.IOLoop.instance().stop()
+            self._data_store.stop()
             logging.info("Web server stopped")
 
     @property

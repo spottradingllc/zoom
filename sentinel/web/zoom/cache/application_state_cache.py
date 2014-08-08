@@ -5,6 +5,7 @@ from kazoo.exceptions import NoNodeError
 from zoom.entities.application_state import ApplicationState
 from zoom.entities.types import ApplicationStatus, OperationType
 from zoom.messages.application_states import ApplicationStatesMessage
+from zoom.messages.message_throttler import MessageThrottle
 
 
 class ApplicationStateCache(object):
@@ -24,6 +25,13 @@ class ApplicationStateCache(object):
 
         self._agent_cache = agent_cache
         self._agent_cache.add_callback(self._on_update)
+        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+
+    def start(self):
+        self._message_throttle.start()
+
+    def stop(self):
+        self._message_throttle.stop()
 
         self._time_estimate_cache = time_estimate_cache;
 
@@ -52,6 +60,7 @@ class ApplicationStateCache(object):
                      .format(self._configuration.application_state_path))
 
         self._time_estimate_cache.update_appplication_states(self._cache.application_states)
+        self._cache.remove_deletes();
 
     def _walk(self, path, result):
         """
@@ -66,14 +75,12 @@ class ApplicationStateCache(object):
                     self._walk(os.path.join(path, child), result)
             else:
                 app_state = self._get_application_state(path)
-                result.set_operation_type(OperationType.ADD)
                 result.update({app_state.configuration_path : app_state.to_dictionary()})
 
         except NoNodeError:
             logging.debug('Node at {0} no longer exists.'.format(path))
-            result.set_operation_type(OperationType.REMOVE)
             result.update({
-                path: ApplicationState(configuration_path=path).to_dictionary(),
+                path: ApplicationState(configuration_path=path, delete=True).to_dictionary(),
             })
 
         except Exception:
@@ -93,12 +100,13 @@ class ApplicationStateCache(object):
             self._zoo_keeper.get_children(path, watch=self._on_update)
 
             agent_data = self._agent_cache.get_app_data_by_path(path)
+            host=self._agent_cache.get_host_by_path(path)
 
             application_state = ApplicationState(
                 application_name=agent_data.get('name', os.path.basename(path)),
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
-                application_host=self._agent_cache.get_host_by_path(path),
+                application_host=host,
                 error_state=agent_data.get('state', 'unknown'),
                 local_mode=agent_data.get('mode', 'unknown')
             )
@@ -139,17 +147,10 @@ class ApplicationStateCache(object):
 
             self._walk(path, message)
 
-            # remove non-existent zookeeper paths
-            if message.operation_type == OperationType.REMOVE:
-                self._cache.remove(message.application_states)
-            # update cache with any zookeper changes
-            elif message.operation_type == OperationType.ADD:
-                self._cache.update(message.application_states)
+            self._cache.update(message.application_states)
+            self._cache.remove_deletes();
 
-            logging.debug('Sending state update: {0}'.format(message.to_json()))
-
-            for client in self._web_socket_clients:
-                client.write_message(message.to_json())
+            self._message_throttle.add_message(message);
 
             self._time_estimate_cache.update_appplication_states(self._cache.application_states)
 

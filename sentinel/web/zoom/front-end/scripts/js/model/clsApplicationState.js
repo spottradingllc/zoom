@@ -219,7 +219,9 @@ function ApplicationState (ko, data, parent) {
         self.serviceInfo(document.getElementsByName(self.configurationPath)[0].textContent);
         var dict = {loginName : parent.login.elements.username(), configurationPath : self.configurationPath, serviceInfo : self.serviceInfo()};
 
-        $.post("/api/serviceinfo/", dict);
+        $.post("/api/serviceinfo/", dict).fail(function(data) {
+            alert( "Error Posting ServiceInfo " + JSON.stringify(data));
+        });
     };
 
     self.getInfo = ko.computed(function() {
@@ -228,6 +230,8 @@ function ApplicationState (ko, data, parent) {
             if (self.showInfo()) {
                 $.getJSON("/api/serviceinfo/", dict, function(data) {
                     self.serviceInfo(data);
+                }).fail(function(data){
+                    alert("Failed Get for ServiceInfo " + JSON.stringify(data));
                 });
             }
         }
@@ -257,7 +261,9 @@ function ApplicationState (ko, data, parent) {
                     "command": com,
                     "user": parent.login.elements.username()
                 };
-                $.post("/api/agent/", dict);
+                $.post("/api/agent/", dict).fail(function(data) {
+                    alert( "Error Posting ControlAgent " + JSON.stringify(data));
+                });
             }
         }
     };

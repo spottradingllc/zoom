@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from kazoo.exceptions import NoNodeError
 from zoom.entities.types import DependencyType
 from zoom.messages.application_dependencies import ApplicationDependenciesMessage
+from zoom.messages.message_throttler import MessageThrottle
 
 
 class ApplicationDependencyCache(object):
@@ -21,6 +22,13 @@ class ApplicationDependencyCache(object):
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
         self._time_estimate_cache = time_estimate_cache;
+        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+
+    def start(self):
+        self._message_throttle.start()
+
+    def stop(self):
+        self._message_throttle.stop()
 
     def load(self):
         """
@@ -88,7 +96,7 @@ class ApplicationDependencyCache(object):
                     registrationpath = None
 
                     if node.attrib.get('id') is not None:
-                        registrationpath = self._configuration.application_state_path + '/' + node.attrib['id']
+                        registrationpath = os.path.join(self._configuration.application_state_path, node.attrib['id'])
                     if node.attrib.get('registrationpath') is not None:
                         registrationpath = node.attrib['registrationpath']
 
@@ -120,7 +128,7 @@ class ApplicationDependencyCache(object):
                 logging.exception(e)
 
         else:
-            logging.warn("config path DNE: " + path)
+            logging.warn("config path DNE: {0}".format(path))
 
     def _on_update(self, event):
         """
@@ -137,10 +145,7 @@ class ApplicationDependencyCache(object):
 
             self._cache.update(message.application_dependencies)
 
-            logging.debug('Sending dependency update: {0}'.format(message.to_json()))
-
-            for client in self._web_socket_clients:
-                client.write_message(message.to_json())
+            self._message_throttle.add_message(message);
 
             self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 

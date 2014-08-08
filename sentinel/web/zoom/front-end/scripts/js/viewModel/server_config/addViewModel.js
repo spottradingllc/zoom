@@ -64,6 +64,8 @@ function AddViewModel() {
             else {
                 AlertsViewModel.displayError(data);
             }
+        }).fail(function(data) {
+            alert( "Error Posting Config Data " + JSON.stringify(data));
         });
     };
 

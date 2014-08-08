@@ -116,10 +116,10 @@ class TimeEstimateCache(object):
             url = path.split('/spot/software/state/')[1]
             url = url.replace('/', '.')
             #aggregateLine defaults to average
-            url = 'http://'+self.configuration.graphite_host + '/render?target=aggregateLine(Infrastructure.startup.' + url + '.runtime)&format=json&from=-5d'
+            url = 'http://{0}/render?target=aggregateLine(Infrastructure.startup.\
+                          {1}.runtime)&format=json&from=-5d'.format(self.configuration.graphite_host, url)
             response = requests.post(url, timeout=5.0)
             if response.status_code != httplib.OK:
-                #logging.debug(url + " Has no graphite Data")
                 self.graphite_cache[path] = 0
                 return 0
             else:

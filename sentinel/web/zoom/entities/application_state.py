@@ -5,7 +5,7 @@ from zoom.entities.types import ApplicationStatus
 class ApplicationState(object):
     def __init__(self, application_name=None, configuration_path=None,
                  application_status=None, application_host=None,
-                 start_time=None, error_state=None, local_mode=None):
+                 start_time=None, error_state=None, local_mode=None, delete=False):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -13,6 +13,7 @@ class ApplicationState(object):
         self._start_time = start_time
         self._error_state = error_state
         self._local_mode = local_mode
+        self._delete=delete
 
     def __del__(self):
         pass
@@ -86,6 +87,7 @@ class ApplicationState(object):
             'application_host': self.application_host,
             'start_time': self.start_time,
             'error_state': self._error_state,
+            'delete':self._delete
         }
 
         return result
