@@ -179,8 +179,11 @@ function ApplicationState (ko, data, parent) {
         }
     };
 
-    self.controlAgent = function (com) {
-        var confirmString = ["Please confirm that you want to send a " + com + " command to ",
+    self.controlAgent = function (options) {
+        //options.com: command
+        //options.arg: command argument
+        //option.no_confirm: confirm bool
+        var confirmString = ["Please confirm that you want to send a " + options.com + " command to ",
                 self.configurationPath + " on " + self.applicationHost() + " by pressing OK."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
@@ -189,7 +192,8 @@ function ApplicationState (ko, data, parent) {
                 var dict = {
                     "componentId": self.componentId,
                     "applicationHost": self.applicationHost(),
-                    "command": com,
+                    "command": options.com,
+                    "argument": options.arg,
                     "user": parent.login.elements.username()
                 };
                 $.post("/api/agent/", dict);

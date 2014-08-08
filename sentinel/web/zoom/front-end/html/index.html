@@ -500,31 +500,31 @@
                                     </button>
                                     <ul class="dropdown-menu pull-right" role="menu">
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('stop')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'stop', 'arg':true, 'no_confirm':''})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Stop the agent.">Stop</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('restart')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'restart', 'arg':'', 'no_confirm':''})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Restart the agent.">Restart</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('cancel')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'cancel', 'arg':'', 'no_confirm':''})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Cancel pending commands to the agent.">Cancel</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('ignore')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'ignore', 'arg':'', 'no_confirm':''})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('react')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'react', 'arg':'', 'no_confirm':''})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Command the agent to react to Zookeeper changes.">React</a>

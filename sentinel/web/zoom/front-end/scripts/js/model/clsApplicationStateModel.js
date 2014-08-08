@@ -17,35 +17,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
 
-    // functions/variables for group control of agents
-//    self.groupControl = ko.observableArray([]);
-//    self.executeGroupControl = function (com, argument, no_confirm) {
-//        var confirmString = ["Pleaseeeee confirm that you want to send a " + com + " command to the ",
-//                self.groupControl().length + " selected agents by pressing OK."].join('\n');
-//        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
-//
-//        if (no_confirm || confirm(confirmString)) {
-//            ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
-//                var dict = {
-//                    "componentId": applicationState.componentId,
-//                    "configurationPath": applicationState.configurationPath,
-//                    "applicationHost": applicationState.applicationHost,
-//                    "command": com,
-//                    "argument": argument,
-//                    "user": self.login.elements.username()
-//                };
-//
-//                if (applicationState.isHostEmpty()) {
-//                    alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
-//                }
-//                else {
-//                    $.post("/api/agent/", dict);
-//                }
-//            });
-//        }
-//    };
-
-
+//    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
     self.executeGroupControl = function (options) {
         //options.com: command
@@ -100,7 +72,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
 
         if (confirm(confirmString)) {
             self.executeGroupControl({'com':'ignore', 'arg':'', 'no_confirm':true});
-            self.executeGroupControl({'com':'stop', 'arg':'', 'no_confirm':true});
+            self.executeGroupControl({'com':'stop', 'arg': '', 'no_confirm':true});
             self.checkDown();
         }
     }

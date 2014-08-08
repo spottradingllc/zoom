@@ -17,45 +17,41 @@ class TaskClient(object):
         self.reset_watches()
 
     def onExists(self, event):
-
         if self._zkclient.exists(self._path, self.onExists) is not None:
-            try:
-                jsonstr, stat = self._zkclient.get(self._path)
-                data = json.loads(jsonstr)
-                work = data.get('work', None)
-                argument = [data.get('argument', None)]
-                target = data.get('target', None)
+            jsonstr, stat = self._zkclient.get(self._path)
+            data = json.loads(jsonstr)
+            work = data.get('work', None)
+            argument = {'argument': data.get('argument', None)}
+            target = data.get('target', None)
 
-                if work in ALLOWED_WORK:
-                    if target is not None:
-                        result = self._send_work_single(work, target, args=argument)
-                    else:
-                        result = self._send_work_all(work, args=argument)
-                    logging.info("just {}'d {}".format(work, target))
+            if work in ALLOWED_WORK:
+                if target is not None:
+                    result = self._send_work_single(work, target, kwargs=argument)
                 else:
-                    err = 'Invalid work submitted: {0}'.format(work)
-                    self._log.warning(err)
+                    result = self._send_work_all(work, kwargs=argument)
+                logging.info("just {}'d {}".format(work, target))
+            else:
+                err = 'Invalid work submitted: {0}'.format(work)
+                self._log.warning(err)
 
-                self._zkclient.delete(self._path)
-            except Exception as e:
-                logging.exception(e)
+            self._zkclient.delete(self._path)
 
     def reset_watches(self):
         if self._zkclient.exists(self._path, self.onExists) is not None:
             self.onExists(None)
 
-    def _send_work_all(self, work, args=()):
+    def _send_work_all(self, work, kwargs={}):
         """
         :type work: str
         :rtype: list
         """
         result = list()
         for child in self._children.keys():
-            result.append(self._send_work_single(work, child, args=args))
+            result.append(self._send_work_single(work, child, kwargs=kwargs))
         return result
 
 
-    def _send_work_single(self, work, target, args=()):
+    def _send_work_single(self, work, target, kwargs={}):
         """
         :type work: str
         :type target: str
@@ -68,7 +64,7 @@ class TaskClient(object):
             return {'target': target, 'work': work, 'result': '404: Not Found'}
         else:
             process = child['process']
-            process.add_work(Task(work, args=args, block=True, pipe=True), immediate=True)
+            process.add_work(Task(work, kwargs=kwargs, block=True, pipe=True), immediate=True)
             result = process.parent_conn.recv()  # will block until done
             return {'target': target, 'work': work, 'result': result}
                 
