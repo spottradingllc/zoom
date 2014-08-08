@@ -122,7 +122,7 @@ class ProcessClient(object):
 
     def stop(self, arg_dict):
         """Stop process"""
-        if arg_dict.get('argument', None) == '':    # if argument is empty, start is allowed
+        if arg_dict.get('argument', None) == '':    # if argument is empty, allow start
             self._restart_logic.set_true()
         returncode = -1
         if self._apptype == ApplicationType.JOB:
