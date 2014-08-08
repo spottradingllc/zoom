@@ -61,6 +61,9 @@ class Configuration(object):
                 staging = json.loads(safe_config_parser.get('staging', 'read_write_groups')),
                 production = json.loads(safe_config_parser.get('production', 'read_write_groups')),
             )
+
+            #message throttling
+            self._throttle_interval = safe_config_parser.get('message_throttle', 'interval')
             
             #graphite
             self._graphite_host = safe_config_parser.get('staging', 'graphite_host')
@@ -136,6 +139,10 @@ class Configuration(object):
     @property
     def zookeeper_host(self):
         return self._zookeeper_host.get(self._environment.lower())
+
+    @property
+    def throttle_interval(self):
+        return self._throttle_interval
 
     @property
     def graphite_host(self):

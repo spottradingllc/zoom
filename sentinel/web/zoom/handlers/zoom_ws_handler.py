@@ -25,3 +25,4 @@ class ZoomWSHandler(tornado.websocket.WebSocketHandler):
         self.socket_clients.remove(self)
         logging.debug("[WEBSOCKET] Closed.  Total clients: {0}"
                       .format(len(self.socket_clients)))
+
