@@ -6,7 +6,6 @@ from threading import Thread
 
 class MessageThrottle(object):
     def __init__(self, configuration, clients):
-        self._changed = False
         self._interval = configuration.throttle_interval
         self._lock = Lock()
         self._clients = clients
