@@ -92,7 +92,7 @@ function ApplicationState (ko, data, parent) {
 
     self.graphiteBaseURL = function(){
         //http://graphite.readthedocs.org/en/latest/render_api.html
-        var url = "http://graphite" + self.parent.environment.toLowerCase() + "/render?";
+        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
         url = url + "&from=-7d";
         url = url + "&width=850";
         url = url + "&height=500";
