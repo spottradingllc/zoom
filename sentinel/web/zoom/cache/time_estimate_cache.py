@@ -20,6 +20,7 @@ class TimeEstimateCache(object):
 
     def reload(self):
         self.graphite_cache.clear()
+        self.recompute()
 
     def update_appplication_states(self, states):
         self.states = states
@@ -30,15 +31,18 @@ class TimeEstimateCache(object):
         self.update_send_if_new()
 
     def update_send_if_new(self):
-        message = self.message
-        if message != self.recompute():
+        message = self.recompute()
+        if message != self.message:
+            logging.debug('Sending time update: {0}'.format(json.dumps(message)))
             self.message = message
             for client in self._web_socket_clients:
                 client.write_message(json.dumps(self.message))
 
     def load(self):
         logging.info("Loading Timing Estimates...")
-        return self.recompute()
+        ret = self.recompute()
+        logging.info("Timing Estimates Loaded...")
+        return ret
    
     def recompute(self):
         try:
