@@ -85,7 +85,7 @@ class ApplicationDependencyCache(object):
                     registrationpath = None
 
                     if node.attrib.get('id') is not None:
-                        registrationpath = self._configuration.application_state_path + '/' + node.attrib['id']
+                        registrationpath = os.path.join(self._configuration.application_state_path, node.attrib['id'])
                     if node.attrib.get('registrationpath') is not None:
                         registrationpath = node.attrib['registrationpath']
 
@@ -117,7 +117,7 @@ class ApplicationDependencyCache(object):
                 logging.exception(e)
 
         else:
-            logging.warn("config path DNE: " + path)
+            logging.warn("config path DNE: {0}".format(path))
 
     def _on_update(self, event):
         """

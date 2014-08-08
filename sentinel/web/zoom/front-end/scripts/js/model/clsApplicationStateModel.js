@@ -38,7 +38,9 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                     alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
                 }
                 else {
-                    $.post("/api/agent/", dict);
+                    $.post("/api/agent/", dict).fail(function(data) {
+                        alert( "Error Posting Group Control " + JSON.stringify(data));
+                    });
                 }
             });
         }
@@ -194,6 +196,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
 
                     self.remoteCustomFilters.push(filter);
                 });
+            }).fail(function(data){
+                alert("Failed Get for all Filters " + JSON.stringify(data));
             });
         }
     };
@@ -357,7 +361,11 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                 "user": self.login.elements.username()
             };
             self.applicationStates.removeAll();
-            $.post("/api/cache/reload/", dict);
+            $.post("/api/cache/reload/", dict, function(data){
+                alert(data);
+            }).fail(function(data) {
+                alert( "Error Posting Clear Cache " + JSON.stringify(data));
+            });
         }
     };
 
