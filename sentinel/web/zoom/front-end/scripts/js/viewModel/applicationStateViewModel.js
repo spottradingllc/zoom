@@ -6,7 +6,8 @@ define(
         'classes/clsCustomFilter',
         'classes/dependency-maps/clsDependencyMaps',
         'classes/dependency-maps/clsIndentedDependencyTree',
-        'classes/dependency-maps/clsPartitionChart'],
+        'classes/dependency-maps/clsPartitionChart',
+        'bindings/radio'],
 function($, ko, service, sam, d3) {
 
     function ViewModel() {
@@ -35,11 +36,9 @@ function($, ko, service, sam, d3) {
                 if ('update_type' in message) {
 
                     if (message.update_type == 'application_state') {
-                        // handle each update
-                        var operationType = message.operation_type;
 
                         $.each(message.application_states, function() {
-                            self.applicationState.handleApplicationStatusUpdate(this, operationType)
+                            self.applicationState.handleApplicationStatusUpdate(this)
                         });
 
                         // resort the column, holding its sorted direction

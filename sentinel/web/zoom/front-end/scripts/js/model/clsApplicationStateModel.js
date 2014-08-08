@@ -5,6 +5,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = ko.observable("Unknown");
+    self.name = "Application State Table";
 
     var operationTypes = {add: "add", remove: "remove"};
 
@@ -43,7 +44,9 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                     alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
                 }
                 else {
-                    $.post("/api/agent/", dict);
+                    $.post("/api/agent/", dict).fail(function(data) {
+                        alert( "Error Posting Group Control " + JSON.stringify(data));
+                    });
                 }
             });
         }
@@ -199,6 +202,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
 
                     self.remoteCustomFilters.push(filter);
                 });
+            }).fail(function(data){
+                alert("Failed Get for all Filters " + JSON.stringify(data));
             });
         }
     };
@@ -308,7 +313,12 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         }
     });
 
-    // dependency mapping
+    // view toggling
+    self.currentView = ko.observable(self);
+    self.views = ko.observableArray([]);
+    self.views.push(self);
+
+    // dependency maps
     self.dependencyMaps = new DependencyMaps(ko, $, d3, self);
 
     // create new app state
@@ -317,29 +327,30 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     };
 
     // handle updates from web server
-    self.handleApplicationStatusUpdate = function (update, operationType) {
+    self.handleApplicationStatusUpdate = function (update) {
         // Search the array for row with matching path
-        var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
-            return currentRow.configurationPath == update.configuration_path;
-        });
-        if (row) {
-            // remove item from array if operationType is remove
-            if (operationType == operationTypes.remove) {
-                self.applicationStates.remove(row);
-            }
-            else {
-                // update row values
+        
+        if (update.delete) {
+            self.applicationStates.remove(function(currentRow) {
+                return currentRow.configurationPath == update.configuration_path;
+            });
+        }
+        else{
+            var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
+                return currentRow.configurationPath == update.configuration_path;
+            });
+            if (row) {
                 row.applicationStatus(update.application_status);
                 row.startTime(update.start_time);
                 row.applicationHost(update.application_host);
                 row.errorState(update.error_state);
                 row.mtime = Date.now();
             }
-        }
-        else if (operationType == operationTypes.add) {
-            // add new item to array
-            var newRow = self.createApplicationState(update);
-            self.applicationStates.push(newRow);
+            else { 
+                // add new item to array
+                var newRow = self.createApplicationState(update);
+                self.applicationStates.push(newRow);
+            }
         }
     };
 
@@ -362,7 +373,11 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                 "user": self.login.elements.username()
             };
             self.applicationStates.removeAll();
-            $.post("/api/cache/reload/", dict);
+            $.post("/api/cache/reload/", dict, function(data){
+                alert(data);
+            }).fail(function(data) {
+                alert( "Error Posting Clear Cache " + JSON.stringify(data));
+            });
         }
     };
 

@@ -66,7 +66,7 @@ class SQLDatabase(Database):
 
         connection.commit()
         connection.close()
-        return "Filter " + name + " was successfully saved in the database!"
+        return "Filter {0} was successfully saved in the database!".format(name)
 
     def delete_filter(self, filter):
         connection = pyodbc.connect(self.connection_string)
@@ -79,7 +79,7 @@ class SQLDatabase(Database):
         connection.commit()
         connection.close()
 
-        return "Filter " + name + " was successfully deleted from the database!"
+        return "Filter {0} was successfully deleted from the database!".format(name)
 
     def fetch_all_filters(self, login_name):
         connection = pyodbc.connect(self.connection_string)
@@ -111,7 +111,7 @@ class SQLDatabase(Database):
 
         connection.commit()
         connection.close()
-        return "Info for  " + configuration_path + " was successfully saved in the database!"
+        return "Info for {} was successfully saved in the database!".format(configuration_path)
 
     def fetch_service_info(self, configuration_path):
         connection = pyodbc.connect(self.connection_string)

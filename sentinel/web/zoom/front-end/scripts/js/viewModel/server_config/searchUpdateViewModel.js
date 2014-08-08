@@ -20,6 +20,8 @@ function SearchUpdateViewModel() {
                     self.hide();
                     AlertsViewModel.displayError("Node " + ServerConfigViewModel.serverName() + " does not exist!");
                 }
+            }).fail(function(data){
+                alert("Failed Get Config " + JSON.stringify(data));
             });
         }
     };
@@ -43,6 +45,9 @@ function SearchUpdateViewModel() {
                     else {
                         AlertsViewModel.displayError(returnData);
                     }
+                },
+                error: function(jqxhr) {
+                    return alert(jqxhr.responseText);
                 }
             }
         )

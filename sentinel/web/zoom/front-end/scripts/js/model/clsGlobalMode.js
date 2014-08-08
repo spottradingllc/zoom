@@ -39,7 +39,9 @@ function GlobalMode(service, ko, $, login) {
                 "command" : mode,
                 "user": self.login.elements.username()
             };
-            $.post("/api/mode/", dict);
+            $.post("/api/mode/", dict).fail(function(data) {
+                alert( "Error Posting Mode Control " + JSON.stringify(data));
+            });
         }
     };
 
