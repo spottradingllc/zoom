@@ -45,7 +45,7 @@ function SearchUpdateViewModel() {
                     else {
                         AlertsViewModel.displayError(returnData);
                     }
-                }
+                },
                 error: function(jqxhr) {
                     return alert(jqxhr.responseText);
                 }
