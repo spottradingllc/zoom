@@ -3,7 +3,8 @@ function IndentedDependencyTree(d3, ko, parent, divName) {
 	var self = this;
 	self.parent = parent; 
 
-	self.name = "indented-dependency-tree";
+	self.name = "Indented Dependency Tree";
+	self.shortName = "tree";
 
 	// set visual parameters
 	self.margin = {top: 30, right: 20, bottom: 30, left: 20};
@@ -27,7 +28,7 @@ function IndentedDependencyTree(d3, ko, parent, divName) {
 	// create SVG and bind it to the div
 	self.svg = d3.select("#d3-view-area").append("svg")
 	    								 .attr("width", self.width + self.margin.left + self.margin.right)
-	    								 .attr("id", self.name)
+	    								 .attr("id", self.shortName)
 	    								 .style("display", "none")
 	    								 .append("g")
 	    								 .style("margin-top", "0px")
@@ -47,12 +48,12 @@ function IndentedDependencyTree(d3, ko, parent, divName) {
 	self.visible = ko.observable(false);
 
 	self.hide = function() {
-		d3.select("#" + self.name).style("display", "none");
+		d3.select("#" + self.shortName).style("display", "none");
 		self.visible(false);
 	}
 
 	self.show = function() {
-		d3.select("#" + self.name).style("display", "block");
+		d3.select("#" + self.shortName).style("display", "block");
 		self.visible(true);
 	}
 

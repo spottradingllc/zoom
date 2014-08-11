@@ -63,13 +63,12 @@ class TimeEstimateCache(object):
         except Exception as e:
             logging.exception(e)
 
-
     def rec_fn(self, path, searchdata):
         #init internal search data
         data = searchdata.get(path, None)
         if data is None:
-            data = {'time':None, 'cost':None}
-            searchdata.update({path:data})
+            data = {'time': None, 'cost': None}
+            searchdata.update({path: data})
 
         if data.get('cost', None) is not None:
             return data['cost']
@@ -78,26 +77,26 @@ class TimeEstimateCache(object):
         if(self.states.get(path, None) is not None
            and self.states[path].get('application_status', None) is not None
            and self.states[path]['application_status'] == "running"):
-            data['time'] =  0
-        else: #not running, fetch graphite
+            data['time'] = 0
+        else:  # not running, fetch graphite
             data['time'] = self.get_graphtite_data(path)
 
         #recurse into deps
         dep_data = self.deps.get(path, None)
         if dep_data is None:
-            #logging.debug("Path {} has no dep_data".format(path))
             ret = 0
         elif len(dep_data['dependencies']) == 0:
             ret = 0
         else:
             ret = 0
-            for iter in dep_data['dependencies']:
-                if iter.get('type').lower() == DependencyType.CHILD:
-                    ret = max(ret, self.rec_fn(iter.get("path", None), searchdata))
-                if iter.get('type').lower() == DependencyType.GRANDCHILD:
-                    grand_path = iter.get("path")
+            for i in dep_data['dependencies']:
+                if i.get('type').lower() == DependencyType.CHILD:
+                    ret = max(ret, self.rec_fn(i.get("path", None), searchdata))
+                if i.get('type').lower() == DependencyType.GRANDCHILD:
+                    grand_path = i.get("path")
                     for key in self.deps.iterkeys():
-                        if(key.lower().startswith(grand_path) and key.lower() != grand_path):
+                        if key.lower().startswith(grand_path) \
+                                and key.lower() != grand_path:
                             ret = max(ret, self.rec_fn(key, searchdata))
 
         data['cost'] = ret + data['time']
@@ -117,7 +116,8 @@ class TimeEstimateCache(object):
                 self.graphite_cache[path] = 0
                 return 0
             else:
-                #first and only entry, it's first and only data point, and formatted as [ data, time ]
+                #first and only entry, it's first and only data point,
+                # and formatted as [ data, time ]
                 self.graphite_cache[path] = response.json()[0]['datapoints'][0][0]
 
             return self.graphite_cache[path]
@@ -125,4 +125,3 @@ class TimeEstimateCache(object):
         except Exception as e:
             logging.exception(e)
             return 0
-

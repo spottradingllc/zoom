@@ -1,7 +1,7 @@
 import logging
 import os.path
 
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 from zoom.entities.types import DependencyType
 from zoom.messages.application_dependencies import ApplicationDependenciesMessage
@@ -10,14 +10,13 @@ from zoom.messages.message_throttler import MessageThrottle
 
 class ApplicationDependencyCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
-                 agent_cache, time_estimate_cache):
+                 time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
-        :type agent_cache: zoom.cache.agent_cache.AgentCache
         """
-        self._cache = ApplicationDependenciesMessage();
+        self._cache = ApplicationDependenciesMessage()
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
@@ -32,11 +31,11 @@ class ApplicationDependencyCache(object):
 
     def load(self):
         """
-        :rtype: dict
+        :rtype: ApplicationDependenciesMessage
         """
         try:
             if not len(self._cache):
-               self._load()
+                self._load()
 
             return self._cache
         except Exception:
@@ -62,7 +61,7 @@ class ApplicationDependencyCache(object):
     def _walk(self, path, result_dict):
         """
         :type path: str
-        :type result_dict: dict
+        :type result_dict: ApplicationDependenciesMessage
         """
         try:
             children = self._zoo_keeper.get_children(path, watch=self._on_update)
@@ -71,6 +70,7 @@ class ApplicationDependencyCache(object):
                 for child in children:
                     self._walk(os.path.join(path, child), result_dict)
             else:
+                # are we not doing anything with this?
                 depend = self._get_application_dependency(path, result_dict)
         except NoNodeError:
             logging.debug('Node at {0} no longer exists.'.format(path))
@@ -79,15 +79,15 @@ class ApplicationDependencyCache(object):
         """
         :type path: str
         """
-        data = None
-
         if self._zoo_keeper.exists(path):
             data, stat = self._zoo_keeper.get(path, watch=self._on_update)
-            if data is None: return
-            if data == "": return
+            if data is None:
+                return
+            if data == "":
+                return
 
             try:
-                root = ET.fromstring(data)
+                root = ElementTree.fromstring(data)
 
                 for node in root.findall('Automation/Component'):
 
@@ -114,11 +114,11 @@ class ApplicationDependencyCache(object):
 
                     for predicate in start_action.iter('Predicate'):
                         if predicate.get('type').lower() == DependencyType.CHILD:
-                            dict = {'type' : DependencyType.CHILD, 'path' : predicate.get("path")}
-                            dependencies.append(dict)
+                            d = {'type': DependencyType.CHILD, 'path': predicate.get("path")}
+                            dependencies.append(d)
                         if predicate.get('type').lower() == DependencyType.GRANDCHILD:
-                            dict = {'type' : DependencyType.GRANDCHILD, 'path' : predicate.get("path")}
-                            dependencies.append(dict)
+                            d = {'type': DependencyType.GRANDCHILD, 'path': predicate.get("path")}
+                            dependencies.append(d)
 
                     result.update({"dependencies": dependencies})
 
@@ -145,7 +145,7 @@ class ApplicationDependencyCache(object):
 
             self._cache.update(message.application_dependencies)
 
-            self._message_throttle.add_message(message);
+            self._message_throttle.add_message(message)
 
             self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 

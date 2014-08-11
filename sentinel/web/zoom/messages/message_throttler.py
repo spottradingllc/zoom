@@ -34,7 +34,8 @@ class MessageThrottle(object):
             self._lock.acquire()
             try:
                 if self._message is not None:
-                    logging.debug('Sending message: {0}'.format(self._message.to_json()))
+                    logging.debug('Sending message: {0}'
+                                  .format(self._message.to_json()))
                     for client in self._clients:
                         client.write_message(self._message.to_json())
                     self._message = None
@@ -44,10 +45,8 @@ class MessageThrottle(object):
             
             time.sleep(float(self._interval))
 
-
     def stop(self):
         if self._thread.is_alive():
             self._running = False
             self._thread.join()
-            
             

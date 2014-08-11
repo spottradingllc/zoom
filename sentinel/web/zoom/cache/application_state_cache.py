@@ -3,7 +3,7 @@ import os.path
 
 from kazoo.exceptions import NoNodeError
 from zoom.entities.application_state import ApplicationState
-from zoom.entities.types import ApplicationStatus, OperationType
+from zoom.entities.types import ApplicationStatus
 from zoom.messages.application_states import ApplicationStatesMessage
 from zoom.messages.message_throttler import MessageThrottle
 
@@ -26,7 +26,8 @@ class ApplicationStateCache(object):
         self._agent_cache = agent_cache
         self._agent_cache.add_callback(self._on_update)
         self._time_estimate_cache = time_estimate_cache
-        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+        self._message_throttle = MessageThrottle(configuration,
+                                                 web_socket_clients)
 
     def start(self):
         self._message_throttle.start()
@@ -36,10 +37,10 @@ class ApplicationStateCache(object):
 
     def load(self):
         """
-        :rtype: dict
+        :rtype: from zoom.messages.application_states.ApplicationStatesMessage
         """
         if not len(self._cache):
-           self._load()
+            self._load()
 
         return self._cache
 
@@ -48,9 +49,6 @@ class ApplicationStateCache(object):
         self._on_update_path(self._configuration.application_state_path)
 
     def _load(self):
-        """
-        :rtype: dict
-        """
         self._agent_cache.load()
         self._cache.clear()
 
@@ -74,7 +72,7 @@ class ApplicationStateCache(object):
                     self._walk(os.path.join(path, child), result)
             else:
                 app_state = self._get_application_state(path)
-                result.update({app_state.configuration_path : app_state.to_dictionary()})
+                result.update({app_state.configuration_path: app_state.to_dictionary()})
 
         except NoNodeError:
             logging.debug('Node at {0} no longer exists.'.format(path))
@@ -99,7 +97,7 @@ class ApplicationStateCache(object):
             self._zoo_keeper.get_children(path, watch=self._on_update)
 
             agent_data = self._agent_cache.get_app_data_by_path(path)
-            host=self._agent_cache.get_host_by_path(path)
+            host = self._agent_cache.get_host_by_path(path)
 
             application_state = ApplicationState(
                 application_name=agent_data.get('name', os.path.basename(path)),

@@ -3,7 +3,9 @@ function PartitionChart(d3, ko, parent, divName) {
     var self = this;
     self.parent = parent;
 
-    self.name = "partition-chart";
+    self.name = "Parition Chart";
+    self.shortName = "chart";
+
     self.root = null;
     self.g = null;
     self.currentlySelected = null;
@@ -20,7 +22,7 @@ function PartitionChart(d3, ko, parent, divName) {
     							         .append("svg")
     							         .attr("width", self.w)
                            .attr("display", "none")
-                           .attr("id", self.name)
+                           .attr("id", self.shortName)
     							         .attr("height", self.h);
 
     self.partition = d3.layout.partition()
@@ -35,12 +37,12 @@ function PartitionChart(d3, ko, parent, divName) {
     self.visible = ko.observable(false);
 
     self.show = function() {
-        d3.select("#" + self.name).attr("display", "inline")
+        d3.select("#" + self.shortName).attr("display", "inline")
         self.visible(true);
     }
 
     self.hide = function() {
-        d3.select("#" + self.name).attr("display", "none")
+        d3.select("#" + self.shortName).attr("display", "none")
         self.visible(false);
     }
 
@@ -53,7 +55,7 @@ function PartitionChart(d3, ko, parent, divName) {
         // setup for update
         self.vis.selectAll("g").remove();
 
-        d3.select("#" + self.name).transition()
+        d3.select("#" + self.shortName).transition()
                                   .duration(self.duration)
                                   .attr("height", self.h);
 

@@ -1,4 +1,3 @@
-import logging
 from zoom.cache.application_state_cache import ApplicationStateCache
 from zoom.cache.application_dependency_cache import ApplicationDependencyCache
 from zoom.cache.time_estimate_cache import TimeEstimateCache
@@ -26,7 +25,6 @@ class DataStore(object):
             ApplicationDependencyCache(self._configuration,
                                        self._zoo_keeper,
                                        self._web_socket_clients,
-                                       self._agent_cache,
                                        self._time_estimate_cache)
 
         self._application_state_cache = \

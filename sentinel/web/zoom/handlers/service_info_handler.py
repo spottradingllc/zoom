@@ -1,4 +1,3 @@
-import json
 import logging
 import tornado.web
 
@@ -44,4 +43,4 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
         db = Database(self.configuration)
         query = db.fetch_service_info(configuration_path)
 
-        self.write(json.dumps(query))
+        self.write(query)

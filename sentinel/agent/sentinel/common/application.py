@@ -150,14 +150,15 @@ class Application(object):
         self.zkclient.close()
 
     @time_this
-    def start(self, reset=True, pause=False):
+    def start(self, **kwargs):
         """
         Start actual process
-        This is called by REST
+        :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
-        if reset:
+
+        if kwargs.get('reset', True):
             self._proc_client.reset_counters()
-        if pause:
+        if kwargs.get('pause', False):
             self.ignore()
 
         self._state.set_value(ApplicationState.STARTING)
@@ -179,22 +180,23 @@ class Application(object):
         return result
 
     @time_this
-    def stop(self, reset=True, pause=False):
+    def stop(self, **kwargs):
         """
         Stop actual process
-        This is called by REST
+        :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
-        if reset:
+
+        if kwargs.get('reset', True):
             self._proc_client.reset_counters()
-        if pause:
+        if kwargs.get('pause', False):
             self.ignore()
 
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()
 
-        result = self._proc_client.stop()
+        result = self._proc_client.stop(**kwargs)
 
-        if result != 0:
+        if result != 0 and kwargs.get('argument', 'false') == 'false':
             self._state.set_value(ApplicationState.ERROR)
         else:
             self._state.set_value(ApplicationState.OK)
@@ -203,11 +205,14 @@ class Application(object):
 
         return result
 
-    def restart(self, reset=True, pause=False):
-        self.stop(reset=reset, pause=pause)
-        self.start(reset=reset, pause=pause)
+    def restart(self, **kwargs):
+        """
+        :param kwargs: passed from zoom.handlers.control_agent_handlers
+        """
+        self.stop(**kwargs)
+        self.start(**kwargs)
 
-    def dep_restart(self):
+    def dep_restart(self, **kwargs):
         self._run_check_mode = True # only used in self.start()
         self._action_queue.append(Task('start_if_ready', pipe=False))
 
@@ -221,7 +226,10 @@ class Application(object):
 
     @time_this
     @connected
-    def ignore(self):
+    def ignore(self, **kwargs):
+        """
+        :param kwargs: passed from zoom.handlers.control_agent_handlers
+        """
         self._mode.set_value(ApplicationMode.MANUAL)
         self._log.info('Mode is now "{0}"'.format(self._mode))
         self._update_agent_node_with_app_details()
@@ -229,7 +237,10 @@ class Application(object):
 
     @time_this
     @connected
-    def react(self):
+    def react(self, **kwargs):
+        """
+        :param kwargs: passed from zoom.handlers.control_agent_handlers
+        """
         self._mode.set_value(ApplicationMode.AUTO)
         self._log.info('Mode is now "{0}"'.format(self._mode))
         self._update_agent_node_with_app_details()

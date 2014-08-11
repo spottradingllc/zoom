@@ -5,6 +5,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = ko.observable("Unknown");
+    self.name = "Application State Table";
 
     var operationTypes = {add: "add", remove: "remove"};
 
@@ -17,20 +18,25 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
 
-    // functions/variables for group control of agents
+//    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
-    self.executeGroupControl = function (com, no_confirm) {
-        var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
+    self.executeGroupControl = function (options) {
+        //options.com: command
+        //options.arg: command argument
+        //option.no_confirm: confirm bool
+        if (options == undefined) options = {};
+        var confirmString = ["Please confirm that you want to send a " + options.com + " command to the ",
                 self.groupControl().length + " selected agents by pressing OK."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (no_confirm || confirm(confirmString)) {
+        if (!options.confirm || confirm(confirmString)) {
             ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
                 var dict = {
                     "componentId": applicationState.componentId,
                     "configurationPath": applicationState.configurationPath,
                     "applicationHost": applicationState.applicationHost,
-                    "command": com,
+                    "command": options.com,
+                    "argument": options.arg,
                     "user": self.login.elements.username()
                 };
 
@@ -57,7 +63,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
             interval = setInterval(self.checkDown, 5000);
             return;
         } else {
-            self.executeGroupControl('dep_restart', true);
+            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
             return;
         }
     }
@@ -68,8 +74,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (confirm(confirmString)) {
-            self.executeGroupControl('ignore', true);
-            self.executeGroupControl('stop', true);
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
             self.checkDown();
         }
     }
@@ -307,7 +313,12 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         }
     });
 
-    // dependency mapping
+    // view toggling
+    self.currentView = ko.observable(self);
+    self.views = ko.observableArray([]);
+    self.views.push(self);
+
+    // dependency maps
     self.dependencyMaps = new DependencyMaps(ko, $, d3, self);
 
     // create new app state

@@ -1,9 +1,6 @@
 import httplib
-import json
 import logging
-import requests
 import tornado.web
-from zoom.entities.types import DependencyType
 from zoom.utils.decorators import timethis
 
 
@@ -18,8 +15,7 @@ class TimeEstimateHandler(tornado.web.RequestHandler):
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
-            self.write(json.dumps({'errorText': str(e)}))
+            self.write({'errorText': str(e)})
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
-

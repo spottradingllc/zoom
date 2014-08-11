@@ -62,6 +62,8 @@
                         <ul class="nav navbar-nav">
                             <li class="active"><a href="index.html#/application_state">Application State</a></li>
                             <li><a href="serverConfig.html">Server Config</a></li>
+                            <li><a href="faq.html">Application State FAQ</a></li>
+                            <li><a href="serverConfigFAQ.html">Server Config FAQ</a></li>
                         </ul>
 
                         <ul class="nav navbar-nav navbar-right">
@@ -148,27 +150,9 @@
                 <!-- View Toggling -->
                 <div class="row" style="margin-bottom: 5px">
                     <div class="col-md-6 text-left">
-                        <div class="btn-group">
-                            <button class="btn btn-default" data-bind="click: function(){applicationState.dependencyMaps.closeAllViews()},
-                                    attr: {class: ('btn btn-default' + (!applicationState.dependencyMaps.viewOpen() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="View the application state agent table.">
-                                Table
-                            </button>
-                            <button data-bind="click: function(){applicationState.dependencyMaps.showView('indented-dependency-tree')},
-                                    attr: {class: ('btn btn-default' + (applicationState.dependencyMaps.dependencyDrawer.visible() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Open the dependency drawer.">
-                                Indented Drawer
-                            </button>
-                            <button data-bind="click: function(){applicationState.dependencyMaps.showView('partition-chart')},
-                                    attr: {class: ('btn btn-default' + (applicationState.dependencyMaps.partitionChart.visible() ? ' active' : ''))}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Open the partition chart.">
-                                Partition Chart
+                        <div class="btn-group" data-bind="foreach: applicationState.views">
+                            <button class="btn btn-default" data-bind="radio: $parent.applicationState.currentView">
+                                <span data-bind="text: name"></span>
                             </button>
                         </div>
                     </div>
@@ -273,35 +257,35 @@
                     <div class="col-md-6 text-right">
                         <div class="btn-group" data-bind="visible: login.elements.authenticated">
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('stop')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Stop the starred services.">
                                 <span class="glyphicon glyphicon-stop"></span></button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('restart')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':false, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Restart the starred services.">
                                 <span class="glyphicon glyphicon-retweet"></span></button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeDepRestart('Restart w/ Dep')}"
+                                                  data-bind="click: function(){applicationState.executeDepRestart({'com':'dep_restart', 'arg':false, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Restart the starred services."> 
                                 <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('ignore')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('react')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':false, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Command the starred agents to react to Zookeeper changes.">React</button>
                             <button type="button" class="btn btn-default"
-                                                  data-bind="click: function(){applicationState.executeGroupControl('cancel')}"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':false, 'confirm':true})}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Cancel pending commands for the starred agents.">Cancel</button>
@@ -429,7 +413,7 @@
             </div>
 
             <div class="page-body">
-                <table class="table table-bordered table-condensed" data-bind="visible: !applicationState.dependencyMaps.viewOpen()">
+                <table class="table table-bordered table-condensed" data-bind="visible: applicationState.currentView() == applicationState">
                     <!-- Headers -->
                     <thead>
                         <tr data-bind="foreach: applicationState.headers">
@@ -546,31 +530,31 @@
                                     </button>
                                     <ul class="dropdown-menu pull-right" role="menu">
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('stop')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'stop', 'arg':true, 'confirm':true})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Stop the agent.">Stop</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('restart')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'restart', 'arg':false, 'confirm':true})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Restart the agent.">Restart</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('cancel')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'cancel', 'arg':false, 'confirm':true})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Cancel pending commands to the agent.">Cancel</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('ignore')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'ignore', 'arg':false, 'confirm':true})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                         </li>
                                         <li role="presentation">
-                                            <a data-bind="click: function(){controlAgent('react')}"
+                                            <a data-bind="click: function(){controlAgent({'com':'react', 'arg':false, 'confirm':true})}"
                                                data-toggle="tooltip"
                                                data-placement="top"
                                                title="Command the agent to react to Zookeeper changes.">React</a>

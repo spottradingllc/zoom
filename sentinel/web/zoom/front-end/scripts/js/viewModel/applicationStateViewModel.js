@@ -6,7 +6,8 @@ define(
         'classes/clsCustomFilter',
         'classes/dependency-maps/clsDependencyMaps',
         'classes/dependency-maps/clsIndentedDependencyTree',
-        'classes/dependency-maps/clsPartitionChart'],
+        'classes/dependency-maps/clsPartitionChart',
+        'bindings/radio'],
 function($, ko, service, sam, d3) {
 
     function ViewModel() {

@@ -24,8 +24,8 @@ class FiltersHandler(tornado.web.RequestHandler):
         filters = db.fetch_all_filters(login_name)
 
         arr = []
-        for filter in filters:
-            arr.append(filter.to_dictionary())
+        for f in filters:
+            arr.append(f.to_dictionary())
 
         self.write(json.dumps(arr))
 
@@ -41,15 +41,14 @@ class FiltersHandler(tornado.web.RequestHandler):
         search_term = self.get_argument("searchTerm")
         inversed = self.get_argument("inversed")
 
-        filter = \
-            CustomFilter(name, login_name, parameter, search_term, inversed)
+        f = CustomFilter(name, login_name, parameter, search_term, inversed)
 
         db = Database(self.configuration)
 
         if operation == OperationType.ADD:
-            query = db.save_filter(filter)
+            query = db.save_filter(f)
         elif operation == OperationType.REMOVE:
-            query = db.delete_filter(filter)
+            query = db.delete_filter(f)
         else:
             query = None
 
