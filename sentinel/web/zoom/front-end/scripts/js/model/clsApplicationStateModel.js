@@ -29,7 +29,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
                 self.groupControl().length + " selected agents by pressing OK."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (options.no_confirm || confirm(confirmString)) {
+        if (!options.confirm || confirm(confirmString)) {
             ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
                 var dict = {
                     "componentId": applicationState.componentId,
@@ -63,7 +63,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
             interval = setInterval(self.checkDown, 5000);
             return;
         } else {
-            self.executeGroupControl({'com':'dep_restart', 'arg':'', 'no_confirm':true});
+            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
             return;
         }
     }
@@ -74,8 +74,8 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (confirm(confirmString)) {
-            self.executeGroupControl({'com':'ignore', 'arg':'', 'no_confirm':true});
-            self.executeGroupControl({'com':'stop', 'arg': '', 'no_confirm':true});
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
             self.checkDown();
         }
     }

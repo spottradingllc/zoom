@@ -257,7 +257,7 @@ function ApplicationState (ko, data, parent) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (!self.isHostEmpty()) {
-            if (confirm(confirmString)) {
+            if (!options.confirm || confirm(confirmString)) {
                 var dict = {
                     "componentId": self.componentId,
                     "applicationHost": self.applicationHost(),

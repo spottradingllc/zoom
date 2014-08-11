@@ -50,7 +50,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             logging.info("command {0} with argument {1} going to zk path {2}"
                          .format(self.command, self.argument, self.path))
             self.application.zk.create(self.path, json.dumps(
-                {'work': self.command, 'argument':self.argument,
+                {'work': self.command, 'argument': self.argument,
                  'target': self.component_id}))
         else:
             self.application.zk.exists(self.path, watch=self.add_command)
