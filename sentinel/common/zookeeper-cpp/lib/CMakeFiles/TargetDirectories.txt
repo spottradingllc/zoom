@@ -1,2 +1,0 @@
-/Users/davidshrader/Development/DevOps/zoom/common/zookeeper-cpp/lib/CMakeFiles/Spot.Common.ZooKeeper_A.dir
-/Users/davidshrader/Development/DevOps/zoom/common/zookeeper-cpp/lib/CMakeFiles/Spot.Common.ZooKeeper_SO.dir
