@@ -5,9 +5,9 @@ from xml.etree import ElementTree
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.core.entities.types import DependencyType
-from spot.zoom.core.messages.application_dependencies import ApplicationDependenciesMessage
-from spot.zoom.core.messages.message_throttler import MessageThrottle
+from spot.zoom.www.entities.types import DependencyType
+from spot.zoom.www.messages.application_dependencies import ApplicationDependenciesMessage
+from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 
 class ApplicationDependencyCache(object):

@@ -3,10 +3,10 @@ import os.path
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.core.entities.application_state import ApplicationState
-from spot.zoom.core.entities.types import ApplicationStatus
-from spot.zoom.core.messages.application_states import ApplicationStatesMessage
-from spot.zoom.core.messages.message_throttler import MessageThrottle
+from spot.zoom.www.entities.application_state import ApplicationState
+from spot.zoom.www.entities.types import ApplicationStatus
+from spot.zoom.www.messages.application_states import ApplicationStatesMessage
+from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 
 class ApplicationStateCache(object):

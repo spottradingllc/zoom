@@ -3,10 +3,10 @@ import logging
 
 import tornado.web
 
-from spot.zoom.core.entities.database import Database
-from spot.zoom.core.utils.decorators import timethis
-from spot.zoom.core.entities.custom_filter import CustomFilter
-from spot.zoom.core.entities.types import OperationType
+from spot.zoom.www.entities.database import Database
+from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.entities.custom_filter import CustomFilter
+from spot.zoom.www.entities.types import OperationType
 
 
 class FiltersHandler(tornado.web.RequestHandler):

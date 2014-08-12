@@ -4,10 +4,11 @@ import platform
 import signal
 import sys
 
-from spot.zoom.core.cache.data_store import DataStore
+from spot.zoom.www.cache.data_store import DataStore
+from spot.zoom.www.web_server import WebServer
+from spot.zoom.www.zoo_keeper import ZooKeeper
+
 from configuration import Configuration
-from spot.zoom.core.web_server import WebServer
-from spot.zoom.core.zoo_keeper import ZooKeeper
 
 
 class Session(object):

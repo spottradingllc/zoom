@@ -161,7 +161,7 @@ class ProcessClient(object):
             cmd = self.command
 
         with open(os.devnull, 'w') as devnull:
-            retcode = call(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            retcode = call(cmd, stdout=devnull, stderr=devnull)
 
         self._log.debug('RETURNCODE: {0}'.format(retcode))
         return retcode

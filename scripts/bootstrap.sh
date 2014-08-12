@@ -34,8 +34,7 @@ for PACKAGE in python-ldap-2.4.10.tar.gz \
             coverage-3.6.tar.gz \
             psutil-1.2.1.tar.gz \
             zope.interface-4.0.5.tar.gz \
-            setproctitle-1.1.8.tar.gz \
-
+            setproctitle-1.1.8.tar.gz
 
 do
     FULLPATH=${PY_3RDPARTY}/${PACKAGE}

@@ -8,7 +8,7 @@ import tornado.httpclient
 from httplib import INTERNAL_SERVER_ERROR
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class PillarHandler(tornado.web.RequestHandler):

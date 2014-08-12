@@ -1,7 +1,7 @@
 import logging
 import pyodbc
 
-from spot.zoom.core.entities.custom_filter import CustomFilter
+from spot.zoom.www.entities.custom_filter import CustomFilter
 
 
 class Database(object):

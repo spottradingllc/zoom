@@ -4,19 +4,19 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-from spot.zoom.core.handlers.application_dependencies_handler import ApplicationDependenciesHandler
-from spot.zoom.core.handlers.application_state_handler import ApplicationStateHandler
-from spot.zoom.core.handlers.control_agent_handler import ControlAgentHandler
-from spot.zoom.core.handlers.filters_handler import FiltersHandler
-from spot.zoom.core.handlers.global_mode_handler import GlobalModeHandler
-from spot.zoom.core.handlers.list_servers_handler import ListServersHandler
-from spot.zoom.core.handlers.login_handler import LoginHandler
-from spot.zoom.core.handlers.pillar_handler import PillarHandler
-from spot.zoom.core.handlers.reload_cache_handler import ReloadCacheHandler
-from spot.zoom.core.handlers.server_config_handler import ServerConfigHandler
-from spot.zoom.core.handlers.service_info_handler import ServiceInfoHandler
-from spot.zoom.core.handlers.time_estimate_handler import TimeEstimateHandler
-from spot.zoom.core.handlers.zoom_ws_handler import ZoomWSHandler
+from spot.zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
+from spot.zoom.www.handlers.application_state_handler import ApplicationStateHandler
+from spot.zoom.www.handlers.control_agent_handler import ControlAgentHandler
+from spot.zoom.www.handlers.filters_handler import FiltersHandler
+from spot.zoom.www.handlers.global_mode_handler import GlobalModeHandler
+from spot.zoom.www.handlers.list_servers_handler import ListServersHandler
+from spot.zoom.www.handlers.login_handler import LoginHandler
+from spot.zoom.www.handlers.pillar_handler import PillarHandler
+from spot.zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
+from spot.zoom.www.handlers.server_config_handler import ServerConfigHandler
+from spot.zoom.www.handlers.service_info_handler import ServiceInfoHandler
+from spot.zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
+from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
 
 class WebServer(tornado.web.Application):

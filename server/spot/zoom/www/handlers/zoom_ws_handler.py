@@ -1,7 +1,7 @@
 import logging
 import tornado.websocket
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ZoomWSHandler(tornado.websocket.WebSocketHandler):
