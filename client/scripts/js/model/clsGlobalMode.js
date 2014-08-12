@@ -3,7 +3,8 @@ function GlobalMode(service, ko, $, login) {
 
     self.login = login;
     self.current = ko.observable("Unknown");
-    self.timingEstimate = ko.observable("");
+    self.maxTimingEstimate = ko.observable("");
+    self.minTimingEstimate = ko.observable("");
 
     self.isOn = ko.computed(function() {
         if (self.current() == 'auto') {
@@ -40,8 +41,22 @@ function GlobalMode(service, ko, $, login) {
         maxtime = JSON.parse(data.maxtime);
         var endMs = Date.now() + maxtime*1000;
         var end = new Date(endMs);
-        self.timingEstimate(end.toLocaleTimeString());
+        self.maxTimingEstimate(end.toLocaleTimeString());
+
+        mintime = JSON.parse(data.mintime);
+        var endMs = Date.now() + mintime*1000;
+        end = new Date(endMs);
+        self.minTimingEstimate(end.toLocaleTimeString());
     };
+
+    self.timingString = ko.computed(function(){
+        if( self.maxTimingEstimate() == self.minTimingEstimate()){
+            return self.maxTimingEstimate();
+        }
+        else{
+         return self.minTimingEstimate() + ' - ' + self.maxTimingEstimate();
+        }
+    });
 
     var fnOnGlobalModeError = function(data) {
         alert('An Error has occurred while getting the global mode.');
