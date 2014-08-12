@@ -2,8 +2,8 @@ import httplib
 import logging
 import requests
 from spot.zoom.core.entities.types import DependencyType
-from zoom.messages.timing_estimate import TimeEstimateMessage
-from zoom.messages.message_throttler import MessageThrottle
+from spot.zoom.core.messages.timing_estimate import TimeEstimateMessage
+from spot.zoom.core.messages.message_throttler import MessageThrottle
 
 
 class TimeEstimateCache(object):
