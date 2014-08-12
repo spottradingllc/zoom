@@ -1,8 +1,8 @@
 import unittest
 
 import mox
-from server.spot.zoom.core.cache.agent_cache import AgentCache
-from server.spot.zoom.core.cache.application_state_cache import ApplicationStateCache
+from server.spot.zoom.www.cache.agent_cache import AgentCache
+from server.spot.zoom.www.cache.application_state_cache import ApplicationStateCache
 from zoom.entities.types import UpdateType
 from zoom.zoo_keeper import ZooKeeper
 from test.test_utils import StatMock

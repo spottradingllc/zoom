@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from spot.zoom.core.entities.types import ApplicationStatus
+from spot.zoom.www.entities.types import ApplicationStatus
 
 
 class ApplicationState(object):

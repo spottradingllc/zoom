@@ -1,6 +1,6 @@
 import json
 
-from spot.zoom.core.entities.types import UpdateType
+from spot.zoom.www.entities.types import UpdateType
 
 
 class GlobalModeMessage(object):

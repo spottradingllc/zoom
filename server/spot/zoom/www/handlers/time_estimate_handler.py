@@ -2,7 +2,7 @@ import logging
 import tornado.web
 
 from httplib import INTERNAL_SERVER_ERROR
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class TimeEstimateHandler(tornado.web.RequestHandler):

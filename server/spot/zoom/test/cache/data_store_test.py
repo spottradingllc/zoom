@@ -2,9 +2,9 @@ import unittest
 
 import mox
 from zoom.zoo_keeper import ZooKeeper
-from server.spot.zoom.core.cache.data_store import DataStore
-from server.spot.zoom.core.cache.global_cache import GlobalCache
-from server.spot.zoom.core.cache.application_state_cache import ApplicationStateCache
+from server.spot.zoom.www.cache.data_store import DataStore
+from server.spot.zoom.www.cache.global_cache import GlobalCache
+from server.spot.zoom.www.cache.application_state_cache import ApplicationStateCache
 from test.test_utils import ConfigurationMock
 
 

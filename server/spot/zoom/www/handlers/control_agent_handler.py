@@ -2,13 +2,14 @@ import logging
 import json
 import os
 
+from httplib import INTERNAL_SERVER_ERROR
+
 import tornado.web
 
-from httplib import INTERNAL_SERVER_ERROR
 from kazoo.retry import KazooRetry
 
-from spot.zoom.core.utils.decorators import timethis
-from spot.zoom.core.entities.types import CommandType
+from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.entities.types import CommandType
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):

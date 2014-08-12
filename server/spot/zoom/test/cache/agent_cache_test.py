@@ -2,7 +2,7 @@ import unittest
 
 import mox
 import kazoo
-from server.spot.zoom.core.cache.agent_cache import AgentCache
+from server.spot.zoom.www.cache.agent_cache import AgentCache
 from zoom.zoo_keeper import ZooKeeper
 
 

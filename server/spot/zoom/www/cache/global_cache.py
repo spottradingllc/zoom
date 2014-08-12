@@ -1,6 +1,6 @@
 import logging
 
-from spot.zoom.core.messages.global_mode_message import GlobalModeMessage
+from spot.zoom.www.messages.global_mode_message import GlobalModeMessage
 
 
 class GlobalCache(object):

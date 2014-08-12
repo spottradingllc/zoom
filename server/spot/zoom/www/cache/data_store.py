@@ -1,8 +1,8 @@
-from spot.zoom.core.cache.application_state_cache import ApplicationStateCache
-from spot.zoom.core.cache.application_dependency_cache import ApplicationDependencyCache
-from spot.zoom.core.cache.time_estimate_cache import TimeEstimateCache
-from spot.zoom.core.cache.global_cache import GlobalCache
-from spot.zoom.core.cache.agent_cache import AgentCache
+from spot.zoom.www.cache.application_state_cache import ApplicationStateCache
+from spot.zoom.www.cache.application_dependency_cache import ApplicationDependencyCache
+from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
+from spot.zoom.www.cache.global_cache import GlobalCache
+from spot.zoom.www.cache.agent_cache import AgentCache
 
 
 class DataStore(object):
