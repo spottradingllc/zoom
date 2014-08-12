@@ -2,8 +2,8 @@ import logging
 
 import tornado.web
 
-from spot.zoom.core.entities.database import Database
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.entities.database import Database
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ServiceInfoHandler(tornado.web.RequestHandler):

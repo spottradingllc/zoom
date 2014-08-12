@@ -2,7 +2,7 @@ import httplib
 import logging
 import requests
 
-from spot.zoom.core.entities.types import DependencyType
+from spot.zoom.www.entities.types import DependencyType
 
 
 class TimeEstimateCache(object):

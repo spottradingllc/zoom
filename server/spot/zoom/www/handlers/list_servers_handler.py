@@ -3,7 +3,7 @@ import tornado.web
 import logging
 import json
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ListServersHandler(tornado.web.RequestHandler):

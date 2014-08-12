@@ -6,7 +6,7 @@ import tornado.web
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ServerConfigHandler(tornado.web.RequestHandler):

@@ -1,7 +1,7 @@
 import unittest
 
 import mox
-from server.spot.zoom.core.cache.global_cache import GlobalCache
+from server.spot.zoom.www.cache.global_cache import GlobalCache
 from zoom.entities.types import UpdateType
 from zoom.zoo_keeper import ZooKeeper
 from test.test_utils import ConfigurationMock

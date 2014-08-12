@@ -4,7 +4,7 @@ import logging
 
 import tornado.web
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ApplicationStateHandler(tornado.web.RequestHandler):

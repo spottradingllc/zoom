@@ -1,9 +1,10 @@
 import json
 import logging
 import httplib
+
 import tornado.web
 
-from spot.zoom.core.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import timethis
 
 
 class ApplicationDependenciesHandler(tornado.web.RequestHandler):
