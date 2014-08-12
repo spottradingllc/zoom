@@ -5,9 +5,9 @@ from threading import Thread
 import json
 import re
 
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.common.enum import SimpleObject
-from sentinel.util.decorators import connected
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.common.enum import SimpleObject
+from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperGoodUntilTime(SimplePredicate):
@@ -17,7 +17,7 @@ class ZookeeperGoodUntilTime(SimplePredicate):
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None
-        :type interval: int
+        :type interval: int or float
         """
         SimplePredicate.__init__(self, comp_name, parent=parent)
         self.node = nodepath

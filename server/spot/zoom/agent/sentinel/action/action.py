@@ -1,9 +1,9 @@
 import logging
 
-from sentinel.predicate.factory import PredicateFactory
-from sentinel.common.stagger_lock import StaggerLock
-from sentinel.common.enum import ApplicationMode
-from sentinel.common.task import Task
+from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
+from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
+from spot.zoom.agent.sentinel.common.enum import ApplicationMode
+from spot.zoom.agent.sentinel.common.task import Task
 
 
 class Action(object):

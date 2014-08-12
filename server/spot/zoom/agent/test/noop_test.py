@@ -1,8 +1,4 @@
 import unittest
-import logging
-import mox
-from nose.tools import nottest
-from sentinel.util.decorators import time_this
 
 
 class NoOpTest(unittest.TestCase):
@@ -14,6 +10,3 @@ class NoOpTest(unittest.TestCase):
 
     def test_noop(self):
         print "Noop"
-
-    
-

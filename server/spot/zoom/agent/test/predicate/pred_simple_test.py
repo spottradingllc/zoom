@@ -1,8 +1,7 @@
-import unittest
-import logging
 import mox
-from nose.tools import nottest
-from sentinel.predicate.simple import SimplePredicate
+import unittest
+
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateSimpleTest(unittest.TestCase):
@@ -32,7 +31,6 @@ class PredicateSimpleTest(unittest.TestCase):
         pred1 = SimplePredicate(self.comp_name)
         pred2 = SimplePredicate(self.comp_name)
 
-       # self.assertEquals(pred1, pred2)
         self.assertTrue(pred1 == pred2)
 
     def test_not_equal(self):

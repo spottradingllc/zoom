@@ -1,6 +1,6 @@
 import logging
 from collections import deque
-from sentinel.common.task import Task
+from spot.zoom.agent.sentinel.common.task import Task
 
 
 class UniqueQueue(deque):
