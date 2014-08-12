@@ -9,10 +9,10 @@ require.config({
     // a ".js" extension since paths configuration could be for a directory.
     paths: {
         libs: './libs',
-        jquery: './libs/jquery-2.1.1.min',
-        knockout: './libs/knockout-3.1.0',
+        jquery: '//code.jquery.com/jquery-2.1.1',
+        knockout: '//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min',
         bootstrap: './libs/bootstrap.min',
-        sammy: './libs/sammy-0.7.4.min',
-        d3: './libs/d3'
+        sammy: '//cdnjs.cloudflare.com/ajax/libs/sammy.js/0.7.4/sammy.min',
+        d3: '//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min'
     }
 });
