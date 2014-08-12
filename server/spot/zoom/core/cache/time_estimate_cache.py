@@ -131,8 +131,6 @@ class TimeEstimateCache(object):
 
             self.graphite_cache[path] = {'min' : 0, 'max': 0, 'ave': 0}
 
-            print(url)
-
             if response.status_code == httplib.OK:
                 for data in response.json():
                     if "avg" in data['target']:
@@ -143,8 +141,6 @@ class TimeEstimateCache(object):
                         self.graphite_cache[path]['min'] = data['datapoints'][0][0]
                     else:
                         logging.warn("Received graphite data {} with unknown target".format(data))
-                print(self.graphite_cache[path])
-                print(response.json())
 
             return self.graphite_cache[path]
 
