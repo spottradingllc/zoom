@@ -57,7 +57,7 @@ class Application(object):
         self.name = verify_attribute(self.config, 'id', none_allowed=False)
         self._log = logging.getLogger('sent.{0}.app'.format(self.name))
         # informational attributes
-        self._host = platform.node()
+        self._host = platform.node().upper()
         self._system = system
         self._predicates = list()
         self._running = True  # used to manually stop the run loop

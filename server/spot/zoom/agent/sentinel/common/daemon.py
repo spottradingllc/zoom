@@ -39,7 +39,7 @@ class SentinelDaemon(object):
 
         self.children = dict()
         self._system = self._get_system()
-        self._hostname = platform.node()
+        self._hostname = platform.node().upper() # must be uppercase
         self._prev_state = None
         self.listener_lock = Lock()
 
