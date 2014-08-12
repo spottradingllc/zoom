@@ -7,11 +7,11 @@ import socket
 from multiprocessing import Lock
 from time import sleep, time
 from subprocess import call
-from sentinel.common.enum import PlatformType, ApplicationType
-from sentinel.common.restart import RestartLogic
-from sentinel.util.decorators import synchronous
-from sentinel.client.graphite_client import GraphiteClient
-from sentinel.config.constants import ( 
+from spot.zoom.agent.sentinel.common.enum import PlatformType, ApplicationType
+from spot.zoom.agent.sentinel.common.restart import RestartLogic
+from spot.zoom.agent.sentinel.util.decorators import synchronous
+from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
+from spot.zoom.agent.sentinel.config.constants import (
     GRAPHITE_RUNTIME_METRIC, 
     GRAPHITE_RESULT_METRIC
 )

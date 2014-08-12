@@ -2,19 +2,21 @@ import logging
 
 from xml.etree import ElementTree
 
-from sentinel.common.enum import PredicateType
-from sentinel.predicate.health import PredicateHealth
-from sentinel.predicate.pred_and import PredicateAnd
-from sentinel.predicate.pred_not import PredicateNot
-from sentinel.predicate.pred_or import PredicateOr
-from sentinel.predicate.process import PredicateProcess
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.predicate.zkgut import ZookeeperGoodUntilTime
-from sentinel.predicate.zkhas_children import ZookeeperHasChildren
-from sentinel.predicate.zkhas_grandchildren import ZookeeperHasGrandChildren
-from sentinel.predicate.zknode_exists import ZookeeperNodeExists
-from sentinel.util.helpers import verify_attribute
-from sentinel.util.decorators import catch_exception
+from spot.zoom.agent.sentinel.common.enum import PredicateType
+from spot.zoom.agent.sentinel.predicate.health import PredicateHealth
+from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
+from spot.zoom.agent.sentinel.predicate.pred_not import PredicateNot
+from spot.zoom.agent.sentinel.predicate.pred_or import PredicateOr
+from spot.zoom.agent.sentinel.predicate.process import PredicateProcess
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.zkgut import ZookeeperGoodUntilTime
+from spot.zoom.agent.sentinel.predicate.zkhas_children \
+    import ZookeeperHasChildren
+from spot.zoom.agent.sentinel.predicate.zkhas_grandchildren \
+    import ZookeeperHasGrandChildren
+from spot.zoom.agent.sentinel.predicate.zknode_exists import ZookeeperNodeExists
+from spot.zoom.agent.sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.util.decorators import catch_exception
 
 
 class PredicateFactory(object):

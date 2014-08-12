@@ -1,8 +1,8 @@
 import json
 import tornado.web
 
-from sentinel.config.constants import ALLOWED_WORK
-from sentinel.common.task import Task
+from spot.zoom.agent.sentinel.config.constants import ALLOWED_WORK
+from spot.zoom.agent.sentinel.common.task import Task
 
 
 class BaseHandler(tornado.web.RequestHandler):

@@ -1,9 +1,10 @@
 import logging
 import os.path
 
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.predicate.zkhas_children import ZookeeperHasChildren
-from sentinel.util.decorators import connected
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.zkhas_children \
+    import ZookeeperHasChildren
+from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperHasGrandChildren(SimplePredicate):
@@ -31,7 +32,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             self._started = True
             self._walk(self.node)
             for child in self._children:
-                child.add_callback(self._callback)
+                child.add_callback({"zk_hgc": self._callback})
             map(lambda x: x.start(), self._children)
         else:
             self._log.debug('Already started {0}'.format(self))

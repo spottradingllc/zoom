@@ -2,7 +2,7 @@
 
 WEB_SERVER=http://spotpypi01.spottrading.com/pypi
 PY_3RDPARTY=${WEB_SERVER}/3rdparty/python
-VENV_DIR=/opt/spot/zoom/sentinel/web/venv
+VENV_DIR=/opt/spot/zoom/venv
 
 
 /bin/cat >  ~/.pydistutils.cfg << EOF
@@ -31,7 +31,12 @@ for PACKAGE in python-ldap-2.4.10.tar.gz \
             pyodbc-3.0.6-py2.7-linux-x86_64.egg \
             nose-1.3.0.tar.gz \
             mox-0.5.3.tar.gz \
-            coverage-3.6.tar.gz
+            coverage-3.6.tar.gz \
+            psutil-1.2.1.tar.gz \
+            zope.interface-4.0.5.tar.gz \
+            setproctitle-1.1.8.tar.gz \
+
+
 do
     FULLPATH=${PY_3RDPARTY}/${PACKAGE}
 	/bin/echo "## Installing ${FULLPATH} ##";

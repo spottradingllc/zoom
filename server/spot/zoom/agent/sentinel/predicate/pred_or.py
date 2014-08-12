@@ -1,5 +1,5 @@
 import logging
-from sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateOr(SimplePredicate):

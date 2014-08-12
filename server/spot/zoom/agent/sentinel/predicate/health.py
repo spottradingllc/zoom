@@ -5,8 +5,8 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from time import sleep
 
-from sentinel.common.enum import PlatformType, SimpleObject
-from sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.common.enum import PlatformType, SimpleObject
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateHealth(SimplePredicate):
@@ -14,7 +14,7 @@ class PredicateHealth(SimplePredicate):
         """
         :type comp_name: str
         :type command: str
-        :type interval: int
+        :type interval: int or float
         :type system: sentinel.common.enum.PlatformType
         :type parent: str or None
         """

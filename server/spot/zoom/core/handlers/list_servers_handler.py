@@ -19,4 +19,3 @@ class ListServersHandler(tornado.web.RequestHandler):
         # get all nodes at the root config path
         nodes = self.zk.get_children(path)
         self.write(json.dumps(nodes))
-

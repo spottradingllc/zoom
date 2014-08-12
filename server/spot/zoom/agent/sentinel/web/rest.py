@@ -1,8 +1,8 @@
 import logging
 import tornado.web
 
-from sentinel.web.handlers import LogHandler
-from sentinel.web.handlers import WorkHandler
+from spot.zoom.agent.sentinel.web.handlers import LogHandler
+from spot.zoom.agent.sentinel.web.handlers import WorkHandler
 
 
 class RestServer(tornado.web.Application):

@@ -1,9 +1,8 @@
-import unittest
-import logging
 import mox
-from nose.tools import nottest
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.predicate.pred_and import PredicateAnd
+import unittest
+
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
 
 
 class PredicateAndTest(unittest.TestCase):
@@ -70,7 +69,7 @@ class PredicateAndTest(unittest.TestCase):
         pred = PredicateAnd(self.comp_name, preds)
 
         pred.start()
-        pred.start() #should noop
+        pred.start()  # should noop
 
         self.mox.VerifyAll() 
 
@@ -82,7 +81,7 @@ class PredicateAndTest(unittest.TestCase):
         
         pred = PredicateAnd(self.comp_name, preds)
 
-        #test stop isn't called without starting
+        # test stop isn't called without starting
         pred.stop()
         
         self.mox.VerifyAll() 
@@ -100,15 +99,15 @@ class PredicateAndTest(unittest.TestCase):
         
         self.mox.ReplayAll()
         
-        pred = PredicateAnd(comp_name="tet", predicates=preds, parent="Parent_str")
+        pred = PredicateAnd(comp_name="tet", predicates=preds,
+                            parent="Parent_str")
 
         pred.start()
         pred.stop()
         pred.stop()
         pred.start()
 
-       # self.assertTrue(0)
-        self.mox.VerifyAll() 
+        self.mox.VerifyAll()
 
     def test_equal(self):
 
@@ -141,8 +140,4 @@ class PredicateAndTest(unittest.TestCase):
 
         self.assertNotEqual(pred_and1, pred_and2)
 
-        self.mox.VerifyAll() 
-        
-
-    
-
+        self.mox.VerifyAll()

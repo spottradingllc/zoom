@@ -2,9 +2,9 @@ import logging
 
 from xml.etree import ElementTree
 
-from sentinel.action.action import Action
-from sentinel.util.helpers import verify_attribute
-from sentinel.util.decorators import catch_exception
+from spot.zoom.agent.sentinel.action.action import Action
+from spot.zoom.agent.sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.util.decorators import catch_exception
 
 
 class ActionFactory(object):

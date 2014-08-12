@@ -12,13 +12,17 @@ from kazoo.handlers.threading import SequentialThreadingHandler
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
-from sentinel.web.rest import RestServer
-from sentinel.util.decorators import connected, catch_exception, run_only_one
-from sentinel.util.helpers import verify_attribute
-from sentinel.common.child_process import ChildProcess
-from sentinel.common.enum import PlatformType
-from sentinel.client.task_client import TaskClient
-from sentinel.config.constants import (
+from spot.zoom.agent.sentinel.web.rest import RestServer
+from spot.zoom.agent.sentinel.util.decorators import (
+    connected,
+    catch_exception,
+    run_only_one
+)
+from spot.zoom.agent.sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.common.child_process import ChildProcess
+from spot.zoom.agent.sentinel.common.enum import PlatformType
+from spot.zoom.agent.sentinel.client.task_client import TaskClient
+from spot.zoom.agent.sentinel.config.constants import (
     ZK_CONN_STRING,
     ZK_AGENT_CONFIG_PATH,
     ZK_AGENT_STATE_PATH

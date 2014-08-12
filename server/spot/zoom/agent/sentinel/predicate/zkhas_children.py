@@ -1,7 +1,7 @@
 import logging
 
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.util.decorators import connected
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperHasChildren(SimplePredicate):
