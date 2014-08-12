@@ -11,7 +11,8 @@ from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 
 class ApplicationDependencyCache(object):
-    def __init__(self, configuration, zoo_keeper, web_socket_clients):
+    def __init__(self, configuration, zoo_keeper, web_socket_clients,
+                 time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
@@ -21,8 +22,8 @@ class ApplicationDependencyCache(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
-        self._message_throttle = MessageThrottle(configuration,
-                                                 web_socket_clients)
+        self._time_estimate_cache = time_estimate_cache;
+        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
 
     def start(self):
         self._message_throttle.start()
@@ -56,6 +57,8 @@ class ApplicationDependencyCache(object):
         self._walk(self._configuration.agent_configuration_path, self._cache)
         logging.info("Application dependency cache loaded from ZooKeeper {0}"
                      .format(self._configuration.agent_configuration_path))
+
+        self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 
     def _walk(self, path, result_dict):
         """
@@ -145,6 +148,8 @@ class ApplicationDependencyCache(object):
             self._cache.update(message.application_dependencies)
 
             self._message_throttle.add_message(message)
+
+            self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')

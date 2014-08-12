@@ -1,50 +1,74 @@
 import httplib
 import logging
 import requests
-
 from spot.zoom.www.entities.types import DependencyType
+from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
+from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 
 class TimeEstimateCache(object):
 
-    def __init__(self, configuration, application_state_cache,
-                 application_dependency_cache):
-        """
-        :type configuration: zoom.config.Configuration
-        :type application_state_cache:
-            zoom.cache.application_state_cache.ApplicationStateCache
-        :type application_dependency_cache:
-            zoom.cache.application_dependency_cache.ApplicationDependencyCache
-        """
-        self.dep_cache = application_dependency_cache
-        self.dependencies = {}
-        self.state_cache = application_state_cache
-        self.states = {}
+    def __init__(self, configuration, web_socket_clients):
+
         self.graphite_cache = {}
         self.configuration = configuration
+        self._web_socket_clients = web_socket_clients
+        self.deps = {}
+        self.states = {}
+        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+
+    def start(self):
+        self._message_throttle.start()
+
+    def stop(self):
+        self._message_throttle.stop()
 
     def reload(self):
         self.graphite_cache.clear()
+        self.recompute()
+
+    def update_appplication_states(self, states):
+        self.states.update(states)
+        self._message_throttle.add_message(self.recompute())
+
+    def update_appplication_deps(self, deps):
+        self.deps.update(deps)
+        self._message_throttle.add_message(self.recompute())
 
     def load(self):
         logging.info("Loading Timing Estimates...")
+        ret = self.recompute()
+        return ret
+   
+    def recompute(self):
         try:
-            self.dependencies = self.dep_cache.load().application_dependencies
-            self.states = self.state_cache.load().application_states
-            maxcost = 0
-            maxpath = "Error"
+            message = TimeEstimateMessage()
+            maxtime = 0
+            mintime = 0
+            avetime = 0
+            maxpath = "None"
             searchdata = {} 
 
-            for path in self.dependencies.iterkeys():
-                if self.rec_fn(path, searchdata) > maxcost:
-                    maxcost = self.rec_fn(path, searchdata)
-                    maxpath = path
+            if self.states != {}:
+                for path in self.deps.iterkeys():
+                    data = self.rec_fn(path, searchdata) 
+                    if data['max'] > maxtime:
+                        maxtime = data['max']
+                        maxpath = path
+                    if data['min'] > mintime:
+                        mintime = data['min']
+                    if data['ave'] > avetime:
+                        avetime = data['ave']
 
-            logging.info("Timing Estimates Loaded")
-            return {
-                'maxtime': maxcost,
-                'maxpath': maxpath
-            }
+            message.update({
+                'maxtime' : maxtime,
+                'mintime' : mintime,
+                'avetime' : avetime,
+                'maxpath' : maxpath
+            })
+
+            return message
+
         except Exception as e:
             logging.exception(e)
 
@@ -58,33 +82,40 @@ class TimeEstimateCache(object):
         if data.get('cost', None) is not None:
             return data['cost']
 
-        #look up running or graphite time
-        if(self.states.get(path, None) is not None
-           and self.states[path].get('application_status', None) is not None
-           and self.states[path]['application_status'] == "running"):
-            data['time'] = 0
-        else:  # not running, fetch graphite
-            data['time'] = self.get_graphtite_data(path)
+        data['time'] = self.get_graphtite_data(path)
 
         #recurse into deps
-        dep_data = self.dependencies.get(path, None)
-        if dep_data is None:
-            ret = 0
-        elif len(dep_data['dependencies']) == 0:
-            ret = 0
-        else:
-            ret = 0
+        dep_data = self.deps.get(path, None)
+        avet = 0
+        mint = 0
+        maxt = 0
+        if dep_data and \
+           len(dep_data['dependencies']) != 0:
             for i in dep_data['dependencies']:
                 if i.get('type').lower() == DependencyType.CHILD:
-                    ret = max(ret, self.rec_fn(i.get("path", None), searchdata))
+                    avet = max(avet, self.rec_fn(i.get("path", None), searchdata)['ave'])
+                    mint = max(mint, self.rec_fn(i.get("path", None), searchdata)['min'])
+                    maxt = max(maxt, self.rec_fn(i.get("path", None), searchdata)['max'])
                 if i.get('type').lower() == DependencyType.GRANDCHILD:
                     grand_path = i.get("path")
-                    for key in self.dependencies.iterkeys():
+                    for key in self.deps.iterkeys():
                         if key.lower().startswith(grand_path) \
                                 and key.lower() != grand_path:
-                            ret = max(ret, self.rec_fn(key, searchdata))
+                            avet = max(avet, self.rec_fn(key, searchdata)['ave'])
+                            mint = max(mint, self.rec_fn(key, searchdata)['min'])
+                            maxt = max(maxt, self.rec_fn(key, searchdata)['max'])
 
-        data['cost'] = ret + data['time']
+        data['cost'] = {}
+        #look up running or graphite time
+        if(self.states.get(path, None) is not None
+           and self.states[path].get('application_status', None) == "running"):
+            data['cost']['ave'] = avet 
+            data['cost']['min'] = mint 
+            data['cost']['max'] = maxt 
+        else:  # not running, fetch graphite
+            data['cost']['ave'] = avet + data['time']['ave']
+            data['cost']['min'] = mint + data['time']['min']
+            data['cost']['max'] = maxt + data['time']['max']
 
         return data['cost']
 
@@ -95,21 +126,26 @@ class TimeEstimateCache(object):
         try:
             url = path.split('/spot/software/state/')[1]
             url = url.replace('/', '.')
-            # aggregateLine defaults to average
-            url = ('http://{0}/render?target=aggregateLine(Infrastructure.startup.{1}.runtime)'
-                   '&format=json&from=-5d'
-                   .format(self.configuration.graphite_host, url))
+            url = "http://{0}/render?target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'max'),'max')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'min'),'min')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')&format=json&from=-5d".format(self.configuration.graphite_host, url)
             response = requests.post(url, timeout=5.0)
-            if response.status_code != httplib.OK:
-                self.graphite_cache[path] = 0
-                return 0
-            else:
-                #first and only entry, it's first and only data point,
-                # and formatted as [ data, time ]
-                self.graphite_cache[path] = response.json()[0]['datapoints'][0][0]
+
+            self.graphite_cache[path] = {'min' : 0, 'max': 0, 'ave': 0}
+
+            if response.status_code == httplib.OK:
+                for data in response.json():
+                    if "avg" in data['target']:
+                        self.graphite_cache[path]['ave'] = data['datapoints'][0][0]
+                    elif "max" in data['target']:
+                        self.graphite_cache[path]['max'] = data['datapoints'][-1][0]
+                    elif "min" in data['target']:
+                        self.graphite_cache[path]['min'] = data['datapoints'][0][0]
+                    else:
+                        logging.warn("Received graphite data {} with unknown target".format(data))
 
             return self.graphite_cache[path]
 
         except Exception as e:
             logging.exception(e)
             return 0
+
+            

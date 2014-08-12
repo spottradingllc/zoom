@@ -10,6 +10,7 @@ class UpdateType():
     APPLICATION_STATE_UPDATE = "application_state"
     APPLICATION_DEPENDENCY_UPDATE = "application_dependency"
     GLOBAL_MODE_UPDATE = "global_mode"
+    TIMING_UPDATE = "timing_estimate"
 
 
 class OperationType():
