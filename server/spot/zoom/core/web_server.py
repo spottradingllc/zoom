@@ -1,5 +1,4 @@
 import logging
-import os
 
 import tornado.ioloop
 import tornado.web
@@ -63,7 +62,6 @@ class WebServer(tornado.web.Application):
         ]
 
         settings = dict(
-            # environment=os.environ['EnvironmentToUse'],
             # is equivalent to (autoreload=True, compiled_template_cache=False,
             # static_hash_cache=False, serve_traceback=True)
             debug=configuration.is_debug

@@ -1,5 +1,5 @@
 import logging
-from sentinel.config.constants import CALLBACK_PRIORITY
+from spot.zoom.agent.sentinel.config.constants import CALLBACK_PRIORITY
 
 
 class SimplePredicate(object):
@@ -22,7 +22,7 @@ class SimplePredicate(object):
 
     def add_callback(self, cb):
         """
-        :type cb: types.funcType
+        :type cb: dict ({str: types.funcType})
         """
         self._callbacks.append(cb)
         self._sort_callbacks()
@@ -32,8 +32,8 @@ class SimplePredicate(object):
         Sort callbacks based on CALLBACKS dictionary values
         """
         self._callbacks = sorted(self._callbacks,
-                                 key=lambda item: [CALLBACK_PRIORITY[k]
-                                 for k in item.keys()])
+                                 key=lambda item: [CALLBACK_PRIORITY.get(k, 99)
+                                                   for k in item.keys()])
 
     def set_met(self, value):
         """
@@ -84,13 +84,12 @@ class SimplePredicate(object):
 
     def __eq__(self, other):
         return all([
-                self._met == other._met,
-                self._parent == other._parent,
-                self._comp_name == other._comp_name])
+            self._met == other._met,
+            self._parent == other._parent,
+            self._comp_name == other._comp_name])
 
     def __ne__(self, other):
         return any([
-                self._met != other._met,
-                self._parent != other._parent,
-                self._comp_name != other._comp_name])
-                    
+            self._met != other._met,
+            self._parent != other._parent,
+            self._comp_name != other._comp_name])

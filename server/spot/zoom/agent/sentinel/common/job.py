@@ -4,9 +4,13 @@ from time import sleep
 from datetime import datetime
 from kazoo.exceptions import NodeExistsError, NoNodeError
 
-from sentinel.common.application import Application
-from sentinel.common.enum import JobState
-from sentinel.util.decorators import connected, time_this, catch_exception
+from spot.zoom.agent.sentinel.common.application import Application
+from spot.zoom.agent.sentinel.common.enum import JobState
+from spot.zoom.agent.sentinel.util.decorators import (
+    connected,
+    time_this,
+    catch_exception
+)
 
 
 class Job(Application):

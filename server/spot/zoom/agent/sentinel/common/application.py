@@ -9,8 +9,8 @@ from kazoo.handlers.threading import SequentialThreadingHandler
 from multiprocessing import Lock
 from time import sleep
 
-from sentinel.action.factory import ActionFactory
-from sentinel.config.constants import (
+from spot.zoom.agent.sentinel.action.factory import ActionFactory
+from spot.zoom.agent.sentinel.config.constants import (
     ZK_AGENT_STATE_PATH,
     ZK_STATE_PATH,
     ZK_CONN_STRING,
@@ -18,26 +18,27 @@ from sentinel.config.constants import (
     ZK_GLOBAL_PATH,
     ALLOWED_WORK
 )
-from sentinel.common.enum import (
+from spot.zoom.agent.sentinel.common.enum import (
     SimpleObject,
     ApplicationMode,
     PlatformType,
     ApplicationState
 )
-from sentinel.util.decorators import (
+from spot.zoom.agent.sentinel.util.decorators import (
     connected,
     time_this,
     catch_exception,
     run_only_one
 )
-from sentinel.util.helpers import verify_attribute
-from sentinel.common.work_manager import WorkManager
-from sentinel.common.task import Task
+from spot.zoom.agent.sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.common.work_manager import WorkManager
+from spot.zoom.agent.sentinel.common.task import Task
 
 if 'Linux' in platform.platform():
-    from sentinel.client.process_client import ProcessClient
+    from spot.zoom.agent.sentinel.client.process_client import ProcessClient
 else:
-    from sentinel.client.process_client import WindowsProcessClient as ProcessClient
+    from spot.zoom.agent.sentinel.client.process_client \
+        import WindowsProcessClient as ProcessClient
 
 
 class Application(object):

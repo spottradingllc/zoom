@@ -1,9 +1,8 @@
-import unittest
-import logging
 import mox
-from nose.tools import nottest
-from sentinel.predicate.simple import SimplePredicate
-from sentinel.predicate.pred_or import PredicateOr
+import unittest
+
+from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.pred_or import PredicateOr
 
 
 class PredicateOrTest(unittest.TestCase):
@@ -70,7 +69,7 @@ class PredicateOrTest(unittest.TestCase):
         pred = PredicateOr(self.comp_name, preds)
 
         pred.start()
-        pred.start() #should noop
+        pred.start()  # should noop
 
         self.mox.VerifyAll() 
 
@@ -82,7 +81,7 @@ class PredicateOrTest(unittest.TestCase):
         
         pred = PredicateOr(self.comp_name, preds)
 
-        #test stop isn't called without starting
+        # test stop isn't called without starting
         pred.stop()
         
         self.mox.VerifyAll() 
@@ -146,8 +145,4 @@ class PredicateOrTest(unittest.TestCase):
 
         self.assertNotEqual(pred_and1, pred_and2)
 
-        self.mox.VerifyAll() 
-        
-
-    
-
+        self.mox.VerifyAll()

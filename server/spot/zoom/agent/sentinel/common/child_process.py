@@ -2,12 +2,12 @@ import logging
 from multiprocessing import Pipe
 from threading import Thread
 
-from sentinel.common.application import Application
-from sentinel.common.job import Job
-from sentinel.common.enum import ApplicationType
-from sentinel.common.task import Task
-from sentinel.common.unique_queue import UniqueQueue
-from sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.common.application import Application
+from spot.zoom.agent.sentinel.common.job import Job
+from spot.zoom.agent.sentinel.common.enum import ApplicationType
+from spot.zoom.agent.sentinel.common.task import Task
+from spot.zoom.agent.sentinel.common.unique_queue import UniqueQueue
+from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 
 
 class ChildProcess(object):

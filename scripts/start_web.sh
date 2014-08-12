@@ -18,7 +18,8 @@
 
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
-APPPATH="/opt/spot/zoom/sentinel/web"
+APPPATH="/opt/spot/zoom/server"
+VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
 #RUNLOG=$APPPATH/logs/stdout
@@ -58,7 +59,7 @@ function dostart()
         die "$APP is already running with pid(s) $pid. \nEither stop the APP or run \"restart\" instead of \"start\".";
     fi;
     # check for virtual environment creation
-    if [ ! -f $APPPATH/venv/bin/activate ]; then
+    if [ ! -f ${VENV_PATH}/bin/activate ]; then
         die "Virtual Environment not found. Please create it first.";
     fi;
     # check for log dir
@@ -69,7 +70,7 @@ function dostart()
 
     COUNTER=0
     /bin/echo -n "Starting $APP.";
-    cd $APPPATH; source $APPPATH/venv/bin/activate; $STARTCMD > $RUNLOG 2>&1 &
+    cd $APPPATH; source ${VENV_PATH}/bin/activate; $STARTCMD > $RUNLOG 2>&1 &
     while [[ -z "$(getpid)" ]] && [[ $COUNTER -lt 10 ]]; do
         let COUNTER+=1
         /bin/echo -n " ."

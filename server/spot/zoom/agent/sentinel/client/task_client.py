@@ -2,9 +2,9 @@ import logging
 import platform
 import json
 
-from sentinel.config.constants import ALLOWED_WORK
-from sentinel.config.constants import ZK_TASK_PATH
-from sentinel.common.task import Task
+from spot.zoom.agent.sentinel.config.constants import ALLOWED_WORK
+from spot.zoom.agent.sentinel.config.constants import ZK_TASK_PATH
+from spot.zoom.agent.sentinel.common.task import Task
 
 class TaskClient(object):
     def __init__(self, zkclient, children):

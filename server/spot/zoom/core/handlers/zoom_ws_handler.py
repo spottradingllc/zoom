@@ -1,5 +1,4 @@
 import logging
-
 import tornado.websocket
 
 from spot.zoom.core.utils.decorators import timethis
@@ -27,4 +26,3 @@ class ZoomWSHandler(tornado.websocket.WebSocketHandler):
         self.socket_clients.remove(self)
         logging.debug("[WEBSOCKET] Closed.  Total clients: {0}"
                       .format(len(self.socket_clients)))
-
