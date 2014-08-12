@@ -1,10 +1,10 @@
-import win32serviceutil
-import win32service
+import os
+import psutil
+import time
 import win32event
 import win32evtlogutil
-import os
-import time
-import psutil
+import win32service
+import win32serviceutil
 
 
 class PythonService(win32serviceutil.ServiceFramework):
