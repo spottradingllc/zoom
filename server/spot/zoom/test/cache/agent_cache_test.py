@@ -21,7 +21,7 @@ class AgentCacheTest(TestCase):
         AgentCache(self.configuration, self.zoo_keeper)
         self.mox.VerifyAll()
 
-    # test reload here
+    # TODO: test reload here
     # def test_clear(self):
     #     cache = AgentCache(self.configuration, self.zoo_keeper)
     #     self.mox.StubOutWithMock(cache, "load")
