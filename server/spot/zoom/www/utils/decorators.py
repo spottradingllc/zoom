@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 
 
-class timethis(object):
+class TimeThis(object):
     
     def __init__(self, filename=""):
         if filename is not "":

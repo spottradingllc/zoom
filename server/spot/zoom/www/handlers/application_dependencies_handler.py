@@ -4,7 +4,7 @@ import httplib
 
 import tornado.web
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ApplicationDependenciesHandler(tornado.web.RequestHandler):
@@ -13,7 +13,7 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
     def data_store(self):
         return self.application.data_store
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         logging.info('Retrieving Application Dependency Cache')
         try:

@@ -33,7 +33,6 @@ class PredicateNot(SimplePredicate):
         else:
             self._log.debug('Already stopped {0}'.format(self))
 
-
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, met={3}, predicate={4})'
                 .format(self.__class__.__name__,

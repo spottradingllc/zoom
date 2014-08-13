@@ -6,6 +6,7 @@ from spot.zoom.agent.sentinel.config.constants import ALLOWED_WORK
 from spot.zoom.agent.sentinel.config.constants import ZK_TASK_PATH
 from spot.zoom.agent.sentinel.common.task import Task
 
+
 class TaskClient(object):
     def __init__(self, zkclient, children):
         self._log = logging.getLogger('sent.task_client')
@@ -16,8 +17,8 @@ class TaskClient(object):
 
         self.reset_watches()
 
-    def onExists(self, event):
-        if self._zkclient.exists(self._path, self.onExists) is not None:
+    def on_exist(self, event=None):
+        if self._zkclient.exists(self._path, watch=self.on_exist) is not None:
             jsonstr, stat = self._zkclient.get(self._path)
             data = json.loads(jsonstr)
             work = data.get('work', None)
@@ -26,8 +27,10 @@ class TaskClient(object):
 
             if work in ALLOWED_WORK:
                 if target is not None:
+                    # do something with result?
                     result = self._send_work_single(work, target, kwargs=argument)
                 else:
+                    # do something with result?
                     result = self._send_work_all(work, kwargs=argument)
                 logging.info("just {}'d {}".format(work, target))
             else:
@@ -37,8 +40,8 @@ class TaskClient(object):
             self._zkclient.delete(self._path)
 
     def reset_watches(self):
-        if self._zkclient.exists(self._path, self.onExists) is not None:
-            self.onExists(None)
+        if self._zkclient.exists(self._path, self.on_exist) is not None:
+            self.on_exist()
 
     def _send_work_all(self, work, kwargs={}):
         """
@@ -50,7 +53,6 @@ class TaskClient(object):
             result.append(self._send_work_single(work, child, kwargs=kwargs))
         return result
 
-
     def _send_work_single(self, work, target, kwargs={}):
         """
         :type work: str
@@ -60,14 +62,11 @@ class TaskClient(object):
         child = self._children.get(target, None)
         if child is None:
             self._log.warning('The targeted child "{0}" does not exists.'
-                             .format(target))
+                              .format(target))
             return {'target': target, 'work': work, 'result': '404: Not Found'}
         else:
             process = child['process']
-            process.add_work(Task(work, kwargs=kwargs, block=True, pipe=True), immediate=True)
+            process.add_work(Task(work, kwargs=kwargs, block=True, pipe=True),
+                             immediate=True)
             result = process.parent_conn.recv()  # will block until done
             return {'target': target, 'work': work, 'result': result}
-                
-                
-            
-

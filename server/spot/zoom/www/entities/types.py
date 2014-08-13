@@ -3,8 +3,10 @@ class ApplicationStatus():
     STARTING = 2
     STOPPED = 3
 
+
 class CommandType():
     CANCEL = "cancel"
+
 
 class UpdateType():
     APPLICATION_STATE_UPDATE = "application_state"

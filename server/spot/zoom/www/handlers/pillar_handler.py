@@ -8,7 +8,7 @@ import tornado.httpclient
 from httplib import INTERNAL_SERVER_ERROR
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class PillarHandler(tornado.web.RequestHandler):
@@ -21,7 +21,7 @@ class PillarHandler(tornado.web.RequestHandler):
     def zk(self):
         return self.application.zk
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self, data):
         """
         :type data: str
@@ -45,7 +45,7 @@ class PillarHandler(tornado.web.RequestHandler):
         data_val = project_data.get(data_key, {})
         self.write(data_val)
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self, data):
         """
         :type data: str
@@ -65,7 +65,7 @@ class PillarHandler(tornado.web.RequestHandler):
         self._set_minion_data(minion, minion_data)
         self.write(minion_data)
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def put(self, data):
         """
         :type data: str
@@ -90,7 +90,7 @@ class PillarHandler(tornado.web.RequestHandler):
             logging.warning("KeyError: {0}".format(ex))
             self.write({"errorText": "KeyError: {0}".format(ex)})
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def delete(self, data):
         """
         :type data: str

@@ -4,7 +4,7 @@ import logging
 import tornado.web
 
 from spot.zoom.www.entities.database import Database
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 from spot.zoom.www.entities.custom_filter import CustomFilter
 from spot.zoom.www.entities.types import OperationType
 
@@ -14,7 +14,7 @@ class FiltersHandler(tornado.web.RequestHandler):
     def configuration(self):
         return self.application.configuration
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         """
         Retrieve filter
@@ -30,7 +30,7 @@ class FiltersHandler(tornado.web.RequestHandler):
 
         self.write(json.dumps(arr))
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         """
         Save filter

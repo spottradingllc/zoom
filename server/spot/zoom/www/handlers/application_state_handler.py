@@ -4,12 +4,12 @@ import logging
 
 import tornado.web
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ApplicationStateHandler(tornado.web.RequestHandler):
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         try:
             logging.info('Retrieving Application State Cache')

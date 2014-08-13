@@ -3,7 +3,7 @@ import logging
 import tornado.web
 
 from spot.zoom.www.entities.database import Database
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ServiceInfoHandler(tornado.web.RequestHandler):
@@ -11,7 +11,7 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
     def configuration(self):
         return self.application.configuration
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         """
         Save service info
@@ -34,7 +34,7 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
             self.write("Error: Info for {0} could not be saved!"
                        .format(configuration_path))
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         """
         Get service info

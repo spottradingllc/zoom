@@ -63,7 +63,7 @@ class GraphiteClient(object):
         host = cls._get_host(environment=env)
         payload = '{0} {1} {2}'.format(metric, data, tstamp)
         log.info('Sending message "{0}" to {1}:{2}'
-                     .format(payload, host, GraphiteClient.GRAPHITE_PORT))
+                 .format(payload, host, GraphiteClient.GRAPHITE_PORT))
 
         sock = socket.socket()
         sock.settimeout(10)
@@ -99,8 +99,8 @@ class GraphiteClient(object):
         elif isinstance(dtime, datetime.timedelta):
             ret_dtime = cls.get_posix_time(datetime.datetime.now() + dtime)
         else:
-            log.warn('Time "{0}" is not of the proper type. '
-                         'Using default value "{1}".'.format(dtime, default))
+            log.warn('Time "{0}" is not of the proper type. Using default value'
+                     ' "{1}".'.format(dtime, default))
             ret_dtime = default
 
         return ret_dtime

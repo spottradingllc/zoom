@@ -10,20 +10,22 @@ class Database(object):
         if configuration.db_type == "sql":
             self.db = SQLDatabase(configuration)
 
-    def save_filter(self, filter):
-        return self.db.save_filter(filter)
+    def save_filter(self, _filter):
+        return self.db.save_filter(_filter)
 
-    def delete_filter(self, filter):
-        return self.db.delete_filter(filter)
+    def delete_filter(self, _filter):
+        return self.db.delete_filter(_filter)
 
     def fetch_all_filters(self, login_name):
         return self.db.fetch_all_filters(login_name)
 
     def save_service_info(self, login_name, configuration_path, serivce_info):
-        return self.db.save_service_info(login_name, configuration_path, serivce_info)
+        return self.db.save_service_info(login_name, configuration_path,
+                                         serivce_info)
 
     def fetch_service_info(self, configuration_path):
         return self.db.fetch_service_info(configuration_path)
+
 
 class SQLDatabase(Database):
     def __init__(self, configuration):
@@ -42,15 +44,15 @@ class SQLDatabase(Database):
         self.connection.commit()
         self.connection.close()
 
-    def save_filter(self, filter):
+    def save_filter(self, _filter):
         connection = pyodbc.connect(self.connection_string)
         cursor = connection.cursor()
 
-        login_name = filter.login_name
-        name = filter.name
-        parameter = filter.parameter
-        search_term = filter.search_term
-        inversed = filter.inversed
+        login_name = _filter.login_name
+        name = _filter.name
+        parameter = _filter.parameter
+        search_term = _filter.search_term
+        inversed = _filter.inversed
 
         if inversed == "false":
             inversed = 0
@@ -69,12 +71,12 @@ class SQLDatabase(Database):
         connection.close()
         return "Filter {0} was successfully saved in the database!".format(name)
 
-    def delete_filter(self, filter):
+    def delete_filter(self, _filter):
         connection = pyodbc.connect(self.connection_string)
         cursor = connection.cursor()
 
-        login_name = filter.login_name
-        name = filter.name
+        login_name = _filter.login_name
+        name = _filter.name
 
         cursor.execute("delete from custom_filters where login_name='%s' and name='%s'" % (login_name, name))
         connection.commit()
@@ -91,7 +93,8 @@ class SQLDatabase(Database):
 
         filters = []
         for row in rows:
-            filters.append(CustomFilter(row.name, row.login_name, row.parameter, row.search_term, row.inversed))
+            filters.append(CustomFilter(row.name, row.login_name, row.parameter,
+                                        row.search_term, row.inversed))
 
         connection.commit()
         connection.close()
@@ -103,7 +106,7 @@ class SQLDatabase(Database):
         cursor = connection.cursor()
 
         # update the service information if it exists, otherwise save
-        cursor.execute("select * from services_info where configuration_path='%s'" % (configuration_path))
+        cursor.execute("select * from services_info where configuration_path='%s'" % configuration_path)
         row = cursor.fetchone()
         if row:
             cursor.execute("update services_info set service_info='%s' where configuration_path='%s'" % (service_info, configuration_path))
