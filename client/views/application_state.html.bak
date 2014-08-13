@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="ZooKeeper Manager">
+        <meta name="author" content="David Shrader">
+
+        <!-- meta tags to block browser cache -->
+        <meta http-equiv="cache-control" content="max-age=0" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta http-equiv="expires" content="0" />
+        <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+        <meta http-equiv="pragma" content="no-cache" />
+
+        <title>Zoom</title>
+
+        <link rel="stylesheet" type="text/css" href="front-end/styles/libs/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="front-end/styles/app/spot.css"/>
+        <link rel="stylesheet" type="text/css" href="front-end/styles/app/dependencyMaps.css"/>
+
+        <script src="front-end/scripts/js/libs/require-2.1.14.min.js" data-main="main"></script>
+        <script src="front-end/scripts/js/requireConfig.js"></script>
+    </head>
+
+    <body>
+        <!-- viewModel (i.e. scripted below) will be inserted inside this knockout template -->
+        <div data-bind="template: {name: view, data: viewModel, if: render}">
+        </div>
+
+        <div id="d3-view-area"></div>
+    </body>
+    <!-- Application State Page -->
+    <script type="text/html" id="application_state">
+        <div id="application_state_page" class="container-fluid" style="margin-top: 20px">
+
+            <!-- Big Modal -->
+            <div class="modal" 
+                 id="big-modal"
+                 tabindex="-1" 
+                 role="dialog" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body big-modal-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation Bar -->
+            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">Zoom</a>
+                    </div>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" >
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="index.html#/application_state">Application State</a></li>
+                            <li><a href="serverConfig.html">Server Config</a></li>
+                            <li><a href="faq.html">Application State FAQ</a></li>
+                            <li><a href="serverConfigFAQ.html">Server Config FAQ</a></li>
+                        </ul>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown" style="margin-right: 10px">
+                                <a class="dropdown-toggle" href="#" data-toggle="dropdown">Sign In <strong class="caret"></strong></a>
+                                <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+                                    <!-- Login form here -->
+                                    <form role="form" class="form-horizontal">
+                                        <div class="input-group" style="margin-bottom: 25px">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                            <input id="username"
+                                                data-bind="value: login.elements.username"
+                                                style="width: 200px"
+                                                type="text"
+                                                placeholder="username"
+                                                class="form-control">
+                                        </div>
+                                        <div class="input-group" style="margin-bottom: 25px">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                            <input id="password"
+                                                data-bind="value: login.elements.password"
+                                                style="width: 200px"
+                                                type="password"
+                                                placeholder="password"
+                                                class="form-control">
+                                        </div>
+                                        <div class="row">
+                                            <div class="row-fluid">
+                                                <div class="col-xs-6" style="padding: 5px 5px 5px 5px;">
+                                                    <button data-bind="click: login.submit"
+                                                            style="width: 75%"
+                                                            type="submit"
+                                                            class="btn btn-primary">
+                                                    <i class="icon-user icon-white"></i>
+                                                    Login
+                                                    </button>
+                                                </div>
+                                                <div data-bind="visible: login.elements.authenticated" class="col-xs-6" style="padding: 5px 5px 5px 5px;">
+                                                    <button data-bind="click: function() { login.reset() }"
+                                                            style="width: 75%"
+                                                            class="btn btn-primary"
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="Logout">
+                                                    Logout
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- END Navigation Bar -->
+
+            <div class="page-header">
+                <h1>
+                    Application State Agent
+                    <small>
+                      <span data-bind="text: applicationState.applicationStates().length"></span> total services
+                    </small>
+                    <small class="pull-right">
+                        Zookeeper startup is :
+                        <div class="btn-group" data-bind="visible: login.elements.authenticated">
+                            <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('auto')}, 
+                                                             attr: {class: mode.OnClass()}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Set Zookeeper to react to state changes.">On</button>
+                            <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('manual')}, attr: {class: mode.OffClass()}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Set Zookeeper to ignore state changes.">Off</button>
+                        </div>
+                        <small>
+                        <span data-bind="text: mode.timingString"/>
+                        </small>
+                    </small>
+                </h1>
+
+                <!-- View Toggling -->
+                <div class="row" style="margin-bottom: 5px">
+                    <div class="col-md-6 text-left">
+                        <div class="btn-group" data-bind="foreach: applicationState.views">
+                            <button class="btn btn-default" data-bind="radio: $parent.applicationState.currentView">
+                                <span data-bind="text: name"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <small class="pull-right">
+                            <div class="pull-right">
+                                Diff Mode :
+                                <div class="btn-group">
+                                    <button type="button" 
+                                            data-bind="click: function(){applicationState.enableTimeFilter()},
+                                                       attr: {class: ('btn btn-default' + (applicationState.filterByTime() ? ' active' : '')),
+                                                              title: applicationState.timeToolTip}"
+                                            data-toggle="tooltip"
+                                            data-placement="top"> Update
+
+                                        <span class="glyphicon glyphicon-refresh" data-bind="visible: applicationState.filterByTime()"> </span>
+                                    </button>
+                                    <button type="button" data-bind="click: function(){applicationState.filterByTime(false)},
+                                                                     attr: {class: ('btn btn-default' + (!applicationState.filterByTime() ? ' active' : ''))}"
+                                                          data-toggle="tooltip"
+                                                          data-placement="top"
+                                                          title="Set Zoom to normal operation">Normal
+                                    </button>
+                                </div>
+                                <button type="button" data-bind="click: function(){applicationState.fnReloadCaches()}"
+                                                      class="btn btn-default"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Reload Server Side Caches">Reload Server Cache</button>
+                            </div>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 text-left">
+                        <!-- Search Box -->
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search" data-bind="value: applicationState.textFilter, valueUpdate: 'afterkeydown'">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                                <button class="btn btn-default" type="button"
+                                                                data-bind="click: applicationState.clearSearch"
+                                                                data-toggle="tooltip"
+                                                                data-placement="top"
+                                                                title="Clear the search bar.">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                                <button class="btn btn-default dropdown-toggle" type="button"
+                                        data-bind="click: applicationState.fetchAllFilters"
+                                        data-toggle="dropdown"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="View filtering options.">
+                                    Filters
+                                    <span class="badge" data-bind="text: applicationState.customFilteredItems().length,
+                                                                   visible: applicationState.customFilteredItems().length > 0">
+                                    </span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <!-- ko foreach: applicationState.defaultFilters -->
+                                        <li role="presentation">
+                                            <a data-bind="click: openFilter, text: filterName"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Open the default filter.">
+                                            </a>
+                                        </li>
+                                    <!-- /ko -->
+                                    <li role="presentation" class="divider"></li>
+                                    <!-- ko foreach: applicationState.remoteCustomFilters -->
+                                        <li role="presentation">
+                                            <a data-bind="click: openFilter, text: filterName"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Open the remote custom filter.">
+                                            </a>
+                                        </li>
+                                    <!-- /ko -->
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation">
+                                        <a data-bind="click: applicationState.addCustomFilter"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Create a custom filter.">New Custom Filter</a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a data-bind="click: applicationState.clearAllFilters"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Clear all filters.">Clear All</a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Group Control Menu -->
+                    <div class="col-md-6 text-right">
+                        <div class="btn-group" data-bind="visible: login.elements.authenticated">
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Stop the starred services.">
+                                <span class="glyphicon glyphicon-stop"></span></button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':false, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Restart the starred services.">
+                                <span class="glyphicon glyphicon-retweet"></span></button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeDepRestart({'com':'dep_restart', 'arg':false, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Restart the starred services."> 
+                                <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':false, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Command the starred agents to react to Zookeeper changes.">React</button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':false, 'confirm':true})}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Cancel pending commands for the starred agents.">Cancel</button>
+                            <button type="button" class="btn btn-default"
+                                                  data-bind="click: applicationState.filteredGroupControl()"
+                                                  data-toggle="tooltip"
+                                                  data-placement="top"
+                                                  title="Star all of the filtered agents.">
+                                <span class="glyphicon glyphicon-star"></span> all
+                            </button>
+                            <button class="btn btn-default" data-bind="click: applicationState.clearGroupControl"
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="Release all starred agents.">
+                                <span class="badge" data-bind="text: applicationState.groupControl().length"></span>
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- END Group Control Menu -->
+                </div>
+
+                <div class="row">
+                    <!-- Custom Filters -->
+                    <div class="col-md-12">
+                        <div data-bind="foreach: applicationState.customFilters">
+                            <div class="row" style="margin-top: 5px">
+                                <div class="col-md-12">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default" data-bind="click: deleteFilter"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Close the filter.">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            <span class="badge" data-bind="text: $data.customFilteredItems().length,
+                                                                           visible: enabled() "></span>
+                                        </button>
+                                        <button class="btn btn-default"
+                                                data-bind="click: toggleEnabled, visible: !enabled()"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Enable the filter.">
+                                            <span class="glyphicon glyphicon-off"></span>
+                                        </button>
+                                        <button class="btn btn-default active"
+                                                type="button"
+                                                data-bind="click: toggleEnabled, visible: enabled()"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Disable the filter.">
+                                            <span class="glyphicon glyphicon-off"></span>
+                                        </button>
+                                        <button class="btn btn-default"
+                                                type="button"
+                                                data-bind="click: toggleInversed, visible: !inversed()"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Inverse the filter.">
+                                            Inverse
+                                        </button>
+                                        <button class="btn btn-default active"
+                                                data-bind="click: toggleInversed, visible: inversed()"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Un-inverse the filter.">
+                                            Inverse
+                                        </button>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button data-bind="click: function(){setParameter('applicationStatus')},
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'applicationStatus') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by Up/Down status.">
+                                            Up/Down
+                                        </button>
+                                        <button data-bind="click: function(){setParameter('configurationPath')}, 
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'configurationPath') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by configuration path.">
+                                            Path
+                                        </button>
+                                        <button data-bind="click: function(){setParameter('applicationHost')},
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'applicationHost') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by host.">
+                                            Host
+                                        </button>
+                                        <button data-bind="click: function(){setParameter('startTime')},
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'startTime') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by start time.">
+                                            Start Time
+                                        </button>
+                                        <button data-bind="click: function(){setParameter('errorState')},
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by error state.">
+                                            Status
+                                        </button>
+                                        <button data-bind="click: function(){setParameter('dependency')},
+                                                attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || 
+                                                               parameter() == 'requires' ||
+                                                               parameter() == 'requiredBy') ? ' active' : ''))}"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Filter by dependent on.">
+                                            Dependency
+                                        </button>
+                                    </div>
+                                    <span data-bind="template: {name: 'search-term-template'}"></span>
+                                    <span data-bind="template: {name : 'remote-filter-alteration-template'}, 
+                                                     visible: canBeAlteredRemotely && $parent.login.elements.authenticated">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Custom Filters -->
+                </div>
+            </div>
+
+            <div class="page-body">
+                <table class="table table-bordered table-condensed" data-bind="visible: applicationState.currentView() == applicationState">
+                    <!-- Headers -->
+                    <thead>
+                        <tr data-bind="foreach: applicationState.headers">
+                            <th style="cursor:pointer"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Toggle ascending/descending sort based on this column."
+                                data-bind="visible: title != 'Control' || $parent.login.elements.authenticated">
+                                <span data-bind="visible: $parent.applicationState.activeSort().title == title">
+                                    <span class="caret caret-reversed" data-bind="visible: asc"></span>
+                                    <span class="caret" data-bind="visible: !asc()"></span>
+                                </span>
+                                <span data-bind="text: title, click: $parent.applicationState.sort"></span>
+                                <span data-bind="visible: title == 'Configuration Path'">
+                                    <small data-bind="click: $parent.applicationState.expandAllDependencies,
+                                                      visible: !$parent.applicationState.showingAllDependencies()"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Toggle the display of all dependencies.">
+                                        (Expand All)
+                                    </small>
+                                    <small data-bind="click: $parent.applicationState.collapseAllDependencies,
+                                                      visible: $parent.applicationState.showingAllDependencies()"
+                                           data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Toggle the display of all dependencies.">
+                                        Collapse All
+                                    </small>
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!-- END Headers -->
+                    <!-- Rows -->
+                    <tbody data-bind="foreach: applicationState.filteredItems">
+                        <tr>
+                            <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
+                                <span data-bind="attr : {class : applicationStatusClass},
+                                                 click: function(){modalShow([graphiteApplicationURL()])} "></span>
+                            </td>
+                            <td data-toggle="tooltip"
+                                data-placement="top"
+                                title="Toggle the display of dependencies.">
+                                <span data-bind="text: configurationPath, click: toggleDependencies"></span>
+                                <span data-bind="attr : {class : dependencyClass}"></span>
+                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
+                                <span data-bind="visible: requires().length > 0 && showDependencies"><br>I require:</span>
+                                <ul data-bind="foreach: requires, visible: showDependencies" style="list-style-type: none">
+                                    <span data-bind="template: {name : 'dependencies-template'}"></span>
+                                </ul>
+                                <span data-bind="visible: requiredBy().length > 0 && showDependencies">I am required by:</span>
+                                <ul data-bind="foreach: requiredBy, visible: showDependencies" style="list-style-type: none">
+                                    <span data-bind="template: {name : 'dependencies-template'}"></span>
+                                </ul>
+                                <div class="alert alert-info" role="alert" 
+                                     data-bind="visible: (showInfo() && $parent.login.elements.authenticated()), text: serviceInfo,
+                                                event : {mouseout: function(){saveInfo();}},
+                                                attr : {name: configurationPath}"
+                                     contenteditable="true">
+                                </div>
+                                <div class="alert alert-info" role="alert"
+                                     data-bind="visible: (showInfo() && !$parent.login.elements.authenticated()), text: serviceInfo">
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <div class="dropdown" style="margin-right: 10px">
+                                    <div class="dropdown-toggle" 
+                                       tabindex="-1"
+                                        href="#"
+                                        data-toggle="dropdown" >
+                                        <span data-bind="text: applicationHost"/>
+                                    </div>
+                                    <ul class="dropdown-menu" role=menu >
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteCPUURL(),
+                                                                                                           graphiteNetworkURL(), 
+                                                                                                           graphiteMemoryURL(),
+                                                                                                           graphiteDiskSpaceURL(),
+                                                                                                           graphiteBufferErrorsURL()])}">All Metrics</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteCPUURL()])}">CPU Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteMemoryURL()])}">Memory Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteNetworkURL()])}">Network Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteDiskSpaceURL()])}">Disk Graph</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                                                   data-bind="click: function(){modalShow([graphiteBufferErrorsURL()])}">Buffer Errors</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td data-bind="text: startTime"></td>
+                            <td data-bind="style : {backgroundColor : errorStateBg}" class="text-center" >
+                                <span data-bind="attr : {class : errorStateClass,
+                                                         title : errorState}"/>
+                            </td>
+                            <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
+                                <div class="btn-group" >
+                                    <button class="btn btn-default"
+                                            type="button"
+                                            data-bind="click: toggleGroupControl"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Star the agent to add it to group control.">
+                                            <span data-bind="attr : {class : groupControlStar}"></span>
+                                    </button>
+                                    <button class="btn btn-default dropdown-toggle" type="button"
+                                            data-toggle="dropdown"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="View control options for the agent.">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                        <li role="presentation">
+                                            <a data-bind="click: function(){controlAgent({'com':'stop', 'arg':true, 'confirm':true})}"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Stop the agent.">Stop</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a data-bind="click: function(){controlAgent({'com':'restart', 'arg':false, 'confirm':true})}"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Restart the agent.">Restart</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a data-bind="click: function(){controlAgent({'com':'cancel', 'arg':false, 'confirm':true})}"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Cancel pending commands to the agent.">Cancel</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a data-bind="click: function(){controlAgent({'com':'ignore', 'arg':false, 'confirm':true})}"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Command the agent to ignore Zookeeper changes.">Ignore</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a data-bind="click: function(){controlAgent({'com':'react', 'arg':false, 'confirm':true})}"
+                                               data-toggle="tooltip"
+                                               data-placement="top"
+                                               title="Command the agent to react to Zookeeper changes.">React</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- END Rows -->
+                </table>
+            </div>
+        </div>
+    </script>
+    <!-- END Application State Page -->
+
+    <!-- Templates for Custom Filters -->
+    <script type="text/html" id="search-term-template">
+        <!-- ko if: parameter() == "applicationStatus" -->
+        <span data-bind="template: {name:'status-filter-template'}"></span>
+        <!-- /ko -->
+
+        <!-- ko if: parameter() == "errorState" -->
+        <span data-bind="template: {name:'error-filter-template'}"></span>
+        <!-- /ko -->
+
+        <!-- ko if: parameter() == "applicationHost" -->
+        <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
+        <!-- /ko -->
+
+        <!-- ko if: parameter() == "startTime" -->
+        <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
+        <!-- /ko -->
+
+        <!-- ko if: parameter() == "configurationPath"-->
+        <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
+        <!-- /ko -->
+
+        <!-- ko if: parameter() == "dependency" || parameter() == "requires" || parameter() == "requiredBy"-->
+        <span data-bind="template: {name:'dependency-filter-template'}"></span>
+        <!-- /ko -->
+    </script>
+
+    <script type="text/html" id="status-filter-template">
+        <div class="btn-group" data-toggle="buttons">
+            <button data-bind="click: function(){setSearchTerm('running')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'running') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter running services.">
+                <input type="radio">
+                <span class="glyphicon glyphicon-ok-circle"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('stopped')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'stopped') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter stopped services.">
+                <input type="radio">
+                <span class="glyphicon glyphicon-remove-circle"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('unknown')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'unknown') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose up/down status is unknown.">
+                <input type="radio">
+                <span class="glyphicon glyphicon-question-sign"></span>
+                </input>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/html" id="error-filter-template">
+        <div class="btn-group">
+            <button data-bind="click: function(){setSearchTerm('ok')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'ok') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose status is ok.">
+                <span class="glyphicon glyphicon-thumbs-up"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('starting')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'starting') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose status is starting.">
+                <span class="glyphicon glyphicon-retweet"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('stopping')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'stopping') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose status is stopping.">
+                <span class="glyphicon glyphicon-arrow-down"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('error')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'error') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose status is error.">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                </input>
+            </button>
+            <button data-bind="click: function(){setSearchTerm('unknown')},
+                               attr: {class : ('btn btn-default' + ((searchTerm() == 'unknown') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter services whose status is unknown.">
+                <span class="glyphicon glyphicon-question-sign"></span>
+                </input>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/html" id="path-host-time-filter-template">
+        <span class="form-inline">
+            <input type="text" data-bind="value: searchTerm, valueUpdate: 'keyup'" class="form-control">
+        </span>
+    </script>
+
+    <script type="text/html" id="dependency-filter-template">
+        <div class="btn-group">
+            <button data-bind="click: function(){setParameter('requires')},
+                               attr: {class : ('btn btn-default' + ((parameter() == 'requires') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter by services that require the search term.">
+                Requires
+            </button>
+            <button data-bind="click: function(){setParameter('requiredBy')},
+                               attr: {class : ('btn btn-default' + ((parameter() == 'requiredBy') ? ' active' : ''))}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Filter by services required by the search term.">
+                Required By
+            </button>
+        </div>
+        <span class="form-inline">
+            <input type="text" data-bind="value: searchTerm, valueUpdate: 'keyup'" class="form-control">
+        </span>
+    </script>
+
+    <script type="text/html" id="remote-filter-alteration-template">
+        <div class="btn-group">
+            <button class="btn btn-default" data-bind="click: saveFilterRemotely"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Save/Update the filter on a remote database.">
+                <span class="glyphicon glyphicon-floppy-disk"></span>
+            </button>
+            <button class="btn btn-default" data-bind="click: deleteFilterRemotely"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Delete the filter from the remote database.">
+                <span class="glyphicon glyphicon-floppy-remove"></span>
+            </button>
+        </div>
+        <span class="form-inline">
+            <input type="text" data-bind="value: filterName, valueUpdate: 'keyup'" class="form-control" placeholder="Filter Name..."
+             style="width: 10%">
+        </span>
+    </script>
+    <!-- END Templates for Custom Filters -->
+
+    <!-- Template for Displaying Dependencies -->
+    <script type="text/html" id="dependencies-template">
+        <li data-bind="style : {backgroundColor : $data.applicationStatusBg}">
+            <span data-bind="attr : {class : $data.applicationStatusClass}"></span>
+            <span data-bind="text: $data.configurationPath"></span>
+        </li>
+    </script>
+
+
+    <script>
+      $(function () { $("[data-toggle='tooltip']").tooltip(); });
+    </script>
+
+
+</html>

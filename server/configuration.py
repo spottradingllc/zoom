@@ -35,7 +35,7 @@ class Configuration(object):
             self._is_debug = safe_config_parser.get('web_server', 'debug')
             self._application_path = os.getcwd()
             self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
-            self._html_path = os.path.join(self._client_path, "html")
+            self._html_path = os.path.join(self._client_path, "views")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 
