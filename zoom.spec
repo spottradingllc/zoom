@@ -39,6 +39,13 @@ AutoReqProv: no
 %define debug_package %{nil}
 
 
+# Below are global defined variables, this will allow 6.4 built packages to install/function on 5.6
+# this is an rpm compatability issue and nothing to do with the software.
+%global _binary_filedigest_algorithm 1
+%global _source_filedigest_algorithm 1
+%global _source_payload w9.gzdio
+%global _binary_payload w9.gzdio
+
 
 %description
 # Please update with a more descriptive description:
