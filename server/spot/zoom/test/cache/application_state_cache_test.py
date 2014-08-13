@@ -73,7 +73,7 @@ class ApplicationStateCacheTest(TestCase):
         self.agent_cache.get_app_data_by_path(path).AndReturn({})
         self.agent_cache.get_host_by_path(path)
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
 
@@ -96,7 +96,7 @@ class ApplicationStateCacheTest(TestCase):
         self.agent_cache.add_callback(mox.IgnoreArg())
         self.agent_cache.get_app_data_by_path("/foo/bar").AndReturn({})
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
 
@@ -120,7 +120,7 @@ class ApplicationStateCacheTest(TestCase):
         self.agent_cache.add_callback(mox.IgnoreArg())
         self.agent_cache.load()
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
         self.configuration.application_state_path = 'path1'
@@ -136,7 +136,7 @@ class ApplicationStateCacheTest(TestCase):
 
         self.mox.VerifyAll()
 
-    # this should test reload
+    # TODO: this should test reload
     # def test_clear(self):
     #     self.agent_cache.add_callback(mox.IgnoreArg())
     #     mox.Replay(self.agent_cache)
@@ -157,7 +157,7 @@ class ApplicationStateCacheTest(TestCase):
     def test_walk_no_childen(self):
         self.agent_cache.add_callback(mox.IgnoreArg())
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
         self.zoo_keeper.get_children('path1').AndReturn(None)
@@ -181,7 +181,7 @@ class ApplicationStateCacheTest(TestCase):
     def test_walk_children(self):
         self.agent_cache.add_callback(mox.IgnoreArg())
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
         app_state = ApplicationStateMock()
