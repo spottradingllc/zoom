@@ -2,12 +2,12 @@ import logging
 import tornado.web
 from httplib import INTERNAL_SERVER_ERROR
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ReloadCacheHandler(tornado.web.RequestHandler):
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         try:
             user = self.get_argument("user")

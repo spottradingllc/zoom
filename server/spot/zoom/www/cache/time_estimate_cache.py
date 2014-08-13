@@ -15,7 +15,8 @@ class TimeEstimateCache(object):
         self._web_socket_clients = web_socket_clients
         self.deps = {}
         self.states = {}
-        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+        self._message_throttle = MessageThrottle(configuration,
+                                                 web_socket_clients)
 
     def start(self):
         self._message_throttle.start()
@@ -61,10 +62,10 @@ class TimeEstimateCache(object):
                         avetime = data['ave']
 
             message.update({
-                'maxtime' : maxtime,
-                'mintime' : mintime,
-                'avetime' : avetime,
-                'maxpath' : maxpath
+                'maxtime': maxtime,
+                'mintime': mintime,
+                'avetime': avetime,
+                'maxpath': maxpath
             })
 
             return message
@@ -73,7 +74,7 @@ class TimeEstimateCache(object):
             logging.exception(e)
 
     def rec_fn(self, path, searchdata):
-        #init internal search data
+        # init internal search data
         data = searchdata.get(path, None)
         if data is None:
             data = {'time': None, 'cost': None}
@@ -84,7 +85,7 @@ class TimeEstimateCache(object):
 
         data['time'] = self.get_graphtite_data(path)
 
-        #recurse into deps
+        # recurse into deps
         dep_data = self.deps.get(path, None)
         avet = 0
         mint = 0
@@ -93,20 +94,26 @@ class TimeEstimateCache(object):
            len(dep_data['dependencies']) != 0:
             for i in dep_data['dependencies']:
                 if i.get('type').lower() == DependencyType.CHILD:
-                    avet = max(avet, self.rec_fn(i.get("path", None), searchdata)['ave'])
-                    mint = max(mint, self.rec_fn(i.get("path", None), searchdata)['min'])
-                    maxt = max(maxt, self.rec_fn(i.get("path", None), searchdata)['max'])
+                    avet = max(avet, self.rec_fn(i.get("path", None),
+                                                 searchdata)['ave'])
+                    mint = max(mint, self.rec_fn(i.get("path", None),
+                                                 searchdata)['min'])
+                    maxt = max(maxt, self.rec_fn(i.get("path", None),
+                                                 searchdata)['max'])
                 if i.get('type').lower() == DependencyType.GRANDCHILD:
                     grand_path = i.get("path")
                     for key in self.deps.iterkeys():
                         if key.lower().startswith(grand_path) \
                                 and key.lower() != grand_path:
-                            avet = max(avet, self.rec_fn(key, searchdata)['ave'])
-                            mint = max(mint, self.rec_fn(key, searchdata)['min'])
-                            maxt = max(maxt, self.rec_fn(key, searchdata)['max'])
+                            avet = max(avet, self.rec_fn(key,
+                                                         searchdata)['ave'])
+                            mint = max(mint, self.rec_fn(key,
+                                                         searchdata)['min'])
+                            maxt = max(maxt, self.rec_fn(key,
+                                                         searchdata)['max'])
 
         data['cost'] = {}
-        #look up running or graphite time
+        # look up running or graphite time
         if(self.states.get(path, None) is not None
            and self.states[path].get('application_status', None) == "running"):
             data['cost']['ave'] = avet 
@@ -129,7 +136,7 @@ class TimeEstimateCache(object):
             url = "http://{0}/render?target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'max'),'max')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'min'),'min')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')&format=json&from=-5d".format(self.configuration.graphite_host, url)
             response = requests.post(url, timeout=5.0)
 
-            self.graphite_cache[path] = {'min' : 0, 'max': 0, 'ave': 0}
+            self.graphite_cache[path] = {'min': 0, 'max': 0, 'ave': 0}
 
             if response.status_code == httplib.OK:
                 for data in response.json():
@@ -140,12 +147,11 @@ class TimeEstimateCache(object):
                     elif "min" in data['target']:
                         self.graphite_cache[path]['min'] = data['datapoints'][0][0]
                     else:
-                        logging.warn("Received graphite data {} with unknown target".format(data))
+                        logging.warn("Received graphite data {} with unknown "
+                                     "target".format(data))
 
             return self.graphite_cache[path]
 
         except Exception as e:
             logging.exception(e)
             return 0
-
-            

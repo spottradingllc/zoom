@@ -6,7 +6,8 @@ from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 
 from spot.zoom.www.entities.types import DependencyType
-from spot.zoom.www.messages.application_dependencies import ApplicationDependenciesMessage
+from spot.zoom.www.messages.application_dependencies \
+    import ApplicationDependenciesMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 
@@ -22,8 +23,9 @@ class ApplicationDependencyCache(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
-        self._time_estimate_cache = time_estimate_cache;
-        self._message_throttle = MessageThrottle(configuration, web_socket_clients)
+        self._time_estimate_cache = time_estimate_cache
+        self._message_throttle = MessageThrottle(configuration,
+                                                 web_socket_clients)
 
     def start(self):
         self._message_throttle.start()
@@ -58,7 +60,8 @@ class ApplicationDependencyCache(object):
         logging.info("Application dependency cache loaded from ZooKeeper {0}"
                      .format(self._configuration.agent_configuration_path))
 
-        self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
+        self._time_estimate_cache.update_appplication_deps(
+            self._cache.application_dependencies)
 
     def _walk(self, path, result_dict):
         """
@@ -66,7 +69,8 @@ class ApplicationDependencyCache(object):
         :type result_dict: ApplicationDependenciesMessage
         """
         try:
-            children = self._zoo_keeper.get_children(path, watch=self._on_update)
+            children = self._zoo_keeper.get_children(path,
+                                                     watch=self._on_update)
 
             if children:
                 for child in children:
@@ -98,7 +102,9 @@ class ApplicationDependencyCache(object):
                     registrationpath = None
 
                     if node.attrib.get('id') is not None:
-                        registrationpath = os.path.join(self._configuration.application_state_path, node.attrib['id'])
+                        registrationpath = os.path.join(
+                            self._configuration.application_state_path,
+                            node.attrib['id'])
                     if node.attrib.get('registrationpath') is not None:
                         registrationpath = node.attrib['registrationpath']
 
@@ -111,15 +117,18 @@ class ApplicationDependencyCache(object):
                     start_action = node.find('Actions/Action[@id="start"]')
 
                     if start_action is None: 
-                        logging.warn("No Start Action Found for {}".format(registrationpath))
+                        logging.warn("No Start Action Found for {}"
+                                     .format(registrationpath))
                         continue
 
                     for predicate in start_action.iter('Predicate'):
                         if predicate.get('type').lower() == DependencyType.CHILD:
-                            d = {'type': DependencyType.CHILD, 'path': predicate.get("path")}
+                            d = {'type': DependencyType.CHILD,
+                                 'path': predicate.get("path")}
                             dependencies.append(d)
                         if predicate.get('type').lower() == DependencyType.GRANDCHILD:
-                            d = {'type': DependencyType.GRANDCHILD, 'path': predicate.get("path")}
+                            d = {'type': DependencyType.GRANDCHILD,
+                                 'path': predicate.get("path")}
                             dependencies.append(d)
 
                     result.update({"dependencies": dependencies})
@@ -149,7 +158,8 @@ class ApplicationDependencyCache(object):
 
             self._message_throttle.add_message(message)
 
-            self._time_estimate_cache.update_appplication_deps(self._cache.application_dependencies)
+            self._time_estimate_cache.update_appplication_deps(
+                self._cache.application_dependencies)
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')

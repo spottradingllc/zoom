@@ -49,4 +49,3 @@ class MessageThrottle(object):
         if self._thread.is_alive():
             self._running = False
             self._thread.join()
-            

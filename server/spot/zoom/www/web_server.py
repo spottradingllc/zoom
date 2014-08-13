@@ -4,8 +4,10 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-from spot.zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
-from spot.zoom.www.handlers.application_state_handler import ApplicationStateHandler
+from spot.zoom.www.handlers.application_dependencies_handler \
+    import ApplicationDependenciesHandler
+from spot.zoom.www.handlers.application_state_handler \
+    import ApplicationStateHandler
 from spot.zoom.www.handlers.control_agent_handler import ControlAgentHandler
 from spot.zoom.www.handlers.filters_handler import FiltersHandler
 from spot.zoom.www.handlers.global_mode_handler import GlobalModeHandler

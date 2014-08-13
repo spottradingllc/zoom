@@ -10,8 +10,8 @@ from argparse import ArgumentParser
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description='Designed for testing. Will exit with 1 '
-                            'unless you pass the -s option.')
+    parser = ArgumentParser(description='Designed for testing. Will exit with 1'
+                            ' unless you pass the -s option.')
     parser.add_argument('-s', '--succeed', action='store_true', required=False, 
                         help='Return success.')
     args = parser.parse_args()

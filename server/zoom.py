@@ -23,7 +23,8 @@ class Session(object):
             self._configuration = Configuration(args)
             self._zoo_keeper = ZooKeeper(self._configuration)
             self._data_store = DataStore(self._configuration, self._zoo_keeper)
-            self._web_server = WebServer(self._configuration, self._data_store, self._zoo_keeper)
+            self._web_server = WebServer(self._configuration, self._data_store,
+                                         self._zoo_keeper)
 
         except getopt.GetoptError as e:
             print str(e)

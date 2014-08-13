@@ -7,7 +7,7 @@ import tornado.escape
 import tornado.gen
 import tornado.web
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class LoginHandler(tornado.web.RequestHandler):
@@ -21,7 +21,7 @@ class LoginHandler(tornado.web.RequestHandler):
         return self.application.configuration.ldap_url
 
     #@tornado.gen.coroutine
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         request = json.loads(self.request.body)  # or '{"login": {}}'
 
@@ -68,7 +68,7 @@ class LoginHandler(tornado.web.RequestHandler):
 
         except ldap.INVALID_CREDENTIALS:
             self.set_status(httplib.UNAUTHORIZED)
-            self.write(json.dumps({'errorText': 'Invalid username or password'}))
+            self.write({'errorText': 'Invalid username or password'})
             logging.error('Invalid username or password')
 
         except ldap.LDAPError as e:

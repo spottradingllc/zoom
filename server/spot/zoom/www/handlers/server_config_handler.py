@@ -6,7 +6,7 @@ import tornado.web
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ServerConfigHandler(tornado.web.RequestHandler):
@@ -14,7 +14,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def zk(self):
         return self.application.zk
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def put(self, server):
         logging.info('Updating server {0}'.format(server))
         server = server.upper()
@@ -36,7 +36,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
             logging.exception(output)
             self.write(output)
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self, server):
         logging.info('Searching for server {0}'.format(server))
         server = server.upper()
@@ -57,7 +57,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
             logging.error(output)
             self.write(output)
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self, server):
         logging.info('Adding server {0}'.format(server))
         server = server.upper()
@@ -81,7 +81,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
                 self.write(output)
                 logging.info(output)
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def delete(self, server):
         logging.info('Deleting server {0}'.format(server))
         server = server.upper()

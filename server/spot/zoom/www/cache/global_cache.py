@@ -28,7 +28,7 @@ class GlobalCache(object):
                      .format(self._configuration.global_mode_path))
         return GlobalModeMessage(data)
 
-    def on_update(self, event):
+    def on_update(self, event=None):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """

@@ -48,8 +48,8 @@ class Configuration(object):
             self._pillar_path = safe_config_parser.get('zookeeper', 'pillar_path')
 
             self._zookeeper_host = dict(
-                staging = safe_config_parser.get('staging', 'host'),
-                production = safe_config_parser.get('production', 'host')
+                staging=safe_config_parser.get('staging', 'host'),
+                production=safe_config_parser.get('production', 'host')
             )
 
             # database

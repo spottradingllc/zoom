@@ -2,7 +2,7 @@ import os
 
 
 __env_connections = {
-    "Staging" :('ZooStaging01:2181,'
+    "Staging":('ZooStaging01:2181,'
                 'ZooStaging02:2181,'
                 'ZooStaging03:2181,'
                 'ZooStaging04:2181,'
@@ -25,8 +25,8 @@ __env_connections = {
 }
 
 __env = os.environ.get('EnvironmentToUse')
-assert __env_connections.has_key(__env), ("Invalid 'EnvironmentToUse' variable:"
-                                          "{0} ".format(__env))
+assert __env in __env_connections, ("Invalid 'EnvironmentToUse' variable: {0} "
+                                    .format(__env))
 
 ZK_CONN_STRING = __env_connections[__env]
 ZK_STATE_PATH = '/spot/software/state'

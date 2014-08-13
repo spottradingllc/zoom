@@ -122,7 +122,8 @@ class ProcessClient(object):
 
     def stop(self, **kwargs):
         """Stop process"""
-        if kwargs.get('argument', 'false') == 'false':    # if argument is false, allow start
+        # if argument is false, allow start
+        if kwargs.get('argument', 'false') == 'false':
             self._restart_logic.set_true()
         returncode = -1
         if self._apptype == ApplicationType.JOB:
