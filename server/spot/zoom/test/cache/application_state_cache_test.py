@@ -34,7 +34,7 @@ class ApplicationStateCacheTest(TestCase):
         self.agent_cache.add_callback(mox.IgnoreArg())
 
         self.mox.ReplayAll()
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         ApplicationStateCache(self.configuration, self.zoo_keeper,
                               self.web_socket_clients, self.agent_cache)
         self.mox.VerifyAll()
@@ -42,7 +42,7 @@ class ApplicationStateCacheTest(TestCase):
     def test_on_update(self):
         self.agent_cache.add_callback(mox.IgnoreArg())
         mox.Replay(self.agent_cache)
-        # need to update w/ time estimate cache
+        # TODO: need to update w/ time estimate cache
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
                                       self.web_socket_clients, self.agent_cache)
 
