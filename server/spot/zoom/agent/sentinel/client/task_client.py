@@ -27,10 +27,10 @@ class TaskClient(object):
 
             if work in ALLOWED_WORK:
                 if target is not None:
-                    # do something with result?
+                    # TODO: do something with result?
                     result = self._send_work_single(work, target, kwargs=argument)
                 else:
-                    # do something with result?
+                    # TODO: do something with result?
                     result = self._send_work_all(work, kwargs=argument)
                 logging.info("just {}'d {}".format(work, target))
             else:
