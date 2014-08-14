@@ -252,12 +252,12 @@ function ApplicationState (ko, data, parent) {
         //options.com: command
         //options.arg: command argument
         //option.no_confirm: confirm bool
-        var confirmString = ["Please confirm that you want to send a " + options.com + " command to ",
-                self.configurationPath + " on " + self.applicationHost() + " by pressing OK."].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
+        var promptString = ["Please confirm that you want to send a " + options.com + " command to ",
+                self.configurationPath + " on " + self.applicationHost() + " by typing '" + options.com + "'."].join('\n');
+        promptString = promptString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (!self.isHostEmpty()) {
-            if (!options.confirm || confirm(confirmString)) {
+            if (!options.confirm || prompt(promptString) == options.com) {
                 var dict = {
                     "componentId": self.componentId,
                     "applicationHost": self.applicationHost(),
