@@ -2,7 +2,7 @@ import mox
 import time
 
 from unittest import TestCase
-from server.spot.zoom.agent.sentinel.predicate.process import PredicateProcess
+from spot.zoom.agent.sentinel.predicate.process import PredicateProcess
 
 
 class PredicateProcessTest(TestCase):
