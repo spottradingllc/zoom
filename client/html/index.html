@@ -142,7 +142,7 @@
                                                   title="Set Zookeeper to ignore state changes.">Off</button>
                         </div>
                         <small>
-                        <span data-bind="text: mode.timingString"/>
+                        <span data-bind="text: mode.timingString, visible: mode.isOn()"/>
                         </small>
                     </small>
                 </h1>
