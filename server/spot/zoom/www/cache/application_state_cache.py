@@ -57,7 +57,8 @@ class ApplicationStateCache(object):
         logging.info("Application state cache loaded from ZooKeeper {0}"
                      .format(self._configuration.application_state_path))
 
-        self._time_estimate_cache.update_appplication_states(self._cache.application_states)
+        self._time_estimate_cache.update_appplication_states(
+            self._cache.application_states)
         self._cache.remove_deletes()
 
     def _walk(self, path, result):
@@ -73,12 +74,14 @@ class ApplicationStateCache(object):
                     self._walk(os.path.join(path, child), result)
             else:
                 app_state = self._get_application_state(path)
-                result.update({app_state.configuration_path: app_state.to_dictionary()})
+                result.update(
+                    {app_state.configuration_path: app_state.to_dictionary()}
+                )
 
         except NoNodeError:
             logging.debug('Node at {0} no longer exists.'.format(path))
-            result.update({
-                path: ApplicationState(configuration_path=path, delete=True).to_dictionary(),
+            result.update({path: ApplicationState(configuration_path=path,
+                                                  delete=True).to_dictionary(),
             })
 
         except Exception:
@@ -150,7 +153,8 @@ class ApplicationStateCache(object):
 
             self._message_throttle.add_message(message)
 
-            self._time_estimate_cache.update_appplication_states(self._cache.application_states)
+            self._time_estimate_cache.update_appplication_states(
+                self._cache.application_states)
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')

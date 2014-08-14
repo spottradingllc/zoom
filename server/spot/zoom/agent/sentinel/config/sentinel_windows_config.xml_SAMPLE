@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Applicaiontion>
+<Application>
   <Automation>
     <Component id="example" type="application" script="Example Service"
                command='"C:\\Python27\python.exe" "C:\\Utilities\\mpy\\restart_service.py" --log_path "\\\\EXAMPLE\\C\\Program Files\\Spot Trading LLC\\EXPAMPLE\\Logs\\01_01_1970\\Error\\AppLog.txt" --service_name "Example Service" --time_to_live 500  --regex "Example Starting" "Initialization complete" --move_logfile'>
@@ -30,4 +30,4 @@
         </Actions>
     </Component>
   </Automation>
-</Applicaiontion>
+</Application>

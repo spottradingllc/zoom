@@ -2,6 +2,7 @@ import logging
 import json
 import os.path
 
+from collections import namedtuple
 from kazoo.exceptions import NoNodeError
 
 
@@ -95,7 +96,8 @@ class AgentCache(object):
         """
         agents = self._zoo_keeper.get_children(event.path,
                                                watch=self._identify_change)
-        changes = set(agents).symmetric_difference(set(self._cache_by_host.keys()))
+        changes = set(agents).symmetric_difference(
+            set(self._cache_by_host.keys()))
 
         for agent in changes:
             self._update_cache(str(agent), run_callbacks=True)

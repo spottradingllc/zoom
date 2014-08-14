@@ -2,6 +2,13 @@
 # This is a templated file that will go over some of options/configurations that need to be set in order to utilize the new salt deployment methods.
 # If you have any questions or concerns, please speak with a member of the IT staff!
 
+# Below are global defined variables, this will allow 6.4 built packages to install/function on 5.6
+# this is an rpm compatability issue and nothing to do with the software.
+%global _binary_filedigest_algorithm 1
+%global _source_filedigest_algorithm 1
+%global _source_payload w9.gzdio
+%global _binary_payload w9.gzdio
+
 
 # Name, this is the most important bit of the spec file. This name must match the name of this file, as well as any grains used for targeting. the name will also be the name of your application rpm.
 Name:           Zoom
@@ -37,7 +44,6 @@ AutoReqProv: no
 %define SNAME "%{name}-%{version}"
 %define PKGHOME "/opt/spot/%{name}-%{version}/"
 %define debug_package %{nil}
-
 
 
 %description

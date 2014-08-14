@@ -214,7 +214,7 @@ class Application(object):
         self.start(**kwargs)
 
     def dep_restart(self, **kwargs):
-        self._run_check_mode = True # only used in self.start()
+        self._run_check_mode = True  # only used in self.start()
         self._action_queue.append(Task('start_if_ready', pipe=False))
 
     def start_if_ready(self):
@@ -223,7 +223,6 @@ class Application(object):
             self.start()
         else:
             self._action_queue.append(Task('react', pipe=False))
-
 
     @time_this
     @connected
@@ -306,8 +305,8 @@ class Application(object):
         paths['zk_config_path'] = self._pathjoin(ZK_CONFIG_PATH, atype,
                                                  self.name)
         paths['zk_agent_path'] = self._pathjoin(ZK_AGENT_STATE_PATH, self._host)
-        paths['graphite_type_metric'] = self._get_graphite_type_metric(
-                                                 paths['zk_state_base'])
+        paths['graphite_type_metric'] = \
+            self._get_graphite_type_metric(paths['zk_state_base'])
 
         return paths
 
@@ -330,7 +329,8 @@ class Application(object):
         script = verify_attribute(config, 'script', none_allowed=True)
         restartmax = verify_attribute(config, 'restartmax', none_allowed=True,
                                       cast=int)
-        restart_on_crash = verify_attribute(config, 'restartoncrash', none_allowed=True)
+        restart_on_crash = verify_attribute(config, 'restartoncrash',
+                                            none_allowed=True)
         
         if restartmax is None:
             self._log.info('Restartmax not specified. Assuming 3.')
@@ -435,7 +435,7 @@ class Application(object):
 
     def _get_graphite_type_metric(self, state_path):
         # splits the state path at 'application' and returns the latter index
-        type_path = state_path.split('state/',1)[1]
+        type_path = state_path.split('state/', 1)[1]
         type_metric = type_path.replace('/', '.')
         return type_metric
 

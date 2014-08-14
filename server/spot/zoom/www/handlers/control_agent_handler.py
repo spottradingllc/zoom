@@ -8,13 +8,13 @@ import tornado.web
 
 from kazoo.retry import KazooRetry
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 from spot.zoom.www.entities.types import CommandType
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         try:
             self.component_id = self.get_argument("componentId")

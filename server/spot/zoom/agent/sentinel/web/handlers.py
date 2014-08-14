@@ -21,7 +21,6 @@ class BaseHandler(tornado.web.RequestHandler):
             result.append(self._send_work_single(work, child))
         return result
 
-
     def _send_work_single(self, work, target):
         """
         :type work: str

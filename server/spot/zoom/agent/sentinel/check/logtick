@@ -24,6 +24,7 @@ _UNIT_DICT = {
     'w': 60 * 60 * 24 * 7,
     }
 
+
 def get_timedelta(string):
     lstring = string.lower()
     match = re.search('(\d+)(\w+)?', lstring)
@@ -67,6 +68,3 @@ if __name__ == "__main__":
     else:
         print ('The file {0} does not exist. Exiting with 1.'.format(args.file))
         sys.exit(1)
-                
-                   
-        

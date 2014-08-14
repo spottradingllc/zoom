@@ -3,7 +3,7 @@ import tornado.web
 import logging
 import json
 
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class ListServersHandler(tornado.web.RequestHandler):
@@ -11,7 +11,7 @@ class ListServersHandler(tornado.web.RequestHandler):
     def zk(self):
         return self.application.zk.client
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         logging.info('Generating list of nodes')
         path = self.application.configuration.agent_configuration_path

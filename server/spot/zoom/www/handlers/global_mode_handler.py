@@ -7,7 +7,7 @@ import tornado.httpclient
 from kazoo.exceptions import NoNodeError
 
 from spot.zoom.www.entities.types import GlobalMode
-from spot.zoom.www.utils.decorators import timethis
+from spot.zoom.www.utils.decorators import TimeThis
 
 
 class GlobalModeHandler(tornado.web.RequestHandler):
@@ -19,7 +19,7 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     def configuration(self):
         return self.application.configuration
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def get(self):
         try:
             message = self.application.data_store.get_global_mode()
@@ -33,7 +33,7 @@ class GlobalModeHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', 'application/json')
 
-    @timethis(__file__)
+    @TimeThis(__file__)
     def post(self):
         """
         Set global Mode

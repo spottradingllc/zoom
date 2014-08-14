@@ -39,7 +39,7 @@ class SentinelDaemon(object):
 
         self.children = dict()
         self._system = self._get_system()
-        self._hostname = platform.node().upper() # must be uppercase
+        self._hostname = platform.node().upper()  # must be uppercase
         self._prev_state = None
         self.listener_lock = Lock()
 
@@ -54,7 +54,8 @@ class SentinelDaemon(object):
         self.zkclient.add_listener(self._zk_listener)
         self.zkclient.start()
 
-        self.task_client = TaskClient(children = self.children, zkclient = self.zkclient)
+        self.task_client = TaskClient(children=self.children,
+                                      zkclient=self.zkclient)
 
         self._rest_server = tornado.httpserver.HTTPServer(
             RestServer(self.children))

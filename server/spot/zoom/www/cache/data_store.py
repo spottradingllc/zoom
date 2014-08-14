@@ -1,5 +1,6 @@
 from spot.zoom.www.cache.application_state_cache import ApplicationStateCache
-from spot.zoom.www.cache.application_dependency_cache import ApplicationDependencyCache
+from spot.zoom.www.cache.application_dependency_cache \
+    import ApplicationDependencyCache
 from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from spot.zoom.www.cache.global_cache import GlobalCache
 from spot.zoom.www.cache.agent_cache import AgentCache
@@ -17,9 +18,8 @@ class DataStore(object):
 
         self._agent_cache = AgentCache(self._configuration, self._zoo_keeper)
 
-        self._time_estimate_cache = TimeEstimateCache(
-                                         self._configuration,
-                                         self._web_socket_clients)
+        self._time_estimate_cache = TimeEstimateCache(self._configuration,
+                                                      self._web_socket_clients)
 
         self._application_dependency_cache = \
             ApplicationDependencyCache(self._configuration,
@@ -80,8 +80,9 @@ class DataStore(object):
         """
         Clear all cache objects and send reloaded data as updates.
         """
-        self._zoo_keeper.restart()  # restart client to destroy any existing watches
-        self._global_cache.on_update(None)
+        # restart client to destroy any existing watches
+        self._zoo_keeper.restart()
+        self._global_cache.on_update()
         self._agent_cache.reload()
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()
@@ -92,7 +93,7 @@ class DataStore(object):
         """
         Clear all cache objects and send reloaded data as updates.
         """
-        self._global_cache.on_update(None)
+        self._global_cache.on_update()
         self._agent_cache.load()
         self._time_estimate_cache.load()
         self._application_state_cache.load()
