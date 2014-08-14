@@ -64,7 +64,6 @@ class ZookeeperGoodUntilTime(SimplePredicate):
             self._log.info('{0} stopped'.format(self))
         else:
             self._log.debug('Already stopped {0}'.format(self))
-            
 
     def _run_loop(self):
         while self._operate == True:

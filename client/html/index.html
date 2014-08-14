@@ -130,8 +130,9 @@
                     </small>
                     <small class="pull-right">
                         Zookeeper startup is :
-                        <div class="btn-group">
-                            <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('auto')}, attr: {class: mode.OnClass()}"
+                        <div class="btn-group" data-bind="visible: login.elements.authenticated">
+                            <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('auto')}, 
+                                                             attr: {class: mode.OnClass()}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Set Zookeeper to react to state changes.">On</button>
@@ -140,6 +141,9 @@
                                                   data-placement="top"
                                                   title="Set Zookeeper to ignore state changes.">Off</button>
                         </div>
+                        <small>
+                        <span data-bind="text: mode.timingString, visible: mode.isOn()"/>
+                        </small>
                     </small>
                 </h1>
 

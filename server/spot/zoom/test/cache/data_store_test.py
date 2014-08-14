@@ -1,14 +1,15 @@
-import unittest
-
 import mox
-from zoom.zoo_keeper import ZooKeeper
-from server.spot.zoom.core.cache.data_store import DataStore
-from server.spot.zoom.core.cache.global_cache import GlobalCache
-from server.spot.zoom.core.cache.application_state_cache import ApplicationStateCache
-from test.test_utils import ConfigurationMock
+
+from unittest import TestCase
+from server.spot.zoom.www.zoo_keeper import ZooKeeper
+from server.spot.zoom.www.cache.data_store import DataStore
+from server.spot.zoom.www.cache.global_cache import GlobalCache
+from server.spot.zoom.www.cache.application_state_cache \
+    import ApplicationStateCache
+from server.spot.zoom.test.test_utils import ConfigurationMock
 
 
-class DataStoreTest(unittest.TestCase):
+class DataStoreTest(TestCase):
     
     def setUp(self):
         self.mox = mox.Mox()
@@ -16,7 +17,7 @@ class DataStoreTest(unittest.TestCase):
         self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
 
     def tearDown(self):
-       self.mox.UnsetStubs()
+        self.mox.UnsetStubs()
     
     def test_construct(self):
         self.mox.ReplayAll()
@@ -46,7 +47,7 @@ class DataStoreTest(unittest.TestCase):
         application_state_cache.load()
         self.mox.ReplayAll()
         store = DataStore(self.configuration, self.zoo_keeper)
-        store._application_state_cache=application_state_cache
+        store._application_state_cache = application_state_cache
         store.load_application_state_cache()
         self.mox.VerifyAll()
         

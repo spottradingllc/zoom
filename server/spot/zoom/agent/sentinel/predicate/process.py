@@ -13,7 +13,7 @@ class PredicateProcess(SimplePredicate):
         """
         :type comp_name: str
         :type proc_client: sentinel.client.process_client.ProcessClient
-        :type interval: int
+        :type interval: int or float
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, parent=parent)

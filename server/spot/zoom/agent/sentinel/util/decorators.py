@@ -72,7 +72,6 @@ def time_this(method):
 
     return time_this_wrapper
 
-
 def synchronous(lockname):
     """
     A decorator to place an instance-based lock around a method.
@@ -117,14 +116,16 @@ def run_only_one(lockname):
             _log.debug('Waiting for lock id "{0}" for method "{1}"'
                        .format(lockname, method.__name__))
             if lock.acquire(False):
-                _log.debug('Locked. Running action "{0}"'.format(method.__name__))
+                _log.debug('Locked. Running action "{0}"'
+                           .format(method.__name__))
                 try:
                     return method(cls, *args, **kwargs)
                 finally:
                     lock.release()
                     _log.debug('Single lock released')
             else:
-                _log.debug('Lock not available. Not running method "{0}"'.format(method.__name__))
+                _log.debug('Lock not available. Not running method "{0}"'
+                           .format(method.__name__))
                 return 0
         return _synchronizer
     return _synched

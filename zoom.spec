@@ -2,6 +2,13 @@
 # This is a templated file that will go over some of options/configurations that need to be set in order to utilize the new salt deployment methods.
 # If you have any questions or concerns, please speak with a member of the IT staff!
 
+# Below are global defined variables, this will allow 6.4 built packages to install/function on 5.6
+# this is an rpm compatability issue and nothing to do with the software.
+%global _binary_filedigest_algorithm 1
+%global _source_filedigest_algorithm 1
+%global _source_payload w9.gzdio
+%global _binary_payload w9.gzdio
+
 
 # Name, this is the most important bit of the spec file. This name must match the name of this file, as well as any grains used for targeting. the name will also be the name of your application rpm.
 Name:           Zoom
@@ -37,7 +44,6 @@ AutoReqProv: no
 %define SNAME "%{name}-%{version}"
 %define PKGHOME "/opt/spot/%{name}-%{version}/"
 %define debug_package %{nil}
-
 
 
 %description
@@ -112,6 +118,8 @@ fi
 
 logger -t %{name} "Exiting pre section for build: %{SNAME}"
 %post
+
+
 # Post Install Section, After your application is installed
 logger -t %{name} "Entering post section for build: %{SNAME}"
 
@@ -124,21 +132,54 @@ else
   logger -t %{name}  "%{USER} Cannot be found! for application %{SNAME}"
 fi
 
+# this is for future log location standardization. Currently unused.
 if [ ! -d /opt/spot/logs ]
   then
     mkdir /opt/spot/logs
 fi
- 
 
-if [[ -f startup.sh ]]
+
+# Create soft links to web startup script
+cd %{PKGHOME}scripts/
+script="start_web.sh"
+sym_path="/etc/init.d/zoom"
+
+if [[ -f ${script} ]]
 then
-  logger -t %{name} "Startup.sh found, setting up ln/chmod"
-  chmod 755 startup.sh
-  ln -s %{PKGHOME}scripts/startup.sh /etc/init.d/zoom
+    logger -t %{name} "$script found, setting up ln/chmod"
+    chmod 755 ${script}
+    if [ ! ${sym_path} ]
+    then
+        ln -s %{PKGHOME}scripts/${script} ${sym_path}
+    else
+        logger -t %{name} "soft link for $script already exists"
+    fi
 else
-  logger -t %{name} "startup.sh NOT found! for build: %{SNAME}"
+    logger -t %{name} "$script NOT found! for build: %{SNAME}"
 fi
 
+
+# Create soft link to agent startup script
+cd %{PKGHOME}scripts/
+script="start_agent.sh"
+sym_path="/etc/init.d/sentinel"
+
+if [[ -f ${script} ]]
+then
+    logger -t %{name} "$script found, setting up ln/chmod"
+    chmod 755 ${script}
+    if [ ! ${sym_path} ]
+    then
+        ln -s %{PKGHOME}scripts/${script} ${sym_path}
+    else
+        logger -t %{name} "soft link for $script already exists"
+    fi
+else
+    logger -t %{name} "$script NOT found! for build: %{SNAME}"
+fi
+
+
+# Create soft link to project name (/opt/spot/{project name})
 if [ -h %{SYMLNK} ]
 then
   logger -t %{name} "ln already set for %{SNAME} no need to add."
@@ -147,7 +188,8 @@ else
   ln -s /opt/spot/%{name}-%{version} %{SYMLNK}
 fi
 
-#Bootstrap stuff
+
+# Bootstrap stuff
 cd %{PKGHOME}scripts/
 if [[ -f bootstrap.sh ]]
 then
@@ -158,11 +200,8 @@ else
   logger -t %{name}  "boostrap did not install! was not found."
 fi  
 
-
-
 # ownership changes
 chown -R %{USER}:"%{GROUP}" /opt/spot/%{name}-%{version}
-
 
 logger -t %{name} "Exiting pre section for build: %{SNAME}"
 %preun
@@ -172,20 +211,12 @@ logger -t %{name} "Entering preun section for build: %{SNAME}"
 logger -t %{name} "Exiting preun section for build: %{SNAME}"
 %postun
 logger -t %{name} "Entering postun section for build: %{SNAME}"
+
+
 # Post Uninstall ( After your package is removed/upgraded )
-if [ -h %{SYMLNK} ]
-  then
-    logger -t %{name} "Removing symlink for package %{SNAME}"
-    rm %{SYMLNK}
-  else
-    logger -t %{name} "No Symlink to remove for package %{SNAME}"
-fi
-
-  logger -t %{name} "setting ln for application %{SNAME}"
-  ln -s /opt/spot/%{name}-%{version} %{SYMLNK}
-
-
 logger -t %{name} "Exiting postun section for build: %{SNAME}"
+
+
 # Changelog, this is filled in automaticly from stash, no need to deal with this area at all.
 %changelog
 * %{DATE}  <%{EMAIL}> - %{version}

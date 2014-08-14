@@ -1,17 +1,15 @@
-import unittest
-import logging
-import mox
-from nose.tools import nottest
-from zoom.config.configuration import Configuration
+from unittest import TestCase
+from server.configuration import Configuration
 
 
-class TestApplicationState(unittest.TestCase):
+class TestApplicationState(TestCase):
     def test_actual(self):
-        conf = Configuration([])
+        Configuration([])
+
     def test_failed(self):
         caught = False
         try:
-            conf = Configuration(["configuration.py"])
+            Configuration(["configuration.py"])
         except Exception:
-            caught = True;
+            caught = True
         self.assertTrue(caught)

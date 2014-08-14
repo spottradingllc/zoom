@@ -4,10 +4,11 @@ import platform
 import signal
 import sys
 
-from spot.zoom.core.cache.data_store import DataStore
+from spot.zoom.www.cache.data_store import DataStore
+from spot.zoom.www.web_server import WebServer
+from spot.zoom.www.zoo_keeper import ZooKeeper
+
 from configuration import Configuration
-from spot.zoom.core.web_server import WebServer
-from spot.zoom.core.zoo_keeper import ZooKeeper
 
 
 class Session(object):
@@ -22,7 +23,8 @@ class Session(object):
             self._configuration = Configuration(args)
             self._zoo_keeper = ZooKeeper(self._configuration)
             self._data_store = DataStore(self._configuration, self._zoo_keeper)
-            self._web_server = WebServer(self._configuration, self._data_store, self._zoo_keeper)
+            self._web_server = WebServer(self._configuration, self._data_store,
+                                         self._zoo_keeper)
 
         except getopt.GetoptError as e:
             print str(e)
