@@ -1,5 +1,5 @@
 from unittest import TestCase
-from server.spot.zoom.www.entities.custom_filter import CustomFilter
+from spot.zoom.www.entities.custom_filter import CustomFilter
 
 
 class TestCustomFilter(TestCase):

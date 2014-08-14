@@ -1,5 +1,5 @@
 from unittest import TestCase
-from server.configuration import Configuration
+from configuration import Configuration
 
 
 class TestApplicationState(TestCase):

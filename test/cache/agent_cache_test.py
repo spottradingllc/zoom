@@ -2,8 +2,8 @@ import mox
 
 from kazoo.protocol.states import WatchedEvent
 from unittest import TestCase
-from server.spot.zoom.www.cache.agent_cache import AgentCache
-from server.spot.zoom.www.zoo_keeper import ZooKeeper
+from spot.zoom.www.cache.agent_cache import AgentCache
+from spot.zoom.www.zoo_keeper import ZooKeeper
 
 
 class AgentCacheTest(TestCase):
@@ -32,14 +32,14 @@ class AgentCacheTest(TestCase):
 
     def test_load(self):
         self.zoo_keeper.get_children(
-            mox.IgnoreArg()).AndReturn({'child1', 'child2', 'child3'})
+            mox.IgnoreArg(), watch=mox.IgnoreArg()).AndReturn({'child1', 'child2', 'child3'})
 
         cache = AgentCache(self.configuration, self.zoo_keeper)
 
         self.mox.StubOutWithMock(cache, "_update_cache")
-        cache._update_cache('child1').InAnyOrder("updates")
-        cache._update_cache('child2').InAnyOrder("updates")
-        cache._update_cache('child3').InAnyOrder("updates")
+        cache._update_cache('child1', run_callbacks=False).InAnyOrder("updates")
+        cache._update_cache('child2', run_callbacks=False).InAnyOrder("updates")
+        cache._update_cache('child3', run_callbacks=False).InAnyOrder("updates")
 
         self.mox.ReplayAll()
          
