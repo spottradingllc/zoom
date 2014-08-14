@@ -1,5 +1,5 @@
 from unittest import TestCase
-from server.spot.zoom.www.entities.application_state import ApplicationState
+from spot.zoom.www.entities.application_state import ApplicationState
 
 
 class TestApplicationState(TestCase):
@@ -21,9 +21,10 @@ class TestApplicationState(TestCase):
                           repr(self.state))
 
     def test_to_dictionary(self):
-        self.assertEquals({'configuration_path': '2',
-                           'start_time': '1969-12-31 18:00:05',
-                           'application_status': 'unknown',
+        self.assertEquals({'application_host': '4',
                            'application_name': '1',
-                           'application_host': '4',
-                           'error_state': '6'}, self.state.to_dictionary())
+                           'application_status': 'unknown',
+                           'configuration_path': '2',
+                           'delete': False,
+                           'error_state': '6',
+                           'start_time': '1969-12-31 18:00:05'}, self.state.to_dictionary())

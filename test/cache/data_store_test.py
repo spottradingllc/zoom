@@ -1,19 +1,19 @@
 import mox
 
 from unittest import TestCase
-from server.spot.zoom.www.zoo_keeper import ZooKeeper
-from server.spot.zoom.www.cache.data_store import DataStore
-from server.spot.zoom.www.cache.global_cache import GlobalCache
-from server.spot.zoom.www.cache.application_state_cache \
+from spot.zoom.www.zoo_keeper import ZooKeeper
+from spot.zoom.www.cache.data_store import DataStore
+from spot.zoom.www.cache.global_cache import GlobalCache
+from spot.zoom.www.cache.application_state_cache \
     import ApplicationStateCache
-from server.spot.zoom.test.test_utils import ConfigurationMock
+from test.test_utils import ConfigurationMock
 
 
 class DataStoreTest(TestCase):
     
     def setUp(self):
         self.mox = mox.Mox()
-        self.configuration = ConfigurationMock
+        self.configuration = ConfigurationMock()
         self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
 
     def tearDown(self):

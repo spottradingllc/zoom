@@ -1,10 +1,10 @@
 import mox
 
 from unittest import TestCase
-from server.spot.zoom.www.cache.global_cache import GlobalCache
-from server.spot.zoom.www.entities.types import UpdateType
-from server.spot.zoom.www.zoo_keeper import ZooKeeper
-from server.spot.zoom.test.test_utils import ConfigurationMock, EventMock
+from spot.zoom.www.cache.global_cache import GlobalCache
+from spot.zoom.www.entities.types import UpdateType
+from spot.zoom.www.zoo_keeper import ZooKeeper
+from test.test_utils import ConfigurationMock, EventMock, FakeMessage
 
 
 class GlobalCacheTest(TestCase):
@@ -41,13 +41,11 @@ class GlobalCacheTest(TestCase):
         event = EventMock()
         cache = GlobalCache(self.configuration, self.zoo_keeper,
                             self.web_socket_clients)
-        self.socket_client1.write_message(
-            dict(type=UpdateType.GLOBAL_MODE_UPDATE, payload= "mode_data"))
-        self.socket_client2.write_message(
-            dict(type=UpdateType.GLOBAL_MODE_UPDATE, payload= "mode_data"))
+        self.socket_client1.write_message("globalmodejson")
+        self.socket_client2.write_message("globalmodejson")
 
         self.mox.StubOutWithMock(cache, "get_mode")
-        cache.get_mode().AndReturn("mode_data")
+        cache.get_mode().AndReturn(FakeMessage("globalmodejson"))
 
         self.mox.ReplayAll()
         cache.on_update(event)
