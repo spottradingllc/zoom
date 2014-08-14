@@ -266,24 +266,40 @@ class Application(object):
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if self.zkclient.exists(self._paths['zk_agent_path'],
+        if self.zkclient.exists(self._paths['zk_state_base'],
                                 watch=self._update_agent_node_with_app_details):
-            data, stat = self.zkclient.get(self._paths['zk_agent_path'])
+            data, stat = self.zkclient.get(self._paths['zk_state_base'])
 
             agent_apps = json.loads(data)
 
             current_data = {'name': self.name,
                             'host': self._host,
                             'platform': self._system,
-                            'register_path': self._paths['zk_state_base'],
                             'mode': self._mode.value,
                             'state': self._state.value}
 
             # make sure data is the most recent
-            if current_data != agent_apps.get(self.name, None):
-                agent_apps[self.name] = current_data
-                self.zkclient.set(self._paths['zk_agent_path'],
-                                  json.dumps(agent_apps))
+            if current_data != agent_apps:
+                self.zkclient.set(self._paths['zk_state_base'],
+                                  json.dumps(current_data))
+                self._log.debug('Registering {0}'.format(agent_apps))
+
+        if self.zkclient.exists(self._paths['zk_state_path'],
+                                watch=self._update_agent_node_with_app_details):
+            data, stat = self.zkclient.get(self._paths['zk_state_path'])
+
+            agent_apps = json.loads(data)
+
+            current_data = {'name': self.name,
+                            'host': self._host,
+                            'platform': self._system,
+                            'mode': self._mode.value,
+                            'state': self._state.value}
+
+            # make sure data is the most recent
+            if current_data != agent_apps:
+                self.zkclient.set(self._paths['zk_state_path'],
+                                  json.dumps(current_data))
                 self._log.debug('Registering {0}'.format(agent_apps))
 
     def _init_paths(self, config, atype):

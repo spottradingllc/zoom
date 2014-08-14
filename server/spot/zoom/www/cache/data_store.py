@@ -3,7 +3,6 @@ from spot.zoom.www.cache.application_dependency_cache \
     import ApplicationDependencyCache
 from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from spot.zoom.www.cache.global_cache import GlobalCache
-from spot.zoom.www.cache.agent_cache import AgentCache
 
 
 class DataStore(object):
@@ -15,8 +14,6 @@ class DataStore(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = list()
-
-        self._agent_cache = AgentCache(self._configuration, self._zoo_keeper)
 
         self._time_estimate_cache = TimeEstimateCache(self._configuration,
                                                       self._web_socket_clients)
@@ -31,7 +28,6 @@ class DataStore(object):
             ApplicationStateCache(self._configuration,
                                   self._zoo_keeper,
                                   self._web_socket_clients,
-                                  self._agent_cache,
                                   self._time_estimate_cache)
 
         self._global_cache = GlobalCache(self._configuration,
@@ -40,14 +36,12 @@ class DataStore(object):
 
     def start(self):
         self._global_cache.start()
-        self._agent_cache.start()
         self._time_estimate_cache.start()
         self._application_state_cache.start()
         self._application_dependency_cache.start()
 
     def stop(self):
         self._global_cache.stop()
-        self._agent_cache.stop()
         self._time_estimate_cache.stop()
         self._application_state_cache.stop()
         self._application_dependency_cache.stop()
@@ -83,7 +77,6 @@ class DataStore(object):
         # restart client to destroy any existing watches
         self._zoo_keeper.restart()
         self._global_cache.on_update()
-        self._agent_cache.reload()
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()
         self._time_estimate_cache.reload()
@@ -94,7 +87,6 @@ class DataStore(object):
         Clear all cache objects and send reloaded data as updates.
         """
         self._global_cache.on_update()
-        self._agent_cache.load()
         self._time_estimate_cache.load()
         self._application_state_cache.load()
         self._application_dependency_cache.load()

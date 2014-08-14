@@ -1,5 +1,6 @@
 import logging
 import os.path
+import json
 
 from kazoo.exceptions import NoNodeError
 
@@ -11,12 +12,11 @@ from spot.zoom.www.messages.message_throttler import MessageThrottle
 
 class ApplicationStateCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
-                 agent_cache, time_estimate_cache):
+                 time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
-        :type agent_cache: zoom.cache.agent_cache.AgentCache
         """
         self._configuration = configuration
         self._cache = ApplicationStatesMessage()
@@ -24,8 +24,6 @@ class ApplicationStateCache(object):
         self._zoo_keeper = zoo_keeper
         self._web_socket_clients = web_socket_clients
 
-        self._agent_cache = agent_cache
-        self._agent_cache.add_callback(self._on_update)
         self._time_estimate_cache = time_estimate_cache
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
@@ -50,7 +48,6 @@ class ApplicationStateCache(object):
         self._on_update_path(self._configuration.application_state_path)
 
     def _load(self):
-        self._agent_cache.load()
         self._cache.clear()
 
         self._walk(self._configuration.application_state_path, self._cache)
@@ -93,23 +90,29 @@ class ApplicationStateCache(object):
         :type path: str
         :rtype: zoom.entities.application_state.ApplicationState
         """
-        data, stat = self._zoo_keeper.get(path)
+        rawData, stat = self._zoo_keeper.get(path)
+
+        data = {}
+
+        if rawData != '':
+            try:
+                data = json.loads(rawData) 
+            except ValueError:
+                pass
 
         # persistent node
         if stat.ephemeralOwner == 0:
             # watch node to see if children are created
             self._zoo_keeper.get_children(path, watch=self._on_update)
 
-            agent_data = self._agent_cache.get_app_data_by_path(path)
-            host = self._agent_cache.get_host_by_path(path)
 
             application_state = ApplicationState(
-                application_name=agent_data.get('name', os.path.basename(path)),
+                application_name=data.get('name', os.path.basename(path)),
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
-                application_host=host,
-                error_state=agent_data.get('state', 'unknown'),
-                local_mode=agent_data.get('mode', 'unknown')
+                application_host=data.get('host', None),
+                error_state=data.get('state', 'unknown'),
+                local_mode=data.get('mode', 'unknown')
             )
 
         # ephemeral node
@@ -120,17 +123,16 @@ class ApplicationStateCache(object):
 
             config_path = os.path.dirname(path)
             host = os.path.basename(path)
-            agent_data = self._agent_cache.get_app_data_by_path(config_path)
 
             application_state = ApplicationState(
-                application_name=agent_data.get('name',
+                application_name=data.get('name',
                                                 os.path.basename(config_path)),
                 configuration_path=config_path,
                 application_status=ApplicationStatus.RUNNING,
                 application_host=host,
                 start_time=stat.created,
-                error_state=agent_data.get('state', 'unknown'),
-                local_mode=agent_data.get('mode', 'unknown')
+                error_state=data.get('state', 'unknown'),
+                local_mode=data.get('mode', 'unknown')
             )
 
         return application_state
