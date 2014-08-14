@@ -42,7 +42,7 @@ class PythonService(win32serviceutil.ServiceFramework):
                                     (self._svc_name_, ''))
 
     def main(self):
-        os.chdir(r"C:\Program Files\Spot Trading LLC\zoom\server\spot\zoom\agent")
+        os.chdir(r"C:\Program Files\Spot Trading LLC\zoom\server")
         self._proc = psutil.Popen(r"C:\Python27\python.exe sentinel.py")
         while self._proc.status == psutil.STATUS_RUNNING:
             time.sleep(1)
