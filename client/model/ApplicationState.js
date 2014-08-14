@@ -88,7 +88,7 @@ return function ApplicationState (ko, data, parent) {
             $('.big-modal-body').append($.parseHTML(html));
         }
 
-        $('#big-modal').modal('show');
+        $('.big-modal-class').modal('show');
     }
 
     self.graphiteBaseURL = function(){

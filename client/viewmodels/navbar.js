@@ -1,4 +1,4 @@
-﻿define(['plugins/router', 'durandal/app', 'jquery', 'knockout', 'service', 'model/loginModel' ], function (router, app, $, ko, service, login ) {
+﻿define(['plugins/router', 'durandal/app', 'jquery', 'knockout', 'service', 'model/loginModel', 'bootstrap' ], function (router, app, $, ko, service, login ) {
 
 
     return {
