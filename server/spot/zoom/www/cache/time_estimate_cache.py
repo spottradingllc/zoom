@@ -1,6 +1,7 @@
 import httplib
 import logging
 import requests
+from spot.zoom.www.utils.decorators import TimeThis
 from spot.zoom.www.entities.types import DependencyType
 from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
@@ -30,18 +31,18 @@ class TimeEstimateCache(object):
 
     def update_appplication_states(self, states):
         self.states.update(states)
-        self._message_throttle.add_message(self.recompute())
+        self.recompute(send=True)
 
     def update_appplication_deps(self, deps):
         self.deps.update(deps)
-        self._message_throttle.add_message(self.recompute())
+        self.recompute(send=True)
 
     def load(self):
-        logging.info("Loading Timing Estimates...")
         ret = self.recompute()
         return ret
    
-    def recompute(self):
+    def recompute(self, send=False):
+        logging.info("Recomputing Timing Estimates...")
         try:
             message = TimeEstimateMessage()
             maxtime = 0
@@ -67,6 +68,9 @@ class TimeEstimateCache(object):
                 'avetime': avetime,
                 'maxpath': maxpath
             })
+
+            if send and self.deps != {} and self.states != {}:
+                self._message_throttle.add_message(message)
 
             return message
 
