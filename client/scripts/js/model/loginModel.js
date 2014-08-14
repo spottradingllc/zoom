@@ -10,6 +10,15 @@ function LoginModel(service, ko, sammyApp) {
         authenticated: ko.observable(false)
     };
 
+    self.advertise = ko.computed(function(){
+        if(self.elements.authenticated()){
+            return self.elements.username()
+        }
+        else{
+            return "Sign In";
+        }
+    });
+
     var setUserFromCookie = function () {
         self.elements.username(service.getCookie("username"));
         if (service.getCookie("read_write")) {

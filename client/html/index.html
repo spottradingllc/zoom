@@ -68,7 +68,10 @@
 
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown" style="margin-right: 10px">
-                                <a class="dropdown-toggle" href="#" data-toggle="dropdown">Sign In <strong class="caret"></strong></a>
+                                <a class="dropdown-toggle" href="#" data-toggle="dropdown" >
+                                    <span data-bind="text: login.advertise()"/>
+                                    <strong class="caret"></strong>
+                                </a>
                                 <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
                                     <!-- Login form here -->
                                     <form role="form" class="form-horizontal">
