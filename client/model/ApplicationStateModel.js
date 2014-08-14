@@ -419,6 +419,4 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                            onApplicationDependenciesError);
     };
 
-    self.loadApplicationStates();  // load initial data
-    self.loadApplicationDependencies();  // load initial data
 }});
