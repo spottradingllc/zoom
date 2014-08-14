@@ -256,7 +256,7 @@ class WindowsProcessClient(ProcessClient):
     def __init__(self, *args, **kwargs):
         ProcessClient.__init__(self, *args, **kwargs)
 
-        from sentinel.client.wmi_client import WMIServiceClient
+        from spot.zoom.agent.sentinel.client.wmi_client import WMIServiceClient
         self._wmi = WMIServiceClient(self.script_name)
 
     def _service_start(self):
