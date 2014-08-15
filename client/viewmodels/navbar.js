@@ -4,6 +4,14 @@
     return {
         router: router,
         login: login,
+        isFAQ: function(title){
+                if(title.search("FAQ") != -1){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            },
         activate: function () {
             router.map([
                 //If you want to add a route, make sure to update the indices in navbar.html...
