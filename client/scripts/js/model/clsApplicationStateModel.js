@@ -4,7 +4,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     self.login = login;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
-    self.environment = ko.observable("Unknown");
+    self.environment = ko.observable("--");
     self.name = "Application State Table";
 
     var operationTypes = {add: "add", remove: "remove"};
@@ -387,7 +387,7 @@ function ApplicationStateModel(service, ko, $, login, d3) {
             return self.createApplicationState(row)
         });
 
-        self.environment = data.environment;
+        self.environment(data.environment.toUpperCase());
 
         self.applicationStates(table);
         // sort initially on descending start time
