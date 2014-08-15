@@ -32,7 +32,6 @@ return function ApplicationState (ko, data, parent) {
     self.applicationHost = ko.observable(data.application_host);
     self.startTime = ko.observable(data.start_time);
     self.errorState = ko.observable(data.error_state);
-    self.environment = ko.observable(data.environment);
     self.mtime = Date.now();
 
     self.applicationStatusClass = ko.computed(function () {
@@ -230,7 +229,7 @@ return function ApplicationState (ko, data, parent) {
             var dict = {configurationPath : self.configurationPath};
             if (self.showInfo()) {
                 $.getJSON("/api/serviceinfo/", dict, function(data) {
-                    self.serviceInfo(data);
+                    self.serviceInfo(data.servicedata);
                 }).fail(function(data){
                     alert("Failed Get for ServiceInfo " + JSON.stringify(data));
                 });
