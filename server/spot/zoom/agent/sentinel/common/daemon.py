@@ -156,6 +156,7 @@ class SentinelDaemon(object):
             process.stop()
         self.children.clear()
 
+    @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')
     @connected
     def _reset_after_connection_loss(self):
