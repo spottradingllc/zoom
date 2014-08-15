@@ -25,11 +25,11 @@ function ApplicationStateModel(service, ko, $, login, d3) {
         //options.arg: command argument
         //option.no_confirm: confirm bool
         if (options == undefined) options = {};
-        var confirmString = ["Please confirm that you want to send a " + options.com + " command to the ",
-                self.groupControl().length + " selected agents by pressing OK."].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
+        var promptString = ["Please confirm that you want to send a " + options.com + " command to the ",
+                self.groupControl().length + " selected agents by typing '" + options.com + "'."].join('\n');
+        promptString = promptString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (!options.confirm || confirm(confirmString)) {
+        if (!options.confirm || (prompt(promptString) == options.com)) {
             ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
                 var dict = {
                     "componentId": applicationState.componentId,
@@ -69,11 +69,11 @@ function ApplicationStateModel(service, ko, $, login, d3) {
     }
 
     self.executeDepRestart = function (com) {
-        var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
-                self.groupControl().length + " selected agents by pressing OK."].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
+        var promptString = ["Please confirm that you want to send a " + com + " command to the ",
+                self.groupControl().length + " selected agents by typing '" + com + "'."].join('\n');
+        promptString = promptString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (confirm(confirmString)) {
+        if (prompt(promptString) == com) {
             self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
             self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
             self.checkDown();
