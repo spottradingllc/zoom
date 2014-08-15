@@ -122,10 +122,11 @@ class Application(object):
             ready_action = self._actions.get('register', None)
             # check that predicates are all met
             if ready_action is not None and ready_action.ready:
+
                 self._log.info('Registering %s in state tree.' % self.name)
                 self.zkclient.create(self._paths['zk_state_path'],
                                      ephemeral=True,
-                                     value=self._host,
+                                     value=json.dumps(self._app_details()),
                                      makepath=True)
 
                 self._state.set_value(ApplicationState.OK)
@@ -260,31 +261,45 @@ class Application(object):
         """Terminate child thread/process"""
         self._running = False   
 
+    def _app_details(self):
+        return {'name': self.name,
+                'host': self._host,
+                'platform': self._system,
+                'mode': self._mode.value,
+                'state': self._state.value}
+
     @connected
     def _update_agent_node_with_app_details(self, event=None):
         """
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if self.zkclient.exists(self._paths['zk_agent_path'],
+
+        current_data = self._app_details()
+
+        if self.zkclient.exists(self._paths['zk_state_base'],
                                 watch=self._update_agent_node_with_app_details):
-            data, stat = self.zkclient.get(self._paths['zk_agent_path'])
+            data, stat = self.zkclient.get(self._paths['zk_state_base'])
 
             agent_apps = json.loads(data)
 
-            current_data = {'name': self.name,
-                            'host': self._host,
-                            'platform': self._system,
-                            'register_path': self._paths['zk_state_base'],
-                            'mode': self._mode.value,
-                            'state': self._state.value}
+            # make sure data is the most recent
+            if current_data != agent_apps:
+                self.zkclient.set(self._paths['zk_state_base'],
+                                  json.dumps(current_data))
+                self._log.debug('Registering {0}'.format(current_data))
+
+        if self.zkclient.exists(self._paths['zk_state_path'],
+                                watch=self._update_agent_node_with_app_details):
+            data, stat = self.zkclient.get(self._paths['zk_state_path'])
+
+            agent_apps = json.loads(data)
 
             # make sure data is the most recent
-            if current_data != agent_apps.get(self.name, None):
-                agent_apps[self.name] = current_data
-                self.zkclient.set(self._paths['zk_agent_path'],
-                                  json.dumps(agent_apps))
-                self._log.debug('Registering {0}'.format(agent_apps))
+            if current_data != agent_apps:
+                self.zkclient.set(self._paths['zk_state_path'],
+                                  json.dumps(current_data))
+                self._log.debug('Registering Ephemeral {0}'.format(current_data))
 
     def _init_paths(self, config, atype):
         """
