@@ -44,4 +44,4 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
         db = Database(self.configuration)
         query = db.fetch_service_info(configuration_path)
 
-        self.write(query)
+        self.write({'servicedata':query})

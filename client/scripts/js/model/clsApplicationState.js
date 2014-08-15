@@ -229,7 +229,7 @@ function ApplicationState (ko, data, parent) {
             var dict = {configurationPath : self.configurationPath};
             if (self.showInfo()) {
                 $.getJSON("/api/serviceinfo/", dict, function(data) {
-                    self.serviceInfo(data);
+                    self.serviceInfo(data.servicedata);
                 }).fail(function(data){
                     alert("Failed Get for ServiceInfo " + JSON.stringify(data));
                 });
