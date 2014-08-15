@@ -19,7 +19,10 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" style="margin-right: 10px">
-                        <a class="dropdown-toggle" href="#" id="loginDropDown" data-toggle="dropdown">Sign In <strong class="caret"></strong></a>
+                        <a class="dropdown-toggle" href="#" id="loginDropDown" data-toggle="dropdown">
+                            <span data-bind="text: login.advertise()"/>
+                            <strong class="caret"></strong>
+                        </a>
                         <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" aria-labelledby="loginDropDown">
                             <!-- Login form here -->
                             <form role="form" class="form-horizontal">

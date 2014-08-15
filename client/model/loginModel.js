@@ -1,6 +1,6 @@
 define(['knockout', 'service' ], function (ko, service) {
 
-var login = new Object();
+    var login = new Object();
 
     login.elements = {
         username: ko.observable(""),
@@ -10,6 +10,15 @@ var login = new Object();
         readWrite: ko.observable(false),
         authenticated: ko.observable(false)
     };
+
+    login.advertise = ko.computed(function(){
+        if(login.elements.authenticated()){
+            return login.elements.username()
+        }
+        else{
+            return "Sign In";
+        }
+    });
 
     login.setUserFromCookie = function () {
         this.elements.username(service.getCookie("username"));
