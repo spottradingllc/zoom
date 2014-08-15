@@ -313,7 +313,7 @@ return function ApplicationState (ko, data, parent) {
             }
             else if (predType == self.predType.grandchildren) {
                 ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
-                    if (ko.utils.stringStartsWith(applicationState.configurationPath, path)) {
+                    if (path.substring(0, applicationState.configurationPath.length) == applicationState.configurationPath) {
                         self.requires.push(applicationState);
                     }
                 });
