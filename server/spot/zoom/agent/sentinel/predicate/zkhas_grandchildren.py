@@ -38,9 +38,12 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             self._log.debug('Already started {0}'.format(self))
 
     def _callback(self):
-        for call in self._callbacks:
-            self._log.debug('{0}: About to run callback'.format(self))
-            call()
+        # TODO: This is the same logic as in SimplePrecicate.
+        # We should change it so that we only have to update in one place
+        for item in self._callbacks:
+            for cb in item.values():
+                self._log.debug('{0}: About to run callback.'.format(self))
+                cb()
 
     @connected
     def _walk(self, node):
