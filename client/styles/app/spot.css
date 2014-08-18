@@ -10,13 +10,10 @@ body{background-color: #F7F7F6;}
 
 table{width: 100%;}
 
-tr{background-color: lightblue;}
-
 .table tbody>tr>td.vert-align
 {
     vertical-align: bottom;
 }
-
 
 .splash {
     text-align: center;
