@@ -281,7 +281,10 @@ class Application(object):
                                 watch=self._update_agent_node_with_app_details):
             data, stat = self.zkclient.get(self._paths['zk_state_base'])
 
-            agent_apps = json.loads(data)
+            try:
+                agent_apps = json.loads(data)
+            except ValueError:
+                agent_apps = dict()
 
             # make sure data is the most recent
             if current_data != agent_apps:
