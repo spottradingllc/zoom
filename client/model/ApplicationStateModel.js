@@ -19,7 +19,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
         {title: 'Start Time', sortPropertyName: 'startTime', asc: ko.observable(false)},
         {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
-        {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)}
+        {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
+        {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
 
 //    functions/variables for group control of agents

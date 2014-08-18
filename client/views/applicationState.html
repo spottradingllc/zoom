@@ -454,6 +454,16 @@
                             </ul>
                         </div>
                     </td>
+                    <td>
+                        <button class="btn btn-default"
+                                type="button"
+                                data-bind="click: deleteRow"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Star the agent to add it to group control.">
+                                <span data-bind="attr : {class : groupControlStar}"></span>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
             <!-- END Rows -->
