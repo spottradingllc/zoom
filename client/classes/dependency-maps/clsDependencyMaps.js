@@ -165,12 +165,13 @@ return function DependencyMaps(ko, $, d3, parent) {
 	self.views.push(self.partitionChart);
 	self.parent.views.push(self.partitionChart);
 
-	parent.currentView.subscribe(function(newView) {
+    self.showView = function(newView) {
 		self.closeAllViews();
 		if (newView != parent) {
 			newView.show();
 		}
-	});
+	}
+	parent.currentView.subscribe(self.showView);
 
 	self.closeAllViews = function() {
 		ko.utils.arrayForEach(self.views(), function(view) {

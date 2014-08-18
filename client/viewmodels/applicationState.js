@@ -68,10 +68,12 @@ define(['durandal/app',
     self.attached = function(){
         self.applicationState.loadApplicationStates();  // load initial data
         self.applicationState.loadApplicationDependencies();  // load initial data
+        self.applicationState.dependencyMaps.showView(self.applicationState.currentView());
     }
 
     self.detached = function(){
         self.applicationState.applicationStates.removeAll()
+        self.applicationState.dependencyMaps.closeAllViews();
     }
 
     return {
