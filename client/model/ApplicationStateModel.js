@@ -1,14 +1,15 @@
 define(['model/ApplicationState', 
+        'model/environmentModel',
         'classes/clsCustomFilter', 
-        'classes/dependency-maps/clsDependencyMaps'],
-function(ApplicationState, CustomFilter, DependencyMaps){
+        'classes/dependency-maps/clsDependencyMaps',],
+function(ApplicationState, Environment, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
-    self.environment = ko.observable("--");
+    self.environment = Environment.environment;
     self.name = "Application State Table";
 
     var operationTypes = {add: "add", remove: "remove"};
@@ -391,8 +392,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         var table = $.map(data.application_states, function (row) {
             return self.createApplicationState(row)
         });
-
-        self.environment(data.environment.toUpperCase());
 
         self.applicationStates(table);
         // sort initially on descending start time

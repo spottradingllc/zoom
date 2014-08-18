@@ -9,6 +9,7 @@ from spot.zoom.www.handlers.application_dependencies_handler \
 from spot.zoom.www.handlers.application_state_handler \
     import ApplicationStateHandler
 from spot.zoom.www.handlers.control_agent_handler import ControlAgentHandler
+from spot.zoom.www.handlers.environment_handler import EnvironmentHandler
 from spot.zoom.www.handlers.filters_handler import FiltersHandler
 from spot.zoom.www.handlers.global_mode_handler import GlobalModeHandler
 from spot.zoom.www.handlers.list_servers_handler import ListServersHandler
@@ -47,6 +48,8 @@ class WebServer(tornado.web.Application):
             # config
             (r"/api/config/(?P<server>\w+)", ServerConfigHandler),
             (r"/api/config/list_servers/", ListServersHandler),
+            # environment
+            (r"/api/environment/", EnvironmentHandler),
             # filters
             (r"/api/filters/", FiltersHandler),
             # service info
