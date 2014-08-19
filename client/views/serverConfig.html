@@ -17,7 +17,7 @@
                         <input type="text"
                                id="searchBox"
                                class="form-control"
-                               data-bind="value: serverName, text: serverName, event: { keypress: keyPressed}"
+                               data-bind="value: serverName, text: serverName, event: { keypress: keyPressed}, valueUpdate:'afterkeydown'"
                                placeholder="Server name..."
                                autofocus/>
                         <div class="input-group-btn">

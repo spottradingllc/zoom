@@ -8,7 +8,8 @@ define(['knockout',
         'classes/Predicate',
         'classes/NotPredicate',
         'classes/AndPredicate',
-        'classes/OrPredicate'],
+        'classes/OrPredicate',
+        'bindings/uppercase'],
 function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
@@ -37,9 +38,11 @@ function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel
         ServerConfigViewModel.serverList.sort();
     };
 
+    // extend the server name to be all caps
+    ServerConfigViewModel.serverName.extend({ uppercase: true });
+
     // subscribe to changes in the server name
     ServerConfigViewModel.serverName.subscribe(function() {
-        ServerConfigViewModel.capitalizeServerName();
         ServerConfigViewModel.searchUpdateViewModel.hide();
         ServerConfigViewModel.addViewModel.hide();
     });
@@ -77,7 +80,6 @@ function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel
 
     ServerConfigViewModel.keyPressed = function(data, event) {
         if (event.keyCode == '13'){
-            ServerConfigViewModel.capitalizeServerName();
             ServerConfigViewModel.search();
         }
         return true;
