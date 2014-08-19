@@ -315,7 +315,9 @@
                         title="Toggle ascending/descending sort based on this column."
                         data-bind="visible: title != 'Control' || $parent.login.elements.authenticated">
                         <span data-bind="visible: $parent.applicationState.activeSort().title == title">
+                            <span class="dropup">
                             <span class="caret caret-reversed" data-bind="visible: asc"></span>
+                            </span>
                             <span class="caret" data-bind="visible: !asc()"></span>
                         </span>
                         <span data-bind="text: title, click: $parent.applicationState.sort"></span>

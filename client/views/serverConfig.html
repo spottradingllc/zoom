@@ -11,13 +11,13 @@
                             </button>
                             <!-- populate dropdown menu using knockout observable array -->
                             <ul class="dropdown-menu" role="menu" data-bind="foreach: serverList">
-                                <li><a data-bind="text: $data" onclick="serverSelected(this.text)"></a></li>
+                                <li><a data-bind="text: $data, click: function(){ $parent.serverSelected($data) }"></a></li>
                             </ul>
                         </div>
                         <input type="text"
                                id="searchBox"
                                class="form-control"
-                               data-bind="value: serverName, text: serverName"
+                               data-bind="value: serverName, text: serverName, event: { keypress: keyPressed}"
                                placeholder="Server name..."
                                autofocus/>
                         <div class="input-group-btn">
@@ -83,44 +83,49 @@
             </div>
             <pre data-bind="text: serverXML, value: serverXML, visible: showXML"></pre>
         </div>
+        <div class="panel panel-default" data-bind="with: treeViewModel, visible: treeViewModel.visible">
+            <div class="panel-heading">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" data-bind="click: addComponent">Add Component</button>
+                    <button type="button" class="btn btn-success" data-bind="click: createXML">Generate XML</button>
+                    <button type="button" class="btn btn-default" data-bind="click: loadXML">Load XML</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="container-fluid">
+                    <div data-bind="template: {name: 'component-template', foreach: components}">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- miscellaneous JavaScript helpers -->
-    <script type="text/javascript">
-        // fill-in search bar when a server is selected by the user (from dropdown)
-        function serverSelected(selection) {
-            ServerConfigViewModel.serverName(selection);
-            ServerConfigViewModel.search();
-        }
-
-        document.getElementById('searchBox').onkeypress = function(e){
-            if (e.keyCode == '13'){
-              // Enter pressed
-              ServerConfigViewModel.search();
-            }
-          }
-    </script>
 
     <!-- templates for adding server configurations -->
     <script type="text/html" id="component-template">
         <div class="panel panel-default success">
             <div class="panel-heading">
+                <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                 <div class="btn-group">
-                <a class="btn btn-default btn-lg disabled" role="button">
-                    &lt;Component <span data-bind="text: ID"></span>&gt;
-                </a>
-                <button type="button" class="btn btn-primary btn-lg" data-bind="click: addAction">Add Action</button>
+                    <a class="btn btn-default disabled" role="button">
+                        Component <span data-bind="text: ID"></span>;
+                    </a>
+                    <button type="button" 
+                            class="btn btn-default" 
+                            data-bind="click: function(){expanded(!expanded())}, 
+                                        text: expanded() ? 'Collapse' : 'Expand'"></button>
+                    <button type="button" class="btn btn-primary" data-bind="click: addAction">Add Action</button>
                 </div>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
                         <!-- required attributes -->
-                        <input type="text" placeholder="id" data-bind="value: ID, text: ID">
-                        <input type="text" placeholder="type" data-bind="value: compType, text: compType">
-                        <input type="text" placeholder="script" data-bind="value: script, text: script">
-                        <input type="text" placeholder="command" data-bind="value: command, text: command">
-                        <input type="number" placeholder="restartmax" data-bind="value: restartmax, text: restartmax">
-                        <input type="text" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
+                        <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
+                        <input type="text" class="form-control" required placeholder="type" data-bind="value: compType, text: compType">
+                        <input type="text" class="form-control" required placeholder="script" data-bind="value: script, text: script">
+                        <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command">
+                        <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax">
+                        <input type="text" class="form-control" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
                     </div>
                 </form>
                 <br />
@@ -132,37 +137,47 @@
     <script type="text/html" id="action-template">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <div class="btn-group">
-                    <a class="btn btn-default disabled" role="button">
-                        &lt;Action <span data-bind="text: ID"></span>&gt;
-                    </a>
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-primary" data-bind="click: addPredicate">Add Predicate</button>
-                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#" data-bind="click: addNotPredicate">NOT</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#" data-bind="click: addAndPredicate">AND</a></li>
-                        <li><a href="#" data-bind="click: addOrPredicate">OR</a></li>
-                      </ul>
-                    </div>
-                </div>
+                    <!-- ko template: {name: 'add-predicate-template'} -->
+                    <!-- /ko -->
             </div>
-            <div class="panel-body">
+            <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" placeholder="id" data-bind="value: ID, text: ID">
-                        <input type="text" placeholder="staggerpath" data-bind="value: staggerpath, text: staggerpath">
-                        <input type="text" placeholder="staggertime" data-bind="value: staggertime, text: staggertime">
-                        <input type="number" placeholder="allowed_instances" data-bind="value: allowedinstances, text: allowedinstances">
+                        <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
+                        <input type="text" class="form-control" placeholder="staggerpath" data-bind="value: staggerpath, text: staggerpath">
+                        <input type="text" class="form-control" placeholder="staggertime" data-bind="value: staggertime, text: staggertime">
+                        <input type="number" class="form-control" placeholder="allowed_instances" data-bind="value: allowedinstances, text: allowedinstances">
                     </div>
                 </form>
                 <br />
                 <div data-bind="template: {name: 'predicate-template', foreach: predicates}"></div>
             </div>
         </div>
+    </script>
+
+
+    <script type="text/html" id="add-predicate-template">
+        <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <div class="btn-group">
+            <a class="btn btn-default disabled" role="button" data-bind="text: title">
+            </a>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Add Predicate
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#" data-bind="click: function(){addPredicate('')}">Simple</a></li>
+                <li><a href="#" data-bind="click: function(){addPredicate('not')}">NOT</a></li>
+                <li><a href="#" data-bind="click: function(){addPredicate('and')}">AND</a></li>
+                <li><a href="#" data-bind="click: function(){addPredicate('or')}">OR</a></li>
+            </ul>
+        </div>
+        <button type="button" 
+            class="btn btn-default" 
+            data-bind="click: function(){expanded(!expanded())}, 
+                        text: expanded() ? 'Collapse' : 'Expand'"></button>
+        <span class="label label-danger" data-bind="text: error"/>
+
     </script>
 
     <script type="text/html" id="predicate-template">
@@ -186,17 +201,21 @@
     <script type="text/html" id="single-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
-                    <a class="btn btn-default disabled" role="button">
-                        &lt;Predicate&gt;
-                    </a>
+                <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <a class="btn btn-default disabled" role="button" data-bind="text: title">
+                </a>
+                <button type="button" 
+                        class="btn btn-default" 
+                        data-bind="click: function(){expanded(!expanded())}, 
+                                    text: expanded() ? 'Collapse' : 'Expand'"></button>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" placeholder="type" data-bind="text: predType, value:predType">
-                        <input type="number" placeholder="interval" data-bind="text: interval, value: interval">
-                        <input type="text" placeholder="command" data-bind="text: command, value: command">
-                        <input type="text" placeholder="path" data-bind="text: path, value: path">
+                        <input type="text" class="form-control" required placeholder="type" data-bind="text: predType, value:predType">
+                        <input type="number" class="form-control" placeholder="interval" data-bind="text: interval, value: interval">
+                        <input type="text" class="form-control" placeholder="command" data-bind="text: command, value: command">
+                        <input type="text" class="form-control" required placeholder="path" data-bind="text: path, value: path">
                     </div>
                 </form>
             </div>
@@ -206,14 +225,10 @@
     <script type="text/html" id="and-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <div class="btn-group">
-                    <a class="btn btn-default disabled" role="button">
-                        &lt;AND&gt;
-                    </a>
-                    <button type="button" class="btn btn-primary" data-bind="click: addPredicate">Add Predicate</button>
-                </div>
+                    <!-- ko template: {name: 'add-predicate-template'} -->
+                    <!-- /ko -->
             </div>
-            <div class="panel-body">
+            <div class="panel-body" data-bind="visible: expanded">
                 <div data-bind="template: {name:'predicate-template', foreach: predicates}"></div>
             </div>
         </div>
@@ -222,14 +237,11 @@
     <script type="text/html" id="or-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <div class="btn-group">
-                    <a class="btn btn-default disabled" role="button">
-                        &lt;OR&gt;
-                    </a>
-                    <button type="button" class="btn btn-primary" data-bind="click: addPredicate">Add Predicate</button>
+                    <!-- ko template: {name: 'add-predicate-template'} -->
+                    <!-- /ko -->
                 </div>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" data-bind="visible: expanded">
                 <div data-bind="template: {name:'predicate-template', foreach: predicates}"></div>
             </div>
         </div>
@@ -238,12 +250,11 @@
     <script type="text/html" id="not-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <a class="btn btn-default disabled" role="button">
-                    &lt;NOT&gt;
-                </a>
+                    <!-- ko template: {name: 'add-predicate-template'} -->
+                    <!-- /ko -->
             </div>
-            <div class="panel-body">
-                <div data-bind="template: {name:'predicate-template', foreach: predicate}"></div>
+            <div class="panel-body" data-bind="visible: expanded">
+                <div data-bind="template: {name:'predicate-template', foreach: predicates}"></div>
             </div>
         </div>
     </script>
