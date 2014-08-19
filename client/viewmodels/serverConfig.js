@@ -7,7 +7,8 @@ define(['knockout',
         'classes/Predicate',
         'classes/NotPredicate',
         'classes/AndPredicate',
-        'classes/OrPredicate'],
+        'classes/OrPredicate',
+        'bindings/uppercase'],
 function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
@@ -35,9 +36,11 @@ function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
         ServerConfigViewModel.serverList.sort();
     };
 
+    // extend the server name to be all caps
+    ServerConfigViewModel.serverName.extend({ uppercase: true });
+
     // subscribe to changes in the server name
     ServerConfigViewModel.serverName.subscribe(function() {
-        ServerConfigViewModel.capitalizeServerName();
         ServerConfigViewModel.searchUpdateViewModel.hide();
         ServerConfigViewModel.addViewModel.hide();
     });
