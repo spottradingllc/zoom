@@ -1,4 +1,4 @@
-define(['knockout', './alertsViewModel','vkbeautify'],
+define(['knockout', './alertsViewModel', 'vkbeautify'],
 function(ko, AlertsViewModel){
 
 /******* SEARCH AND UPDATE VIEW MODEL *******/
@@ -18,6 +18,7 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
                 if (data != "Node does not exist.") {
                     self.show();
                     self.serverConfig(vkbeautify.xml(data));
+                    ServerConfigViewModel.treeViewModel.show();
                 }
                 else {
                     self.hide();
@@ -82,7 +83,7 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
                         ServerConfigViewModel.getAllServerNames();
                         self.hide();
                     }
-                    else {
+               else {
                         AlertsViewModel.displayError(data);
                     }
                 }

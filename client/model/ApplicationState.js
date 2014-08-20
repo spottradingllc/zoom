@@ -282,14 +282,6 @@ return function ApplicationState (ko, data, parent) {
         self.showDependencies(!self.showDependencies());
     };
 
-    self.dependencyClass = ko.computed(function() {
-        if (self.showDependencies()) {
-            return "caret";
-        }
-        else {
-            return "caret-left"
-        }
-    });
     self.predType = {children: "zookeeperhaschildren", 
                      grandchildren: "zookeeperhasgrandchildren"};
 
@@ -313,7 +305,7 @@ return function ApplicationState (ko, data, parent) {
             }
             else if (predType == self.predType.grandchildren) {
                 ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
-                    if (path.substring(0, applicationState.configurationPath.length) == applicationState.configurationPath) {
+                    if (applicationState.configurationPath.substring(0, path.length) == path) {
                         self.requires.push(applicationState);
                     }
                 });
@@ -351,7 +343,6 @@ return function ApplicationState (ko, data, parent) {
         return dependencies().slice();
     });
     self.requiredBy.extend({rateLimit: 1000});
-
 
     self.deleteRow = function() {
         if (self.requiredBy().length > 0){
@@ -425,5 +416,16 @@ return function ApplicationState (ko, data, parent) {
         }
 
     }
+    self.dependencyClass = ko.computed(function() {
+        if (self.requires().length == 0 && self.requiredBy().length == 0){
+            return "";
+        }
+        else if (self.showDependencies()) {
+            return "caret";
+        }
+        else {
+            return "caret-left"
+        }
+    });
 }});
 

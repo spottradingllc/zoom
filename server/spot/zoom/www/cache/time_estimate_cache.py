@@ -1,7 +1,7 @@
 import httplib
 import logging
 import requests
-from spot.zoom.www.utils.decorators import TimeThis
+
 from spot.zoom.www.entities.types import DependencyType
 from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
@@ -87,6 +87,11 @@ class TimeEstimateCache(object):
         if data.get('cost', None) is not None:
             return data['cost']
 
+        data['cost'] = {}
+        data['cost']['ave'] = 0; 
+        data['cost']['min'] = 0; 
+        data['cost']['max'] = 0; 
+
         data['time'] = self.get_graphtite_data(path)
 
         # recurse into deps
@@ -109,6 +114,7 @@ class TimeEstimateCache(object):
                     for key in self.deps.iterkeys():
                         if key.lower().startswith(grand_path) \
                                 and key.lower() != grand_path:
+
                             avet = max(avet, self.rec_fn(key,
                                                          searchdata)['ave'])
                             mint = max(mint, self.rec_fn(key,

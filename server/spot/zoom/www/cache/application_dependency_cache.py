@@ -76,8 +76,7 @@ class ApplicationDependencyCache(object):
                 for child in children:
                     self._walk(os.path.join(path, child), result_dict)
             else:
-                # are we not doing anything with this?
-                depend = self._get_application_dependency(path, result_dict)
+                self._get_application_dependency(path, result_dict)
         except NoNodeError:
             logging.debug('Node at {0} no longer exists.'.format(path))
 

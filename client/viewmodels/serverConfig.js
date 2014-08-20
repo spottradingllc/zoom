@@ -1,6 +1,8 @@
 define(['knockout',
+        'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
         'viewmodels/serverConfig/addViewModel',
+        'viewmodels/serverConfig/treeViewModel',
         'viewmodels/serverConfig/searchUpdateViewModel',
         'classes/Action',
         'classes/Component',
@@ -9,7 +11,7 @@ define(['knockout',
         'classes/AndPredicate',
         'classes/OrPredicate',
         'bindings/uppercase'],
-function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
+function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
         // view models
@@ -21,6 +23,14 @@ function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
         serverName : ko.observable("")
     };
 
+    ServerConfigViewModel.activate = function(server){
+        if(server != null){
+            ServerConfigViewModel.serverName(server);
+            ServerConfigViewModel.search();
+        }
+    };
+
+    ServerConfigViewModel.treeViewModel = new TreeViewModel(ServerConfigViewModel),
     ServerConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(ServerConfigViewModel),
     ServerConfigViewModel.addViewModel = new AddViewModel(ServerConfigViewModel),
 
@@ -50,6 +60,7 @@ function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
     };
 
     ServerConfigViewModel.search = function() {
+        router.navigate('#config/' + ServerConfigViewModel.serverName(), { replace: true, trigger: false });
         ServerConfigViewModel.tearDown();
         ServerConfigViewModel.searchUpdateViewModel.search();
     };
@@ -64,10 +75,23 @@ function(ko, AlertsViewModel, AddViewModel, SearchUpdateViewModel){
         ServerConfigViewModel.serverName("");
     };
 
+    ServerConfigViewModel.serverSelected = function(selection) {
+        ServerConfigViewModel.serverName(selection);
+        ServerConfigViewModel.search();
+    };
+
     ServerConfigViewModel.tearDown = function() {
         ServerConfigViewModel.searchUpdateViewModel.tearDown();
         ServerConfigViewModel.addViewModel.tearDown();
+        ServerConfigViewModel.treeViewModel.tearDown();
         ServerConfigViewModel.alertsViewModel.closeAlerts();
+    };
+
+    ServerConfigViewModel.keyPressed = function(data, event) {
+        if (event.keyCode == '13'){
+            ServerConfigViewModel.search();
+        }
+        return true;
     };
 
     ServerConfigViewModel.getAllServerNames();
