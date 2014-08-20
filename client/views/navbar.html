@@ -16,14 +16,14 @@
                     <li class="loader" data-bind="css: { active: router.isNavigating }">
                         <i class="fa fa-spinner fa-spin fa-2x"></i>
                     </li>
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" href="#" id="sudoDropDown" data-toggle="dropdown">
-                            <span>Sudo</span>
+                    <li class="dropdown" data-bind="visible: login.elements.authenticated">
+                        <a class="dropdown-toggle" href="#" id="adminDropDown" data-toggle="dropdown">
+                            <span>Admin</span>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="sudoDropDown">
-                            <a href="#" data-bind="visible: sudo.enabled(), click: sudo.disable()"> Disable Sudo </a>
-                            <a href="#" data-bind="visible: !sudo.enabled(), click: function(){sudo.enable()}"> Enable Sudo </a>
+                        <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="adminDropDown">
+                            <a href="#" data-bind="visible: admin.enabled(), click: admin.disable()"> Disable Admin </a>
+                            <a href="#" data-bind="visible: !admin.enabled(), click: function(){admin.enable()}"> Enable Admin </a>
                         </div>
                     </li>
                     <li class="dropdown">

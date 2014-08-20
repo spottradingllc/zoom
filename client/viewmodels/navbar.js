@@ -4,15 +4,15 @@
         'knockout', 
         'service', 
         'model/loginModel', 
-        'model/sudoModel', 
+        'model/adminModel', 
         'model/environmentModel', 
         'bootstrap' ], 
-function (router, app, $, ko, service, login, sudo, environment ) {
+function (router, app, $, ko, service, login, admin, environment ) {
 
     return {
         router: router,
         login: login,
-        sudo: sudo,
+        admin: admin,
         isFAQ: function(title){
                 if(title.search("FAQ") != -1){
                     return true;

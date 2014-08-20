@@ -1,14 +1,14 @@
 define(['model/ApplicationState', 
         'model/environmentModel',
-        'model/sudoModel', 
+        'model/adminModel', 
         'classes/clsCustomFilter', 
         'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, sudo,  CustomFilter, DependencyMaps){
+function(ApplicationState, Environment, admin,  CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
-    self.sudo = sudo;
+    self.admin = admin;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
@@ -33,7 +33,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             return false;
         }
         if(self.headers[index].title == 'Delete' &&
-           !self.sudo.enabled()){
+           !self.admin.enabled()){
             return false;
         }
         return true;
