@@ -85,20 +85,25 @@ class ApplicationStateCache(object):
             logging.exception('An unhandled Exception has occurred while '
                               'running ApplicationStateCache.walk.')
 
-    def _get_application_state(self, path):
-        """
-        :type path: str
-        :rtype: zoom.entities.application_state.ApplicationState
-        """
-        rawData, stat = self._zoo_keeper.get(path)
+    def _get_app_details(self, path):
+        rawData, stat = self._zoo_keeper.get(path, watch=self._on_update)
 
         data = {}
 
         if rawData != '':
             try:
-                data = json.loads(rawData) 
+                data = json.loads(rawData)
             except ValueError:
                 pass
+
+        return data, stat
+
+    def _get_application_state(self, path):
+        """
+        :type path: str
+        :rtype: zoom.entities.application_state.ApplicationState
+        """
+        data, stat = self._get_app_details(path)
 
         # persistent node
         if stat.ephemeralOwner == 0:
@@ -121,18 +126,19 @@ class ApplicationStateCache(object):
             self._zoo_keeper.get_children(os.path.dirname(path),
                                           watch=self._on_update)
 
-            config_path = os.path.dirname(path)
             host = os.path.basename(path)
+            config_path = os.path.dirname(path)
+            parent_data, parent_stat = self._get_app_details(config_path)
 
             application_state = ApplicationState(
                 application_name=data.get('name',
-                                                os.path.basename(config_path)),
+                                          os.path.basename(config_path)),
                 configuration_path=config_path,
                 application_status=ApplicationStatus.RUNNING,
                 application_host=host,
                 start_time=stat.created,
-                error_state=data.get('state', 'unknown'),
-                local_mode=data.get('mode', 'unknown')
+                error_state=parent_data.get('state', 'unknown'),
+                local_mode=parent_data.get('mode', 'unknown')
             )
 
         return application_state

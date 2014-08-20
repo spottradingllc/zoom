@@ -290,19 +290,7 @@ class Application(object):
             if current_data != agent_apps:
                 self.zkclient.set(self._paths['zk_state_base'],
                                   json.dumps(current_data))
-                self._log.debug('Registering {0}'.format(current_data))
-
-        if self.zkclient.exists(self._paths['zk_state_path'],
-                                watch=self._update_agent_node_with_app_details):
-            data, stat = self.zkclient.get(self._paths['zk_state_path'])
-
-            agent_apps = json.loads(data)
-
-            # make sure data is the most recent
-            if current_data != agent_apps:
-                self.zkclient.set(self._paths['zk_state_path'],
-                                  json.dumps(current_data))
-                self._log.debug('Registering Ephemeral {0}'.format(current_data))
+                self._log.debug('Registering app data {0}'.format(current_data))
 
     def _init_paths(self, config, atype):
         """
@@ -400,19 +388,22 @@ class Application(object):
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
         try:
-            data, stat = self.zkclient.get(self._paths['zk_state_base'],
-                                           watch=self._check_allowed_instances)
-            if not(stat.numChildren < self._allowed_instances):
+            children = self.zkclient.get_children(
+                self._paths['zk_state_base'],
+                watch=self._check_allowed_instances
+            )
+            num_of_children = len(children)
+            if not(num_of_children < self._allowed_instances):
                 self._log.info('Running instances of {0} ({1}) is >= allowed '
                                'instances ({2}).'
-                               .format(self.name, stat.numChildren,
+                               .format(self.name, num_of_children,
                                        self._allowed_instances))
                 self._start_allowed.set_value(False)
  
             else:
                 self._log.info('Running instances of {0} ({1}) is < '
                                'allowed instances ({2}). It should be allowed '
-                               'to start.'.format(self.name, stat.numChildren,
+                               'to start.'.format(self.name, num_of_children,
                                                   self._allowed_instances))
                 self._start_allowed.set_value(True)
         except NoNodeError:
