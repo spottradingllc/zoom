@@ -371,41 +371,56 @@ return function ApplicationState (ko, data, parent) {
             
             if(confirm(self.configurationPath + " will be deleted, and its dependency configuration lost, continue?"))
             {
-                parent.applicationStates.remove(self);
-                $.get("/api/config/" + self.applicationHost(), function(data) {
-                    if (data != "Node does not exist.") {
-                        parser = new DOMParser();
-                        xmlDoc = parser.parseFromString(data,"text/xml");
-                        var target = -1;
-                        var x = xmlDoc.getElementsByTagName("Component");
-                        for (i=0;i<x.length;i++)
-                        { 
-                            var id = x[i].getAttribute("id")
-                            if(self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1){
-                                x[i].parentNode.removeChild(x[i]);
-                                break;
-                            }
-                        }
-                        var oSerializer = new XMLSerializer();
-                        var sXML = oSerializer.serializeToString(xmlDoc);
-                        console.log(sXML);
-                        var params = {
-                            "XML" : sXML,
-                            "serverName" : self.applicationHost()
-                        };
-                        $.ajax({
-                            url: "/api/config/" + self.applicationHost(),
-                            type: 'PUT',
-                            data: JSON.stringify(params)});
 
-                    }
-                    else {
-                        alert("no data for host " + self.applicationHost());
-                    }
-                }).fail(function(data){
-                    alert("Failed Get Config " + JSON.stringify(data));
+                var dict = {loginName : parent.login.elements.username(), delete : self.configurationPath};
+
+                var zk_deleted = true;
+
+                $.post("/api/delete/", dict)
+                    .fail(function(data) {
+                        alert( "Error deleting path: " + JSON.stringify(data.responseText));
+                        zk_deleted = false;
                 });
 
+                if(zk_deleted){
+                    $.get("/api/config/" + self.applicationHost())
+                        .fail(function(data){
+                            alert("Failed Get Config " + JSON.stringify(data));
+                        })
+                       .done(function(data) {
+                            if (data != "Node does not exist.") {
+                                parser = new DOMParser();
+                                xmlDoc = parser.parseFromString(data,"text/xml");
+                                var target = -1;
+                                var x = xmlDoc.getElementsByTagName("Component");
+                                for (i=0;i<x.length;i++)
+                                { 
+                                    var id = x[i].getAttribute("id")
+                                    if(self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1){
+                                        x[i].parentNode.removeChild(x[i]);
+                                        break;
+                                    }
+                                }
+                                var oSerializer = new XMLSerializer();
+                                var sXML = oSerializer.serializeToString(xmlDoc);
+                                var params = {
+                                    "XML" : sXML,
+                                    "serverName" : self.applicationHost()
+                                };
+                                $.ajax({
+                                    url: "/api/config/" + self.applicationHost(),
+                                    type: 'PUT',
+                                    data: JSON.stringify(params)})
+                                    .fail(function(data){
+                                        alert("Failed putting Config " + JSON.stringify(data));
+                                    })
+
+                            }
+                            else {
+                                alert("no data for host " + self.applicationHost());
+                            }
+                    });
+                }
             }
         }
 
