@@ -33,6 +33,8 @@
                                           data-placement="top"
                                           title="Set Zookeeper to ignore state changes.">Off</button>
                 </div>
+                <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'">
+
                 <small>
                 <span data-bind="text: mode.timingString"/>
                 </small>
@@ -315,7 +317,7 @@
                         title="Toggle ascending/descending sort based on this column."
                         data-bind="visible: title != 'Control' || $parent.login.elements.authenticated">
                         <span data-bind="visible: $parent.applicationState.activeSort().title == title">
-                            <span class="caret caret-reversed" data-bind="visible: asc"></span>
+                            <span class="caret-reversed" data-bind="visible: asc"></span>
                             <span class="caret" data-bind="visible: !asc()"></span>
                         </span>
                         <span data-bind="text: title, click: $parent.applicationState.sort"></span>
@@ -352,14 +354,16 @@
                         <span data-bind="text: configurationPath, click: toggleDependencies"></span>
                         <span data-bind="attr : {class : dependencyClass}"></span>
                         <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
-                        <span data-bind="visible: requires().length > 0 && showDependencies"><br>I require:</span>
-                        <ul data-bind="foreach: requires, visible: showDependencies" style="list-style-type: none">
-                            <span data-bind="template: {name : 'dependencies-template'}"></span>
-                        </ul>
-                        <span data-bind="visible: requiredBy().length > 0 && showDependencies">I am required by:</span>
-                        <ul data-bind="foreach: requiredBy, visible: showDependencies" style="list-style-type: none">
-                            <span data-bind="template: {name : 'dependencies-template'}"></span>
-                        </ul>
+                        <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
+                            <span data-bind="visible: requires().length > 0">I require:</span>
+                            <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name : 'dependencies-template'}"></span>
+                            </ul>
+                            <span data-bind="visible: requiredBy().length > 0">I am required by:</span>
+                            <ul data-bind="foreach: requiredBy, visible: requiredBy().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name : 'dependencies-template'}"></span>
+                            </ul>
+                        </div>
                         <div class="alert alert-info" role="alert" 
                              data-bind="visible: (showInfo() && $parent.login.elements.authenticated()), text: serviceInfo,
                                         event : {mouseout: function(){saveInfo();}},
@@ -621,7 +625,7 @@
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
     <li data-bind="style : {backgroundColor : $data.applicationStatusBg}">
-        <span data-bind="attr : {class : $data.applicationStatusClass}"></span>
+        <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span data-bind="text: $data.configurationPath"></span>
     </li>
 </script>
