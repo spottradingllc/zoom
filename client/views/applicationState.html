@@ -313,7 +313,7 @@
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Toggle ascending/descending sort based on this column."
-                        data-bind="visible: (title != 'Control' && title != 'Delete') || $parent.login.elements.authenticated">
+                        data-bind="visible: $parent.applicationState.showHeader($index())">
                         <span data-bind="visible: $parent.applicationState.activeSort().title == title">
                             <span class="caret caret-reversed" data-bind="visible: asc"></span>
                             <span class="caret" data-bind="visible: !asc()"></span>
@@ -454,7 +454,7 @@
                             </ul>
                         </div>
                     </td>
-                    <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
+                    <td class="text-center" data-bind="visible: $parent.applicationState.sudo.enabled">
                         <div class="btn-group btn-group-xs" >
                             <button class="btn btn-default"
                                     type="button"

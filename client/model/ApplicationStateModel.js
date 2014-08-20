@@ -1,12 +1,14 @@
 define(['model/ApplicationState', 
         'model/environmentModel',
+        'model/sudoModel', 
         'classes/clsCustomFilter', 
         'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, CustomFilter, DependencyMaps){
+function(ApplicationState, Environment, sudo,  CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
+    self.sudo = sudo;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
@@ -23,6 +25,19 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
         {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
+
+    self.showHeader = function(index){
+
+        if(self.headers[index].title == 'Control' &&
+           !self.login.elements.authenticated()){
+            return false;
+        }
+        if(self.headers[index].title == 'Delete' &&
+           !self.sudo.enabled()){
+            return false;
+        }
+        return true;
+    };
 
 //    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);

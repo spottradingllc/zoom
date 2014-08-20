@@ -1,9 +1,18 @@
-﻿define(['plugins/router', 'durandal/app', 'jquery', 'knockout', 'service', 'model/loginModel', 'model/environmentModel', 'bootstrap' ], function (router, app, $, ko, service, login, environment ) {
-
+﻿define(['plugins/router', 
+        'durandal/app', 
+        'jquery', 
+        'knockout', 
+        'service', 
+        'model/loginModel', 
+        'model/sudoModel', 
+        'model/environmentModel', 
+        'bootstrap' ], 
+function (router, app, $, ko, service, login, sudo, environment ) {
 
     return {
         router: router,
         login: login,
+        sudo: sudo,
         isFAQ: function(title){
                 if(title.search("FAQ") != -1){
                     return true;

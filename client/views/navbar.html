@@ -17,6 +17,16 @@
                         <i class="fa fa-spinner fa-spin fa-2x"></i>
                     </li>
                     <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" id="sudoDropDown" data-toggle="dropdown">
+                            <span>Sudo</span>
+                            <strong class="caret"></strong>
+                        </a>
+                        <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="sudoDropDown">
+                            <a href="#" data-bind="visible: sudo.enabled(), click: sudo.disable()"> Disable Sudo </a>
+                            <a href="#" data-bind="visible: !sudo.enabled(), click: function(){sudo.enable()}"> Enable Sudo </a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
                         <a class="dropdown-toggle" href="#" id="faqDropDown" data-toggle="dropdown">
                             <span>FAQ</span>
                             <strong class="caret"></strong>
