@@ -36,7 +36,7 @@ class ApplicationStateCache(object):
 
     def load(self):
         """
-        :rtype: from zoom.messages.application_states.ApplicationStatesMessage
+        :rtype: zoom.messages.application_states.ApplicationStatesMessage
         """
         if not len(self._cache):
             self._load()
@@ -86,6 +86,10 @@ class ApplicationStateCache(object):
                               'running ApplicationStateCache.walk.')
 
     def _get_app_details(self, path):
+        """
+        :type path: str
+        :rtype: dict, kazoo.protocol.states.ZnodeStat
+        """
         rawData, stat = self._zoo_keeper.get(path, watch=self._on_update)
 
         data = {}
