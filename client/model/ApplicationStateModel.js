@@ -1,12 +1,14 @@
 define(['model/ApplicationState', 
         'model/environmentModel',
+        'model/adminModel', 
         'classes/clsCustomFilter', 
         'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, CustomFilter, DependencyMaps){
+function(ApplicationState, Environment, admin,  CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
+    self.admin = admin;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
@@ -20,8 +22,22 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
         {title: 'Start Time', sortPropertyName: 'startTime', asc: ko.observable(false)},
         {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
-        {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)}
+        {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
+        {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
     ];
+
+    self.showHeader = function(index){
+
+        if(self.headers[index].title == 'Control' &&
+           !self.login.elements.authenticated()){
+            return false;
+        }
+        if(self.headers[index].title == 'Delete' &&
+           !self.admin.enabled()){
+            return false;
+        }
+        return true;
+    };
 
 //    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
