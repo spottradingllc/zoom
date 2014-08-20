@@ -1,4 +1,5 @@
 define(['knockout',
+        'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
         'viewmodels/serverConfig/addViewModel',
         'viewmodels/serverConfig/treeViewModel',
@@ -10,7 +11,7 @@ define(['knockout',
         'classes/AndPredicate',
         'classes/OrPredicate',
         'bindings/uppercase'],
-function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
+function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
         // view models
@@ -20,6 +21,13 @@ function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel
         // variables
         serverList : ko.observableArray(),
         serverName : ko.observable("")
+    };
+
+    ServerConfigViewModel.activate = function(server){
+        if(server != null){
+            ServerConfigViewModel.serverName(server);
+            ServerConfigViewModel.search();
+        }
     };
 
     ServerConfigViewModel.treeViewModel = new TreeViewModel(ServerConfigViewModel),
@@ -52,6 +60,7 @@ function(ko, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel
     };
 
     ServerConfigViewModel.search = function() {
+        router.navigate('#config/' + ServerConfigViewModel.serverName(), { replace: true, trigger: false });
         ServerConfigViewModel.tearDown();
         ServerConfigViewModel.searchUpdateViewModel.search();
     };

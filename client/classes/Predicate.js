@@ -22,8 +22,7 @@ return function Predicate(Factory) {
         self.parent.expandUp();
     }
     self.validate = function() {
-        if(self.predType() == null ||
-           self.path() == null){
+        if(self.predType() == null){
             self.expandUp();
             return false;
         }
@@ -32,9 +31,11 @@ return function Predicate(Factory) {
 
     self.createPredicateXML = function() {
         var XML = "<Predicate ";
-        XML = XML.concat("path='"+self.path()+"' ");
         XML = XML.concat("type='"+self.predType()+"' ");
 
+        if(self.path() != null){
+            XML = XML.concat("path='"+self.path()+"' ");
+        }
         if(self.interval() != null){
             XML = XML.concat("interval='"+self.interval()+"' ");
         }
