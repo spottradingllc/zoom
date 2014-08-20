@@ -364,7 +364,7 @@ return function ApplicationState (ko, data, parent) {
         else if(self.applicationHost() == ""){ 
             if(confirm(self.configurationPath + " has no Host listed, this delete is mostly artificial"))
             {
-               // parent.applicationStates.remove(self);
+                parent.applicationStates.remove(self);
             }
         }
         else{
