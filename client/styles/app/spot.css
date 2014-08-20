@@ -60,3 +60,15 @@ table{width: 100%;}
     vertical-align: middle;
     width: 0;
 }
+ 
+input:required:invalid {
+    background-color: #d9534f;
+}
+
+/* This is for form placeholders */
+input:required:invalid::-webkit-input-placeholder {
+    color: #fff;
+}
+*::-webkit-input-placeholder {
+    font-size: 12px;
+}
