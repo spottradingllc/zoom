@@ -1,7 +1,7 @@
 import httplib
 import logging
 import requests
-from spot.zoom.www.utils.decorators import TimeThis
+
 from spot.zoom.www.entities.types import DependencyType
 from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
