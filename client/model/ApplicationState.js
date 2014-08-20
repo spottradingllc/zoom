@@ -11,14 +11,14 @@ return function ApplicationState (ko, data, parent) {
     };
 
     var glyphs = {
-        runningCheck: "glyphicon glyphicon-ok-circle btn-lg",
-        stoppedX: "glyphicon glyphicon-remove-circle btn-lg",
-        unknownQMark: "glyphicon glyphicon-question-sign btn-lg",
-        thumpsUp: "glyphicon glyphicon-thumbs-up btn-lg",
-        startingRetweet: "glyphicon glyphicon-retweet btn-lg",
-        stoppingDown: "glyphicon glyphicon-arrow-down btn-lg",
-        errorWarning: "glyphicon glyphicon-warning-sign btn-lg",
-        notifyExclamation: "glyphicon glyphicon-exclamation-sign btn-lg",
+        runningCheck: "glyphicon glyphicon-ok-circle",
+        stoppedX: "glyphicon glyphicon-remove-circle",
+        unknownQMark: "glyphicon glyphicon-question-sign",
+        thumpsUp: "glyphicon glyphicon-thumbs-up",
+        startingRetweet: "glyphicon glyphicon-retweet",
+        stoppingDown: "glyphicon glyphicon-arrow-down",
+        errorWarning: "glyphicon glyphicon-warning-sign",
+        notifyExclamation: "glyphicon glyphicon-exclamation-sign",
         filledStar: "glyphicon glyphicon-star",
         emptyStar: "glyphicon glyphicon-star-empty"
     };
