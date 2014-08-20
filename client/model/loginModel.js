@@ -21,18 +21,18 @@ define(['knockout', 'service' ], function (ko, service) {
     });
 
     login.setUserFromCookie = function () {
-        this.elements.username(service.getCookie("username"));
+        login.elements.username(service.getCookie("username"));
         if (service.getCookie("read_write")) {
-            this.elements.readWrite(true)
+            login.elements.readWrite(true)
         }
 
-        if (this.elements.username() && this.elements.readWrite()) {
-            this.elements.authenticated(true)
+        if (login.elements.username() && login.elements.readWrite()) {
+            login.elements.authenticated(true)
         }
     };
 
     login.onSuccess = function(data) {
-        this.login.setUserFromCookie();
+        login.setUserFromCookie();
     };
 
     login.onFailure = function(data) {
@@ -40,23 +40,23 @@ define(['knockout', 'service' ], function (ko, service) {
         return alert(JSON.stringify(data));
     };
 
-    login.submit = submit;
-    function submit() {
-        console.log(this)
-
+    login.submit = function() {
         var params = {
-            username: this.elements.username(),
-            password: this.elements.password()
+            username: login.elements.username(),
+            password: login.elements.password()
         };
 
-        return service.post('login', params, this.onSuccess, this.onFailure);
+        return service.post('login', params, login.onSuccess, login.onFailure);
     };
 
     login.reset = function () {
-        this.elements.username("");
-        this.elements.password("");
-        this.elements.authenticated(false);
-        this.submit();
+        login.elements.username("");
+        login.elements.password("");
+        login.elements.authenticated(false);
+        login.submit();
     };
+
+    login.setUserFromCookie()
+
     return login;
 });
