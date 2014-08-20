@@ -47,10 +47,10 @@ class WebServer(tornado.web.Application):
             # cache
             (r'/api/cache/reload/', ReloadCacheHandler),
             # config
-            (r"/api/delete/", DeletePathHandler),
-            # config
             (r"/api/config/(?P<server>\w+)", ServerConfigHandler),
             (r"/api/config/list_servers/", ListServersHandler),
+            # delete app
+            (r"/api/delete/", DeletePathHandler),
             # environment
             (r"/api/environment/", EnvironmentHandler),
             # filters
