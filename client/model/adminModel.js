@@ -20,6 +20,7 @@ function (ko, login) {
         if(login.elements.authenticated()){
             return admin._enabled();
         }
+        admin._enabled(false);
         return false;
     });
 
