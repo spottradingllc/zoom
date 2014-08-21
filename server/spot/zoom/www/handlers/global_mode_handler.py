@@ -6,7 +6,7 @@ import tornado.httpclient
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.entities.types import GlobalMode
+from spot.zoom.common.types import ApplicationMode
 from spot.zoom.www.utils.decorators import TimeThis
 
 
@@ -46,10 +46,10 @@ class GlobalModeHandler(tornado.web.RequestHandler):
             logging.info("Received {0} config for Zookeeper from user '{1}'"
                          .format(command, user))
 
-            if command == GlobalMode.MANUAL:
-                self._update_mode(GlobalMode.MANUAL)
-            elif command == GlobalMode.AUTO:
-                self._update_mode(GlobalMode.AUTO)
+            if command == ApplicationMode.MANUAL:
+                self._update_mode(ApplicationMode.MANUAL)
+            elif command == ApplicationMode.AUTO:
+                self._update_mode(ApplicationMode.AUTO)
             else:
                 logging.info("bad command")
 

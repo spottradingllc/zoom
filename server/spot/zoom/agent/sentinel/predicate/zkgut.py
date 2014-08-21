@@ -6,7 +6,7 @@ import json
 import re
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.agent.sentinel.common.enum import SimpleObject
+from spot.zoom.common.types import SimpleObject
 from spot.zoom.agent.sentinel.util.decorators import connected
 
 
