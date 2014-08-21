@@ -1,5 +1,8 @@
-define([], function(){
-return function GlobalMode(service, ko, $, login) {
+define([ 'knockout', 
+        'service', 
+        'jquery', 
+        'model/loginModel'],
+function(ko, service, $, login){
     var self = this;
 
     self.login = login;
@@ -87,4 +90,6 @@ return function GlobalMode(service, ko, $, login) {
 
     self.fnGetGlobalMode();  // get initial data
     self.fnGetTimingEstimate();  // get initial data
-}});
+
+    return self;
+});

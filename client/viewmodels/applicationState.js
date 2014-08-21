@@ -12,7 +12,7 @@ function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
     var self = this;
     self.login = login;
     self.applicationState = new ApplicationStateModel(service, ko, $, self.login, d3);
-    self.mode = new GlobalMode(service, ko, $, self.login);
+    self.mode = GlobalMode;
 
     var connection;
     $(document).ready(function () {

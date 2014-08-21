@@ -5,7 +5,8 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from time import sleep
 
-from spot.zoom.agent.sentinel.common.enum import PlatformType, SimpleObject
+from spot.zoom.agent.sentinel.common.enum import PlatformType
+from spot.zoom.common.types import SimpleObject
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 

@@ -18,13 +18,3 @@ class UpdateType():
 class OperationType():
     ADD = 'add'
     REMOVE = 'remove'
-
-
-class GlobalMode():
-    AUTO = 'auto'
-    MANUAL = 'manual'
-
-
-class DependencyType():
-    CHILD = 'zookeeperhaschildren'
-    GRANDCHILD = 'zookeeperhasgrandchildren'

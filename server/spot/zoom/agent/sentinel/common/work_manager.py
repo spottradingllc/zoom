@@ -2,7 +2,7 @@ import logging
 import time
 from threading import Thread
 
-from spot.zoom.agent.sentinel.common.enum import SimpleObject
+from spot.zoom.common.types import SimpleObject
 
 
 class WorkManager(object):

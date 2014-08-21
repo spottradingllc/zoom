@@ -2,7 +2,7 @@ import logging
 
 from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
-from spot.zoom.agent.sentinel.common.enum import ApplicationMode
+from spot.zoom.common.types import ApplicationMode
 from spot.zoom.agent.sentinel.common.task import Task
 
 

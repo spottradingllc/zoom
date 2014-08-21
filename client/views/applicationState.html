@@ -403,9 +403,13 @@
                         </div>
                     </td>
                     <td data-bind="text: startTime"></td>
-                    <td data-bind="style : {backgroundColor : errorStateBg}" class="text-center" >
+                    <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass,
                                                  title : errorState}"/>
+                        </span>
+                        <span data-bind="attr : {class : modeClass,
+                                                 title : mode}"/>
+                        </span>
                     </td>
                     <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
                         <div class="btn-group btn-group-xs" >

@@ -2,7 +2,7 @@ import logging
 
 from xml.etree import ElementTree
 
-from spot.zoom.agent.sentinel.common.enum import PredicateType
+from spot.zoom.common.types import PredicateType
 from spot.zoom.agent.sentinel.predicate.health import PredicateHealth
 from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
 from spot.zoom.agent.sentinel.predicate.pred_not import PredicateNot

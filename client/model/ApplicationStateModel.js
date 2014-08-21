@@ -1,14 +1,16 @@
 define(['model/ApplicationState', 
         'model/environmentModel',
         'model/adminModel', 
+        'model/GlobalMode',
         'classes/clsCustomFilter', 
         'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, admin,  CustomFilter, DependencyMaps){
+function(ApplicationState, Environment, admin, GlobalMode, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
     self.admin = admin;
+    self.globalMode = GlobalMode;
     self.applicationStates = ko.observableArray([]);
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
@@ -366,6 +368,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 row.startTime(update.start_time);
                 row.applicationHost(update.application_host);
                 row.errorState(update.error_state);
+                row.mode(update.local_mode);
                 row.mtime = Date.now();
             }
             else { 
