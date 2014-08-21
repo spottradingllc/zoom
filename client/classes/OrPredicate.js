@@ -9,6 +9,7 @@ return function OrPredicate(Factory) {
 
     self.addPredicate = function(type) {
         var pred = Factory.newPredicate(self,type);
+        self.expanded(true);
         self.predicates.push(pred);
     };
 
@@ -39,6 +40,10 @@ return function OrPredicate(Factory) {
             if(!self.predicates()[i].validate()){
                 valid = false;
             }
+        }
+
+        if(!valid){
+            self.expandUp();
         }
         return valid;
     }

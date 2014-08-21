@@ -11,7 +11,8 @@ return function Action(parent) {
 
     self.error = ko.computed(function(){
         if(self.predicates().length < 1){
-            return "You have to have an action";
+            //TODO Decide what actions are required
+            return "You have to have a predicate";
         }
         else{
             return "";
@@ -24,6 +25,7 @@ return function Action(parent) {
 
     self.addPredicate = function(type) {
         var pred = Factory.newPredicate(self, type);
+        self.expanded(true);
         self.predicates.push(pred);
     };
 
@@ -38,6 +40,10 @@ return function Action(parent) {
 
     self.validate = function() {
         var valid = true;
+
+        if(self.error() != ""){
+            valid = false;
+        }
         if(self.ID() == null){
             self.expandUp();
             valid = false;
@@ -46,6 +52,10 @@ return function Action(parent) {
             if(!self.predicates()[i].validate()){
                 valid = false;
             }
+        }
+
+        if(!valid){
+            self.expandUp();
         }
         return valid;
     }

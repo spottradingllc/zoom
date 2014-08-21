@@ -12,6 +12,10 @@ return function Predicate(Factory) {
         return "Predicate " + self.predType() + " " + self.path();
     });
 
+    self.error = ko.computed(function(){
+        //TODO Flag errors that aren't empty field
+        return "";
+    });
 
     self.remove = function(){
         self.parent.predicates.remove(self);
@@ -22,9 +26,15 @@ return function Predicate(Factory) {
         self.parent.expandUp();
     }
     self.validate = function() {
+        var valid = true;
+        if(self.error() != ""){
+            valid = false;
+        }
         if(self.predType() == null){
+            valid = false;
+        }
+        if(!valid){
             self.expandUp();
-            return false;
         }
         return true;
     }

@@ -19,6 +19,7 @@ return function AndPredicate(Factory) {
 
     self.addPredicate = function(type) {
         var pred = Factory.newPredicate(self,type);
+        self.expanded(true);
         self.predicates.push(pred);
     };
 
@@ -40,6 +41,10 @@ return function AndPredicate(Factory) {
             if(!self.predicates()[i].validate()){
                 valid = false;
             }
+        }
+
+        if(!valid){
+            self.expandUp();
         }
         return valid;
     }

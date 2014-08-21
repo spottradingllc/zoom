@@ -1,9 +1,9 @@
 define(['knockout',
         'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
-        'viewmodels/serverConfig/addViewModel',
         'viewmodels/serverConfig/treeViewModel',
         'viewmodels/serverConfig/searchUpdateViewModel',
+        'vkbeautify',
         'classes/Action',
         'classes/Component',
         'classes/Predicate',
@@ -11,11 +11,10 @@ define(['knockout',
         'classes/AndPredicate',
         'classes/OrPredicate',
         'bindings/uppercase'],
-function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
+function(ko, router, AlertsViewModel, TreeViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
         // view models
-        addViewModel : new AddViewModel(),
         alertsViewModel : AlertsViewModel,
 
         // variables
@@ -32,7 +31,6 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
 
     ServerConfigViewModel.treeViewModel = new TreeViewModel(ServerConfigViewModel),
     ServerConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(ServerConfigViewModel),
-    ServerConfigViewModel.addViewModel = new AddViewModel(ServerConfigViewModel),
 
     ServerConfigViewModel.getAllServerNames = function () {
         $.getJSON("/api/config/list_servers/", function(data) {
@@ -52,7 +50,6 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
     // subscribe to changes in the server name
     ServerConfigViewModel.serverName.subscribe(function() {
         ServerConfigViewModel.searchUpdateViewModel.hide();
-        ServerConfigViewModel.addViewModel.hide();
     });
 
     ServerConfigViewModel.capitalizeServerName = function() {
@@ -67,7 +64,19 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
 
     ServerConfigViewModel.add = function() {
         ServerConfigViewModel.tearDown();
-        ServerConfigViewModel.addViewModel.add();
+        // check if the server name is already in use
+        if (ServerConfigViewModel.serverList().indexOf(ServerConfigViewModel.serverName()) >= 0) {
+            AlertsViewModel.displayError("Node " + ServerConfigViewModel.serverName() + " already exists!");
+        }
+        else if (ServerConfigViewModel.serverName() == ""){
+            AlertsViewModel.displayError("You must enter a server name!");
+        }
+        else {
+            ServerConfigViewModel.serverList().push(ServerConfigViewModel.serverName());
+            ServerConfigViewModel.searchUpdateViewModel.serverConfig(vkbeautify.xml('<?xml version="1.0" encoding="UTF-8"?> <Application> <Automation> <Component id="" type="application" script="" restartmax="3" registrationpath=""> <Actions> <Action id="start" mode_controlled="True" staggerpath="" staggertime="" allowed_instances=""> <Dependency> <Predicate type="and"> <Operands> <Predicate type="not"> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Operands> </Predicate> </Dependency> </Action> <Action id="stop" mode_controlled="True"> <Dependency> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /> </Dependency> </Action> <Action id="register"> <Dependency> <Predicate type="process" interval="5" /> </Dependency> </Action> <Action id="unregister"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action> </Actions> </Component> </Automation> </Application>'));
+            ServerConfigViewModel.searchUpdateViewModel.show();
+            ServerConfigViewModel.treeViewModel.show();
+        }
     };
 
     ServerConfigViewModel.clearPage = function() {
@@ -82,7 +91,6 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
 
     ServerConfigViewModel.tearDown = function() {
         ServerConfigViewModel.searchUpdateViewModel.tearDown();
-        ServerConfigViewModel.addViewModel.tearDown();
         ServerConfigViewModel.treeViewModel.tearDown();
         ServerConfigViewModel.alertsViewModel.closeAlerts();
     };
