@@ -32,6 +32,7 @@ return function ApplicationState (ko, data, parent) {
     self.applicationHost = ko.observable(data.application_host);
     self.startTime = ko.observable(data.start_time);
     self.errorState = ko.observable(data.error_state);
+    self.mode = ko.observable(data.local_mode);
     self.mtime = Date.now();
 
     self.applicationStatusClass = ko.computed(function () {
@@ -57,6 +58,22 @@ return function ApplicationState (ko, data, parent) {
             return colors.unknownGray;
         }
     }, self);
+
+    self.modeClass = ko.computed(function(){
+        if (self.mode() == parent.globalMode.current()){
+            return "";
+        }
+        else if(self.mode() == 'auto'){
+            return "glyphicon glyphicon-eye-open"; 
+        }
+        else if(self.mode() == 'manual'){
+            return "glyphicon glyphicon-eye-close"; 
+        }
+        else {
+            return "glyphicon glyphicon-question-sign";
+        }
+
+    });
 
     self.graphiteApplicationURL = function(){
         var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
@@ -167,7 +184,12 @@ return function ApplicationState (ko, data, parent) {
     }, self);
 
     self.errorStateBg = ko.computed(function () {
+
         if (self.errorState() && self.errorState().toLowerCase() == errorStates.ok) {
+            if (self.mode() != parent.globalMode.current()){
+                return colors.warnOrange;
+            }
+
             return colors.successTrans;
         }
         else if (self.errorState() && self.errorState().toLowerCase() == errorStates.starting) {
