@@ -22,8 +22,10 @@
                             <strong class="caret"></strong>
                         </a>
                         <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="adminDropDown">
-                            <a href="#" data-bind="visible: admin.enabled(), click: admin.disable()"> Disable Admin </a>
-                            <a href="#" data-bind="visible: !admin.enabled(), click: function(){admin.enable()}"> Enable Admin </a>
+                            <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success"> 
+                                Disable Admin </button>
+                            <button data-bind="click: function() { admin.enable() }, visible: !admin.enabled()" class="btn btn-danger"> 
+                                Enable Admin </button>
                         </div>
                     </li>
                     <li class="dropdown">
