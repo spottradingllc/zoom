@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.entities.types import DependencyType
+from spot.zoom.common.types import PredicateType
 from spot.zoom.www.messages.application_dependencies \
     import ApplicationDependenciesMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
@@ -121,12 +121,12 @@ class ApplicationDependencyCache(object):
                         continue
 
                     for predicate in start_action.iter('Predicate'):
-                        if predicate.get('type').lower() == DependencyType.CHILD:
-                            d = {'type': DependencyType.CHILD,
+                        if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASCHILDREN:
+                            d = {'type': PredicateType.ZOOKEEPERHASCHILDREN,
                                  'path': predicate.get("path")}
                             dependencies.append(d)
-                        if predicate.get('type').lower() == DependencyType.GRANDCHILD:
-                            d = {'type': DependencyType.GRANDCHILD,
+                        if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
+                            d = {'type': PredicateType.ZOOKEEPERHASGRANDCHILDREN,
                                  'path': predicate.get("path")}
                             dependencies.append(d)
 

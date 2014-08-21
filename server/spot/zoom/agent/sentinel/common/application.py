@@ -18,9 +18,11 @@ from spot.zoom.agent.sentinel.config.constants import (
     ZK_GLOBAL_PATH,
     ALLOWED_WORK
 )
-from spot.zoom.agent.sentinel.common.enum import (
-    SimpleObject,
+from spot.zoom.common.types import (
     ApplicationMode,
+    SimpleObject
+)
+from spot.zoom.agent.sentinel.common.enum import (
     PlatformType,
     ApplicationState
 )

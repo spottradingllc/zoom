@@ -6,7 +6,6 @@ import tornado.httpclient
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.entities.types import GlobalMode
 from spot.zoom.www.utils.decorators import TimeThis
 
 

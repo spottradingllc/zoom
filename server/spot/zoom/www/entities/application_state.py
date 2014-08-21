@@ -89,7 +89,8 @@ class ApplicationState(object):
             'application_host': self.application_host,
             'start_time': self.start_time,
             'error_state': self._error_state,
-            'delete': self._delete
+            'delete': self._delete,
+            'local_mode': self._local_mode
         }
 
         return result

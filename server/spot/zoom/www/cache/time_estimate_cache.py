@@ -2,7 +2,7 @@ import httplib
 import logging
 import requests
 
-from spot.zoom.www.entities.types import DependencyType
+from spot.zoom.common.types import PredicateType
 from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
 
@@ -102,14 +102,14 @@ class TimeEstimateCache(object):
         if dep_data and \
            len(dep_data['dependencies']) != 0:
             for i in dep_data['dependencies']:
-                if i.get('type').lower() == DependencyType.CHILD:
+                if i.get('type').lower() == PredicateType.ZOOKEEPERHASCHILDREN:
                     avet = max(avet, self.rec_fn(i.get("path", None),
                                                  searchdata)['ave'])
                     mint = max(mint, self.rec_fn(i.get("path", None),
                                                  searchdata)['min'])
                     maxt = max(maxt, self.rec_fn(i.get("path", None),
                                                  searchdata)['max'])
-                if i.get('type').lower() == DependencyType.GRANDCHILD:
+                if i.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
                     grand_path = i.get("path")
                     for key in self.deps.iterkeys():
                         if key.lower().startswith(grand_path) \
