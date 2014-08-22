@@ -1,5 +1,5 @@
-define(['knockout', './Action'],
-function(ko, Action){
+define(['knockout', './Action', './applicationStates'],
+function(ko, Action, ApplicationStates){
 return function Component(parent) {
     var self = this;
     self.expanded = ko.observable(true);
@@ -9,6 +9,7 @@ return function Component(parent) {
     self.command = ko.observable(null);
     self.restartmax = ko.observable(null);
     self.registrationpath = ko.observable(null);
+    self.appPath = "/spot/software/state/application/"
 
     self.actions = ko.observableArray();
 
@@ -19,6 +20,22 @@ return function Component(parent) {
     self.remove = function(){
         parent.components.remove(self);
     }
+
+    self.IDOptions = ko.computed(function(){
+
+        var paths =  ko.utils.arrayMap(ApplicationStates(), function(state){
+            return state.configurationPath.replace(self.appPath, "");
+        }); 
+
+        paths.sort();
+
+        if(self.ID() == null) return paths;
+
+        return ko.utils.arrayFilter(paths, function(path){
+            return (path.slice(0, self.ID().length) == self.ID()); 
+        });
+    });
+
 
     self.expandUp = function(){
         self.expanded(true);

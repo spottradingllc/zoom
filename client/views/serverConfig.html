@@ -120,12 +120,17 @@
                 <form class="form-inline" role="form">
                     <div class="form-group">
                         <!-- required attributes -->
-                        <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
+                        <span class="dropdown">
+                            <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown" data-bind="value: ID, text: ID">
+                            <ul class="dropdown-menu" role="menu" data-bind="foreach: IDOptions()">
+                                <li><a data-bind="text: $data, click: function(){ $parent.ID($data) }"></a></li>
+                            </ul>
+                        </span>
                         <input type="text" class="form-control" required placeholder="type" data-bind="value: compType, text: compType">
                         <input type="text" class="form-control" required placeholder="script" data-bind="value: script, text: script">
                         <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command">
                         <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax">
-                        <input type="text" class="form-control" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
+                        <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
                     </div>
                 </form>
                 <br />

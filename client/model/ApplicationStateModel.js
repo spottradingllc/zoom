@@ -2,16 +2,17 @@ define(['model/ApplicationState',
         'model/environmentModel',
         'model/adminModel', 
         'model/GlobalMode',
+        'classes/applicationStates', 
         'classes/clsCustomFilter', 
         'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, admin, GlobalMode, CustomFilter, DependencyMaps){
+function(ApplicationState, Environment, admin, GlobalMode, ApplicationStates, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
-    self.applicationStates = ko.observableArray([]);
+    self.applicationStates = ApplicationStates;
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
