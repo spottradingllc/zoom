@@ -64,7 +64,7 @@ class ApplicationStateCache(object):
         :type result: zoom.messages.application_states.ApplicationStatesMessage
         """
         try:
-            children = self._zoo_keeper.get_children(path)
+            children = self._zoo_keeper.get_children(path, watch=self._on_update)
 
             if children:
                 for child in children:
