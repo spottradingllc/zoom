@@ -1,21 +1,12 @@
 define(['knockout',
         'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
-        'viewmodels/serverConfig/addViewModel',
-        'viewmodels/serverConfig/treeViewModel',
         'viewmodels/serverConfig/searchUpdateViewModel',
-        'classes/Action',
-        'classes/Component',
-        'classes/Predicate',
-        'classes/NotPredicate',
-        'classes/AndPredicate',
-        'classes/OrPredicate',
         'bindings/uppercase'],
-function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateViewModel){
+function(ko, router, AlertsViewModel, SearchUpdateViewModel){
 
     var ServerConfigViewModel = {
         // view models
-        addViewModel : new AddViewModel(),
         alertsViewModel : AlertsViewModel,
 
         // variables
@@ -30,9 +21,7 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
         }
     };
 
-    ServerConfigViewModel.treeViewModel = new TreeViewModel(ServerConfigViewModel),
     ServerConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(ServerConfigViewModel),
-    ServerConfigViewModel.addViewModel = new AddViewModel(ServerConfigViewModel),
 
     ServerConfigViewModel.getAllServerNames = function () {
         $.getJSON("/api/config/list_servers/", function(data) {
@@ -51,8 +40,7 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
 
     // subscribe to changes in the server name
     ServerConfigViewModel.serverName.subscribe(function() {
-        ServerConfigViewModel.searchUpdateViewModel.hide();
-        ServerConfigViewModel.addViewModel.hide();
+        ServerConfigViewModel.searchUpdateViewModel.tearDown();
     });
 
     ServerConfigViewModel.capitalizeServerName = function() {
@@ -61,29 +49,26 @@ function(ko, router, AlertsViewModel, AddViewModel, TreeViewModel, SearchUpdateV
 
     ServerConfigViewModel.search = function() {
         router.navigate('#config/' + ServerConfigViewModel.serverName(), { replace: true, trigger: false });
-        ServerConfigViewModel.tearDown();
         ServerConfigViewModel.searchUpdateViewModel.search();
     };
 
     ServerConfigViewModel.add = function() {
-        ServerConfigViewModel.tearDown();
-        ServerConfigViewModel.addViewModel.add();
+        ServerConfigViewModel.alertsViewModel.closeAlerts();
+        if (ServerConfigViewModel.serverList().indexOf(ServerConfigViewModel.serverName()) >= 0) {
+            AlertsViewModel.displayError("Node " + ServerConfigViewModel.serverName() + " already exists!");
+        }
+        else if (ServerConfigViewModel.serverName() == ""){
+            AlertsViewModel.displayError("You must enter a server name!");
+        }
+        else {
+            ServerConfigViewModel.serverList().push(ServerConfigViewModel.serverName());
+            ServerConfigViewModel.searchUpdateViewModel.setDefault();
+        }
     };
 
     ServerConfigViewModel.clearPage = function() {
-        ServerConfigViewModel.tearDown();
         ServerConfigViewModel.serverName("");
-    };
-
-    ServerConfigViewModel.serverSelected = function(selection) {
-        ServerConfigViewModel.serverName(selection);
-        ServerConfigViewModel.search();
-    };
-
-    ServerConfigViewModel.tearDown = function() {
         ServerConfigViewModel.searchUpdateViewModel.tearDown();
-        ServerConfigViewModel.addViewModel.tearDown();
-        ServerConfigViewModel.treeViewModel.tearDown();
         ServerConfigViewModel.alertsViewModel.closeAlerts();
     };
 

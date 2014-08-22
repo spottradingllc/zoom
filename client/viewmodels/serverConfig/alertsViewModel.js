@@ -19,6 +19,7 @@ function(ko){
     };
 
     AlertsViewModel.displayError = function(errorMessage) {
+        //TODO: float alerts for visibility
         AlertsViewModel.closeAlerts();
         AlertsViewModel.errorMode(true);
         AlertsViewModel.errorText(errorMessage);

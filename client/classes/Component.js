@@ -12,7 +12,17 @@ return function Component(parent) {
 
     self.actions = ko.observableArray();
 
+    self.error = ko.computed(function(){
+        if(self.actions().length < 1){
+            return "You have to have an Action";
+        }
+        else{
+            return "";
+        }
+    });
+
     self.addAction = function() {
+        self.expanded(true);
         self.actions.push(new Action(self));
     };
 
@@ -26,16 +36,22 @@ return function Component(parent) {
 
     self.validate = function() {
         var valid = true;
-        if(self.ID() == null ||
-           self.script() == null ||
-           self.compType() == null ){
-            self.expandUp();
+
+        if(self.error() != ""){
+            valid = false;
+        }
+        if(self.ID() == null || self.ID() == '' ||
+           self.script() == null || self.script() == '' ||
+           self.compType() == null || self.compType == ''){
             valid = false
         }
         for (var i = 0; i < self.actions().length; i++) {
             if(!self.actions()[i].validate()){
                 valid = false;
             }
+        }
+        if(!valid){
+            self.expandUp();
         }
         return valid;
     }

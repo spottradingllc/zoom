@@ -5,15 +5,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span class="glyphicon glyphicon-chevron-down"></span>
-                            </button>
-                            <!-- populate dropdown menu using knockout observable array -->
-                            <ul class="dropdown-menu" role="menu" data-bind="foreach: serverList">
-                                <li><a data-bind="text: $data, click: function(){ $parent.serverSelected($data) }"></a></li>
-                            </ul>
-                        </div>
                         <input type="text"
                                id="searchBox"
                                class="form-control"
@@ -50,54 +41,25 @@
         <div class="panel panel-default"
              data-bind="with: searchUpdateViewModel, visible: searchUpdateViewModel.visible">
             <div class="panel-heading">
-                <h3><span data-bind="text: $root.serverName"></span> <small>click XML to edit</small></h3>
+                <h3><span data-bind="text: $root.serverName"></span></h3>
                 <div class="btn-group">
                     <button type="button" class="btn btn-success" data-bind="click: validateXML">Push Configuration</button>
                     <button type="button" class="btn btn-danger" data-bind="click: deleteConfig">Delete Configuration</button>
+                    <button type="button" class="btn btn-default" data-bind="click: setDefault">Default Configuration</button>
+                    <button type="button" class="btn btn-primary" data-bind="click: treeViewModel.addComponent"style="margin-bottom:15px">Add Component</button>
                 </div>
             </div>
             <div class="panel-body">
+                <div data-bind="with: treeViewModel, event: {mouseout: treeViewModel.createXML, click: closeAlerts}">
+                    <div data-bind="template: {name: 'component-template', foreach: components}">
+                    </div>
+                </div>
+                <h4>XML:</h4>
                 <pre data-bind="text: serverConfig, value: serverConfig, event: {mouseout: editedConfig, click: closeAlerts}"
                      name="server-config" id="server-config" contenteditable="true"></pre>
             </div>
         </div>
 
-        <!-- panel for adding new configurations -->
-        <div class="panel panel-default" data-bind="with: addViewModel, visible: addViewModel.visible">
-            <div class="panel-heading">
-                <h3>
-                    <span data-bind="text: $root.serverName"></span>
-                    <small> setup <span data-bind="text: $root.serverName"></span>'s XML configuration</small>
-                </h3>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" data-bind="click: addComponent">Add Component</button>
-                    <button type="button" class="btn btn-success" data-bind="click: createXML">Generate XML</button>
-                    <button type="button" class="btn btn-success" data-bind="click: pushConfig">Push Configuration</button>
-                </div>
-            </div>
-            <div class="panel-body">
-                <div class="container-fluid">
-                    <div data-bind="template: {name: 'component-template', foreach: serverComponents}">
-                    </div>
-                </div>
-            </div>
-            <pre data-bind="text: serverXML, value: serverXML, visible: showXML"></pre>
-        </div>
-        <div class="panel panel-default" data-bind="with: treeViewModel, visible: treeViewModel.visible">
-            <div class="panel-heading">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" data-bind="click: addComponent">Add Component</button>
-                    <button type="button" class="btn btn-success" data-bind="click: createXML">Generate XML</button>
-                    <button type="button" class="btn btn-default" data-bind="click: loadXML">Load XML</button>
-                </div>
-            </div>
-            <div class="panel-body">
-                <div class="container-fluid">
-                    <div data-bind="template: {name: 'component-template', foreach: components}">
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- templates for adding server configurations -->
@@ -107,7 +69,7 @@
                 <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                 <div class="btn-group">
                     <a class="btn btn-default disabled" role="button">
-                        Component <span data-bind="text: ID"></span>;
+                        Component <span data-bind="text: ID"></span>
                     </a>
                     <button type="button" 
                             class="btn btn-default" 
@@ -115,6 +77,7 @@
                                         text: expanded() ? 'Collapse' : 'Expand'"></button>
                     <button type="button" class="btn btn-primary" data-bind="click: addAction">Add Action</button>
                 </div>
+                <span class="label label-danger" data-bind="text: error"/>
             </div>
             <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
@@ -166,7 +129,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
-                <li><a href="#" data-bind="click: function(){addPredicate('')}">Simple</a></li>
+                <li><a href="#" data-bind="click: function(){addPredicate('')}">Single</a></li>
                 <li><a href="#" data-bind="click: function(){addPredicate('not')}">NOT</a></li>
                 <li><a href="#" data-bind="click: function(){addPredicate('and')}">AND</a></li>
                 <li><a href="#" data-bind="click: function(){addPredicate('or')}">OR</a></li>
@@ -181,16 +144,8 @@
     </script>
 
     <script type="text/html" id="predicate-template">
-        <!-- ko if: predType == "and" -->
-        <div data-bind="template: {name:'and-predicate-template'}"></div>
-        <!-- /ko -->
-
-        <!-- ko if: predType == "or" -->
-        <div data-bind="template: {name:'or-predicate-template'}"></div>
-        <!-- /ko -->
-
-        <!-- ko if: predType == "not" -->
-        <div data-bind="template: {name:'not-predicate-template'}"></div>
+        <!-- ko if: predType == "and" || predType == "or" || predType == "not" -->
+        <div data-bind="template: {name:'logic-predicate-template'}"></div>
         <!-- /ko -->
 
         <!-- ko if: (predType != "and" && predType != "or" && predType != "not") -->
@@ -222,7 +177,7 @@
         </div>
     </script>
 
-    <script type="text/html" id="and-predicate-template">
+    <script type="text/html" id="logic-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
                     <!-- ko template: {name: 'add-predicate-template'} -->
@@ -234,28 +189,4 @@
         </div>
     </script>
 
-    <script type="text/html" id="or-predicate-template">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                    <!-- ko template: {name: 'add-predicate-template'} -->
-                    <!-- /ko -->
-                </div>
-            </div>
-            <div class="panel-body" data-bind="visible: expanded">
-                <div data-bind="template: {name:'predicate-template', foreach: predicates}"></div>
-            </div>
-        </div>
-    </script>
-
-    <script type="text/html" id="not-predicate-template">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                    <!-- ko template: {name: 'add-predicate-template'} -->
-                    <!-- /ko -->
-            </div>
-            <div class="panel-body" data-bind="visible: expanded">
-                <div data-bind="template: {name:'predicate-template', foreach: predicates}"></div>
-            </div>
-        </div>
-    </script>
 </section>
