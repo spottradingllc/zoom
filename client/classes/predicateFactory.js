@@ -1,16 +1,10 @@
-define(['knockout', 'classes/AndPredicate', 'classes/OrPredicate', 'classes/NotPredicate', 'classes/Predicate'],
-function(ko, AndPredicate, OrPredicate, NotPredicate, Predicate){
+define(['knockout', 'classes/LogicPredicate', 'classes/Predicate'],
+function(ko, LogicPredicate, Predicate){
 
     var Factory = new Object();
     Factory.newPredicate = function(parent, type){
-        if(type == 'and'){
-            pred = new AndPredicate(Factory);
-        }
-        else if(type == 'or'){
-            pred = new OrPredicate(Factory);
-        }
-        else if(type == 'not'){
-            pred = new NotPredicate(Factory);
+        if(type == 'and' || type =='or' || type == 'not'){
+            pred = new LogicPredicate(Factory, type);
         }
         else{
             pred = new Predicate(Factory);
