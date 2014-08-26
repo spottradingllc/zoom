@@ -78,8 +78,9 @@ class ProcessClient(object):
     @synchronous('process_client_lock')  # shares lock with PredicateProcess
     def start(self):
         """Try to start process"""
-        if self._restart_logic.restart is False:
-            self._log.info('Process crashed and restart_on_crash is False.')
+        if self._restart_logic.restart is False \
+                and self._apptype == ApplicationType.APPLICATION:
+            self._log.info('Process was brought down unintentionally.')
             return 1
         else:
             self._log.debug('Restarts allowed.')
