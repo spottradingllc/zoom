@@ -1,4 +1,4 @@
-define([], function(){
+define([ 'classes/applicationStates', ], function(ApplicationStates){
 return function ApplicationState (ko, data, parent) {
     var self = this;
 
@@ -320,13 +320,13 @@ return function ApplicationState (ko, data, parent) {
 
             // determine predicate type and filter proper application states
             if (predType == self.predType.children) {
-                var applicationState = ko.utils.arrayFirst(parent.applicationStates(), function(applicationState) {
+                var applicationState = ko.utils.arrayFirst(ApplicationStates(), function(applicationState) {
                     return (path == applicationState.configurationPath);
                 });
                 if (applicationState) self.requires.push(applicationState);
             }
             else if (predType == self.predType.grandchildren) {
-                ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
+                ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
                     if (applicationState.configurationPath.substring(0, path.length) == path) {
                         self.requires.push(applicationState);
                     }
@@ -356,7 +356,7 @@ return function ApplicationState (ko, data, parent) {
 
     self.requiredBy = ko.computed(function() {
         var dependencies = ko.observableArray([]);
-        ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
+        ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
             if (applicationState.requires().indexOf(self) > -1) {
                 dependencies.push(applicationState);
             }
@@ -377,7 +377,7 @@ return function ApplicationState (ko, data, parent) {
         else if(self.applicationHost() == ""){ 
             if(confirm(self.configurationPath + " has no Host listed, this delete is mostly artificial"))
             {
-                parent.applicationStates.remove(self);
+                ApplicationStates.remove(self);
             }
         }
         else{

@@ -73,7 +73,6 @@ function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
     }
 
     self.detached = function(){
-        self.applicationState.applicationStates.removeAll()
         self.applicationState.dependencyMaps.closeAllViews();
     }
 
