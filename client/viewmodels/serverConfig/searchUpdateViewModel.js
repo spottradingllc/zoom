@@ -41,7 +41,7 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
         // post JSON dictionary to server, catch callback message
         // update existing config
         var params = {
-            "XML" : ServerConfigViewModel.serverConfig(),
+            "XML" : self.serverConfig(),
             "serverName" : ServerConfigViewModel.serverName()
         };
 
@@ -114,6 +114,6 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
 
     self.setDefault = function(){
         // TODO: Move this string to its own file?
-        self.setXML('<?xml version="1.0" encoding="UTF-8"?> <Application> <Automation> <Component id="" type="application" script="" restartmax="3" allowed_instances="1" registrationpath="" restartoncrash="False"> <Actions> <Action id="start" mode_controlled="True" staggerpath="" staggertime=""> <Dependency> <Predicate type="and"> <Operands> <Predicate type="not"> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Operands> </Predicate> </Dependency> </Action> <Action id="stop" mode_controlled="True"> <Dependency> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /> </Dependency> </Action> <Action id="register"> <Dependency> <Predicate type="process" interval="5" /> </Dependency> </Action> <Action id="unregister"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action> </Actions> </Component> </Automation> </Application>');
+        self.setXML('<?xml version="1.0" encoding="UTF-8"?> <Application> <Automation> <Component id="" type="application" script="" restartmax="3" allowed_instances="1" registrationpath="" restartoncrash="False"> <Actions> <Action id="start" mode_controlled="True" staggerpath="" staggertime=""> <Dependency> <Predicate type="and"> <Predicate type="not"> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate>  </Predicate> </Dependency> </Action> <Action id="stop" mode_controlled="True"> <Dependency> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /> </Dependency> </Action> <Action id="register"> <Dependency> <Predicate type="process" interval="5" /> </Dependency> </Action> <Action id="unregister"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action> </Actions> </Component> </Automation> </Application>');
     }
 }});

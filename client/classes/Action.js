@@ -60,18 +60,18 @@ return function Action(parent) {
     };
 
     self.createActionXML = function() {
-        var XML = "<Action ";
-        XML = XML.concat("id='"+self.ID()+"' ");
+        var XML = '<Action ';
+        XML = XML.concat('id="'+self.ID()+'" ');
 
         if(self.staggerpath() != null && self.staggerpath() != ""){
-            XML = XML.concat("staggerpath='"+self.staggerpath()+"' ");
+            XML = XML.concat('staggerpath="'+self.staggerpath()+'" ');
         }
         if(self.staggertime() != null && self.staggertime() != ""){
-            XML = XML.concat("staggertime='"+self.staggertime()+"' ");
+            XML = XML.concat('staggertime="'+self.staggertime()+'" ');
         }
 
-        XML = XML.concat("mode_controlled='True'"); // fix this
-        XML = XML.concat("><Dependency>");
+        XML = XML.concat('mode_controlled="True"'); // fix this
+        XML = XML.concat('><Dependency>');
 
         // create XML for predicates
         for (var i = 0; i < self.predicates().length; i++) {
@@ -89,7 +89,7 @@ return function Action(parent) {
         self.staggerpath(node.getAttribute('staggerpath'));
         self.staggertime(node.getAttribute('staggertime'));
 
-        var dependency = node.getElementsByTagName("Dependency")[0];
+        var dependency = node.getElementsByTagName('Dependency')[0];
         if(dependency != null){
             self.predicates.removeAll();
             var child = Factory.firstChild(dependency);

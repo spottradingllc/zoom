@@ -81,40 +81,40 @@ return function Component(parent) {
     };
 
     self.createComponentXML = function() {
-        var XML = "<Component ";
-        XML = XML.concat("id='"+self.ID()+"' ");
-        XML = XML.concat("type='"+self.compType()+"' ");
-        XML = XML.concat("script='"+self.script()+"' ");
+        var XML = '<Component ';
+        XML = XML.concat('id="'+self.ID()+'" ');
+        XML = XML.concat('type="'+self.compType()+'" ');
+        XML = XML.concat('script="'+self.script()+'" ');
 
         if(checkNull(self.registrationpath())) {
-            XML = XML.concat("registrationpath='"+self.registrationpath()+"' ");
+            XML = XML.concat('registrationpath="'+self.registrationpath()+'" ');
         }
 
         if(checkNull(self.command())) {
-            XML = XML.concat("command='"+self.command()+"' ");
+            XML = XML.concat('command="'+self.command()+'" ');
         }
         if(checkNull(self.restartmax())) {
-            XML = XML.concat("restartmax='"+self.restartmax()+"' ");
+            XML = XML.concat('restartmax="'+self.restartmax()+'" ');
         }
         if(checkNull(self.allowedinstances())) {
-            XML = XML.concat("allowed_instances='"+self.allowedinstances()+"' ");
+            XML = XML.concat('allowed_instances="'+self.allowedinstances()+'" ');
         }
         if(checkNull(self.restartoncrash())) {
-            XML = XML.concat("restartoncrash='"+self.restartoncrash()+"' ");
+            XML = XML.concat('restartoncrash="'+self.restartoncrash()+'" ');
         }
         XML = XML.concat(">");
 
         // create XML for actions
-        var actionsHeader = "<Actions>";
+        var actionsHeader = '<Actions>';
         XML = XML.concat(actionsHeader);
         for (var i = 0; i < self.actions().length; i++) {
             XML = XML.concat(self.actions()[i].createActionXML());
         }
 
-        var actionsFooter = "</Actions>";
+        var actionsFooter = '</Actions>';
         XML = XML.concat(actionsFooter);
 
-        var footer = "</Component>";
+        var footer = '</Component>';
         XML = XML.concat(footer);
 
         return XML;
@@ -131,7 +131,7 @@ return function Component(parent) {
         self.allowedinstances(node.getAttribute('allowed_instances'));
 
         self.actions.removeAll();
-        var actions = node.getElementsByTagName("Action");
+        var actions = node.getElementsByTagName('Action');
         for(var i = 0; i < actions.length; i++){
             var action = new Action(self);
             action.loadXML(actions[i]);

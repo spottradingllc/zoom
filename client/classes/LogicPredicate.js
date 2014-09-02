@@ -56,15 +56,15 @@ return function LogicPredicate(Factory, predType) {
     };
 
     self.createPredicateXML = function() {
-        var XML = "";
-        var header = "<Predicate type='" + self.predType + "'>";
+        var XML = '';
+        var header = '<Predicate type="' + self.predType + '">';
         XML = XML.concat(header);
 
         for (var i = 0; i < self.predicates().length; i++) {
             XML = XML.concat(self.predicates()[i].createPredicateXML());
         }
 
-        var footer = "</Predicate>";
+        var footer = '</Predicate>';
         XML = XML.concat(footer);
 
         return XML;
