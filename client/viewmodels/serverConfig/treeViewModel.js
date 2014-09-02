@@ -7,11 +7,11 @@ return function TreeViewModel(parent){
 
     self.addComponent = function(){
         self.components.push( new Component(self));
-    }
+    };
 
     self.clear = function(){
         self.components.removeAll()
-    }
+    };
 
     self.validate = function(){
         var valid = true;
@@ -26,7 +26,7 @@ return function TreeViewModel(parent){
         }
 
         return valid
-    }
+    };
 
     self.createXML = function() {
         var XML = "";
@@ -47,10 +47,10 @@ return function TreeViewModel(parent){
     };
 
     self.loadXML = function() {
-        var data = parent.serverConfig()
+        var data = parent.serverConfig();
         self.clear();
-        parser=new DOMParser();
-        xmlDoc=parser.parseFromString(data, "text/xml");
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(data, "text/xml");
         var comps = xmlDoc.getElementsByTagName("Component");
         for(var i = 0; i < comps.length; i++){
             var comp = new Component(self);

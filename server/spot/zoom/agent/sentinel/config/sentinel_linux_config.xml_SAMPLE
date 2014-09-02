@@ -5,7 +5,7 @@
         registrationpath="/spot/software/state/application/SampleService" >
         <Actions>
           <Action id="start" staggerpath="/spot/software/temp/example"
-                  staggertime="60" mode_controlled="1">
+                  staggertime="60" mode_controlled="True">
             <Dependency>
               <Predicate type="and">
                 <Operands>
@@ -15,7 +15,7 @@
               </Predicate>
             </Dependency>
           </Action>
-          <Action id="stop" mode_controlled="1">
+          <Action id="stop" mode_controlled="True">
             <Dependency>
               <Predicate type="or">
                 <Operands>
@@ -43,14 +43,14 @@
         </Action>
           <Action id="register">
             <Dependency>
-                <Predicate type="process" interval="1" />
+                <Predicate type="process" interval="5" />
                 <Predicate type="health" interval="5" command="/opt/spot/sentinel/agent-python/sentinel/check/always_fail --succeed" />
             </Dependency>
           </Action>
           <Action id="unregister">
             <Dependency>
                 <Predicate type="not">
-                   <Predicate type="process" interval="1" />
+                   <Predicate type="process" interval="5" />
                 </Predicate>
             </Dependency>
           </Action>

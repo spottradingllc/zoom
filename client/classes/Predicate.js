@@ -19,12 +19,12 @@ return function Predicate(Factory) {
 
     self.remove = function(){
         self.parent.predicates.remove(self);
-    }
+    };
 
     self.expandUp = function(){
         self.expanded(true);
         self.parent.expandUp();
-    }
+    };
     self.validate = function() {
         var valid = true;
         if(self.error() != ""){
@@ -37,7 +37,7 @@ return function Predicate(Factory) {
             self.expandUp();
         }
         return true;
-    }
+    };
 
     self.createPredicateXML = function() {
         var XML = "<Predicate ";

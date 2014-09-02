@@ -7,9 +7,12 @@ return function Component(parent) {
     self.compType = ko.observable(null);
     self.script = ko.observable(null);
     self.command = ko.observable(null);
+    self.allowedinstances = ko.observable(null);
     self.restartmax = ko.observable(null);
+    self.restartoncrash = ko.observable(null);
     self.registrationpath = ko.observable(null);
-    self.appPath = "/spot/software/state/application/"
+    // TODO: Pull this from some central location
+    self.appPath = "/spot/software/state/application/";
 
     self.actions = ko.observableArray();
 
@@ -29,7 +32,7 @@ return function Component(parent) {
 
     self.remove = function(){
         parent.components.remove(self);
-    }
+    };
 
     self.IDOptions = ko.computed(function(){
 
@@ -49,7 +52,7 @@ return function Component(parent) {
 
     self.expandUp = function(){
         self.expanded(true);
-    }
+    };
 
     self.validate = function() {
         var valid = true;
@@ -71,7 +74,11 @@ return function Component(parent) {
             self.expandUp();
         }
         return valid;
-    }
+    };
+
+    var checkNull = function(param) {
+        return (param != null && param != "")
+    };
 
     self.createComponentXML = function() {
         var XML = "<Component ";
@@ -79,15 +86,21 @@ return function Component(parent) {
         XML = XML.concat("type='"+self.compType()+"' ");
         XML = XML.concat("script='"+self.script()+"' ");
 
-        if(self.registrationpath() != null){
+        if(checkNull(self.registrationpath())) {
             XML = XML.concat("registrationpath='"+self.registrationpath()+"' ");
         }
 
-        if(self.command() != null){
+        if(checkNull(self.command())) {
             XML = XML.concat("command='"+self.command()+"' ");
         }
-        if(self.restartmax() != null){
+        if(checkNull(self.restartmax())) {
             XML = XML.concat("restartmax='"+self.restartmax()+"' ");
+        }
+        if(checkNull(self.allowedinstances())) {
+            XML = XML.concat("allowed_instances='"+self.allowedinstances()+"' ");
+        }
+        if(checkNull(self.restartoncrash())) {
+            XML = XML.concat("restartoncrash='"+self.restartoncrash()+"' ");
         }
         XML = XML.concat(">");
 
@@ -108,14 +121,16 @@ return function Component(parent) {
     };
 
     self.loadXML = function(node){
-        self.ID(node.getAttribute('id'))
-        self.compType(node.getAttribute('type'))
-        self.script(node.getAttribute('script'))
-        self.command(node.getAttribute('command'))
-        self.restartmax(node.getAttribute('restartmax'))
-        self.registrationpath(node.getAttribute('registrationpath'))
+        self.ID(node.getAttribute('id'));
+        self.compType(node.getAttribute('type'));
+        self.script(node.getAttribute('script'));
+        self.command(node.getAttribute('command'));
+        self.restartmax(node.getAttribute('restartmax'));
+        self.restartoncrash(node.getAttribute('restartoncrash'));
+        self.registrationpath(node.getAttribute('registrationpath'));
+        self.allowedinstances(node.getAttribute('allowed_instances'));
 
-        self.actions.removeAll()
+        self.actions.removeAll();
         var actions = node.getElementsByTagName("Action");
         for(var i = 0; i < actions.length; i++){
             var action = new Action(self);

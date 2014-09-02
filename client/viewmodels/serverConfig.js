@@ -21,7 +21,7 @@ function(ko, router, AlertsViewModel, SearchUpdateViewModel){
         }
     };
 
-    ServerConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(ServerConfigViewModel),
+    ServerConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(ServerConfigViewModel);
 
     ServerConfigViewModel.getAllServerNames = function () {
         $.getJSON("/api/config/list_servers/", function(data) {

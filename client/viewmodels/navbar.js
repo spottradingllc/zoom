@@ -14,12 +14,7 @@ function (router, app, $, ko, service, login, admin, environment ) {
         login: login,
         admin: admin,
         isFAQ: function(title){
-                if(title.search("FAQ") != -1){
-                    return true;
-                }
-                else{
-                    return false;
-                }
+            return title.search("FAQ") != -1;
             },
         activate: function () {
             router.map([
