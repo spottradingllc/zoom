@@ -33,7 +33,7 @@ return function ApplicationState (ko, data, parent) {
     self.startTime = ko.observable(data.start_time);
     self.errorState = ko.observable(data.error_state);
     self.mode = ko.observable(data.local_mode);
-    self.mtime = Date.now();
+    self.mtime = Date.now();   
 
     self.applicationStatusClass = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -95,16 +95,17 @@ return function ApplicationState (ko, data, parent) {
     };
 
     self.modalShow = function(urls){
-        $('.big-modal-body').empty();
+        $('#graphiteBody').empty();
 
         for(i=0; i< urls.length; ++i){
             var url = urls[i];
             //console.log("getting "+ url);
             var html = '<img style="-webkit-user-select: none" src="'+url+'"/>';
-            $('.big-modal-body').append($.parseHTML(html));
+            $('#graphiteBody').append($.parseHTML(html));
         }
 
-        $('.big-modal-class').modal('show');
+        $('#graphiteModal').modal('show');
+        //$('.big-modal-class').modal('show');
     }
 
     self.graphiteBaseURL = function(){
@@ -246,6 +247,7 @@ return function ApplicationState (ko, data, parent) {
         });
     };
 
+
     self.getInfo = ko.computed(function() {
         if (self.showInfo()) {
             var dict = {configurationPath : self.configurationPath};
@@ -270,28 +272,87 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
+    self.passwordConfirm = ko.observable("");
+    
+    self.options = "";
+
+    self.allowAction = function(data) {
+        if (!self.isHostEmpty()) {
+                var dict = {
+                    "componentId": self.componentId,
+                    "applicationHost": self.applicationHost(),
+                    "command": self.options.com,
+                    "argument": self.options.arg,
+                    "user": parent.login.elements.username()
+                };
+                $.post("/api/agent/", dict, function() {
+                    alert(self.options.com + " command sent successfully.");
+                })    
+                    .fail(function(data) {
+                        alert( "Error Posting ControlAgent " + JSON.stringify(data));
+                    });
+        }
+    };
+
+    self.disallowAction = function(data) {
+        console.log(JSON.stringify(data));
+        //alert("Sorry, the credentials entered are incorrect");
+    };
+
+    self.checkPass = function() {
+
+        console.assert('undefined' != typeof login.elements.username());
+        console.assert('undefined' != typeof self.passwordConfirm());
+        
+        //client-side check for blank usernames/passwords
+        //if (passwd == "" || usernm == "")
+
+        var params = {
+            username: parent.login.elements.username(),
+            password: self.passwordConfirm()
+        };
+
+        return $.post("login", params, self.allowAction, self.disallowAction);
+    };
+
+    
+    self.submitAction = function () {
+        
+        console.log(self.options);
+        self.checkPass(parent.login.elements.username(), self.passwordConfirm());
+        
+        
+        
+              
+   /*         //only hide modal if successful
+            ('#passwordCheckModal').modal('hide');
+        }
+        else alert("Sorry the credentials you entered are incorrect");
+
+        self.passwordConfirm("");
+                
+     */   
+    };
+
+    self.warningMsg = ko.observable("");
+
+    self.buttonLabel = ko.observable("");
+
     self.controlAgent = function (options) {
         //options.com: command
         //options.arg: command argument
         //option.no_confirm: confirm bool
         var confirmString = ["Please confirm that you want to send a " + options.com + " command to ",
-                self.configurationPath + " on " + self.applicationHost() + " by pressing OK."].join('\n');
+                self.configurationPath + " on " + self.applicationHost() + " by re-entering your",
+                " password."].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
-
-        if (!self.isHostEmpty()) {
-            if (!options.confirm || confirm(confirmString)) {
-                var dict = {
-                    "componentId": self.componentId,
-                    "applicationHost": self.applicationHost(),
-                    "command": options.com,
-                    "argument": options.arg,
-                    "user": parent.login.elements.username()
-                };
-                $.post("/api/agent/", dict).fail(function(data) {
-                    alert( "Error Posting ControlAgent " + JSON.stringify(data));
-                });
-            }
-        }
+        
+        self.warningMsg(confirmString);
+        self.buttonLabel("Send " + options.com.toUpperCase() + " command");
+        self.options = options;
+        $('#passwordCheckModal').modal('show');
+        
+        
     };
 
     self.onControlAgentError = function () {

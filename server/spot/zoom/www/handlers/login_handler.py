@@ -29,12 +29,23 @@ class LoginHandler(tornado.web.RequestHandler):
             user = request['username']
             password = request['password']
 
-            if not user or not password:
-                logging.info('No user or password set. Clearing cookie.')
+            logging.info(user + ' ' + password)
+
+            # User, password combination Case 1 of 4
+            if not user and not password:
+                logging.info('No username and no password set. Clearing cookie.')
                 self.clear_cookie("username")
                 self.clear_cookie("read_write")
-                self.write(json.dumps({'message': "Logout successful"}))
+                self.write(json.dumps({'errorText': "No username and no password: you have been logged out."}))
+                self.set_status(httplib.UNAUTHORIZED)
 
+            # Case 2 of 4 and 3 of 4
+            elif not user or not password:
+                logging.info('No username or no password set.')
+                self.write(json.dumps({'errorText': "No username or no password: you have been logged out."}))
+                self.set_status(httplib.UNAUTHORIZED)
+
+            # Case 4 of 4
             else:
                 username = self._get_full_username(user)
 
@@ -81,7 +92,8 @@ class LoginHandler(tornado.web.RequestHandler):
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
-            self.write(json.dumps({'errorText': 'Internal Error'}))
+            self.write(json.dumps({'errorText': e.message['desc'] }))
+            logging.info(json.dumps({'errorText': e.message['desc'] }))
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')

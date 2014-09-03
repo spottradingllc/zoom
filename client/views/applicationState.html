@@ -2,13 +2,33 @@
 <div id="application_state_page" class="container-fluid" style="margin-top: 20px">
 
     <!-- Big Modal -->
-    <div class="modal big-modal-class" 
+    <div id = "graphiteModal" class="modal big-modal-class" 
          tabindex="-1" 
          role="dialog" 
          aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-body big-modal-body">
+                <div id="graphiteBody" class="modal-body big-modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div data-bind="foreach: applicationState.filteredItems">
+        <div id="passwordCheckModal" class="modal big-modal-class fade" 
+            tabindex="-1"
+            role="dialog"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body big-modal-body">
+                        <span data-bind="text: warningMsg"> </span>
+                        <div>
+                            <input type="password" class="form-control" name="password" id="password" data-bind="value: passwordConfirm" required/>
+                            <button type="button" class="btn btn-default active" data-dismiss="modal"> Cancel </button>
+                            <button type="button" class="btn btn-danger active" data-bind="click: submitAction, text:buttonLabel"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
