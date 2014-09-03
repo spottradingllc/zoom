@@ -7,10 +7,8 @@
           <Action id="start">
             <Dependency>
               <Predicate type="and">
-                <Operands>
                   <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1"/>
                   <Predicate type="ZookeeperHasChildren" path="/application/state/service/example2"/>
-                </Operands>
               </Predicate>
             </Dependency>
           </Action>

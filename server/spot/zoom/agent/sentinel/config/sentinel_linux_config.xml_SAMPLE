@@ -8,36 +8,29 @@
                   staggertime="60" mode_controlled="True">
             <Dependency>
               <Predicate type="and">
-                <Operands>
                   <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1"/>
                   <Predicate type="ZookeeperHasGrandChildren" path="/application/state/service/example2"/>
-                </Operands>
               </Predicate>
             </Dependency>
           </Action>
           <Action id="stop" mode_controlled="True">
             <Dependency>
               <Predicate type="or">
-                <Operands>
                   <Predicate type="not">
                     <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example1"/>
-                  </Predicate>
                   <Predicate type="not">
                     <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2"/>
                   </Predicate>
-                </Operands>
               </Predicate>
             </Dependency>
           </Action>
           <Action id="notify" >
             <Dependency>
                 <Predicate type="and">
-                    <Operands>
                         <Predicate type="not">
                             <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2" />
                         </Predicate>
                         <Predicate type="process" interval="5" />
-                    </Operands>
                 </Predicate>
             </Dependency>
         </Action>
