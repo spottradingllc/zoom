@@ -18,9 +18,9 @@ class Job(Application):
         """
         :type config: dict (json)
         :type conn: multiprocessing.Connection
-        :type queue: sentinel.common.unique_queue.UniqueQueue
-        :type system: sentinel.common.enum.PlatformType
-        :type application_type: sentinel.common.enum.ApplicationType
+        :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type application_type: spot.zoom.agent.sentinel.common.enum.ApplicationType
         """
         Application.__init__(self, *args, **kwargs)
         self._paths['zk_state_path'] = \
@@ -85,7 +85,7 @@ class Job(Application):
 
     def _register_job_state(self, state, runtime=''):
         """
-        :type state: sentinel.common.enum.JobState
+        :type state: spot.zoom.agent.sentinel.common.enum.JobState
         :param runtime: str
         """
         data = {

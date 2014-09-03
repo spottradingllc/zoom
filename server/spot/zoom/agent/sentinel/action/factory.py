@@ -11,12 +11,12 @@ class ActionFactory(object):
     def __init__(self, component=None, zkclient=None, proc_client=None,
                  action_queue=None, mode=None, system=None, pred_list=None):
         """
-        :type component: sentinel.common.application.Application
+        :type component: spot.zoom.agent.sentinel.common.application.Application
         :type zkclient: kazoo.client.KazooClient or None
-        :type proc_client: sentinel.client.process_client.ProcessClient
-        :type action_queue: sentinel.common.unique_queue.UniqueQueue
-        :type mode: sentinel.common.enum.ApplicationMode
-        :type system: sentinel.common.enum.PlatformType
+        :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
+        :type action_queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
+        :type mode: spot.zoom.agent.sentinel.common.enum.ApplicationMode
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type pred_list: list
         """
         self._zk = zkclient

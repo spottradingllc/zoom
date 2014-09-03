@@ -78,7 +78,6 @@ echo $RPM_BUILD_DIR
 # best practices, so here we move files to the build root. the variables commented out in the build section match with the ones below.
 # Create build directories
 install -d $RPM_BUILD_ROOT/opt/spot/%{name}-%{version}
-install -d $RPM_BUILD_ROOT/opt/spot/%{name}-%{version}/logs
 cp -R $RPM_BUILD_DIR/%{name}-%{version}/ $RPM_BUILD_ROOT/opt/spot/
 
 
@@ -130,12 +129,6 @@ then
   logger -t %{name}  "%{USER} for application %{SNAME} was found!"
 else
   logger -t %{name}  "%{USER} Cannot be found! for application %{SNAME}"
-fi
-
-# this is for future log location standardization. Currently unused.
-if [ ! -d /opt/spot/logs ]
-  then
-    mkdir /opt/spot/logs
 fi
 
 

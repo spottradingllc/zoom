@@ -6,7 +6,7 @@ class PredicateAnd(SimplePredicate):
     def __init__(self, comp_name, predicates, parent=None):
         """
         :type comp_name: str
-        :type predicates: list of sentinel.common.predicate objects
+        :type predicates: list of spot.zoom.agent.sentinel.common.predicate objects
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, parent=parent)
