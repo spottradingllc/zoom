@@ -19,12 +19,12 @@ return function Predicate(Factory) {
 
     self.remove = function(){
         self.parent.predicates.remove(self);
-    }
+    };
 
     self.expandUp = function(){
         self.expanded(true);
         self.parent.expandUp();
-    }
+    };
     self.validate = function() {
         var valid = true;
         if(self.error() != ""){
@@ -37,22 +37,22 @@ return function Predicate(Factory) {
             self.expandUp();
         }
         return true;
-    }
+    };
 
     self.createPredicateXML = function() {
-        var XML = "<Predicate ";
-        XML = XML.concat("type='"+self.predType()+"' ");
+        var XML = '<Predicate ';
+        XML = XML.concat('type="'+self.predType()+'" ');
 
         if(self.path() != null){
-            XML = XML.concat("path='"+self.path()+"' ");
+            XML = XML.concat('path="'+self.path()+'" ');
         }
         if(self.interval() != null){
-            XML = XML.concat("interval='"+self.interval()+"' ");
+            XML = XML.concat('interval="'+self.interval()+'" ');
         }
         if(self.command() != null){
-            XML = XML.concat("command='"+self.command()+"' ");
+            XML = XML.concat('command="'+self.command()+'" ');
         }
-        XML = XML.concat("></Predicate>");
+        XML = XML.concat('></Predicate>');
 
         return XML;
     };

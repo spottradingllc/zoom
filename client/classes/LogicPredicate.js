@@ -1,6 +1,6 @@
 define(['knockout'],
 function(ko){
-return function NotPredicate(Factory, predType) {
+return function LogicPredicate(Factory, predType) {
     var self = this;
     self.expanded = ko.observable(false);
     self.predType = predType;
@@ -31,12 +31,13 @@ return function NotPredicate(Factory, predType) {
 
     self.remove = function(){
         self.parent.predicates.remove(self);
-    }
+    };
 
     self.expandUp = function(){
         self.expanded(true);
         self.parent.expandUp();
-    }
+    };
+
     self.validate = function() {
         var valid = true;
         if(self.error() != ""){
@@ -52,18 +53,18 @@ return function NotPredicate(Factory, predType) {
             self.expandUp();
         }
         return valid;
-    }
+    };
 
     self.createPredicateXML = function() {
-        var XML = "";
-        var header = "<Predicate type='" + self.predType + "'>";
+        var XML = '';
+        var header = '<Predicate type="' + self.predType + '">';
         XML = XML.concat(header);
 
         for (var i = 0; i < self.predicates().length; i++) {
             XML = XML.concat(self.predicates()[i].createPredicateXML());
         }
 
-        var footer = "</Predicate>";
+        var footer = '</Predicate>';
         XML = XML.concat(footer);
 
         return XML;

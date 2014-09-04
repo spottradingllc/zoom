@@ -1,62 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Application>
-  <Automation>
-    <Component id="SAMPLE" type="application" script="SampleService" restartmax="3" restartoncrash="False"
-        registrationpath="/spot/software/state/application/SampleService" >
-        <Actions>
-          <Action id="start" staggerpath="/spot/software/temp/example"
-                  staggertime="60" mode_controlled="1">
-            <Dependency>
-              <Predicate type="and">
-                <Operands>
-                  <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1"/>
-                  <Predicate type="ZookeeperHasGrandChildren" path="/application/state/service/example2"/>
-                </Operands>
-              </Predicate>
-            </Dependency>
-          </Action>
-          <Action id="stop" mode_controlled="1">
-            <Dependency>
-              <Predicate type="or">
-                <Operands>
-                  <Predicate type="not">
-                    <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example1"/>
+   <Automation>
+      <Component id="SAMPLE" type="application" script="SampleService" restartmax="3" restartoncrash="False" registrationpath="/spot/software/state/application/SampleService">
+         <Actions>
+            <Action id="start" staggerpath="/spot/software/temp/example" staggertime="60" mode_controlled="True">
+               <Dependency>
+                  <Predicate type="and">
+                     <Predicate type="ZookeeperHasChildren" path="/application/state/service/example1" />
+                     <Predicate type="ZookeeperHasGrandChildren" path="/application/state/service/example2" />
                   </Predicate>
-                  <Predicate type="not">
-                    <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2"/>
-                  </Predicate>
-                </Operands>
-              </Predicate>
-            </Dependency>
-          </Action>
-          <Action id="notify" >
-            <Dependency>
-                <Predicate type="and">
-                    <Operands>
+               </Dependency>
+            </Action>
+            <Action id="stop" mode_controlled="True">
+               <Dependency>
+                  <Predicate type="or">
+                     <Predicate type="not">
+                        <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example1" />
                         <Predicate type="not">
-                            <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2" />
+                           <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2" />
                         </Predicate>
-                        <Predicate type="process" interval="5" />
-                    </Operands>
-                </Predicate>
-            </Dependency>
-        </Action>
-          <Action id="register">
-            <Dependency>
-                <Predicate type="process" interval="1" />
-                <Predicate type="health" interval="5" command="/opt/spot/sentinel/agent-python/sentinel/check/always_fail --succeed" />
-            </Dependency>
-          </Action>
-          <Action id="unregister">
-            <Dependency>
-                <Predicate type="not">
-                   <Predicate type="process" interval="1" />
-                </Predicate>
-            </Dependency>
-          </Action>
-        </Actions>
-    </Component>
-  </Automation>
+                     </Predicate>
+                  </Predicate>
+               </Dependency>
+            </Action>
+            <Action id="notify">
+               <Dependency>
+                  <Predicate type="and">
+                     <Predicate type="not">
+                        <Predicate type="ZookeeperHasChildren" path="/spot/software/state/application/example2" />
+                     </Predicate>
+                     <Predicate type="process" interval="5" />
+                  </Predicate>
+               </Dependency>
+            </Action>
+            <Action id="register">
+               <Dependency>
+                  <Predicate type="process" interval="5" />
+                  <Predicate type="health" interval="5" command="/opt/spot/sentinel/agent-python/sentinel/check/always_fail --succeed" />
+               </Dependency>
+            </Action>
+            <Action id="unregister">
+               <Dependency>
+                  <Predicate type="not">
+                     <Predicate type="process" interval="5" />
+                  </Predicate>
+               </Dependency>
+            </Action>
+         </Actions>
+      </Component>
+   </Automation>
 </Application>
 <!--
     Supported Component attributes (* = Required):

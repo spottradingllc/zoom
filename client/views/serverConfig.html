@@ -63,6 +63,7 @@
     </div>
 
     <!-- templates for adding server configurations -->
+    <!-- Component -->
     <script type="text/html" id="component-template">
         <div class="panel panel-default success">
             <div class="panel-heading">
@@ -93,7 +94,9 @@
                         <input type="text" class="form-control" required placeholder="script" data-bind="value: script, text: script">
                         <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command">
                         <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax">
+                        <input type="number" class="form-control" placeholder="allowedinstances" data-bind="value: allowedinstances, text: allowedinstances">
                         <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
+                        <input type="text" class="form-control" placeholder="restartoncrash" data-bind="value: restartoncrash, text: restartoncrash">
                     </div>
                 </form>
                 <br />
@@ -101,7 +104,9 @@
             </div>
         </div>
     </script>
+    <!-- END Component -->
 
+    <!-- Action -->
     <script type="text/html" id="action-template">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -114,7 +119,6 @@
                         <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
                         <input type="text" class="form-control" placeholder="staggerpath" data-bind="value: staggerpath, text: staggerpath">
                         <input type="text" class="form-control" placeholder="staggertime" data-bind="value: staggertime, text: staggertime">
-                        <input type="number" class="form-control" placeholder="allowed_instances" data-bind="value: allowedinstances, text: allowedinstances">
                     </div>
                 </form>
                 <br />
@@ -122,8 +126,9 @@
             </div>
         </div>
     </script>
+    <!-- END Action -->
 
-
+    <!-- Add Predicate -->
     <script type="text/html" id="add-predicate-template">
         <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <div class="btn-group">
@@ -147,7 +152,9 @@
         <span class="label label-danger" data-bind="text: error"/>
 
     </script>
+    <!-- END Add Predicate -->
 
+    <!-- Predicate -->
     <script type="text/html" id="predicate-template">
         <!-- ko if: predType == "and" || predType == "or" || predType == "not" -->
         <div data-bind="template: {name:'logic-predicate-template'}"></div>
@@ -157,7 +164,9 @@
         <div data-bind="template: {name:'single-predicate-template'}"></div>
         <!-- /ko -->
     </script>
+    <!-- END Predicate -->
 
+    <!-- Single Predicate -->
     <script type="text/html" id="single-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -181,7 +190,9 @@
             </div>
         </div>
     </script>
+    <!-- END Single Predicate -->
 
+    <!-- Logic Predicate -->
     <script type="text/html" id="logic-predicate-template">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -193,5 +204,6 @@
             </div>
         </div>
     </script>
+    <!-- END Logic Predicate -->
 
 </section>

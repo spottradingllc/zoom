@@ -6,7 +6,6 @@ return function Action(parent) {
     self.ID = ko.observable(null);
     self.staggerpath = ko.observable(null);
     self.staggertime = ko.observable(null);
-    self.allowedinstances = ko.observable(null);
     self.predicates = ko.observableArray();
 
     self.error = ko.computed(function(){
@@ -31,12 +30,12 @@ return function Action(parent) {
 
     self.remove = function(){
         parent.actions.remove(self);
-    }
+    };
 
     self.expandUp = function(){
         self.expanded(true);
         parent.expandUp();
-    }
+    };
 
     self.validate = function() {
         var valid = true;
@@ -58,23 +57,21 @@ return function Action(parent) {
             self.expandUp();
         }
         return valid;
-    }
+    };
 
     self.createActionXML = function() {
-        var XML = "<Action ";
-        XML = XML.concat("id='"+self.ID()+"' ");
+        var XML = '<Action ';
+        XML = XML.concat('id="'+self.ID()+'" ');
 
-        if(self.staggerpath() != null){
-            XML = XML.concat("staggerpath='"+self.staggerpath()+"' ");
+        if(self.staggerpath() != null && self.staggerpath() != ""){
+            XML = XML.concat('staggerpath="'+self.staggerpath()+'" ');
         }
-        if(self.staggertime() != null){
-            XML = XML.concat("staggertime='"+self.staggertime()+"' ");
+        if(self.staggertime() != null && self.staggertime() != ""){
+            XML = XML.concat('staggertime="'+self.staggertime()+'" ');
         }
-        if(self.allowedinstances() != null){
-            XML = XML.concat("allowed_instance='"+self.allowedinstances()+"' ");
-        }
-        XML = XML.concat("mode_controlled='True'");
-        XML = XML.concat("><Dependency>");
+
+        XML = XML.concat('mode_controlled="True"'); // fix this
+        XML = XML.concat('><Dependency>');
 
         // create XML for predicates
         for (var i = 0; i < self.predicates().length; i++) {
@@ -88,11 +85,11 @@ return function Action(parent) {
     };
 
     self.loadXML = function(node){
-        self.ID(node.getAttribute('id'))
-        self.staggerpath(node.getAttribute('staggerpath'))
-        self.staggertime(node.getAttribute('staggertime'))
-        self.allowedinstances(node.getAttribute('allowed_instance'))
-        var dependency = node.getElementsByTagName("Dependency")[0]
+        self.ID(node.getAttribute('id'));
+        self.staggerpath(node.getAttribute('staggerpath'));
+        self.staggertime(node.getAttribute('staggertime'));
+
+        var dependency = node.getElementsByTagName('Dependency')[0];
         if(dependency != null){
             self.predicates.removeAll();
             var child = Factory.firstChild(dependency);

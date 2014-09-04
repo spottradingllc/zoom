@@ -126,14 +126,14 @@ class PredicateFactory(object):
                 )
         elif ptype == PredicateType.AND:
             deps = list()
-            for element in root.findall('Operands/Predicate'):
+            for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
                 PredicateAnd(self._component_name, deps)
             )
         elif ptype == PredicateType.OR:
             deps = list()
-            for element in root.findall('Operands/Predicate'):
+            for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
                 PredicateOr(self._component_name, deps)

@@ -1,7 +1,7 @@
 define(['knockout', 'classes/LogicPredicate', 'classes/Predicate'],
 function(ko, LogicPredicate, Predicate){
 
-    var Factory = new Object();
+    var Factory = {};
     Factory.newPredicate = function(parent, type){
         if(type == 'and' || type =='or' || type == 'not'){
             pred = new LogicPredicate(Factory, type);
@@ -15,19 +15,21 @@ function(ko, LogicPredicate, Predicate){
 
     Factory.firstChild = function(node){
         var child = node.firstChild;
-        while(child != null && child.nodeType != 1){ 
+        // nodeType 1 == ELEMENT_NODE
+        while(child != null && child.nodeType != 1){
             child = child.nextSibling;
         }
         return child;
-    }
+    };
 
     Factory.nextChild = function(child){
         child = child.nextSibling;
+        // nodeType 1 == ELEMENT_NODE
         while(child != null && child.nodeType != 1){
             child = child.nextSibling;
         }
         return child
-    }
+    };
     return Factory;
 
 });
