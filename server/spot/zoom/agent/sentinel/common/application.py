@@ -51,9 +51,9 @@ class Application(object):
         """
         :type config: dict (xml)
         :type conn: multiprocessing.Connection
-        :type queue: sentinel.common.unique_queue.UniqueQueue
-        :type system: sentinel.common.enum.PlatformType
-        :type application_type: sentinel.common.enum.ApplicationType
+        :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type application_type: spot.zoom.agent.sentinel.common.enum.ApplicationType
         """
         self.config = config
         self.name = verify_attribute(self.config, 'id', none_allowed=False)
@@ -369,7 +369,7 @@ class Application(object):
 
     def _init_work_manager(self, queue, pipe):
         """
-        :rtype: sentinel.common.work_manager.WorkManager
+        :rtype: spot.zoom.agent.sentinel.common.work_manager.WorkManager
         """
         acceptable_work = dict()
         for w in ALLOWED_WORK:
