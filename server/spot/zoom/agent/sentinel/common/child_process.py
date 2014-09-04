@@ -18,7 +18,7 @@ class ChildProcess(object):
     def __init__(self, config, system):
         """
         :type config: xml.etree.ElementTree.Element
-        :type system: sentinel.common.enum.PlatformType
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         """
         self._log = logging.getLogger('sent.child')
         self.parent_conn, self.child_conn = Pipe()
@@ -32,7 +32,7 @@ class ChildProcess(object):
 
     def add_work(self, work, immediate=False):
         """
-        :type work: sentinel.common.task.Task
+        :type work: spot.zoom.agent.sentinel.common.task.Task
         """
         self._action_queue.append_unique(work, first=immediate)
 

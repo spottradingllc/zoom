@@ -105,7 +105,7 @@ return function ApplicationState (ko, data, parent) {
         }
 
         $('.big-modal-class').modal('show');
-    }
+    };
 
     self.graphiteBaseURL = function(){
         //http://graphite.readthedocs.org/en/latest/render_api.html
@@ -115,7 +115,7 @@ return function ApplicationState (ko, data, parent) {
         url = url + "&height=500";
         return (url);
 
-    }
+    };
     self.graphiteCPUURL = function(){
         var url = self.graphiteBaseURL();
         url = url + "&target=alias("+self.applicationHost() + '.cpuload.avg1,"CPU avg1 Load")';
@@ -404,7 +404,7 @@ return function ApplicationState (ko, data, parent) {
                                 var x = xmlDoc.getElementsByTagName("Component");
                                 for (var i=0;i<x.length;i++)
                                 { 
-                                    var id = x[i].getAttribute("id")
+                                    var id = x[i].getAttribute("id");
                                     if(self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1){
                                         x[i].parentNode.removeChild(x[i]);
                                         found = found + 1;
@@ -449,7 +449,8 @@ return function ApplicationState (ko, data, parent) {
             }
         }
 
-    }
+    };
+
     self.dependencyClass = ko.computed(function() {
         if (self.requires().length == 0 && self.requiredBy().length == 0){
             return "";

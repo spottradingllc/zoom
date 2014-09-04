@@ -25,8 +25,8 @@ class ProcessClient(object):
         :type name: str or None
         :type command: str or None
         :type script: str or None
-        :type apptype: sentinel.common.enum.ApplicationType
-        :type system: sentinel.common.enum.PlatformType
+        :type apptype: spot.zoom.agent.sentinel.common.enum.ApplicationType
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type restart_max: int or None
         :type restart_on_crash: bool or None
         """

@@ -10,7 +10,7 @@ class UniqueQueue(deque):
 
     def append_unique(self, task, first=False):
         """
-        :type task: sentinel.common.task.Task
+        :type task: spot.zoom.agent.sentinel.common.task.Task
         :type first: bool
         """
         if not isinstance(task, Task):

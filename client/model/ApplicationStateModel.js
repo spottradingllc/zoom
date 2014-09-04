@@ -4,7 +4,7 @@ define(['model/ApplicationState',
         'model/GlobalMode',
         'classes/applicationStates', 
         'classes/clsCustomFilter', 
-        'classes/dependency-maps/clsDependencyMaps',],
+        'classes/dependency-maps/clsDependencyMaps'],
 function(ApplicationState, Environment, admin, GlobalMode, ApplicationStates, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
@@ -35,11 +35,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
            !self.login.elements.authenticated()){
             return false;
         }
-        if(self.headers[index].title == 'Delete' &&
-           !self.admin.enabled()){
-            return false;
-        }
-        return true;
+        return !(self.headers[index].title == 'Delete' && !self.admin.enabled());
+
     };
 
 //    functions/variables for group control of agents
@@ -85,12 +82,10 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         });
         if (alldown) {
             interval = setInterval(self.checkDown, 5000);
-            return;
         } else {
             self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
-            return;
         }
-    }
+    };
 
     self.executeDepRestart = function (com) {
         var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
@@ -102,7 +97,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
             self.checkDown();
         }
-    }
+    };
 
     self.sleep = function (milliseconds) {
       var start = new Date().getTime();
@@ -111,7 +106,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
           break;
         }
       }
-    }
+    };
 
     self.clearGroupControl = function () {
         ko.utils.arrayForEach(self.applicationStates(), function(applicationState) {
