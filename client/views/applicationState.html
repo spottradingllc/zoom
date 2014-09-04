@@ -151,45 +151,44 @@
             <div class="col-md-6 text-right">
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'confirm':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Stop the starred services.">
                         <span class="glyphicon glyphicon-stop"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':false, 'confirm':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeDepRestart({'com':'dep_restart', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeDepRestart()}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services."> 
                         <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':false, 'confirm':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to react to Zookeeper changes.">React</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':false, 'confirm':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Cancel pending commands for the starred agents.">Cancel</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: applicationState.filteredGroupControl()"
+                                          data-bind="click: applicationState.filteredGroupControl"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Star all of the filtered agents.">
-                        <span class="glyphicon glyphicon-star"></span> all
-                    </button>
+                        <span class="glyphicon glyphicon-star"></span> all</button>
                     <button class="btn btn-default" data-bind="click: applicationState.clearGroupControl"
                                                     data-toggle="tooltip"
                                                     data-placement="top"

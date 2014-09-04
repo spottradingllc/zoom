@@ -71,6 +71,9 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 }
             });
         }
+        if (options.clear_group){
+            self.clearGroupControl();
+        }
     };
 
     //Checks if all groupControl services are down. Used in self.executeDepRestart
@@ -83,7 +86,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         if (alldown) {
             interval = setInterval(self.checkDown, 5000);
         } else {
-            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
+            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false, 'clear_group':true});
         }
     };
 
@@ -93,8 +96,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
         if (confirm(confirmString)) {
-            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
-            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false, 'clear_group':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false, 'clear_group':false});
             self.checkDown();
         }
     };
