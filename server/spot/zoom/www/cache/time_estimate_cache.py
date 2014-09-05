@@ -10,14 +10,17 @@ from spot.zoom.www.messages.message_throttler import MessageThrottle
 class TimeEstimateCache(object):
 
     def __init__(self, configuration, web_socket_clients):
-
-        self.graphite_cache = {}
+        """
+        :type configuration: zoom.config.configuration.Configuration
+        :type web_socket_clients: list
+        """
         self.configuration = configuration
         self._web_socket_clients = web_socket_clients
-        self.deps = {}
-        self.states = {}
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
+        self.graphite_cache = {}
+        self.dependencies = {}
+        self.states = {}
 
     def start(self):
         self._message_throttle.start()
@@ -27,49 +30,51 @@ class TimeEstimateCache(object):
 
     def reload(self):
         self.graphite_cache.clear()
-        self.recompute()
+        self.load()
 
-    def update_appplication_states(self, states):
+    def update_states(self, states):
+        """
+        :type states: dict
+        """
         self.states.update(states)
-        self.recompute(send=True)
+        self.load(send=True)
 
-    def update_appplication_deps(self, deps):
-        self.deps.update(deps)
-        self.recompute(send=True)
+    def update_dependencies(self, deps):
+        """
+        :type deps: dict
+        """
+        self.dependencies.update(deps)
+        self.load(send=True)
 
-    def load(self):
-        ret = self.recompute()
-        return ret
-   
-    def recompute(self, send=False):
+    def load(self, send=False):
+        """
+        :type send: bool
+            Whether to send messages to clients.
+        :rtype: zoom.messages.global_mode_message.TimeEstimateMessage
+        """
         logging.info("Recomputing Timing Estimates...")
         try:
             message = TimeEstimateMessage()
-            maxtime = 0
-            mintime = 0
-            avetime = 0
-            maxpath = "None"
-            searchdata = {} 
 
-            if self.states != {}:
-                for path in self.deps.iterkeys():
-                    data = self.rec_fn(path, searchdata) 
-                    if data['max'] > maxtime:
-                        maxtime = data['max']
+            cost = self._get_default_data()
+            maxpath = "None"
+            searchdata = {}
+
+            if self.states:
+                for path in self.dependencies.iterkeys():
+                    data = self._get_max_cost(path, searchdata)
+                    if data['max'] > cost['max']:
                         maxpath = path
-                    if data['min'] > mintime:
-                        mintime = data['min']
-                    if data['ave'] > avetime:
-                        avetime = data['ave']
+                    self._get_greatest_cost(cost, data)
 
             message.update({
-                'maxtime': maxtime,
-                'mintime': mintime,
-                'avetime': avetime,
+                'maxtime': cost['max'],
+                'mintime': cost['min'],
+                'avetime': cost['ave'],
                 'maxpath': maxpath
             })
 
-            if send and self.deps != {} and self.states != {}:
+            if all((send, self.dependencies, self.states)):
                 self._message_throttle.add_message(message)
 
             return message
@@ -77,76 +82,88 @@ class TimeEstimateCache(object):
         except Exception as e:
             logging.exception(e)
 
-    def rec_fn(self, path, searchdata):
+    def _get_max_cost(self, path, searchdata):
+        """
+        :type path: str
+        :type searchdata: dict
+        :rtype: dict
+            Example: {'ave': 0, 'max': 0, 'min': 0}
+        """
         # init internal search data
-        data = searchdata.get(path, None)
-        if data is None:
-            data = {'time': None, 'cost': None}
-            searchdata.update({path: data})
+        cached_cost = searchdata.get(path, None)
+        if cached_cost is not None:
+            return cached_cost
 
-        if data.get('cost', None) is not None:
-            return data['cost']
+        dep_data = self.dependencies.get(path, None)
+        greatest_cost = self._get_default_data()
 
-        data['cost'] = {}
-        data['cost']['ave'] = 0; 
-        data['cost']['min'] = 0; 
-        data['cost']['max'] = 0; 
-
-        data['time'] = self.get_graphtite_data(path)
-
-        # recurse into deps
-        dep_data = self.deps.get(path, None)
-        avet = 0
-        mint = 0
-        maxt = 0
-        if dep_data and \
-           len(dep_data['dependencies']) != 0:
+        # take greatest_cost and record the largest cost from all a path's
+        # dependencies.
+        if dep_data:
             for i in dep_data['dependencies']:
+                # expecting: i = {'path': '/foo/bar', 'type': 'baz'}
                 if i.get('type').lower() == PredicateType.ZOOKEEPERHASCHILDREN:
-                    avet = max(avet, self.rec_fn(i.get("path", None),
-                                                 searchdata)['ave'])
-                    mint = max(mint, self.rec_fn(i.get("path", None),
-                                                 searchdata)['min'])
-                    maxt = max(maxt, self.rec_fn(i.get("path", None),
-                                                 searchdata)['max'])
-                if i.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
+                    cached_cost = self._get_max_cost(i.get("path", None), searchdata)
+                    self._get_greatest_cost(greatest_cost, cached_cost)
+
+                elif i.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
                     grand_path = i.get("path")
-                    for key in self.deps.iterkeys():
-                        if key.lower().startswith(grand_path) \
-                                and key.lower() != grand_path:
+                    for key in self.dependencies.iterkeys():
+                        if key.lower().startswith(grand_path) and key.lower() != grand_path:
+                            cached_cost = self._get_max_cost(key, searchdata)
+                            self._get_greatest_cost(greatest_cost, cached_cost)
 
-                            avet = max(avet, self.rec_fn(key,
-                                                         searchdata)['ave'])
-                            mint = max(mint, self.rec_fn(key,
-                                                         searchdata)['min'])
-                            maxt = max(maxt, self.rec_fn(key,
-                                                         searchdata)['max'])
-
-        data['cost'] = {}
-        # look up running or graphite time
+        # if application is not running, add its cost (from graphite) to the
+        # greatest cost of its dependencies
         if(self.states.get(path, None) is not None
-           and self.states[path].get('application_status', None) == "running"):
-            data['cost']['ave'] = avet 
-            data['cost']['min'] = mint 
-            data['cost']['max'] = maxt 
-        else:  # not running, fetch graphite
-            data['cost']['ave'] = avet + data['time']['ave']
-            data['cost']['min'] = mint + data['time']['min']
-            data['cost']['max'] = maxt + data['time']['max']
+           and self.states[path].get('application_status', None) != "running"):
+            graphite_data = self._get_graphite_data(path)
+            self._add_data(greatest_cost, graphite_data)
 
-        return data['cost']
+        searchdata.update({path: greatest_cost})
+        return greatest_cost
 
-    def get_graphtite_data(self, path):
+    def _get_default_data(self):
+        return {'ave': 0, 'max': 0, 'min': 0}
+
+    def _get_greatest_cost(self, d1, d2):
+        """
+        Update greatest cost values with the greater between the current value
+        and the cached value
+        """
+        for i in ['ave', 'min', 'max']:
+            d1[i] = max(d1[i], d2[i])
+
+    def _add_data(self, d1, d2):
+        """
+        Add an apps own startup time (from graphite) to greatest cost if it is
+        not running.
+        """
+        for i in ['ave', 'min', 'max']:
+            d1[i] += d2[i]
+
+    def _get_graphite_data(self, path):
+        """
+        Grab startup times from graphite for a path.
+        :type path: str
+        :rtype: dict
+            Example: {'min': 0, 'max': 0, 'ave': 0}
+        """
         if self.graphite_cache.get(path, None) is not None:
             return self.graphite_cache[path]
 
         try:
-            url = path.split('/spot/software/state/')[1]
-            url = url.replace('/', '.')
-            url = "http://{0}/render?target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'max'),'max')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'min'),'min')&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')&format=json&from=-5d".format(self.configuration.graphite_host, url)
+            app_path = path.split('/spot/software/state/')[1]
+            app_path = app_path.replace('/', '.')
+            url = ("http://{0}/render?format=json&from=-5d"
+                   "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'max'),'max')"
+                   "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'min'),'min')"
+                   "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')"
+                   .format(self.configuration.graphite_host, app_path))
+
             response = requests.post(url, timeout=5.0)
 
-            self.graphite_cache[path] = {'min': 0, 'max': 0, 'ave': 0}
+            self.graphite_cache[path] = self._get_default_data()
 
             if response.status_code == httplib.OK:
                 for data in response.json():
@@ -162,6 +179,7 @@ class TimeEstimateCache(object):
 
             return self.graphite_cache[path]
 
-        except Exception as e:
-            logging.exception(e)
-            return 0
+        except Exception:
+            logging.exception('Error getting startup data from graphite for '
+                              'path: {0}'.format(path))
+            return self._get_default_data()
