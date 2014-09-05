@@ -1,4 +1,4 @@
-define([], function(){
+define([ 'classes/applicationStates', ], function(ApplicationStates){
 return function ApplicationState (ko, data, parent) {
     var self = this;
 
@@ -76,7 +76,7 @@ return function ApplicationState (ko, data, parent) {
     });
 
     self.graphiteApplicationURL = function(){
-        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
+        var url = "http://haproxy" + parent.environment.toLowerCase() + "/render?";
         var appName = self.configurationPath.replace("/spot/software/state/", "");
         var dotname = appName.replace(/\//g, ".");
         url = url + "target=alias(secondYAxis(Infrastructure.startup." + dotname + '.result), "Last Exit Code")';
@@ -106,17 +106,17 @@ return function ApplicationState (ko, data, parent) {
 
         $('#graphiteModal').modal('show');
         //$('.big-modal-class').modal('show');
-    }
+    };
 
     self.graphiteBaseURL = function(){
         //http://graphite.readthedocs.org/en/latest/render_api.html
-        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
+        var url = "http://haproxy" + parent.environment.toLowerCase() + "/render?";
         url = url + "&from=-7d";
         url = url + "&width=850";
         url = url + "&height=500";
         return (url);
 
-    }
+    };
     self.graphiteCPUURL = function(){
         var url = self.graphiteBaseURL();
         url = url + "&target=alias("+self.applicationHost() + '.cpuload.avg1,"CPU avg1 Load")';
@@ -272,6 +272,17 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
+    self.envColor = ko.computed(function(){
+        if (parent.environment.toLowerCase() === "staging")
+            return "#FFDA47";
+        else if (parent.environment.toLowerCase() == "uat")
+            return "#0066FF";
+        else if (parent.environment.toLowerCase() == "production")
+            return "#FF1919";
+        else console.assert(true);
+    });
+
+
     self.passwordConfirm = ko.observable("");
     
     self.options = "";
@@ -392,13 +403,13 @@ return function ApplicationState (ko, data, parent) {
 
             // determine predicate type and filter proper application states
             if (predType == self.predType.children) {
-                var applicationState = ko.utils.arrayFirst(parent.applicationStates(), function(applicationState) {
+                var applicationState = ko.utils.arrayFirst(ApplicationStates(), function(applicationState) {
                     return (path == applicationState.configurationPath);
                 });
                 if (applicationState) self.requires.push(applicationState);
             }
             else if (predType == self.predType.grandchildren) {
-                ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
+                ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
                     if (applicationState.configurationPath.substring(0, path.length) == path) {
                         self.requires.push(applicationState);
                     }
@@ -428,7 +439,7 @@ return function ApplicationState (ko, data, parent) {
 
     self.requiredBy = ko.computed(function() {
         var dependencies = ko.observableArray([]);
-        ko.utils.arrayForEach(parent.applicationStates(), function(applicationState) {
+        ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
             if (applicationState.requires().indexOf(self) > -1) {
                 dependencies.push(applicationState);
             }
@@ -449,7 +460,7 @@ return function ApplicationState (ko, data, parent) {
         else if(self.applicationHost() == ""){ 
             if(confirm(self.configurationPath + " has no Host listed, this delete is mostly artificial"))
             {
-                parent.applicationStates.remove(self);
+                ApplicationStates.remove(self);
             }
         }
         else{
@@ -463,53 +474,66 @@ return function ApplicationState (ko, data, parent) {
 
                 $.post("/api/delete/", dict)
                     .fail(function(data) {
-                        alert( "Error deleting path: " + JSON.stringify(data.responseText));
                         zk_deleted = false;
                 });
 
                 if(zk_deleted){
-                    $.get("/api/config/" + self.applicationHost())
-                        .fail(function(data){
-                            alert("Failed Get Config " + JSON.stringify(data));
-                        })
-                       .done(function(data) {
+                    $.get("/api/config/" + self.applicationHost(), 
+                        function(data){
                             if (data != "Node does not exist.") {
                                 parser = new DOMParser();
                                 xmlDoc = parser.parseFromString(data,"text/xml");
-                                var target = -1;
+                                var found = 0;
                                 var x = xmlDoc.getElementsByTagName("Component");
-                                for (i=0;i<x.length;i++)
+                                for (var i=0;i<x.length;i++)
                                 { 
-                                    var id = x[i].getAttribute("id")
+                                    var id = x[i].getAttribute("id");
                                     if(self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1){
                                         x[i].parentNode.removeChild(x[i]);
-                                        break;
+                                        found = found + 1;
+                                        i = i - 1;
                                     }
                                 }
-                                var oSerializer = new XMLSerializer();
-                                var sXML = oSerializer.serializeToString(xmlDoc);
-                                var params = {
-                                    "XML" : sXML,
-                                    "serverName" : self.applicationHost()
-                                };
-                                $.ajax({
-                                    url: "/api/config/" + self.applicationHost(),
-                                    type: 'PUT',
-                                    data: JSON.stringify(params)})
-                                    .fail(function(data){
-                                        alert("Failed putting Config " + JSON.stringify(data));
-                                    })
 
+                                if(found == 0){
+                                    alert("Didn't find component " + self.configurationPath +" in "+self.applicationHost()+"'s config");
+                                }
+                                else if(found == 1){
+                                    var oSerializer = new XMLSerializer();
+                                    var sXML = oSerializer.serializeToString(xmlDoc);
+                                    var params = {
+                                        "XML" : sXML,
+                                        "serverName" : self.applicationHost()
+                                    };
+                                    $.ajax({
+                                        url: "/api/config/" + self.applicationHost(),
+                                        type: 'PUT',
+                                        data: JSON.stringify(params)})
+                                        .fail(function(data){
+                                            alert("Failed putting Config " + JSON.stringify(data));
+                                        })
+                                }
+                                else{
+                                    alert("Multiple components matched " + self.configurationPath +" in "+self.applicationHost()+"'s config, not acting");
+                                }
                             }
                             else {
                                 alert("no data for host " + self.applicationHost());
                             }
+                        })
+                        .fail(function(data){
+                            alert("Failed Get Config " + JSON.stringify(data));
                     });
                 }
+                else{
+                        alert( "Error deleting path: " + JSON.stringify(data.responseText));
+                }
+
             }
         }
 
-    }
+    };
+
     self.dependencyClass = ko.computed(function() {
         if (self.requires().length == 0 && self.requiredBy().length == 0){
             return "";

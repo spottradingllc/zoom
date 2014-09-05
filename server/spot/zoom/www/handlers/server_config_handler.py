@@ -27,6 +27,9 @@ class ServerConfigHandler(tornado.web.RequestHandler):
             data = request.get("XML")
             logging.info('Received XML configuration for {0}'.format(server))
 
+            if not self.zk.exists(zk_path):
+                self.zk.create(zk_path)
+
             self.zk.set(zk_path, str(data))
             self.write('Node successfully updated.')
             logging.info('Updated server {0}'.format(server))

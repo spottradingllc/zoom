@@ -2,16 +2,17 @@ define(['model/ApplicationState',
         'model/environmentModel',
         'model/adminModel', 
         'model/GlobalMode',
+        'classes/applicationStates', 
         'classes/clsCustomFilter', 
-        'classes/dependency-maps/clsDependencyMaps',],
-function(ApplicationState, Environment, admin, GlobalMode, CustomFilter, DependencyMaps){
+        'classes/dependency-maps/clsDependencyMaps'],
+function(ApplicationState, Environment, admin, GlobalMode, ApplicationStates, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
-    self.applicationStates = ko.observableArray([]);
+    self.applicationStates = ApplicationStates;
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
@@ -34,11 +35,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
            !self.login.elements.authenticated()){
             return false;
         }
-        if(self.headers[index].title == 'Delete' &&
-           !self.admin.enabled()){
-            return false;
-        }
-        return true;
+        return !(self.headers[index].title == 'Delete' && !self.admin.enabled());
+
     };
 
     self.passwordConfirm = ko.observable("");
@@ -70,6 +68,10 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 
             }
         });
+
+        if (self.options.clear_group){
+            self.clearGroupControl();
+        }
         
         self.passwordConfirm("");
     }
@@ -77,8 +79,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
     self.determineAndExecute = function() {
         if (self.options.com === 'dep_restart'){
-            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
-            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false, 'clear_group':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false, 'clear_group':false});
             self.checkDown();
         }
         else {
@@ -153,12 +155,10 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         });
         if (alldown) {
             interval = setInterval(self.checkDown, 5000);
-            return;
         } else {
-            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
-            return;
+            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false, 'clear_group':true});
         }
-    }
+    };
 
     self.sleep = function (milliseconds) {
       var start = new Date().getTime();
@@ -167,7 +167,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
           break;
         }
       }
-    }
+    };
 
     self.clearGroupControl = function () {
         ko.utils.arrayForEach(self.applicationStates(), function(applicationState) {

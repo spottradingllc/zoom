@@ -10,7 +10,7 @@ class WorkManager(object):
         """
         :type comp_name: str
         :type pipe: multiprocessing.Connection
-        :type queue: sentinel.common.unique_queue.UniqueQueue
+        :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
         :type tasks: dict
         """
         self._operate = SimpleObject(True)

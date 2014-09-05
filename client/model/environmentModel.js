@@ -1,6 +1,6 @@
 define(['knockout', 'service' ], function (ko, service) {
 
-    var env = new Object();
+    var env = {};
 
     var onSuccess = function(data) {
         var environment = data.environment;

@@ -21,11 +21,11 @@ class Action(object):
         :param mode_controlled: Whether or not the action will run based on the
                                 ApplicationMode
         :type mode_controlled: bool
-        :type action_q: sentinel.common.unique_queue.UniqueQueue
+        :type action_q: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
         :type zkclient: kazoo.client.KazooClient
-        :type proc_client: sentinel.client.process_client.ProcessClient
-        :type mode: sentinel.common.enum.ApplicationMode
-        :type system: sentinel.common.enum.PlatformType
+        :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
+        :type mode: spot.zoom.agent.sentinel.common.enum.ApplicationMode
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type pred_list: list
         """
         self.name = name

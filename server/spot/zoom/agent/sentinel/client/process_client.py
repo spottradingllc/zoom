@@ -25,8 +25,8 @@ class ProcessClient(object):
         :type name: str or None
         :type command: str or None
         :type script: str or None
-        :type apptype: sentinel.common.enum.ApplicationType
-        :type system: sentinel.common.enum.PlatformType
+        :type apptype: spot.zoom.agent.sentinel.common.enum.ApplicationType
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type restart_max: int or None
         :type restart_on_crash: bool or None
         """
@@ -78,8 +78,9 @@ class ProcessClient(object):
     @synchronous('process_client_lock')  # shares lock with PredicateProcess
     def start(self):
         """Try to start process"""
-        if self._restart_logic.restart is False:
-            self._log.info('Process crashed and restart_on_crash is False.')
+        if self._restart_logic.restart is False \
+                and self._apptype == ApplicationType.APPLICATION:
+            self._log.info('Process was brought down un-intentionally.')
             return 1
         else:
             self._log.debug('Restarts allowed.')

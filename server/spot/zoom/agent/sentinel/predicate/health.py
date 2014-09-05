@@ -16,7 +16,7 @@ class PredicateHealth(SimplePredicate):
         :type comp_name: str
         :type command: str
         :type interval: int or float
-        :type system: sentinel.common.enum.PlatformType
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, parent=parent)

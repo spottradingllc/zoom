@@ -1,7 +1,6 @@
 define(['knockout', 'service' ], function (ko, service) {
 
-    var login = new Object();
-    //var for most recent login - used for password confirmation
+    var login = {};
 
     login.elements = {
         username: ko.observable(""),
@@ -64,7 +63,7 @@ define(['knockout', 'service' ], function (ko, service) {
         login.submit();
     };
 
-    login.setUserFromCookie()
+    login.setUserFromCookie();
 
     return login;
 });

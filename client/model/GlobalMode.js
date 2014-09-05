@@ -11,12 +11,7 @@ function(ko, service, $, login){
     self.minTimingEstimate = ko.observable("");
 
     self.isOn = ko.computed(function() {
-        if (self.current() == 'auto') {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return self.current() == 'auto';
     });
 
     self.OnClass = ko.computed(function() {

@@ -49,7 +49,7 @@ class ApplicationStateCacheTest(TestCase):
         event = EventMock
         event.path = 'path1'
 
-        self.time_estimate_cache.update_appplication_states(mox.IgnoreArg())
+        self.time_estimate_cache.update_states(mox.IgnoreArg())
 
         self.mox.ReplayAll()
          

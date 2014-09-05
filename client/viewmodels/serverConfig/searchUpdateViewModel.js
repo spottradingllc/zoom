@@ -1,12 +1,16 @@
-define(['knockout', './alertsViewModel', 'vkbeautify'],
-function(ko, AlertsViewModel){
+define(['knockout', './alertsViewModel', './treeViewModel', 'vkbeautify'],
+function(ko, AlertsViewModel, TreeViewModel){
 
 /******* SEARCH AND UPDATE VIEW MODEL *******/
 return function SearchUpdateViewModel(ServerConfigViewModel) {
     var self = this;
 
     self.serverConfig = ko.observable("");
-    self.visible = ko.observable(false);
+    self.visible = ko.computed(function(){
+        return self.serverConfig() != "";
+    });
+    self.treeViewModel = new TreeViewModel(self);
+    self.parent = ServerConfigViewModel;
 
     self.search = function() {
         if (ServerConfigViewModel.serverName() == "") {
@@ -16,18 +20,21 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
             // get XML configuration, catch callback message (allow editing on success)
             $.get("/api/config/" + ServerConfigViewModel.serverName(), function(data) {
                 if (data != "Node does not exist.") {
-                    self.show();
-                    self.serverConfig(vkbeautify.xml(data));
-                    ServerConfigViewModel.treeViewModel.show();
+                    self.setXML(data);
                 }
                 else {
-                    self.hide();
                     AlertsViewModel.displayError("Node " + ServerConfigViewModel.serverName() + " does not exist!");
+                    ServerConfigViewModel.serverList.remove(ServerConfigViewModel.serverName());
                 }
             }).fail(function(data){
                 alert("Failed Get Config " + JSON.stringify(data));
             });
         }
+    };
+
+    self.setXML = function(data){
+        self.serverConfig(vkbeautify.xml(data));
+        self.treeViewModel.loadXML();
     };
 
     self.pushConfig = function() {
@@ -66,7 +73,7 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
             var XMLString = new XMLSerializer().serializeToString(XMLDoc.documentElement);
             AlertsViewModel.displayError("Error detected in XML syntax!");
         }
-        else { // push the configuration if no errors were found
+        else if(self.treeViewModel.validate()){
             self.pushConfig();
         }
     };
@@ -81,7 +88,6 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
                     if (data == 'Node successfully deleted.') {
                         AlertsViewModel.displaySuccess("Node " + ServerConfigViewModel.serverName() + " was successfully deleted!");
                         ServerConfigViewModel.getAllServerNames();
-                        self.hide();
                     }
                else {
                         AlertsViewModel.displayError(data);
@@ -95,24 +101,19 @@ return function SearchUpdateViewModel(ServerConfigViewModel) {
         var serverConfigDiv = document.getElementsByName("server-config")[0];
         var newConfig = serverConfigDiv.textContent;
 
-        self.serverConfig(newConfig);
+        self.setXML(newConfig);
     };
 
     self.closeAlerts = function() {
         AlertsViewModel.closeAlerts();
     };
 
-
-    self.hide = function() {
-        self.visible(false);
-    };
-
-    self.show = function() {
-        self.visible(true);
-    };
-
     self.tearDown = function() {
         self.serverConfig("");
-        self.hide();
+    };
+
+    self.setDefault = function(){
+        // TODO: Move this string to its own file?
+        self.setXML('<?xml version="1.0" encoding="UTF-8"?> <Application> <Automation> <Component id="" type="application" script="" restartmax="3" allowed_instances="1" registrationpath="" restartoncrash="False"> <Actions> <Action id="start" mode_controlled="True" staggerpath="" staggertime=""> <Dependency> <Predicate type="and"> <Predicate type="not"> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate>  </Predicate> </Dependency> </Action> <Action id="stop" mode_controlled="True"> <Dependency> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /> </Dependency> </Action> <Action id="register"> <Dependency> <Predicate type="process" interval="5" /> </Dependency> </Action> <Action id="unregister"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action> </Actions> </Component> </Automation> </Application>');
     }
 }});

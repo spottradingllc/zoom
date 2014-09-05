@@ -70,12 +70,12 @@ function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
         self.applicationState.loadApplicationStates();  // load initial data
         self.applicationState.loadApplicationDependencies();  // load initial data
         self.applicationState.dependencyMaps.showView(self.applicationState.currentView());
-    }
+    };
 
     self.detached = function(){
-        self.applicationState.applicationStates.removeAll()
+        self.applicationState.clearGroupControl();
         self.applicationState.dependencyMaps.closeAllViews();
-    }
+    };
 
     return {
         applicationState: self.applicationState,

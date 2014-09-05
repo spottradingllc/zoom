@@ -12,7 +12,7 @@ class PredicateProcess(SimplePredicate):
     def __init__(self, comp_name, proc_client, interval, parent=None):
         """
         :type comp_name: str
-        :type proc_client: sentinel.client.process_client.ProcessClient
+        :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
         :type interval: int or float
         :type parent: str or None
         """

@@ -12,37 +12,47 @@ return function Predicate(Factory) {
         return "Predicate " + self.predType() + " " + self.path();
     });
 
+    self.error = ko.computed(function(){
+        //TODO Flag errors that aren't empty field
+        return "";
+    });
 
     self.remove = function(){
         self.parent.predicates.remove(self);
-    }
+    };
 
     self.expandUp = function(){
         self.expanded(true);
         self.parent.expandUp();
-    }
+    };
     self.validate = function() {
+        var valid = true;
+        if(self.error() != ""){
+            valid = false;
+        }
         if(self.predType() == null){
+            valid = false;
+        }
+        if(!valid){
             self.expandUp();
-            return false;
         }
         return true;
-    }
+    };
 
     self.createPredicateXML = function() {
-        var XML = "<Predicate ";
-        XML = XML.concat("type='"+self.predType()+"' ");
+        var XML = '<Predicate ';
+        XML = XML.concat('type="'+self.predType()+'" ');
 
         if(self.path() != null){
-            XML = XML.concat("path='"+self.path()+"' ");
+            XML = XML.concat('path="'+self.path()+'" ');
         }
         if(self.interval() != null){
-            XML = XML.concat("interval='"+self.interval()+"' ");
+            XML = XML.concat('interval="'+self.interval()+'" ');
         }
         if(self.command() != null){
-            XML = XML.concat("command='"+self.command()+"' ");
+            XML = XML.concat('command="'+self.command()+'" ');
         }
-        XML = XML.concat("></Predicate>");
+        XML = XML.concat('></Predicate>');
 
         return XML;
     };

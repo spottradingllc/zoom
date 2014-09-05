@@ -5,7 +5,7 @@ from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 class PredicateNot(SimplePredicate):
     def __init__(self, comp_name, pred, parent=None):
         """
-        :type pred: sentinel.common.dependency object
+        :type pred: spot.zoom.agent.sentinel.common.dependency object
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, parent=parent)

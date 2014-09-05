@@ -54,7 +54,7 @@ class ApplicationStateCache(object):
         logging.info("Application state cache loaded from ZooKeeper {0}"
                      .format(self._configuration.application_state_path))
 
-        self._time_estimate_cache.update_appplication_states(
+        self._time_estimate_cache.update_states(
             self._cache.application_states)
         self._cache.remove_deletes()
 
@@ -64,7 +64,7 @@ class ApplicationStateCache(object):
         :type result: zoom.messages.application_states.ApplicationStatesMessage
         """
         try:
-            children = self._zoo_keeper.get_children(path)
+            children = self._zoo_keeper.get_children(path, watch=self._on_update)
 
             if children:
                 for child in children:
@@ -165,7 +165,7 @@ class ApplicationStateCache(object):
 
             self._message_throttle.add_message(message)
 
-            self._time_estimate_cache.update_appplication_states(
+            self._time_estimate_cache.update_states(
                 self._cache.application_states)
 
         except Exception:

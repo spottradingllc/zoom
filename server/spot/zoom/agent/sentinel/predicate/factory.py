@@ -26,8 +26,8 @@ class PredicateFactory(object):
         :type component_name: str or None
         :type parent: str or None
         :type zkclient: kazoo.client.KazooClient or None
-        :type proc_client: sentinel.client.process_client.ProcessClient
-        :type system: sentinel.common.enum.PlatformType
+        :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
+        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
         :type pred_list: list
         """
         self.zkclient = zkclient
@@ -45,13 +45,8 @@ class PredicateFactory(object):
         :type xmlpart: xml.etree.ElementTree.Element
         :type callback: types.FuncType or None
         """
-        # to catch the case where there are no predicates
-        dummpy_predicate = SimplePredicate(self._component_name,
-                                           parent=self._parent)
-        dummpy_predicate.set_met(True)
-
         if xmlpart is None:
-            return dummpy_predicate
+            return self._create_dummy_predicate()
 
         if isinstance(xmlpart, str):
             root = ElementTree.fromstring(xmlpart)
@@ -126,14 +121,14 @@ class PredicateFactory(object):
                 )
         elif ptype == PredicateType.AND:
             deps = list()
-            for element in root.findall('Operands/Predicate'):
+            for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
                 PredicateAnd(self._component_name, deps)
             )
         elif ptype == PredicateType.OR:
             deps = list()
-            for element in root.findall('Operands/Predicate'):
+            for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
                 PredicateOr(self._component_name, deps)
@@ -141,15 +136,16 @@ class PredicateFactory(object):
         else:
             self._log.error('Unknown predicate type "{0}". Ignoring'
                             .format(ptype))
-            return dummpy_predicate
+
+            return self._create_dummy_predicate()
 
     def _ensure_new(self, new, callback=None):
         """
         Make sure we are not needlessly creating a second predicate with the
         same attributes.
-        :type new: one of sentinel.common.predicate.*
+        :type new: one of spot.zoom.agent.sentinel.common.predicate.*
         :type callback: types.funcType or None
-        :return: one of sentinel.common.predicate.*
+        :return: one of spot.zoom.agent.sentinel.common.predicate.*
         """
         for predicate in self._pred_list:
             if predicate == new:
@@ -162,3 +158,15 @@ class PredicateFactory(object):
             new.add_callback({self._parent: callback})
         self._pred_list.append(new)
         return new
+
+    def _create_dummy_predicate(self):
+        # to catch the case where there are no predicates
+        """
+        A dummy predicate will be returned by the factory if there are no
+        predicates, or if the config has an unknown predicate type.
+
+        :rtype: spot.zoom.agent.sentinel.predicate.simple.SimplePredicate
+        """
+        dummy = SimplePredicate(self._component_name, parent=self._parent)
+        dummy.set_met(True)
+        return dummy
