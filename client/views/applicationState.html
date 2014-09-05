@@ -28,10 +28,20 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content" data-bind="style: {backgroundColor: applicationState.envColor}">
                     <div class="modal-header">
-                        <h2 class="modal-title">WARNING</h2>
+                        <h2 data-bind="text: applicationState.environment"></h2>
+                        <h4> Please re-enter your domain password to proceed </h4>
                     </div>
                     <div class="modal-body big-modal-body">
-                        <span data-bind="text: warningMsg"> </span>
+                        <table class="table">
+                            <tr>
+                                <td>Application Name </td>
+                                <td>Hostname </td>
+                            </tr>
+                            <tr>
+                                <td data-bind="text: appName()"></td>
+                                <td data-bind="text: applicationHost()"></td>
+                            </tr>
+                        </table>
                         <input type="password" class="form-control" name="password" 
                             data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"/>
                     </div>
@@ -51,7 +61,8 @@
             <div class="modal-content"data-bind="style: {backgroundColor: envColor}">
                 <div class="modal-body big-modal-body">
                     <div class="modal-header">
-                        <h2 class="modal-title" data-bind="value: environment"></h2>
+                        <h2 data-bind="text: environment"></h2>
+                        <h4> Please re-enter your domain password to proceed </h4>
                     </div>
                     <div class="modal-body big-modal-body">
                         <span data-bind="text: warningMsg"> </span>

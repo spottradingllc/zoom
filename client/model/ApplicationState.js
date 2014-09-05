@@ -334,6 +334,12 @@ return function ApplicationState (ko, data, parent) {
 
     self.buttonLabel = ko.observable("");
 
+    self.appName = function() {
+        var copy = self.configurationPath;
+        copy = copy.match(/([^\/]*)\/*$/)[1];
+        return copy;
+    };
+
     self.controlAgent = function (options) {
         //options.com: command
         //options.arg: command argument
