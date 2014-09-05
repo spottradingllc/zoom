@@ -84,7 +84,7 @@ class GraphiteClient(object):
                 ("Invalid 'EnvironmentToUse' variable: {0} "
                  .format(environment))
 
-        return 'graphite{0}'.format(environment.lower())
+        return 'haproxy{0}'.format(environment.lower())
 
     @classmethod
     def _get_begin_or_end(cls, dtime, default):
