@@ -13,26 +13,62 @@
             </div>
         </div>
     </div>
-    
+
+    <div id="cmdSuccess" class="modal big-modal-class" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>Command Has Been Sent</p>
+            </div>  
+        </div>
+    </div>
+
+    <!--foreach only to access the applicationStates array class-->
     <div data-bind="foreach: applicationState.filteredItems">
-        <div id="passwordCheckModal" class="modal big-modal-class fade" 
-            tabindex="-1"
-            role="dialog"
-            aria-hidden="true">
+        <div id="passwordCheckModal" class="modal big-modal-class fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">WARNING</h2>
+                    </div>
                     <div class="modal-body big-modal-body">
                         <span data-bind="text: warningMsg"> </span>
-                        <div>
-                            <input type="password" class="form-control" name="password" id="password" data-bind="value: passwordConfirm" required/>
-                            <button type="button" class="btn btn-default active" data-dismiss="modal"> Cancel </button>
-                            <button type="button" class="btn btn-danger active" data-bind="click: submitAction, text:buttonLabel"></button>
-                        </div>
+                        <input type="password" class="form-control" name="password" 
+                            data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"/>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
+                        <button type="button" class="btn btn-danger" id="send" data-bind="click: submitAction, text:buttonLabel"></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="groupCheckModal" class="modal big-modal-class fade" tabindex="-1" role="dialog" 
+        aria-hidden="true", data-bind="with:applicationState">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body big-modal-body">
+                    <div class="modal-header">
+                        <h2 class="modal-title">WARNING</h2>
+                    </div>
+                    <div class="modal-body big-modal-body">
+                        <span data-bind="text: warningMsg"> </span>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="password" class="form-control" name="password" 
+                                data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"/>
+                        <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
+                        <button type="button" class="btn btn-danger" id="Gsend" data-bind="click: submitAction, text:buttonLabel"></button>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+
+
 
     <div class="page-header">
         <h1>
@@ -171,35 +207,35 @@
             <div class="col-md-6 text-right">
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'stop', 'arg':true, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'stop', 'arg':true, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Stop the starred services.">
                         <span class="glyphicon glyphicon-stop"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'restart', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'restart', 'arg':false, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeDepRestart({'com':'dep_restart', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'dep_restart', 'arg':false, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services."> 
                         <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'ignore', 'arg':false, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'react', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'react', 'arg':false, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to react to Zookeeper changes.">React</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.executeGroupControl({'com':'cancel', 'arg':false, 'confirm':true})}"
+                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'cancel', 'arg':false, 'confirm':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Cancel pending commands for the starred agents.">Cancel</button>

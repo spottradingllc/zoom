@@ -286,20 +286,34 @@ return function ApplicationState (ko, data, parent) {
                     "user": parent.login.elements.username()
                 };
                 $.post("/api/agent/", dict, function() {
-                    alert(self.options.com + " command sent successfully.");
+                    $('#passwordCheckModal').modal('hide');
+                    
+                    //not really necessary - can tell command was sent
+                    //var callbacks = $.Callbacks()               
+                    
+                    /*$('#passwordCheckModal').on('hidden.bs.modal', function () {
+                        var confModal = $('#cmdSuccess').modal('show');
+                        setTimeout(function() {confModal.modal('hide'); }, 1000);
+                        //alert(self.options.com + " command sent successfully.");     
+                    });
+                    */
+                   
                 })    
                     .fail(function(data) {
                         alert( "Error Posting ControlAgent " + JSON.stringify(data));
                     });
         }
+        self.passwordConfirm("");
+    
     };
 
     self.disallowAction = function(data) {
         console.log(JSON.stringify(data));
-        //alert("Sorry, the credentials entered are incorrect");
+        self.passwordConfirm("");
+        alert("The credentials entered are incorrect");
     };
 
-    self.checkPass = function() {
+    self.submitAction = function() {
 
         console.assert('undefined' != typeof login.elements.username());
         console.assert('undefined' != typeof self.passwordConfirm());
@@ -311,27 +325,8 @@ return function ApplicationState (ko, data, parent) {
             username: parent.login.elements.username(),
             password: self.passwordConfirm()
         };
-
-        return $.post("login", params, self.allowAction, self.disallowAction);
-    };
-
-    
-    self.submitAction = function () {
         
-        console.log(self.options);
-        self.checkPass(parent.login.elements.username(), self.passwordConfirm());
-        
-        
-        
-              
-   /*         //only hide modal if successful
-            ('#passwordCheckModal').modal('hide');
-        }
-        else alert("Sorry the credentials you entered are incorrect");
-
-        self.passwordConfirm("");
-                
-     */   
+        return $.post("/login", JSON.stringify(params), self.allowAction).fail(self.disallowAction);
     };
 
     self.warningMsg = ko.observable("");
@@ -342,19 +337,35 @@ return function ApplicationState (ko, data, parent) {
         //options.com: command
         //options.arg: command argument
         //option.no_confirm: confirm bool
-        var confirmString = ["Please confirm that you want to send a " + options.com + " command to ",
-                self.configurationPath + " on " + self.applicationHost() + " by re-entering your",
-                " password."].join('\n');
+        var confirmString = ["Send a " + options.com.toUpperCase() + " command to ",
+                self.configurationPath + " on " + self.applicationHost() + " by confirming your",
+                " password:"].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
         
         self.warningMsg(confirmString);
         self.buttonLabel("Send " + options.com.toUpperCase() + " command");
         self.options = options;
+
         $('#passwordCheckModal').modal('show');
-        
         
     };
 
+
+    //$(document).ready(function(){
+    //$('#passwordCheckModal').keydown(function(event) {
+            
+    self.checkEnter = function (d, e){    
+        if (e.which == 13){
+                //self.submitAction();
+                //console.log("handler called");
+                $('#send').trigger('click');
+                return false;
+        }
+        return true;
+    };
+
+    
+    
     self.onControlAgentError = function () {
         alert("Error controlling agent.");
     };

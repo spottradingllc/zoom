@@ -41,39 +41,108 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return true;
     };
 
-//    functions/variables for group control of agents
+    self.passwordConfirm = ko.observable("");
+    
+    self.options = "";
+
+    self.executeGroupControl = function(){
+        ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
+            var dict = {
+                "componentId": applicationState.componentId,
+                "configurationPath": applicationState.configurationPath,
+                "applicationHost": applicationState.applicationHost,
+                "command": self.options.com,
+                "argument": self.options.arg,
+                "user": self.login.elements.username()
+             };
+
+            if (applicationState.isHostEmpty()) {
+                alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
+            }
+            else {
+                //alert("would normally post here");
+                //move to success...
+                
+                
+                $.post("/api/agent/", dict).fail(function(data) {
+                    alert( "Error Posting Group Control " + JSON.stringify(data));
+                });
+                
+            }
+        });
+        
+        self.passwordConfirm("");
+    }
+
+
+    self.determineAndExecute = function() {
+        if (self.options.com === 'dep_restart'){
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
+            self.checkDown();
+        }
+        else {
+            self.executeGroupControl(self.options);
+        }
+
+        $('#groupCheckModal').modal('hide');
+    };
+
+    self.disallowAction = function() {
+        //no data anymore...
+        //console.log(JSON.stringify();
+        self.passwordConfirm("");
+        alert("The credentials entered are incorrect");
+    };
+
+    self.submitAction = function() {
+
+        console.assert('undefined' != typeof login.elements.username());
+        console.assert('undefined' != typeof self.passwordConfirm());
+        
+        //client-side check for blank usernames/passwords
+        //if (passwd == "" || usernm == "")
+
+        var params = {
+            username: parent.login.elements.username(),
+            password: self.passwordConfirm()
+        };
+        
+        return $.post("/login", JSON.stringify(params), self.determineAndExecute).fail(self.disallowAction);
+    };
+
+    self.warningMsg = ko.observable("");
+
+    self.buttonLabel = ko.observable("");   
+    
+    //    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
-    self.executeGroupControl = function (options) {
+    
+    self.groupControlDialog = function (options) {
         //options.com: command
         //options.arg: command argument
-        //option.no_confirm: confirm bool
         if (options == undefined) options = {};
-        var confirmString = ["Please confirm that you want to send a " + options.com + " command to the ",
-                self.groupControl().length + " selected agents by pressing OK."].join('\n');
+        var confirmString = ["Send a " + options.com.toUpperCase()  + " command to ",
+                self.groupControl().length + " host(s) by confirming your password:"].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
-        if (!options.confirm || confirm(confirmString)) {
-            ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
-                var dict = {
-                    "componentId": applicationState.componentId,
-                    "configurationPath": applicationState.configurationPath,
-                    "applicationHost": applicationState.applicationHost,
-                    "command": options.com,
-                    "argument": options.arg,
-                    "user": self.login.elements.username()
-                };
+        self.warningMsg(confirmString);
+        self.buttonLabel("Send " + options.com.toUpperCase() + " command");
+        self.options = options;
 
-                if (applicationState.isHostEmpty()) {
-                    alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
-                }
-                else {
-                    $.post("/api/agent/", dict).fail(function(data) {
-                        alert( "Error Posting Group Control " + JSON.stringify(data));
-                    });
-                }
-            });
-        }
+        $('#groupCheckModal').modal('show');
     };
+
+    self.checkEnter = function (d, e){    
+        if (e.which == 13){
+                //self.submitAction();
+                //console.log("handler called");
+                $('#Gsend').trigger('click');
+                return false;
+        }
+        return true;
+    };
+
 
     //Checks if all groupControl services are down. Used in self.executeDepRestart
     var interval = 0;
@@ -88,18 +157,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         } else {
             self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false});
             return;
-        }
-    }
-
-    self.executeDepRestart = function (com) {
-        var confirmString = ["Please confirm that you want to send a " + com + " command to the ",
-                self.groupControl().length + " selected agents by pressing OK."].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
-
-        if (confirm(confirmString)) {
-            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false});
-            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false});
-            self.checkDown();
         }
     }
 

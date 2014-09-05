@@ -23,13 +23,14 @@ class LoginHandler(tornado.web.RequestHandler):
     #@tornado.gen.coroutine
     @TimeThis(__file__)
     def post(self):
-        request = json.loads(self.request.body)  # or '{"login": {}}'
-
         try:
+            request = json.loads(self.request.body)  # or '{"login": {}}'
             user = request['username']
             password = request['password']
 
-            logging.info(user + ' ' + password)
+            ####REMOVE####
+            #logging.info(user + ' ' + password)
+            ##############
 
             # User, password combination Case 1 of 4
             if not user and not password:
@@ -42,7 +43,7 @@ class LoginHandler(tornado.web.RequestHandler):
             # Case 2 of 4 and 3 of 4
             elif not user or not password:
                 logging.info('No username or no password set.')
-                self.write(json.dumps({'errorText': "No username or no password: you have been logged out."}))
+                self.write(json.dumps({'errorText': "No username or no password: try again."}))
                 self.set_status(httplib.UNAUTHORIZED)
 
             # Case 4 of 4
@@ -76,6 +77,7 @@ class LoginHandler(tornado.web.RequestHandler):
                 if can_read_write:
                     self.set_cookie("read_write", user)
                 self.write(json.dumps({'message': "Login successful"}))
+                logging.info('successful login')
 
         except ldap.INVALID_CREDENTIALS:
             self.set_status(httplib.UNAUTHORIZED)
@@ -93,7 +95,7 @@ class LoginHandler(tornado.web.RequestHandler):
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write(json.dumps({'errorText': e.message['desc'] }))
-            logging.info(json.dumps({'errorText': e.message['desc'] }))
+            logging.info(e)
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
