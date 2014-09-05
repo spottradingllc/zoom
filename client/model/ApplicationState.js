@@ -272,16 +272,6 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
-    self.envColor = ko.computed(function(){
-        if (parent.environment.toLowerCase() === "staging")
-            return "#FFDA47";
-        else if (parent.environment.toLowerCase() == "uat")
-            return "#0066FF";
-        else if (parent.environment.toLowerCase() == "production")
-            return "#FF1919";
-        else console.assert(true);
-    });
-
 
     self.passwordConfirm = ko.observable("");
     

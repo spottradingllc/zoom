@@ -39,6 +39,16 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
     };
 
+    self.envColor = ko.computed(function(){
+        if (self.environment.toLowerCase() === "staging")
+            return "#FFDA47";
+        else if (self.environment.toLowerCase() == "uat")
+            return "#0066FF";
+        else if (self.environment.toLowerCase() == "production")
+            return "#FF1919";
+        else console.assert(true);
+    });
+
     self.passwordConfirm = ko.observable("");
     
     self.options = "";
@@ -123,7 +133,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.groupControlDialog = function (options) {
         //options.com: command
         //options.arg: command argument
-        if (options == undefined) options = {};
+        if (options == undefined) options = {'com': 'dep_restart'};
         var confirmString = ["Send a " + options.com.toUpperCase()  + " command to ",
                 self.groupControl().length + " host(s) by confirming your password:"].join('\n');
         confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");

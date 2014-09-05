@@ -26,7 +26,7 @@
     <div data-bind="foreach: applicationState.filteredItems">
         <div id="passwordCheckModal" class="modal big-modal-class fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content" data-bind="style: {backgroundColor: envColor}">
+                <div class="modal-content" data-bind="style: {backgroundColor: applicationState.envColor}">
                     <div class="modal-header">
                         <h2 class="modal-title">WARNING</h2>
                     </div>
@@ -48,10 +48,10 @@
     <div id="groupCheckModal" class="modal big-modal-class fade" tabindex="-1" role="dialog" 
         aria-hidden="true", data-bind="with:applicationState">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content"data-bind="style: {backgroundColor: envColor}">
                 <div class="modal-body big-modal-body">
                     <div class="modal-header">
-                        <h2 class="modal-title">WARNING</h2>
+                        <h2 class="modal-title" data-bind="value: environment"></h2>
                     </div>
                     <div class="modal-body big-modal-body">
                         <span data-bind="text: warningMsg"> </span>
