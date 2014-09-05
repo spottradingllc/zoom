@@ -23,7 +23,32 @@ fi
 
 source ${VENV_DIR}/bin/activate || exit 1
 
-for PACKAGE in python-ldap-2.4.10.tar.gz \
+linux_version=`awk 'NR==1{print $(NF-1)}' /etc/issue`
+
+if [ $(echo "$linux_version < 6" | bc) -eq 1 ]
+then
+    echo 'Linux version less than 6'
+
+    for PACKAGE in tornado-3.1.1.tar.gz \
+            kazoo-1.3.1dev.tar.gz \
+            setproctitle-1.1.8.tar.gz \
+            requests-2.2.1.tar.gz \
+            nose-1.3.0.tar.gz \
+            mox-0.5.3.tar.gz \
+            coverage-3.6.tar.gz \
+            psutil-1.2.1.tar.gz \
+            zope.interface-4.0.5.tar.gz
+    do
+        FULLPATH=${PY_3RDPARTY}/${PACKAGE}
+        /bin/echo "## Installing ${FULLPATH} ##";
+        easy_install ${FULLPATH} || exit 2;
+        /bin/echo "## Done with $PACKAGE ##";
+    done
+
+else
+    echo 'Linux version equal or greater than 6'
+
+    for PACKAGE in python-ldap-2.4.10.tar.gz \
             tornado-3.1.1.tar.gz \
             kazoo-1.3.1dev.tar.gz \
             setproctitle-1.1.8.tar.gz \
@@ -35,9 +60,11 @@ for PACKAGE in python-ldap-2.4.10.tar.gz \
             psutil-1.2.1.tar.gz \
             zope.interface-4.0.5.tar.gz
 
-do
-    FULLPATH=${PY_3RDPARTY}/${PACKAGE}
-	/bin/echo "## Installing ${FULLPATH} ##";
-    easy_install ${FULLPATH} || exit 2;
-	/bin/echo "## Done with $PACKAGE ##";
-done
+    do
+        FULLPATH=${PY_3RDPARTY}/${PACKAGE}
+        /bin/echo "## Installing ${FULLPATH} ##";
+        easy_install ${FULLPATH} || exit 2;
+        /bin/echo "## Done with $PACKAGE ##";
+    done
+
+fi
