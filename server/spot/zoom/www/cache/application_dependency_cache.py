@@ -60,7 +60,7 @@ class ApplicationDependencyCache(object):
         logging.info("Application dependency cache loaded from ZooKeeper {0}"
                      .format(self._configuration.agent_configuration_path))
 
-        self._time_estimate_cache.update_appplication_deps(
+        self._time_estimate_cache.update_dependencies(
             self._cache.application_dependencies)
 
     def _walk(self, path, result_dict):
@@ -157,7 +157,7 @@ class ApplicationDependencyCache(object):
 
             self._message_throttle.add_message(message)
 
-            self._time_estimate_cache.update_appplication_deps(
+            self._time_estimate_cache.update_dependencies(
                 self._cache.application_dependencies)
 
         except Exception:

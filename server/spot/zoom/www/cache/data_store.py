@@ -36,15 +36,15 @@ class DataStore(object):
 
     def start(self):
         self._global_cache.start()
-        self._time_estimate_cache.start()
         self._application_state_cache.start()
         self._application_dependency_cache.start()
+        self._time_estimate_cache.start()
 
     def stop(self):
         self._global_cache.stop()
-        self._time_estimate_cache.stop()
         self._application_state_cache.stop()
         self._application_dependency_cache.stop()
+        self._time_estimate_cache.stop()
 
     def load_application_state_cache(self):
         """
@@ -54,19 +54,19 @@ class DataStore(object):
 
     def load_application_dependency_cache(self):
         """
-        :rtype: dict
+        :rtype: zoom.messages.global_mode_message.ApplicationDependenciesMessage
         """
         return self._application_dependency_cache.load()
 
     def load_time_estimate_cache(self):
         """
-        :rtype: dict
+        :rtype: zoom.messages.global_mode_message.TimeEstimateMessage
         """
         return self._time_estimate_cache.load()
 
     def get_global_mode(self):
         """
-        :rtype: from zoom.messages.global_mode_message.GlobalModeMessage
+        :rtype: zoom.messages.global_mode_message.GlobalModeMessage
         """
         return self._global_cache.get_mode()
 
@@ -87,9 +87,9 @@ class DataStore(object):
         Clear all cache objects and send reloaded data as updates.
         """
         self._global_cache.on_update()
-        self._time_estimate_cache.load()
         self._application_state_cache.load()
         self._application_dependency_cache.load()
+        self._time_estimate_cache.load()
         return {'cache_load': 'okay'}
 
     @property
