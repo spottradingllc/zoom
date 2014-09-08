@@ -24,15 +24,15 @@
 
     <!--foreach only to access the applicationStates array class-->
     <div data-bind="foreach: applicationState.filteredItems">
-        <div id="passwordCheckModal" class="modal big-modal-class fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+        <div id="passwordCheckModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
                 <div class="modal-content" data-bind="style: {backgroundColor: applicationState.envColor}">
                     <div class="modal-header">
                         <h2 data-bind="text: applicationState.environment"></h2>
                         <h4> Please re-enter your domain password to proceed </h4>
                     </div>
-                    <div class="modal-body big-modal-body">
-                        <table class="table">
+                    <div class="modal-body">
+                        <table class="table table-bordered">
                             <tr>
                                 <td>Application Name </td>
                                 <td>Hostname </td>
@@ -42,13 +42,23 @@
                                 <td data-bind="text: applicationHost()"></td>
                             </tr>
                         </table>
-                        <input type="password" class="form-control" name="password" 
-                            data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"/>
                     </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
-                        <button type="button" class="btn btn-danger" id="send" data-bind="click: submitAction, text:buttonLabel"></button>
+                        <form class="container-fluid">
+                            <div class="row" >
+                                <div class="col-md-6" >
+                                    <label class="sr-only" for="passwordField">Password</label>
+                                    <input type="password" id="passwordField" class="form-control" name="password" placeholder="Password"
+                                        data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"
+                                        rel="popover" data-content="Incorrect Password" data-placement="bottom"/>
+                                </div>
+                                <div >
+                                    <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
+                                    <button type="button" class="btn btn-danger" id="send" 
+                                        data-bind="click: submitAction, text:buttonLabel"></button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

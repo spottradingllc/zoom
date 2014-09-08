@@ -311,7 +311,8 @@ return function ApplicationState (ko, data, parent) {
     self.disallowAction = function(data) {
         console.log(JSON.stringify(data));
         self.passwordConfirm("");
-        alert("The credentials entered are incorrect");
+        $('#passwordField').popover('show');
+        //alert("The credentials entered are incorrect");
     };
 
     self.submitAction = function() {
@@ -353,6 +354,7 @@ return function ApplicationState (ko, data, parent) {
         self.buttonLabel("Send " + options.com.toUpperCase() + " command");
         self.options = options;
 
+        $('#passwordField').popover('destroy');
         $('#passwordCheckModal').modal('show');
         
     };
