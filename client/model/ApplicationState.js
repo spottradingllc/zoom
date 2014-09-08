@@ -155,7 +155,7 @@ return function ApplicationState (ko, data, parent) {
     self.graphiteBufferErrorsURL = function(){
         var url = self.graphiteBaseURL();
         url = url + "&target="+self.applicationHost() + '.tcpinfo.udperrs';
-        url = url + "&target="+self.applicationHost() + '.nicinfo.*.*';
+        url = url + "&target="+self.applicationHost() + '.nicinfo.*.rx_hardware_errors';
         url = url + '&title='+self.applicationHost() + "'s Buffer Errors";
         url = url + "&vtitle= Errors";
         return encodeURI(url);
