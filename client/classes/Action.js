@@ -96,7 +96,6 @@ return function Action(parent) {
         self.staggerpath(node.getAttribute('staggerpath'));
         self.staggertime(node.getAttribute('staggertime'));
         self.mode_controlled(node.getAttribute('mode_controlled'));
-        console.log('mode controlled=' + self.mode_controlled());
 
         var dependency = node.getElementsByTagName('Dependency')[0];
         if(dependency != null){
