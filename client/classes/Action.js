@@ -6,6 +6,7 @@ return function Action(parent) {
     self.ID = ko.observable(null);
     self.staggerpath = ko.observable(null);
     self.staggertime = ko.observable(null);
+    self.mode_controlled = ko.observable(null);
     self.predicates = ko.observableArray();
 
     self.error = ko.computed(function(){
@@ -59,18 +60,24 @@ return function Action(parent) {
         return valid;
     };
 
+    var checkNull = function(param) {
+        return (param != null && param != "")
+    };
+
     self.createActionXML = function() {
         var XML = '<Action ';
         XML = XML.concat('id="'+self.ID()+'" ');
 
-        if(self.staggerpath() != null && self.staggerpath() != ""){
+        if(checkNull(self.staggerpath())){
             XML = XML.concat('staggerpath="'+self.staggerpath()+'" ');
         }
-        if(self.staggertime() != null && self.staggertime() != ""){
+        if(checkNull(self.staggertime())){
             XML = XML.concat('staggertime="'+self.staggertime()+'" ');
         }
+        if(checkNull(self.mode_controlled())){
+            XML = XML.concat('mode_controlled="'+self.mode_controlled()+'" ');
+        }
 
-        XML = XML.concat('mode_controlled="True"'); // fix this
         XML = XML.concat('><Dependency>');
 
         // create XML for predicates
@@ -88,6 +95,8 @@ return function Action(parent) {
         self.ID(node.getAttribute('id'));
         self.staggerpath(node.getAttribute('staggerpath'));
         self.staggertime(node.getAttribute('staggertime'));
+        self.mode_controlled(node.getAttribute('mode_controlled'));
+        console.log('mode controlled=' + self.mode_controlled());
 
         var dependency = node.getElementsByTagName('Dependency')[0];
         if(dependency != null){
