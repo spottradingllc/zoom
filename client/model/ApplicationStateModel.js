@@ -38,29 +38,31 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return !(self.headers[index].title == 'Delete' && !self.admin.enabled());
 
     };
-
+   
+    // Changes modal header to reflect current environment
     self.envColor = ko.computed(function(){
         if (self.environment.toLowerCase() === "staging")
             return "#FFDA47";
-        else if (self.environment.toLowerCase() == "uat")
-            return "#0066FF";
-        else if (self.environment.toLowerCase() == "production")
-            return "#FF1919";
-        else console.assert(true);
+        else if (self.environment.toLowerCase() === "uat")
+            return "#3399FF";
+        else if (self.environment.toLowerCase() === "production")
+            return "#E64016";
+        else console.assert(false);
     });
 
     self.passwordConfirm = ko.observable("");
     
     self.options = "";
-
-    self.executeGroupControl = function(){
+    
+    // Takes in 'options' as an argument and actually sends a command to the server
+    self.executeGroupControl = function(options){
         ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
             var dict = {
                 "componentId": applicationState.componentId,
                 "configurationPath": applicationState.configurationPath,
                 "applicationHost": applicationState.applicationHost,
-                "command": self.options.com,
-                "argument": self.options.arg,
+                "command": options.com,
+                "argument": options.arg,
                 "user": self.login.elements.username()
              };
 
@@ -68,29 +70,26 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
             }
             else {
-                //alert("would normally post here");
-                //move to success...
-                
-                
                 $.post("/api/agent/", dict).fail(function(data) {
                     alert( "Error Posting Group Control " + JSON.stringify(data));
                 });
-                
             }
         });
 
-        if (self.options.clear_group){
+        if (options.clear_group){
             self.clearGroupControl();
         }
         
+        // Clears modal dialog password entry field
         self.passwordConfirm("");
-    }
+    };
 
-
+    // Replaces dep_restart by checking self.options. Will also call every other command by passing
+    // through self.options to executeGroupControl
     self.determineAndExecute = function() {
         if (self.options.com === 'dep_restart'){
-            self.executeGroupControl({'com':'ignore', 'arg':false, 'confirm':false, 'clear_group':false});
-            self.executeGroupControl({'com':'stop', 'arg': false, 'confirm':false, 'clear_group':false});
+            self.executeGroupControl({'com':'ignore', 'arg':false, 'clear_group':false});
+            self.executeGroupControl({'com':'stop', 'arg': false, 'clear_group':false});
             self.checkDown();
         }
         else {
@@ -101,20 +100,17 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     };
 
     self.disallowAction = function() {
-        //no data anymore...
-        //console.log(JSON.stringify();
         self.passwordConfirm("");
-        alert("The credentials entered are incorrect");
+        $('#passwordFieldG').popover('show');
     };
 
+    // Re-checks password and provides success and failure functions to $.post
     self.submitAction = function() {
-
-        console.assert('undefined' != typeof login.elements.username());
-        console.assert('undefined' != typeof self.passwordConfirm());
+        // client-side blank password check
+        if ("" ===  self.passwordConfirm()){
+            return self.disallowAction();
+        }
         
-        //client-side check for blank usernames/passwords
-        //if (passwd == "" || usernm == "")
-
         var params = {
             username: parent.login.elements.username(),
             password: self.passwordConfirm()
@@ -123,10 +119,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return $.post("/login", JSON.stringify(params), self.determineAndExecute).fail(self.disallowAction);
     };
 
-    self.warningMsg = ko.observable("");
-
     self.buttonLabel = ko.observable("");   
     
+    self.appName = function(path) {
+        return path.match(/([^\/]*)\/*$/)[1];
+    };
+
     //    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
     
@@ -134,21 +132,17 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         //options.com: command
         //options.arg: command argument
         if (options == undefined) options = {'com': 'dep_restart'};
-        var confirmString = ["Send a " + options.com.toUpperCase()  + " command to ",
-                self.groupControl().length + " host(s) by confirming your password:"].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
 
-        self.warningMsg(confirmString);
         self.buttonLabel("Send " + options.com.toUpperCase() + " command");
         self.options = options;
-
+        
+        $('#passwordFieldG').popover('destroy');
         $('#groupCheckModal').modal('show');
     };
 
+
     self.checkEnter = function (d, e){    
         if (e.which == 13){
-                //self.submitAction();
-                //console.log("handler called");
                 $('#Gsend').trigger('click');
                 return false;
         }
@@ -156,7 +150,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     };
 
 
-    //Checks if all groupControl services are down. Used in self.executeDepRestart
+    // Checks if all groupControl services are down. Used in self.determineAndExecute
     var interval = 0;
     self.checkDown = function (){
         clearInterval(interval);
@@ -166,7 +160,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         if (alldown) {
             interval = setInterval(self.checkDown, 5000);
         } else {
-            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'confirm':false, 'clear_group':true});
+            self.executeGroupControl({'com':'dep_restart', 'arg': false, 'clear_group':true});
         }
     };
 

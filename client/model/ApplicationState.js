@@ -272,7 +272,6 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
-
     self.passwordConfirm = ko.observable("");
     
     self.options = "";
@@ -287,19 +286,8 @@ return function ApplicationState (ko, data, parent) {
                     "user": parent.login.elements.username()
                 };
                 $.post("/api/agent/", dict, function() {
-                    $('#passwordCheckModal').modal('hide');
-                    
-                    //not really necessary - can tell command was sent
-                    //var callbacks = $.Callbacks()               
-                    
-                    /*$('#passwordCheckModal').on('hidden.bs.modal', function () {
-                        var confModal = $('#cmdSuccess').modal('show');
-                        setTimeout(function() {confModal.modal('hide'); }, 1000);
-                        //alert(self.options.com + " command sent successfully.");     
-                    });
-                    */
-                   
-                })    
+                    $('#passwordCheckModal').modal('hide');                
+                    })    
                     .fail(function(data) {
                         alert( "Error Posting ControlAgent " + JSON.stringify(data));
                     });
@@ -309,20 +297,17 @@ return function ApplicationState (ko, data, parent) {
     };
 
     self.disallowAction = function(data) {
-        console.log(JSON.stringify(data));
         self.passwordConfirm("");
         $('#passwordField').popover('show');
-        //alert("The credentials entered are incorrect");
     };
 
+    // Re-checks password and provides success and failure functions to $.post
     self.submitAction = function() {
-
-        console.assert('undefined' != typeof login.elements.username());
-        console.assert('undefined' != typeof self.passwordConfirm());
-        
-        //client-side check for blank usernames/passwords
-        //if (passwd == "" || usernm == "")
-
+        // client-side blank password check
+        if ("" ===  self.passwordConfirm()){
+            return self.disallowAction();
+        }
+ 
         var params = {
             username: parent.login.elements.username(),
             password: self.passwordConfirm()
@@ -330,8 +315,6 @@ return function ApplicationState (ko, data, parent) {
         
         return $.post("/login", JSON.stringify(params), self.allowAction).fail(self.disallowAction);
     };
-
-    self.warningMsg = ko.observable("");
 
     self.buttonLabel = ko.observable("");
 
@@ -344,13 +327,7 @@ return function ApplicationState (ko, data, parent) {
     self.controlAgent = function (options) {
         //options.com: command
         //options.arg: command argument
-        //option.no_confirm: confirm bool
-        var confirmString = ["Send a " + options.com.toUpperCase() + " command to ",
-                self.configurationPath + " on " + self.applicationHost() + " by confirming your",
-                " password:"].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
         
-        self.warningMsg(confirmString);
         self.buttonLabel("Send " + options.com.toUpperCase() + " command");
         self.options = options;
 
@@ -359,22 +336,14 @@ return function ApplicationState (ko, data, parent) {
         
     };
 
-
-    //$(document).ready(function(){
-    //$('#passwordCheckModal').keydown(function(event) {
-            
     self.checkEnter = function (d, e){    
         if (e.which == 13){
-                //self.submitAction();
-                //console.log("handler called");
                 $('#send').trigger('click');
                 return false;
         }
         return true;
     };
 
-    
-    
     self.onControlAgentError = function () {
         alert("Error controlling agent.");
     };
