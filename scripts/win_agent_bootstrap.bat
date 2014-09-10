@@ -28,6 +28,7 @@ call:pythonInstall backports
 call:pythonInstall wmi
 call:pythonInstall tornado
 call:pythonInstall kazoo
+call:pythonInstall requests
 
 REM Do Xcopy Installs
 call:xcopyInstall psutil
