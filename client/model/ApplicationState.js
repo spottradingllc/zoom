@@ -76,7 +76,7 @@ return function ApplicationState (ko, data, parent) {
     });
 
     self.graphiteApplicationURL = function(){
-        var url = "http://haproxy" + parent.environment.toLowerCase() + "/render?";
+        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
         var appName = self.configurationPath.replace("/spot/software/state/", "");
         var dotname = appName.replace(/\//g, ".");
         url = url + "target=alias(secondYAxis(Infrastructure.startup." + dotname + '.result), "Last Exit Code")';
@@ -110,7 +110,7 @@ return function ApplicationState (ko, data, parent) {
 
     self.graphiteBaseURL = function(){
         //http://graphite.readthedocs.org/en/latest/render_api.html
-        var url = "http://haproxy" + parent.environment.toLowerCase() + "/render?";
+        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
         url = url + "&from=-7d";
         url = url + "&width=850";
         url = url + "&height=500";

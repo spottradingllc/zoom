@@ -38,7 +38,7 @@ AutoReqProv: no
 # the last define, debug package should be left alone, unless you're looking to use debug packages.
 %define DATE  %(date "+ %a %b %d %Y")
 %define USER  svc.python
-%define GROUP "domain users"
+%define GROUP "domain\ users"
 %define EMAIL serviceregistration@spottrading.com
 %define SYMLNK "/opt/spot/zoom"
 %define SNAME "%{name}-%{version}"
