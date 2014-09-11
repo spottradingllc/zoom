@@ -16,8 +16,24 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
+    self.passwordConfirm = ko.observable("");
+    self.options = {};
+    self.buttonLabel = ko.observable("");   
 
     var operationTypes = {add: "add", remove: "remove"};
+
+    var envColor = {
+        staging: '#FFDA47',
+        uat: '#3399FF',
+        production: '#E64016',
+        unknown: '#FF33CC'
+    };
+
+    var env = {
+        stg: 'staging',
+        uat: 'uat',
+        prod: 'production'
+    };
 
     self.headers = [
         {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
@@ -39,21 +55,24 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
     };
    
-    // Changes modal header to reflect current environment
-    self.envColor = ko.computed(function(){
-        if (self.environment.toLowerCase() === "staging")
-            return "#FFDA47";
-        else if (self.environment.toLowerCase() === "uat")
-            return "#3399FF";
-        else if (self.environment.toLowerCase() === "production")
-            return "#E64016";
-        else console.assert(false);
+    // Changes modal header color to reflect current environment
+    self.envModalColor = ko.computed(function(){
+        switch(self.environment.toLowerCase()){
+            case env.stg:
+                return envColor.staging;
+                break;
+            case env.uat:
+                return envColor.uat;
+                break;
+            case env.prod:
+                return envColor.production;
+                break;
+            default:
+                return envColor.unknown;
+                break;
+        }
     });
-
-    self.passwordConfirm = ko.observable("");
-    
-    self.options = "";
-    
+        
     // Takes in 'options' as an argument and actually sends a command to the server
     self.executeGroupControl = function(options){
         ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
@@ -118,8 +137,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         
         return $.post("/login", JSON.stringify(params), self.determineAndExecute).fail(self.disallowAction);
     };
-
-    self.buttonLabel = ko.observable("");   
     
     self.appName = function(path) {
         return path.match(/([^\/]*)\/*$/)[1];

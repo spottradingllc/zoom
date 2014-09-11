@@ -34,6 +34,9 @@ return function ApplicationState (ko, data, parent) {
     self.errorState = ko.observable(data.error_state);
     self.mode = ko.observable(data.local_mode);
     self.mtime = Date.now();   
+    self.passwordConfirm = ko.observable("");    
+    self.options = {};
+    self.buttonLabel = ko.observable("");
 
     self.applicationStatusClass = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -272,10 +275,6 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
-    self.passwordConfirm = ko.observable("");
-    
-    self.options = "";
-
     self.allowAction = function(data) {
         if (!self.isHostEmpty()) {
                 var dict = {
@@ -315,8 +314,6 @@ return function ApplicationState (ko, data, parent) {
         
         return $.post("/login", JSON.stringify(params), self.allowAction).fail(self.disallowAction);
     };
-
-    self.buttonLabel = ko.observable("");
 
     self.appName = function() {
         var copy = self.configurationPath;
