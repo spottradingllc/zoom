@@ -33,7 +33,10 @@ return function ApplicationState (ko, data, parent) {
     self.startTime = ko.observable(data.start_time);
     self.errorState = ko.observable(data.error_state);
     self.mode = ko.observable(data.local_mode);
-    self.mtime = Date.now();
+    self.mtime = Date.now();   
+    self.passwordConfirm = ko.observable("");    
+    self.options = {};
+    self.buttonLabel = ko.observable("");
 
     self.applicationStatusClass = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -95,16 +98,17 @@ return function ApplicationState (ko, data, parent) {
     };
 
     self.modalShow = function(urls){
-        $('.big-modal-body').empty();
+        $('#graphiteBody').empty();
 
         for(i=0; i< urls.length; ++i){
             var url = urls[i];
             //console.log("getting "+ url);
             var html = '<img style="-webkit-user-select: none" src="'+url+'"/>';
-            $('.big-modal-body').append($.parseHTML(html));
+            $('#graphiteBody').append($.parseHTML(html));
         }
 
-        $('.big-modal-class').modal('show');
+        $('#graphiteModal').modal('show');
+        //$('.big-modal-class').modal('show');
     };
 
     self.graphiteBaseURL = function(){
@@ -246,6 +250,7 @@ return function ApplicationState (ko, data, parent) {
         });
     };
 
+
     self.getInfo = ko.computed(function() {
         if (self.showInfo()) {
             var dict = {configurationPath : self.configurationPath};
@@ -270,28 +275,70 @@ return function ApplicationState (ko, data, parent) {
         }
     };
 
-    self.controlAgent = function (options) {
-        //options.com: command
-        //options.arg: command argument
-        //option.no_confirm: confirm bool
-        var confirmString = ["Please confirm that you want to send a " + options.com + " command to ",
-                self.configurationPath + " on " + self.applicationHost() + " by pressing OK."].join('\n');
-        confirmString = confirmString.replace(/(\r\n|\n|\r)/gm, "");
-
+    self.allowAction = function(data) {
         if (!self.isHostEmpty()) {
-            if (!options.confirm || confirm(confirmString)) {
                 var dict = {
                     "componentId": self.componentId,
                     "applicationHost": self.applicationHost(),
-                    "command": options.com,
-                    "argument": options.arg,
+                    "command": self.options.com,
+                    "argument": self.options.arg,
                     "user": parent.login.elements.username()
                 };
-                $.post("/api/agent/", dict).fail(function(data) {
-                    alert( "Error Posting ControlAgent " + JSON.stringify(data));
-                });
-            }
+                $.post("/api/agent/", dict, function() {
+                    $('#passwordCheckModal').modal('hide');                
+                    })    
+                    .fail(function(data) {
+                        alert( "Error Posting ControlAgent " + JSON.stringify(data));
+                    });
         }
+        self.passwordConfirm("");
+    
+    };
+
+    self.disallowAction = function(data) {
+        self.passwordConfirm("");
+        $('#passwordField').popover('show');
+    };
+
+    // Re-checks password and provides success and failure functions to $.post
+    self.submitAction = function() {
+        // client-side blank password check
+        if ("" ===  self.passwordConfirm()){
+            return self.disallowAction();
+        }
+ 
+        var params = {
+            username: parent.login.elements.username(),
+            password: self.passwordConfirm()
+        };
+        
+        return $.post("/login", JSON.stringify(params), self.allowAction).fail(self.disallowAction);
+    };
+
+    self.appName = function() {
+        var copy = self.configurationPath;
+        copy = copy.match(/([^\/]*)\/*$/)[1];
+        return copy;
+    };
+
+    self.controlAgent = function (options) {
+        //options.com: command
+        //options.arg: command argument
+        
+        self.buttonLabel("Send " + options.com.toUpperCase() + " command");
+        self.options = options;
+
+        $('#passwordField').popover('destroy');
+        $('#passwordCheckModal').modal('show');
+        
+    };
+
+    self.checkEnter = function (d, e){    
+        if (e.which == 13){
+                $('#send').trigger('click');
+                return false;
+        }
+        return true;
     };
 
     self.onControlAgentError = function () {
