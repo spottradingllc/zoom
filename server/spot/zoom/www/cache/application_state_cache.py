@@ -14,10 +14,11 @@ class ApplicationStateCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
                  time_estimate_cache):
         """
-        :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
+        :type configuration: spot.zoom.config.configuration.Configuration
+        :type zoo_keeper: spot.zoom.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
+        self._path_to_host_mapping = dict()
         self._configuration = configuration
         self._cache = ApplicationStatesMessage()
         self._cache.set_environment(self._configuration.environment)
@@ -113,13 +114,25 @@ class ApplicationStateCache(object):
         if stat.ephemeralOwner == 0:
             # watch node to see if children are created
             self._zoo_keeper.get_children(path, watch=self._on_update)
+            host = data.get('host', None)
+            agent_path = os.path.join(self._configuration.agent_state_path,
+                                      host)
 
+            # if the agent is down, update state and mode with unknown
+            if (host is None or 
+                    not self._zoo_keeper.exists(
+                            agent_path,
+                            watch=self._on_agent_state_update)):
+                data['state'] = 'unknown'
+                data['mode'] = 'unknown'
+            else:
+                self._path_to_host_mapping[host] = path
 
             application_state = ApplicationState(
                 application_name=data.get('name', os.path.basename(path)),
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
-                application_host=data.get('host', None),
+                application_host=host,
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown')
             )
@@ -133,6 +146,8 @@ class ApplicationStateCache(object):
             host = os.path.basename(path)
             config_path = os.path.dirname(path)
             parent_data, parent_stat = self._get_app_details(config_path)
+
+            self._path_to_host_mapping[host] = config_path
 
             application_state = ApplicationState(
                 application_name=data.get('name',
@@ -170,3 +185,13 @@ class ApplicationStateCache(object):
 
         except Exception:
             logging.exception('An unhandled Exception has occurred')
+
+    def _on_agent_state_update(self, event):
+        """
+        This is to capture when an agent goes down.
+        :type event: kazoo.protocol.states.WatchedEvent
+        """
+        host = os.path.basename(event.path)
+        path = self._path_to_host_mapping.get(host, None)
+        if path is not None:  # if data is in the cache
+            self._on_update_path(path)
