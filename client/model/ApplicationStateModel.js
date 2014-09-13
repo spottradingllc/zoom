@@ -19,6 +19,9 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.passwordConfirm = ko.observable("");
     self.options = {};
     self.buttonLabel = ko.observable("");   
+    self.groupMode = ko.observable(false);
+    self.clickedApp = ko.observable({});
+
 
     var operationTypes = {add: "add", remove: "remove"};
 
@@ -72,6 +75,38 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 break;
         }
     });
+    
+    // control agent
+    self.isHostEmpty = function () {
+        if (self.clickedApp.applicationHost == "") {
+            alert("Cannot control an agent with an empty host.");
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
+
+    self.executeSingleControl = function(options) {
+        if (!self.isHostEmpty()) {
+                var dict = {
+                    "componentId": self.clickedApp().componentId,
+                    "applicationHost": self.clickedApp().applicationHost,
+                    "command": options.com,
+                    "argument": options.arg,
+                    "user": parent.login.elements.username()
+                };
+                $.post("/api/agent/", dict, function() {
+                    $('#groupCheckModal').modal('hide');                
+                    })    
+                    .fail(function(data) {
+                        alert( "Error Posting ControlAgent " + JSON.stringify(data));
+                    });
+        }
+        self.passwordConfirm("");
+    
+    };
         
     // Takes in 'options' as an argument and actually sends a command to the server
     self.executeGroupControl = function(options){
@@ -85,7 +120,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 "user": self.login.elements.username()
              };
 
-            if (applicationState.isHostEmpty()) {
+            if (self.isHostEmpty()) {
                 alert("Skipping the agent with configuration path " + application.configurationPath + ": empty host.");
             }
             else {
@@ -106,14 +141,17 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     // Replaces dep_restart by checking self.options. Will also call every other command by passing
     // through self.options to executeGroupControl
     self.determineAndExecute = function() {
-        if (self.options.com === 'dep_restart'){
-            self.executeGroupControl({'com':'ignore', 'arg':false, 'clear_group':false});
-            self.executeGroupControl({'com':'stop', 'arg': false, 'clear_group':false});
-            self.checkDown();
+        if (self.groupMode()){
+            if (self.options.com === 'dep_restart'){
+                self.executeGroupControl({'com':'ignore', 'arg':false, 'clear_group':false});
+                self.executeGroupControl({'com':'stop', 'arg': false, 'clear_group':false});
+                self.checkDown();
+            }
+            else {
+                self.executeGroupControl(self.options);
+            }
         }
-        else {
-            self.executeGroupControl(self.options);
-        }
+        else self.executeSingleControl(self.options);
 
         $('#groupCheckModal').modal('hide');
     };
@@ -138,17 +176,30 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return $.post("/login", JSON.stringify(params), self.determineAndExecute).fail(self.disallowAction);
     };
     
-    self.appName = function(path) {
+    self.parseAppName = function(path) {
+        if (typeof path === "undefined"){
+            console.log("undefined");
+            return;
+        }
+        console.log(path.match(/([^\/]*)\/*$/)[1]);
+
         return path.match(/([^\/]*)\/*$/)[1];
     };
 
     //    functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
     
-    self.groupControlDialog = function (options) {
+    self.controlAgent = function (options, clickedApp) {
         //options.com: command
         //options.arg: command argument
         if (options == undefined) options = {'com': 'dep_restart'};
+        
+        //if no provided individual, this is a group
+        if (typeof clickedApp === "undefined") self.groupMode(true);
+        else {
+            self.clickedApp(clickedApp);
+            self.groupMode(false);
+        }
 
         self.buttonLabel("Send " + options.com.toUpperCase() + " command");
         self.options = options;

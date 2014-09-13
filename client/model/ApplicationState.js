@@ -34,9 +34,6 @@ return function ApplicationState (ko, data, parent) {
     self.errorState = ko.observable(data.error_state);
     self.mode = ko.observable(data.local_mode);
     self.mtime = Date.now();   
-    self.passwordConfirm = ko.observable("");    
-    self.options = {};
-    self.buttonLabel = ko.observable("");
 
     self.applicationStatusClass = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -263,83 +260,6 @@ return function ApplicationState (ko, data, parent) {
             }
         }
     });
-
-    // control agent
-    self.isHostEmpty = function () {
-        if (self.applicationHost() == "") {
-            alert("Cannot control an agent with an empty host.");
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-
-    self.allowAction = function(data) {
-        if (!self.isHostEmpty()) {
-                var dict = {
-                    "componentId": self.componentId,
-                    "applicationHost": self.applicationHost(),
-                    "command": self.options.com,
-                    "argument": self.options.arg,
-                    "user": parent.login.elements.username()
-                };
-                $.post("/api/agent/", dict, function() {
-                    $('#passwordCheckModal').modal('hide');                
-                    })    
-                    .fail(function(data) {
-                        alert( "Error Posting ControlAgent " + JSON.stringify(data));
-                    });
-        }
-        self.passwordConfirm("");
-    
-    };
-
-    self.disallowAction = function(data) {
-        self.passwordConfirm("");
-        $('#passwordField').popover('show');
-    };
-
-    // Re-checks password and provides success and failure functions to $.post
-    self.submitAction = function() {
-        // client-side blank password check
-        if ("" ===  self.passwordConfirm()){
-            return self.disallowAction();
-        }
- 
-        var params = {
-            username: parent.login.elements.username(),
-            password: self.passwordConfirm()
-        };
-        
-        return $.post("/login", JSON.stringify(params), self.allowAction).fail(self.disallowAction);
-    };
-
-    self.appName = function() {
-        var copy = self.configurationPath;
-        copy = copy.match(/([^\/]*)\/*$/)[1];
-        return copy;
-    };
-
-    self.controlAgent = function (options) {
-        //options.com: command
-        //options.arg: command argument
-        
-        self.buttonLabel("Send " + options.com.toUpperCase() + " command");
-        self.options = options;
-
-        $('#passwordField').popover('destroy');
-        $('#passwordCheckModal').modal('show');
-        
-    };
-
-    self.checkEnter = function (d, e){    
-        if (e.which == 13){
-                $('#send').trigger('click');
-                return false;
-        }
-        return true;
-    };
 
     self.onControlAgentError = function () {
         alert("Error controlling agent.");

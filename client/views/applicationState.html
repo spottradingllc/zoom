@@ -15,47 +15,8 @@
     </div>
 
     <!--foreach only to access the applicationStates array class-->
-    <div data-bind="foreach: applicationState.filteredItems">
-        <div id="passwordCheckModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content" >
-                    <div class="modal-header" data-bind="style: {backgroundColor: applicationState.envModalColor}">
-                        <h2 data-bind="text: applicationState.environment"></h2>
-                        <h4>Please re-enter your domain password to proceed.</h4>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table table-bordered">
-                            <tr>
-                                <td>Application Name </td>
-                                <td>Hostname </td>
-                            </tr>
-                            <tr>
-                                <td data-bind="text: appName()"></td>
-                                <td data-bind="text: applicationHost()"></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <form class="container-fluid">
-                            <div class="row" >
-                                <div class="col-md-6" >
-                                    <label class="sr-only" for="passwordField">Password</label>
-                                    <input type="password" id="passwordField" class="form-control" name="password" placeholder="Password"
-                                        data-bind="value: passwordConfirm, valueUpdate: 'afterkeydown', event: {keypress: checkEnter}"
-                                        rel="popover" data-content="Incorrect Password" data-placement="bottom"/>
-                                </div>
-                                <div >
-                                    <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
-                                    <button type="button" class="btn btn-danger" id="send" 
-                                        data-bind="click: submitAction, text:buttonLabel"></button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!--<div data-bind="foreach: applicationState.filteredItems">-->
+       <!--</div>-->
 
 
     <div id="groupCheckModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
@@ -72,10 +33,16 @@
                             <td>Application Name </td>
                             <td>Hostname </td>
                         </tr>
-                        <tbody data-bind="foreach: groupControl">
+                        <tbody data-bind="foreach: groupControl, visible: groupMode()">
                             <tr>
-                                <td data-bind="text: appName(configurationPath)"></td>
+                                <td data-bind="text: $parent.parseAppName(configurationPath)"></td>
                                 <td data-bind="text: applicationHost"></td>
+                            </tr>
+                        </tbody>
+                        <tbody data-bind="visible: !groupMode()">
+                            <tr>
+                                <td data-bind="text: parseAppName(clickedApp().configurationPath)"></td>
+                                <td data-bind="text: clickedApp().applicationHost"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -240,35 +207,35 @@
             <div class="col-md-6 text-right">
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'stop', 'arg':true,'clear_group':true})}"
+                                          data-bind="click: function(){applicationState.controlAgent({'com':'stop', 'arg':true,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Stop the starred services.">
                         <span class="glyphicon glyphicon-stop"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'restart', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){applicationState.controlAgent({'com':'restart', 'arg':false,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog()}"
+                                          data-bind="click: function(){applicationState.controlAgent()}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services."> 
                         <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'ignore', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){applicationState.controlAgent({'com':'ignore', 'arg':false, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'react', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){applicationState.controlAgent({'com':'react', 'arg':false, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to react to Zookeeper changes.">React</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.groupControlDialog({'com':'cancel', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){applicationState.controlAgent({'com':'cancel', 'arg':false,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Cancel pending commands for the starred agents.">Cancel</button>
@@ -518,31 +485,41 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
-                                    <a data-bind="click: function(){controlAgent({'com':'stop', 'arg':true})}"
+                                <a data-bind="click: function()
+                                    {$parent.applicationState.controlAgent({'com':'stop', 'arg':true}, {'componentId':componentId, 
+                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Stop the agent.">Stop</a>
                                 </li>
                                 <li role="presentation">
-                                    <a data-bind="click: function(){controlAgent({'com':'restart', 'arg':false})}"
+                                <a data-bind="click: function()
+                                    {$parent.applicationState.controlAgent({'com':'restart', 'arg':false}, {'componentId':componentId,   
+                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Restart the agent.">Restart</a>
                                 </li>
                                 <li role="presentation">
-                                    <a data-bind="click: function(){controlAgent({'com':'cancel', 'arg':false})}"
+                                    <a data-bind="click: function()
+                                     {$parent.applicationState.controlAgent({'com':'cancel', 'arg':false}, {'componentId':componentId,   
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Cancel pending commands to the agent.">Cancel</a>
                                 </li>
                                 <li role="presentation">
-                                    <a data-bind="click: function(){controlAgent({'com':'ignore', 'arg':false})}"
+                                    <a data-bind="click: function()
+                                      {$parent.applicationState.controlAgent({'com':'ignore', 'arg':false}, {'componentId':componentId,   
+                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                 </li>
                                 <li role="presentation">
-                                    <a data-bind="click: function(){controlAgent({'com':'react', 'arg':false})}"
+                                    <a data-bind="click: function()
+                                     {$parent.applicationState.controlAgent({'com':'react', 'arg':false}, {'componentId':componentId,   
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Command the agent to react to Zookeeper changes.">React</a>
