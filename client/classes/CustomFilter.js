@@ -77,7 +77,7 @@ return function CustomFilter(ko, $, parent) {
 
         if (self.enabled()) {
             // check each application state for matches, perform appropriate filtering technique
-            ko.utils.arrayForEach(parent.applicationStates(), function(appState) {
+            ko.utils.arrayForEach(parent.applicaitonStateArray(), function(appState) {
 
                 if (self.parameter() == self.parameters.applicationStatus) {
                     self.applyLogicalFilter(appState.applicationStatus().toLowerCase(), appState);

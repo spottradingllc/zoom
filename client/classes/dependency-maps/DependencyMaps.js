@@ -1,5 +1,5 @@
-define(['classes/dependency-maps/clsIndentedDependencyTree',
-        'classes/dependency-maps/clsPartitionChart' ], function( IndentedDependencyTree, PartitionChart){
+define(['classes/dependency-maps/IndentedDependencyTree',
+        'classes/dependency-maps/PartitionChart' ], function( IndentedDependencyTree, PartitionChart){
 
 return function DependencyMaps(ko, $, d3, parent) {
 
@@ -7,7 +7,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 	self.parent = parent;
 	self.colors = {green : "#64FF74", yellow : "#FFE033", red : "#E85923"};
 
-	self.applicationStates = ko.computed(function()	{
+	self.applicaitonStateArray = ko.computed(function()	{
 		return self.parent.filteredItems().slice();
 	});
 
@@ -86,7 +86,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on number of requirements
-		var sortedAppStates = self.applicationStates().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicaitonStateArray().slice().sort(function(left, right) {
 								if (left.requiredBy().length == right.requiredBy().length) {
 									return 0;
 								}
@@ -119,7 +119,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on status, then whether or not their requirements are up, then alphabetically
-		var sortedAppStates = self.applicationStates().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicaitonStateArray().slice().sort(function(left, right) {
 			if (left.applicationStatus() == right.applicationStatus()) {
 				if (left.requirementsAreUp() == right.requirementsAreUp()) {
 					if (left.configurationPath < right.configurationPath) {

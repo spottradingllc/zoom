@@ -1,4 +1,4 @@
-define([ 'classes/applicationStates', ], function(ApplicationStates){
+define(['classes/applicationStateArray', 'model/graphiteModel'], function(ApplicationStateArray, GraphiteModel){
 return function ApplicationState (ko, data, parent) {
     var self = this;
 
@@ -33,7 +33,8 @@ return function ApplicationState (ko, data, parent) {
     self.startTime = ko.observable(data.start_time);
     self.errorState = ko.observable(data.error_state);
     self.mode = ko.observable(data.local_mode);
-    self.mtime = Date.now();   
+    self.mtime = Date.now();
+    self.graphite = new GraphiteModel(parent.environment.toLowerCase(), self.applicationHost(), self.configurationPath);
 
     self.applicationStatusClass = ko.computed(function () {
         if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
@@ -74,94 +75,6 @@ return function ApplicationState (ko, data, parent) {
         }
 
     });
-
-    self.graphiteApplicationURL = function(){
-        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
-        var appName = self.configurationPath.replace("/spot/software/state/", "");
-        var dotname = appName.replace(/\//g, ".");
-        url = url + "target=alias(secondYAxis(Infrastructure.startup." + dotname + '.result), "Last Exit Code")';
-        url = url + "&target=alias(Infrastructure.startup." + dotname + '.runtime, "Startup Time")';
-        url = url + "&from=-7d";
-        url = url + "&yMinRight=-2";
-        url = url + "&yMaxRight=2";
-        url = url + "&yStepRight=1";
-        url = url + "&lineMode=staircase";
-        url = url + "&width=850";
-        url = url + "&height=500";
-        url = url + "&vtitle=Startup Time (seconds)";
-        url = url + '&vtitleRight=Exit Code (0 = Success)';
-        url = url + '&title='+appName;
-        return encodeURI(url);
-    };
-
-    self.modalShow = function(urls){
-        $('#graphiteBody').empty();
-
-        for(i=0; i< urls.length; ++i){
-            var url = urls[i];
-            //console.log("getting "+ url);
-            var html = '<img style="-webkit-user-select: none" src="'+url+'"/>';
-            $('#graphiteBody').append($.parseHTML(html));
-        }
-
-        $('#graphiteModal').modal('show');
-        //$('.big-modal-class').modal('show');
-    };
-
-    self.graphiteBaseURL = function(){
-        //http://graphite.readthedocs.org/en/latest/render_api.html
-        var url = "http://graphite" + parent.environment.toLowerCase() + "/render?";
-        url = url + "&from=-7d";
-        url = url + "&width=850";
-        url = url + "&height=500";
-        return (url);
-
-    };
-    self.graphiteCPUURL = function(){
-        var url = self.graphiteBaseURL();
-        url = url + "&target=alias("+self.applicationHost() + '.cpuload.avg1,"CPU avg1 Load")';
-        url = url + "&yRight=0";
-        url = url + '&title='+self.applicationHost() + "'s CPU";
-        url = url + "&vtitle=Load";
-        return encodeURI(url);
-    };
-
-    self.graphiteMemoryURL = function(){
-        var url = self.graphiteBaseURL();
-        url = url + "&target=alias("+self.applicationHost() + '.meminfo.tot, "Total Memory")';
-        url = url + "&target=alias("+self.applicationHost() + '.meminfo.used, "Memory Usage")';
-        url = url + '&title='+self.applicationHost() + "'s Memory";
-        url = url + "&vtitle=Bytes";
-        return encodeURI(url);
-    };
-
-    self.graphiteNetworkURL = function(){
-        var url = self.graphiteBaseURL();
-        url = url + "&target="+self.applicationHost() + '.nettotals.kbin.*';
-        url = url + "&target="+self.applicationHost() + '.nettotals.kbout.*';
-        url = url + '&title='+self.applicationHost() + "'s Network Usage";
-        url = url + "&vtitle=KB sent/recieved";
-        return encodeURI(url);
-    };
-
-    self.graphiteDiskSpaceURL = function(){
-        var url = self.graphiteBaseURL();
-        url = url + "&target="+self.applicationHost() + '.diskinfo.opt.total_bytes';
-        url = url + "&target="+self.applicationHost() + '.diskinfo.opt.used_bytes';
-        url = url + '&title='+self.applicationHost() + "'s Disk Space";
-        url = url + "&vtitle= Bytes of Disk Space";
-        return encodeURI(url);
-    };
-
-    self.graphiteBufferErrorsURL = function(){
-        var url = self.graphiteBaseURL();
-        url = url + "&target="+self.applicationHost() + '.tcpinfo.udperrs';
-        url = url + "&target="+self.applicationHost() + '.nicinfo.*.*';
-        url = url + '&title='+self.applicationHost() + "'s Buffer Errors";
-        url = url + "&vtitle= Errors";
-        return encodeURI(url);
-    };
-
 
     self.errorStateClass = ko.computed(function () {
         if (self.errorState() && self.errorState().toLowerCase() == errorStates.ok) {
@@ -287,13 +200,13 @@ return function ApplicationState (ko, data, parent) {
 
             // determine predicate type and filter proper application states
             if (predType == self.predType.children) {
-                var applicationState = ko.utils.arrayFirst(ApplicationStates(), function(applicationState) {
+                var applicationState = ko.utils.arrayFirst(ApplicationStateArray(), function(applicationState) {
                     return (path == applicationState.configurationPath);
                 });
                 if (applicationState) self.requires.push(applicationState);
             }
             else if (predType == self.predType.grandchildren) {
-                ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
+                ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
                     if (applicationState.configurationPath.substring(0, path.length) == path) {
                         self.requires.push(applicationState);
                     }
@@ -323,7 +236,7 @@ return function ApplicationState (ko, data, parent) {
 
     self.requiredBy = ko.computed(function() {
         var dependencies = ko.observableArray([]);
-        ko.utils.arrayForEach(ApplicationStates(), function(applicationState) {
+        ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
             if (applicationState.requires().indexOf(self) > -1) {
                 dependencies.push(applicationState);
             }
@@ -344,7 +257,7 @@ return function ApplicationState (ko, data, parent) {
         else if(self.applicationHost() == ""){ 
             if(confirm(self.configurationPath + " has no Host listed, this delete is mostly artificial"))
             {
-                ApplicationStates.remove(self);
+                ApplicationStateArray.remove(self);
             }
         }
         else{

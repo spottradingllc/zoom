@@ -1,4 +1,4 @@
-define(['knockout', './Action', './applicationStates'],
+define(['knockout', './Action', './applicationStateArray'],
 function(ko, Action, ApplicationStates){
 return function Component(parent) {
     var self = this;

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Sentinel Log</title>
     <script type="text/javascript">
-        function fnColorLine(line) {
+        function colorLine(line) {
             if (line.indexOf("WARNING") != -1) {
                 return line.fontcolor("orange") + "<br>";
             }
@@ -21,7 +21,7 @@
     <font face="Courier New">
     {% for d in data %}
         <script type="text/javascript">
-            document.write(fnColorLine("{{ d }}"));
+            document.write(colorLine("{{ d }}"));
         </script>
     {% end %}
     </font>

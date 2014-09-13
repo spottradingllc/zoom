@@ -2,17 +2,17 @@ define(['model/ApplicationState',
         'model/environmentModel',
         'model/adminModel', 
         'model/GlobalMode',
-        'classes/applicationStates', 
-        'classes/clsCustomFilter', 
-        'classes/dependency-maps/clsDependencyMaps'],
-function(ApplicationState, Environment, admin, GlobalMode, ApplicationStates, CustomFilter, DependencyMaps){
+        'classes/applicationStateArray',
+        'classes/CustomFilter',
+        'classes/dependency-maps/DependencyMaps'],
+function(ApplicationState, Environment, admin, GlobalMode, ApplicationStateArray, CustomFilter, DependencyMaps){
 return function ApplicationStateModel(service, ko, $, login, d3) {
     var self = this;
 
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
-    self.applicationStates = ApplicationStates;
+    self.applicaitonStateArray = ApplicationStateArray;
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
@@ -178,10 +178,8 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     
     self.parseAppName = function(path) {
         if (typeof path === "undefined"){
-            console.log("undefined");
             return;
         }
-        console.log(path.match(/([^\/]*)\/*$/)[1]);
 
         return path.match(/([^\/]*)\/*$/)[1];
     };
@@ -242,7 +240,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     };
 
     self.clearGroupControl = function () {
-        ko.utils.arrayForEach(self.applicationStates(), function(applicationState) {
+        ko.utils.arrayForEach(self.applicaitonStateArray(), function(applicationState) {
             if (self.groupControl.indexOf(applicationState) > -1) {
                 self.groupControl.remove(applicationState);
             }
@@ -282,7 +280,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         };
         var sortFunc = self.activeSort().asc() ? ascSort : descSort;
 
-        self.applicationStates.sort(sortFunc);
+        self.applicaitonStateArray.sort(sortFunc);
         self.holdSortDirection(false);
     };
 
@@ -416,7 +414,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         // check for enabled custom filters, otherwise use global appStates array
         var ret;
         if (!filter && self.enabledCustomFilters().length == 0) {
-            ret = self.applicationStates();
+            ret = self.applicaitonStateArray();
         } 
         else if(self.enabledCustomFilters().length > 0) {
             ret = ko.utils.arrayFilter(self.customFilteredItems(), function(item) {
@@ -424,7 +422,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
         } else {
-            ret = ko.utils.arrayFilter(self.applicationStates(), function(item) {
+            ret = ko.utils.arrayFilter(self.applicaitonStateArray(), function(item) {
                 var re = new RegExp(filter, "i");
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
@@ -455,12 +453,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
     self.toggleAllDependencies = ko.computed(function() {
         if (self.showingAllDependencies()) {
-            ko.utils.arrayForEach(self.applicationStates(), function(appState) {
+            ko.utils.arrayForEach(self.applicaitonStateArray(), function(appState) {
                 appState.showDependencies(true);
             });
         }
         else {
-            ko.utils.arrayForEach(self.applicationStates(), function(appState) {
+            ko.utils.arrayForEach(self.applicaitonStateArray(), function(appState) {
                 appState.showDependencies(false);
             });
         }
@@ -484,12 +482,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         // Search the array for row with matching path
         
         if (update.delete) {
-            self.applicationStates.remove(function(currentRow) {
+            self.applicaitonStateArray.remove(function(currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
         }
         else{
-            var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicaitonStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -503,7 +501,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             else { 
                 // add new item to array
                 var newRow = self.createApplicationState(update);
-                self.applicationStates.push(newRow);
+                self.applicaitonStateArray.push(newRow);
             }
         }
     };
@@ -511,7 +509,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.handleApplicationDependencyUpdate = function (message) {
         $.each(message.application_dependencies, function() {
             var update = this;
-            var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicaitonStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -520,13 +518,13 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         });
     };
 
-    self.fnReloadCaches = function () {
+    self.reloadCaches = function () {
         if (confirm("Please confirm you want to clear and reload all server side caches by pressing OK.")) {
             var dict = {
                 "command" : "all",
                 "user": self.login.elements.username()
             };
-            self.applicationStates.removeAll();
+            self.applicaitonStateArray.removeAll();
             $.post("/api/cache/reload/", dict, function(data){
                 alert(data);
             }).fail(function(data) {
@@ -541,7 +539,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             return self.createApplicationState(row)
         });
 
-        self.applicationStates(table);
+        self.applicaitonStateArray(table);
         // sort initially on descending start time
         self.sort(self.activeSort());
     };
