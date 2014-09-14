@@ -29,19 +29,19 @@
                 <div class="row" style="margin-bottom: 5px">
                     <div class="col-md-6 text-left">
                         <div class="btn-group">
-                            <button class="btn btn-default active",
+                            <button class="btn btn-default active"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="View the application state agent table.">
                                 Table (of apps)
                             </button>
-                            <button class="btn btn-default",
+                            <button class="btn btn-default"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="Open the dependency drawer.">
                                 Indented Drawer 
                             </button>
-                            <button class="btn btn-default",
+                            <button class="btn btn-default"
                                     data-toggle="tooltip"
                                     data-placement="top"
                                     title="Open the partition chart.">
@@ -54,16 +54,16 @@
                             <div class="pull-right">
                                 Diff Mode :
                                 <div class="btn-group">
-                                    <button class="btn btn-default active",
+                                    <button class="btn btn-default active"
                                             data-toggle="tooltip"
                                             data-placement="top"> Update
 
-                                        <span class="glyphicon glyphicon-refresh" data-bind="visible: applicationState.filterByTime()"> </span>
+                                        <span class="glyphicon glyphicon-refresh" data-bind="visible: applicationState.customFilters.filterByTime()"> </span>
                                     </button>
-                                    <button class="btn btn-default",
-                                                          data-toggle="tooltip"
-                                                          data-placement="top"
-                                                          title="Set Zoom to normal operation">Normal
+                                    <button class="btn btn-default"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Set Zoom to normal operation">Normal
                                     </button>
                                 </div>
                                 <button type="button" class="btn btn-default"
@@ -129,13 +129,13 @@
                                     </li>
                                     <li role="presentation" class="divider"></li>
                                     <li role="presentation">
-                                        <a data-bind="click: applicationState.addCustomFilter"
+                                        <a data-bind="click: applicationState.customFilters.addCustomFilter"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Create a custom filter.">New Custom Filter</a>
                                     </li>
                                     <li role="presentation">
-                                        <a data-bind="click: applicationState.clearAllFilters"
+                                        <a data-bind="click: applicationState.customFilters.clearAllFilters"
                                            data-toggle="tooltip"
                                            data-placement="top"
                                            title="Clear all filters.">Clear All (from use)</a>
@@ -218,7 +218,7 @@
                                             data-placement="top"
                                             title="Close the filter.">
                                         <span class="glyphicon glyphicon-remove"></span>
-                                        <span class="badge" data-bind="text: $data.customFilteredItems().length,
+                                        <span class="badge" data-bind="text: $data.customFilters.allMatchedItems.length,
                                                                        visible: enabled() "></span>
                                     </button>
                                     <button class="btn btn-default"
@@ -462,14 +462,14 @@
                     <tbody >
                         <tr>
                             <td  class="text-center">
-                                <span class="glyphicon glyphicon-ok-circle btn-lg">
+                                <span class="glyphicon glyphicon-ok-circle btn-lg"></span>
                             </td>
                             <td data-toggle="tooltip"
                                 data-placement="top">
                                 <span >/spot/example/faq/app/that/is/running</span>
                                 <span class="caret"></span>
                                 <small><span>(click to toggle showing)</span></small>
-                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
+                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                                 <span data-bind="visible: requires().length > 0 && showDependencies"><br>I require:</span>
                                 <ul data-bind="foreach: requires, visible: showDependencies" style="list-style-type: none">
                                     <li>
@@ -557,16 +557,16 @@
                         </tr>
                         <tr>
                             <td style="background-color: #CC574F" class="text-center">
-                                <span class="glyphicon glyphicon-remove-circle btn-lg">
+                                <span class="glyphicon glyphicon-remove-circle btn-lg"></span>
                             </td>
                             <td data-toggle="tooltip"
                                 data-placement="top">
                                 <span >/spot/example/faq/app/that/is/off</span>
                                 <span class="caret-left"></span>
-                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
+                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                                 <div class="alert alert-info" role="alert" 
-                                     data-bind="visible: (showInfo() && $parent.login.elements.authenticated()), text: serviceInfo,
-                                                event : {mouseout: function(){saveInfo();}},
+                                     data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
+                                                event : {mouseout: function(){appInfo.save();}},
                                                 attr : {name: configurationPath}"
                                      contenteditable="true">
                                      This area is for notes, you can edit when logged in, everyone shares the same info<br>

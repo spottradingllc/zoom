@@ -5,9 +5,8 @@
         'service', 
         'model/loginModel', 
         'model/adminModel', 
-        'model/environmentModel', 
-        'bootstrap' ], 
-function (router, app, $, ko, service, login, admin, environment ) {
+        'bootstrap' ],
+function (router, app, $, ko, service, login, admin ) {
 
     return {
         router: router,

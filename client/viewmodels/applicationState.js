@@ -8,7 +8,6 @@ define(['durandal/app',
         'model/GlobalMode',
         'bindings/radio'], 
 function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
-
     var self = this;
     self.login = login;
     self.appStateModel = new ApplicationStateModel(service, ko, $, self.login, d3);

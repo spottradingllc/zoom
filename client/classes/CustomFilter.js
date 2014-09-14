@@ -1,7 +1,6 @@
 define([], function(){
 return function CustomFilter(ko, $, parent) {
     var self = this;
-    var parent = parent;
 
     // trickle-down dictionaries
     self.parameters = {
@@ -21,13 +20,13 @@ return function CustomFilter(ko, $, parent) {
     self.searchTerm = ko.observable("");
     self.enabled = ko.observable(false);
     self.inversed = ko.observable(false);
-    self.customFilteredItems = ko.observableArray([]);
+    self.matchedItems = ko.observableArray([]);
 
     self.tearDown = function() {
       self.searchTerm("");
       self.enabled(false);
       self.inversed(false);
-      self.customFilteredItems.removeAll();
+      self.matchedItems.removeAll();
     };
 
     self.setParameter = function(param) {
@@ -57,23 +56,23 @@ return function CustomFilter(ko, $, parent) {
     };
 
     self.deleteFilter = function() {
-        parent.customFilters.remove(self);
+        parent.customFilters.all.remove(self);
     };
 
     self.openFilter = function() {
-        parent.customFilters.push(self);
+        parent.customFilters.all.push(self);
     };
 
     // Filtering operations
     self.pushMatchedItem = function(item) {
         // push only unique items
-        if (self.customFilteredItems.indexOf(item) == -1){
-            self.customFilteredItems.push(item);
+        if (self.matchedItems.indexOf(item) == -1){
+            self.matchedItems.push(item);
         }
     };
 
     self.applyFilter = ko.computed(function() {
-        self.customFilteredItems.removeAll();
+        self.matchedItems.removeAll();
 
         if (self.enabled()) {
             // check each application state for matches, perform appropriate filtering technique

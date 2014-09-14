@@ -89,7 +89,7 @@
                                           data-placement="top"
                                           title="Set Zookeeper to ignore state changes.">Off</button>
                 </div>
-                <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'">
+                <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'"/>
 
                 <small>
                 <span data-bind="text: mode.timingString"/>
@@ -112,16 +112,16 @@
                         Diff Mode :
                         <div class="btn-group">
                             <button type="button" 
-                                    data-bind="click: function(){appStateModel.enableTimeFilter()},
-                                               attr: {class: ('btn btn-default' + (appStateModel.filterByTime() ? ' active' : '')),
-                                                      title: appStateModel.timeToolTip}"
+                                    data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
+                                               attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
+                                                      title: appStateModel.customFilters.timeToolTip}"
                                     data-toggle="tooltip"
                                     data-placement="top"> Update
 
-                                <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.filterByTime()"> </span>
+                                <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
                             </button>
-                            <button type="button" data-bind="click: function(){appStateModel.filterByTime(false)},
-                                                             attr: {class: ('btn btn-default' + (!appStateModel.filterByTime() ? ' active' : ''))}"
+                            <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
+                                                             attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Set Zoom to normal operation">Normal
@@ -141,7 +141,8 @@
             <div class="col-md-6 text-left">
                 <!-- Search Box -->
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" data-bind="value: appStateModel.textFilter, valueUpdate: 'afterkeydown'">
+                    <input type="text" class="form-control" placeholder="Search"
+                           data-bind="value: appStateModel.textFilter, valueUpdate: 'afterkeydown'">
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button">
                             <span class="glyphicon glyphicon-search"></span>
@@ -154,19 +155,19 @@
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
                         <button class="btn btn-default dropdown-toggle" type="button"
-                                data-bind="click: appStateModel.fetchAllFilters"
+                                data-bind="click: appStateModel.customFilters.fetchAllFilters"
                                 data-toggle="dropdown"
                                 data-toggle="tooltip"
                                 data-placement="top"
                                 title="View filtering options.">
                             Filters
-                            <span class="badge" data-bind="text: appStateModel.customFilteredItems().length,
-                                                           visible: appStateModel.customFilteredItems().length > 0">
+                            <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
+                                                           visible: appStateModel.customFilters.allMatchedItems().length > 0">
                             </span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu pull-right" role="menu">
-                            <!-- ko foreach: appStateModel.defaultFilters -->
+                            <!-- ko foreach: appStateModel.customFilters.defaultFilters -->
                                 <li role="presentation">
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
@@ -176,7 +177,7 @@
                                 </li>
                             <!-- /ko -->
                             <li role="presentation" class="divider"></li>
-                            <!-- ko foreach: appStateModel.remoteCustomFilters -->
+                            <!-- ko foreach: appStateModel.customFilters.remoteCustomFilters -->
                                 <li role="presentation">
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
@@ -187,13 +188,13 @@
                             <!-- /ko -->
                             <li role="presentation" class="divider"></li>
                             <li role="presentation">
-                                <a data-bind="click: appStateModel.addCustomFilter"
+                                <a data-bind="click: appStateModel.customFilters.addCustomFilter"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Create a custom filter.">New Custom Filter</a>
                             </li>
                             <li role="presentation">
-                                <a data-bind="click: appStateModel.clearAllFilters"
+                                <a data-bind="click: appStateModel.customFilters.clearAllFilters"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Clear all filters.">Clear All</a>
@@ -260,7 +261,7 @@
         <div class="row">
             <!-- Custom Filters -->
             <div class="col-md-12">
-                <div data-bind="foreach: appStateModel.customFilters">
+                <div data-bind="foreach: appStateModel.customFilters.all">
                     <div class="row" style="margin-top: 5px">
                         <div class="col-md-12">
                             <div class="btn-group">
@@ -269,7 +270,7 @@
                                         data-placement="top"
                                         title="Close the filter.">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                    <span class="badge" data-bind="text: $data.customFilteredItems().length,
+                                    <span class="badge" data-bind="text: $data.customFilters.allMatchedItems.length,
                                                                    visible: enabled() "></span>
                                 </button>
                                 <button class="btn btn-default"
@@ -408,7 +409,7 @@
                         title="Toggle the display of dependencies.">
                         <span data-bind="text: configurationPath, click: toggleDependencies"></span>
                         <span data-bind="attr : {class : dependencyClass}"></span>
-                        <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
+                        <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                         <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
                             <span data-bind="visible: requires().length > 0">I require:</span>
                             <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
@@ -420,13 +421,13 @@
                             </ul>
                         </div>
                         <div class="alert alert-info" role="alert" 
-                             data-bind="visible: (showInfo() && $parent.login.elements.authenticated()), text: serviceInfo,
-                                        event : {mouseout: function(){saveInfo();}},
+                             data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
+                                        event : {mouseout: function(){appInfo.save();}},
                                         attr : {name: configurationPath}"
                              contenteditable="true">
                         </div>
                         <div class="alert alert-info" role="alert"
-                             data-bind="visible: (showInfo() && !$parent.login.elements.authenticated()), text: serviceInfo">
+                             data-bind="visible: (appInfo.showInfo() && !$parent.login.elements.authenticated()), text: appInfo.data">
                         </div>
                     </td>
                     <td class="text-left">
