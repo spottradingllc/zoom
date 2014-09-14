@@ -1,10 +1,9 @@
-define([ 'knockout', 
+define(['knockout',
         'service', 
         'jquery', 
         'model/loginModel'],
 function(ko, service, $, login){
     var self = this;
-
     self.login = login;
     self.current = ko.observable("Unknown");
     self.maxTimingEstimate = ko.observable("");

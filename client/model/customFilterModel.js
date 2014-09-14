@@ -1,10 +1,8 @@
-define(
-    ['jquery', 'knockout', 'classes/CustomFilter' ],
-    function($, ko, CustomFilter){
+define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFilter){
     return function CustomFilterModel(parent) {
         var self = this;
         // Custom Filtering
-        self.all = ko.observableArray([]);
+        self.all = new ko.observableArray([]);
 
         self.enabled = ko.computed(function() {
             return ko.utils.arrayFilter(self.all(), function(customFilter) {
@@ -42,7 +40,7 @@ define(
         self.allMatchedItems.extend({rateLimit: 500});
 
         self.addCustomFilter = function() {
-            var filter = new CustomFilter(ko, $, self);
+            var filter = new CustomFilter(self, parent);
             self.all.push(filter);
         };
 
@@ -52,13 +50,13 @@ define(
 
         self.remoteCustomFilters = ko.observableArray([]);
         self.fetchAllFilters = function() {
-            var dict = {loginName : self.login.elements.username()};
+            var dict = {loginName : parent.login.elements.username()};
 
-            if (self.login.elements.authenticated()) {
+            if (parent.login.elements.authenticated()) {
                 self.remoteCustomFilters.removeAll();
                 $.getJSON("/api/filters/", dict, function(data) {
                     $.each(data, function(index, filterDict) {
-                        var filter = new CustomFilter(ko, $, self);
+                        var filter = new CustomFilter(self, parent);
                         filter.filterName(filterDict["name"]);
                         filter.parameter(filterDict["parameter"]);
                         filter.searchTerm(filterDict["searchTerm"]);
@@ -75,7 +73,7 @@ define(
 
         // unused ?
         self.getFiltersForUser = ko.computed(function() {
-            if (parent.login.elements.authenticated) {
+            if (parent.login.elements.authenticated()) {
                 self.fetchAllFilters();
             }
             else {
@@ -86,13 +84,13 @@ define(
         // Setup default filters
         self.defaultFilters = ko.observableArray([]);
 
-        var downFilter = new CustomFilter(ko, $, self);
+        var downFilter = new CustomFilter(self, parent);
         downFilter.filterName("Down");
         downFilter.parameter(downFilter.parameters.applicationStatus);
         downFilter.searchTerm(downFilter.searchTerms.stopped);
         self.defaultFilters.push(downFilter);
 
-        var errorFilter = new CustomFilter(ko, $, self);
+        var errorFilter = new CustomFilter(self, parent);
         errorFilter.filterName("Error");
         errorFilter.parameter(errorFilter.parameters.errorState);
         errorFilter.searchTerm(errorFilter.searchTerms.error);

@@ -12,9 +12,7 @@ function (router, app, $, ko, service, login, admin ) {
         router: router,
         login: login,
         admin: admin,
-        isFAQ: function(title){
-            return title.search("FAQ") != -1;
-            },
+        isFAQ: function(title) { return title.search("FAQ") != -1; },
         activate: function () {
             router.map([
                 { route: '', title: "Application State", moduleId: 'viewmodels/applicationState', nav: true },
@@ -22,7 +20,7 @@ function (router, app, $, ko, service, login, admin ) {
                 { route: 'appFAQ', title: "App State FAQ", moduleId: 'viewmodels/faq/applicationState', nav: true },
                 { route: 'configFAQ', title: "Server Config FAQ", moduleId: 'viewmodels/faq/serverConfig', nav: true }
             ]).buildNavigationModel();
-            
+
             return router.activate();
         }
     };

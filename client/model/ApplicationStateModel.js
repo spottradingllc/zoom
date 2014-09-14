@@ -1,15 +1,16 @@
-define(['model/ApplicationState', 
+define(['knockout',
+        'service',
+        'jquery',
+        'model/ApplicationState',
         'model/environmentModel',
         'model/adminModel', 
         'model/GlobalMode',
         'model/customFilterModel',
         'classes/applicationStateArray',
-        'classes/CustomFilter',
         'classes/dependency-maps/DependencyMaps'],
-function(ApplicationState, Environment, admin, GlobalMode, CustomFilterModel, ApplicationStateArray, CustomFilter, DependencyMaps){
-return function ApplicationStateModel(service, ko, $, login, d3) {
+function(ko, service, $, ApplicationState, Environment, admin, GlobalMode, CustomFilterModel, ApplicationStateArray, DependencyMaps){
+return function ApplicationStateModel(login) {
     var self = this;
-
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
@@ -55,7 +56,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return !(self.headers[index].title == 'Delete' && !self.admin.enabled());
 
     };
-   
+
     // Changes modal header color to reflect current environment
     self.envModalColor = ko.computed(function(){
         switch(self.environment.toLowerCase()){
@@ -73,7 +74,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 break;
         }
     });
-    
+
     // control agent
     self.isHostEmpty = function () {
         if (self.clickedApp.applicationHost == "") {
@@ -92,7 +93,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                     "applicationHost": self.clickedApp().applicationHost,
                     "command": options.com,
                     "argument": options.arg,
-                    "user": parent.login.elements.username()
+                    "user": self.login.elements.username()
                 };
                 $.post("/api/agent/", dict, function() {
                     $('#groupCheckModal').modal('hide');                
@@ -104,7 +105,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         self.passwordConfirm("");
     
     };
-        
+
     // Takes in 'options' as an argument and actually sends a command to the server
     self.executeGroupControl = function(options){
         ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
@@ -166,7 +167,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         }
         
         var params = {
-            username: parent.login.elements.username(),
+            username: self.login.elements.username(),
             password: self.passwordConfirm()
         };
         
@@ -353,11 +354,11 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.views.push(self);
 
     // dependency maps
-    self.dependencyMaps = new DependencyMaps(ko, $, d3, self);
+    self.dependencyMaps = new DependencyMaps(self);
 
     // create new app state
     self.createApplicationState = function(data) {
-        return new ApplicationState(ko, data, self)
+        return new ApplicationState(data, self)
     };
 
     // handle updates from web server
@@ -415,7 +416,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             });
         }
     };
-
 
     var onApplicationStatesSuccess = function (data) {
         var table = $.map(data.application_states, function (row) {

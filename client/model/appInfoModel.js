@@ -1,6 +1,5 @@
 define(['jquery', 'knockout' ], function($, ko){
 return function AppInfoModel(configPath, login) {
-    console.log(login);
     // Application info box
     var self = this;
 

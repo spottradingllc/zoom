@@ -270,7 +270,7 @@
                                         data-placement="top"
                                         title="Close the filter.">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                    <span class="badge" data-bind="text: $data.customFilters.allMatchedItems.length,
+                                    <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
                                                                    visible: enabled() "></span>
                                 </button>
                                 <button class="btn btn-default"

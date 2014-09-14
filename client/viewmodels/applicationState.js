@@ -10,7 +10,7 @@ define(['durandal/app',
 function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
     var self = this;
     self.login = login;
-    self.appStateModel = new ApplicationStateModel(service, ko, $, self.login, d3);
+    self.appStateModel = new ApplicationStateModel(self.login);
     self.mode = GlobalMode;
 
     var connection;
@@ -63,7 +63,6 @@ function (app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
             }
         }
     });
-
 
     self.attached = function(){
         self.appStateModel.loadApplicationStates();  // load initial data

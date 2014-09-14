@@ -1,17 +1,26 @@
-define([], function(){
-return function CustomFilter(ko, $, parent) {
+define(['jquery', 'knockout'], function($, ko){
+return function CustomFilter(parent, appStateModel) {
     var self = this;
-
     // trickle-down dictionaries
     self.parameters = {
-        applicationStatus : "applicationStatus", configurationPath : "configurationPath",
-        applicationHost : "applicationHost", startTime : "startTime", errorState : "errorState",
-        dependency : "dependency", requires : "requires", requiredBy : "requiredBy"
+        applicationStatus : "applicationStatus",
+        configurationPath : "configurationPath",
+        applicationHost : "applicationHost",
+        startTime : "startTime",
+        errorState : "errorState",
+        dependency : "dependency",
+        requires : "requires",
+        requiredBy : "requiredBy"
     };
 
     self.searchTerms = {
-        running : "running", stopped : "stopped", unknown : "unknown", ok : "ok",
-        starting : "starting", stopping : "stopping", error : "error"
+        running : "running",
+        stopped : "stopped",
+        unknown : "unknown",
+        ok : "ok",
+        starting : "starting",
+        stopping : "stopping",
+        error : "error"
     };
 
     // member variables and getters/setters
@@ -40,11 +49,10 @@ return function CustomFilter(ko, $, parent) {
 
     // tear down the filter whenever the search term is blank
     self.searchTerm.subscribe(function(term) {
-      self.enabled(true);
-
-      if (term == "") {
-        self.tearDown();
-      }
+        self.enabled(true);
+        if (term == "") {
+            self.tearDown();
+        }
     });
 
     self.toggleEnabled = function() {
@@ -56,11 +64,11 @@ return function CustomFilter(ko, $, parent) {
     };
 
     self.deleteFilter = function() {
-        parent.customFilters.all.remove(self);
+        parent.all.remove(self);
     };
 
     self.openFilter = function() {
-        parent.customFilters.all.push(self);
+        parent.all.push(self);
     };
 
     // Filtering operations
@@ -74,9 +82,9 @@ return function CustomFilter(ko, $, parent) {
     self.applyFilter = ko.computed(function() {
         self.matchedItems.removeAll();
 
-        if (self.enabled()) {
+        if (self.enabled() && appStateModel.applicaitonStateArray) {
             // check each application state for matches, perform appropriate filtering technique
-            ko.utils.arrayForEach(parent.applicaitonStateArray(), function(appState) {
+            ko.utils.arrayForEach(appStateModel.applicaitonStateArray(), function(appState) {
 
                 if (self.parameter() == self.parameters.applicationStatus) {
                     self.applyLogicalFilter(appState.applicationStatus().toLowerCase(), appState);
@@ -162,7 +170,7 @@ return function CustomFilter(ko, $, parent) {
         var dict = {
             operation: 'add',
             name : self.filterName(),
-            loginName : parent.login.elements.username(),
+            loginName : appStateModel.login.elements.username(),
             parameter : self.parameter(),
             searchTerm : self.searchTerm(),
             inversed : self.inversed()
@@ -184,7 +192,7 @@ return function CustomFilter(ko, $, parent) {
         var dict = {
             operation: 'remove',
             name : self.filterName(),
-            loginName : parent.login.elements.username(),
+            loginName : appStateModel.login.elements.username(),
             parameter : self.parameter(),
             searchTerm : self.searchTerm(),
             inversed : self.inversed()

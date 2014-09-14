@@ -1,11 +1,10 @@
-define([
-    'classes/applicationStateArray',
-    'model/graphiteModel',
-    'model/appInfoModel'],
-    function(ApplicationStateArray, GraphiteModel, AppInfoModel){
-    return function ApplicationState (ko, data, parent) {
+define(['knockout',
+        'classes/applicationStateArray',
+        'model/graphiteModel',
+        'model/appInfoModel'],
+function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
+    return function ApplicationState(data, parent) {
         var self = this;
-
         var colors = {
             actionBlue: '#057D9F',
             errorRed: '#CC574F',

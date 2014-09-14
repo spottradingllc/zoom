@@ -1,4 +1,4 @@
-define(['jquery'], function($){
+define(['jquery'], function($) {
 return function GraphiteModel(environment, host, configPath) {
     var self = this;
 

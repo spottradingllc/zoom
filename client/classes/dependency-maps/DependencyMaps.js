@@ -1,7 +1,11 @@
-define(['classes/dependency-maps/IndentedDependencyTree',
-        'classes/dependency-maps/PartitionChart' ], function( IndentedDependencyTree, PartitionChart){
+define(['jquery',
+        'knockout',
+        'd3',
+        'classes/dependency-maps/IndentedDependencyTree',
+        'classes/dependency-maps/PartitionChart' ],
+function($, ko, d3, IndentedDependencyTree, PartitionChart){
 
-return function DependencyMaps(ko, $, d3, parent) {
+return function DependencyMaps(parent) {
 
 	var self = this;
 	self.parent = parent;
@@ -170,7 +174,8 @@ return function DependencyMaps(ko, $, d3, parent) {
 		if (newView != parent) {
 			newView.show();
 		}
-	}
+	};
+
 	parent.currentView.subscribe(self.showView);
 
 	self.closeAllViews = function() {
@@ -179,7 +184,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		});
 
 		d3.select("#d3-view-area").attr("display", "none");
-	}
+	};
 
 	// send live updates to the dependency drawer and partition chart
 	self.requirements.subscribe(function(newDict) {
