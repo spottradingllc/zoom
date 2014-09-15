@@ -178,8 +178,8 @@ return function ApplicationStateModel(login) {
         if (typeof path === "undefined"){
             return;
         }
-
-        return path.match(/([^\/]*)\/*$/)[1];
+        
+        return path.split("application/")[1];
     };
 
     // functions/variables for group control of agents
