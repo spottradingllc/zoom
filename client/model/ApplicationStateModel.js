@@ -14,7 +14,7 @@ return function ApplicationStateModel(login) {
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
-    self.applicaitonStateArray = ApplicationStateArray;
+    self.applicationStateArray = ApplicationStateArray;
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
@@ -238,7 +238,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.clearGroupControl = function () {
-        ko.utils.arrayForEach(self.applicaitonStateArray(), function(applicationState) {
+        ko.utils.arrayForEach(self.applicationStateArray(), function(applicationState) {
             if (self.groupControl.indexOf(applicationState) > -1) {
                 self.groupControl.remove(applicationState);
             }
@@ -278,7 +278,7 @@ return function ApplicationStateModel(login) {
         };
         var sortFunc = self.activeSort().asc() ? ascSort : descSort;
 
-        self.applicaitonStateArray.sort(sortFunc);
+        self.applicationStateArray.sort(sortFunc);
         self.holdSortDirection(false);
     };
 
@@ -298,7 +298,7 @@ return function ApplicationStateModel(login) {
         // check for enabled custom filters, otherwise use global appStates array
         var ret;
         if (!filter && self.customFilters.enabled().length == 0) {
-            ret = self.applicaitonStateArray();
+            ret = self.applicationStateArray();
         } 
         else if(self.customFilters.enabled().length > 0) {
             ret = ko.utils.arrayFilter(self.customFilters.allMatchedItems(), function(item) {
@@ -306,7 +306,7 @@ return function ApplicationStateModel(login) {
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
         } else {
-            ret = ko.utils.arrayFilter(self.applicaitonStateArray(), function(item) {
+            ret = ko.utils.arrayFilter(self.applicationStateArray(), function(item) {
                 var re = new RegExp(filter, "i");
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
@@ -337,12 +337,12 @@ return function ApplicationStateModel(login) {
 
     self.toggleAllDependencies = ko.computed(function() {
         if (self.showingAllDependencies()) {
-            ko.utils.arrayForEach(self.applicaitonStateArray(), function(appState) {
+            ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
                 appState.showDependencies(true);
             });
         }
         else {
-            ko.utils.arrayForEach(self.applicaitonStateArray(), function(appState) {
+            ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
                 appState.showDependencies(false);
             });
         }
@@ -366,12 +366,12 @@ return function ApplicationStateModel(login) {
         // Search the array for row with matching path
         
         if (update.delete) {
-            self.applicaitonStateArray.remove(function(currentRow) {
+            self.applicationStateArray.remove(function(currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
         }
         else{
-            var row = ko.utils.arrayFirst(self.applicaitonStateArray(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -385,7 +385,7 @@ return function ApplicationStateModel(login) {
             else { 
                 // add new item to array
                 var newRow = self.createApplicationState(update);
-                self.applicaitonStateArray.push(newRow);
+                self.applicationStateArray.push(newRow);
             }
         }
     };
@@ -393,7 +393,7 @@ return function ApplicationStateModel(login) {
     self.handleApplicationDependencyUpdate = function (message) {
         $.each(message.application_dependencies, function() {
             var update = this;
-            var row = ko.utils.arrayFirst(self.applicaitonStateArray(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -408,7 +408,7 @@ return function ApplicationStateModel(login) {
                 "command" : "all",
                 "user": self.login.elements.username()
             };
-            self.applicaitonStateArray.removeAll();
+            self.applicationStateArray.removeAll();
             $.post("/api/cache/reload/", dict, function(data){
                 alert(data);
             }).fail(function(data) {
@@ -422,7 +422,7 @@ return function ApplicationStateModel(login) {
             return self.createApplicationState(row)
         });
 
-        self.applicaitonStateArray(table);
+        self.applicationStateArray(table);
         // sort initially on descending start time
         self.sort(self.activeSort());
     };

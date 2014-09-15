@@ -11,7 +11,7 @@ return function DependencyMaps(parent) {
 	self.parent = parent;
 	self.colors = {green : "#64FF74", yellow : "#FFE033", red : "#E85923"};
 
-	self.applicaitonStateArray = ko.computed(function()	{
+	self.applicationStateArray = ko.computed(function()	{
 		return self.parent.filteredItems().slice();
 	});
 
@@ -90,7 +90,7 @@ return function DependencyMaps(parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on number of requirements
-		var sortedAppStates = self.applicaitonStateArray().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
 								if (left.requiredBy().length == right.requiredBy().length) {
 									return 0;
 								}
@@ -123,7 +123,7 @@ return function DependencyMaps(parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on status, then whether or not their requirements are up, then alphabetically
-		var sortedAppStates = self.applicaitonStateArray().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
 			if (left.applicationStatus() == right.applicationStatus()) {
 				if (left.requirementsAreUp() == right.requirementsAreUp()) {
 					if (left.configurationPath < right.configurationPath) {

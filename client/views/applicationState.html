@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <!--foreach only to access the applicaitonStateArray array class-->
+    <!--foreach only to access the applicationStateArray array class-->
     <!--<div data-bind="foreach: appStateModel.filteredItems">-->
        <!--</div>-->
 
@@ -74,7 +74,7 @@
         <h1>
             <span data-bind="text: appStateModel.environment"/>
             <small>
-              <span data-bind="text: appStateModel.applicaitonStateArray().length"></span> total services
+              <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
             </small>
             <small class="pull-right">
                 Zookeeper startup is :
@@ -550,7 +550,7 @@
         </table>
     </div>
     <div class="splash">
-        <i class="fa fa-spinner fa-spin" data-bind="visible: appStateModel.applicaitonStateArray().length == 0"></i>
+        <i class="fa fa-spinner fa-spin" data-bind="visible: appStateModel.applicationStateArray().length == 0"></i>
     </div>
 </div>
 
