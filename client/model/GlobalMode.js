@@ -1,10 +1,9 @@
-define([ 'knockout', 
+define(['knockout',
         'service', 
         'jquery', 
         'model/loginModel'],
 function(ko, service, $, login){
     var self = this;
-
     self.login = login;
     self.current = ko.observable("Unknown");
     self.maxTimingEstimate = ko.observable("");
@@ -31,12 +30,12 @@ function(ko, service, $, login){
         }
     });
 
-    self.fnHandleModeUpdate = function(data) {
+    self.handleModeUpdate = function(data) {
         update = JSON.parse(data.global_mode);
         self.current(update.mode);
     };
 
-    self.fnHandleTimingUpdate = function(data) {
+    self.handleTimingUpdate = function(data) {
         maxtime = JSON.parse(data.maxtime);
         var endMs = Date.now() + maxtime*1000;
         var end = new Date(endMs);
@@ -57,21 +56,21 @@ function(ko, service, $, login){
         }
     });
 
-    var fnOnGlobalModeError = function(data) {
+    var onGlobalModeError = function(data) {
         alert('An Error has occurred while getting the global mode.');
     };
 
-    self.fnGetGlobalMode = function() {
-      return service.get('api/mode/', self.fnHandleModeUpdate, fnOnGlobalModeError);
+    self.getGlobalMode = function() {
+      return service.get('api/mode/', self.handleModeUpdate, onGlobalModeError);
     };
 
-    self.fnGetTimingEstimate = function() {
+    self.getTimingEstimate = function() {
         return service.get('api/timingestimate', 
-                           self.fnHandleTimingUpdate, 
+                           self.handleTimingUpdate,
                            function(){alert("An Error has occurred while getting the initial time estimate")});
     };
 
-    self.fnSetGlobalMode = function (mode) {
+    self.setGlobalMode = function (mode) {
         if (confirm("Please confirm that you want to set Zookeeper to " + mode + " mode by pressing OK.")) {
             var dict = {
                 "command" : mode,
@@ -83,8 +82,8 @@ function(ko, service, $, login){
         }
     };
 
-    self.fnGetGlobalMode();  // get initial data
-    self.fnGetTimingEstimate();  // get initial data
+    self.getGlobalMode();  // get initial data
+    self.getTimingEstimate();  // get initial data
 
     return self;
 });

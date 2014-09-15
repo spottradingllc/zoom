@@ -1,6 +1,5 @@
 define(['knockout','./loginModel'], 
 function (ko, login) {
-
     var admin = {};
 
     admin._login = login;

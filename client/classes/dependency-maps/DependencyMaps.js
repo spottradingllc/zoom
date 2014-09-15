@@ -1,13 +1,17 @@
-define(['classes/dependency-maps/clsIndentedDependencyTree',
-        'classes/dependency-maps/clsPartitionChart' ], function( IndentedDependencyTree, PartitionChart){
+define(['jquery',
+        'knockout',
+        'd3',
+        'classes/dependency-maps/IndentedDependencyTree',
+        'classes/dependency-maps/PartitionChart' ],
+function($, ko, d3, IndentedDependencyTree, PartitionChart){
 
-return function DependencyMaps(ko, $, d3, parent) {
+return function DependencyMaps(parent) {
 
 	var self = this;
 	self.parent = parent;
 	self.colors = {green : "#64FF74", yellow : "#FFE033", red : "#E85923"};
 
-	self.applicationStates = ko.computed(function()	{
+	self.applicationStateArray = ko.computed(function()	{
 		return self.parent.filteredItems().slice();
 	});
 
@@ -86,7 +90,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on number of requirements
-		var sortedAppStates = self.applicationStates().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
 								if (left.requiredBy().length == right.requiredBy().length) {
 									return 0;
 								}
@@ -119,7 +123,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		var dict = ko.observableArray([]);
 
 		// sort app states based on status, then whether or not their requirements are up, then alphabetically
-		var sortedAppStates = self.applicationStates().slice().sort(function(left, right) {
+		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
 			if (left.applicationStatus() == right.applicationStatus()) {
 				if (left.requirementsAreUp() == right.requirementsAreUp()) {
 					if (left.configurationPath < right.configurationPath) {
@@ -170,7 +174,8 @@ return function DependencyMaps(ko, $, d3, parent) {
 		if (newView != parent) {
 			newView.show();
 		}
-	}
+	};
+
 	parent.currentView.subscribe(self.showView);
 
 	self.closeAllViews = function() {
@@ -179,7 +184,7 @@ return function DependencyMaps(ko, $, d3, parent) {
 		});
 
 		d3.select("#d3-view-area").attr("display", "none");
-	}
+	};
 
 	// send live updates to the dependency drawer and partition chart
 	self.requirements.subscribe(function(newDict) {

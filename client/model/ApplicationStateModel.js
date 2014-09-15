@@ -1,18 +1,20 @@
-define(['model/ApplicationState', 
+define(['knockout',
+        'service',
+        'jquery',
+        'model/ApplicationState',
         'model/environmentModel',
         'model/adminModel', 
         'model/GlobalMode',
-        'classes/applicationStates', 
-        'classes/clsCustomFilter', 
-        'classes/dependency-maps/clsDependencyMaps'],
-function(ApplicationState, Environment, admin, GlobalMode, ApplicationStates, CustomFilter, DependencyMaps){
-return function ApplicationStateModel(service, ko, $, login, d3) {
+        'model/customFilterModel',
+        'classes/applicationStateArray',
+        'classes/dependency-maps/DependencyMaps'],
+function(ko, service, $, ApplicationState, Environment, admin, GlobalMode, CustomFilterModel, ApplicationStateArray, DependencyMaps){
+return function ApplicationStateModel(login) {
     var self = this;
-
     self.login = login;
     self.admin = admin;
     self.globalMode = GlobalMode;
-    self.applicationStates = ApplicationStates;
+    self.applicationStateArray = ApplicationStateArray;
     self.textFilter = ko.observable("");
     self.environment = Environment.environment;
     self.name = "Application State Table";
@@ -21,9 +23,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.buttonLabel = ko.observable("");   
     self.groupMode = ko.observable(false);
     self.clickedApp = ko.observable({});
-
-
-    var operationTypes = {add: "add", remove: "remove"};
+    self.customFilters = new CustomFilterModel(self);
 
     var envColor = {
         staging: '#FFDA47',
@@ -49,7 +49,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     ];
 
     self.showHeader = function(index){
-
         if(self.headers[index].title == 'Control' &&
            !self.login.elements.authenticated()){
             return false;
@@ -57,7 +56,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         return !(self.headers[index].title == 'Delete' && !self.admin.enabled());
 
     };
-   
+
     // Changes modal header color to reflect current environment
     self.envModalColor = ko.computed(function(){
         switch(self.environment.toLowerCase()){
@@ -75,7 +74,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                 break;
         }
     });
-    
+
     // control agent
     self.isHostEmpty = function () {
         if (self.clickedApp.applicationHost == "") {
@@ -87,7 +86,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         }
     };
 
-
     self.executeSingleControl = function(options) {
         if (!self.isHostEmpty()) {
                 var dict = {
@@ -95,19 +93,19 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
                     "applicationHost": self.clickedApp().applicationHost,
                     "command": options.com,
                     "argument": options.arg,
-                    "user": parent.login.elements.username()
+                    "user": self.login.elements.username()
                 };
                 $.post("/api/agent/", dict, function() {
                     $('#groupCheckModal').modal('hide');                
                     })    
                     .fail(function(data) {
-                        alert( "Error Posting ControlAgent " + JSON.stringify(data));
+                        alert("Error Posting ControlAgent " + JSON.stringify(data));
                     });
         }
         self.passwordConfirm("");
     
     };
-        
+
     // Takes in 'options' as an argument and actually sends a command to the server
     self.executeGroupControl = function(options){
         ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
@@ -169,7 +167,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         }
         
         var params = {
-            username: parent.login.elements.username(),
+            username: self.login.elements.username(),
             password: self.passwordConfirm()
         };
         
@@ -178,15 +176,13 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     
     self.parseAppName = function(path) {
         if (typeof path === "undefined"){
-            console.log("undefined");
             return;
         }
-        console.log(path.match(/([^\/]*)\/*$/)[1]);
 
         return path.match(/([^\/]*)\/*$/)[1];
     };
 
-    //    functions/variables for group control of agents
+    // functions/variables for group control of agents
     self.groupControl = ko.observableArray([]);
     
     self.controlAgent = function (options, clickedApp) {
@@ -210,9 +206,9 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
 
     self.checkEnter = function (d, e){    
-        if (e.which == 13){
-                $('#Gsend').trigger('click');
-                return false;
+        if (e.which == 13) {
+            $('#Gsend').trigger('click');
+            return false;
         }
         return true;
     };
@@ -242,7 +238,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     };
 
     self.clearGroupControl = function () {
-        ko.utils.arrayForEach(self.applicationStates(), function(applicationState) {
+        ko.utils.arrayForEach(self.applicationStateArray(), function(applicationState) {
             if (self.groupControl.indexOf(applicationState) > -1) {
                 self.groupControl.remove(applicationState);
             }
@@ -282,7 +278,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         };
         var sortFunc = self.activeSort().asc() ? ascSort : descSort;
 
-        self.applicationStates.sort(sortFunc);
+        self.applicationStateArray.sort(sortFunc);
         self.holdSortDirection(false);
     };
 
@@ -290,120 +286,6 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         self.textFilter("");
     };
 
-    // Custom Filtering
-    self.customFilters = ko.observableArray([]);
-
-    self.enabledCustomFilters = ko.computed(function() {
-        return ko.utils.arrayFilter(self.customFilters(), function(customFilter) {
-            return customFilter.enabled();
-        });
-    });
-
-    self.customFilteredItems = ko.computed(function () {
-        // first aggregate all items from all custom filters
-        var allCustomFilteredItems = ko.observableArray([]);
-        ko.utils.arrayForEach(self.enabledCustomFilters(), function(customFilter) { // loop over all enabled filters
-            ko.utils.arrayForEach(customFilter.customFilteredItems(), function(item) {
-                if (allCustomFilteredItems.indexOf(item) == -1) {
-                    // only push unique items
-                    allCustomFilteredItems.push(item);
-                }
-            });
-        });
-
-        // take the intersection of all the custom filtered items
-        var intersection = ko.observableArray(allCustomFilteredItems().slice());
-        ko.utils.arrayForEach(allCustomFilteredItems(), function(filteredItem) { // loop over all items
-            ko.utils.arrayForEach(self.enabledCustomFilters(), function(customFilter) { // loop over all filters
-                if (customFilter.customFilteredItems().indexOf(filteredItem) == -1) {
-                    // remove the item if it is missing in any filter
-                    intersection(intersection.remove(function(item) {return item != filteredItem}));
-                }
-            });
-        });
-
-        return intersection().slice();
-    });
-
-    // rate-limit how often filtered items are populated
-    self.customFilteredItems.extend({rateLimit: 500});
-
-    self.addCustomFilter = function() {
-        var filter = new CustomFilter(ko, $, self);
-        self.customFilters.push(filter);
-    };
-
-    self.clearAllFilters = function() {
-        self.customFilters.removeAll();
-    };
-
-    self.remoteCustomFilters = ko.observableArray([]);
-    self.fetchAllFilters = function() {
-        var dict = {loginName : self.login.elements.username()};
-
-        if (self.login.elements.authenticated()) {
-            self.remoteCustomFilters.removeAll();
-            $.getJSON("/api/filters/", dict, function(data) {
-                $.each(data, function(index, filterDict) { 
-                    var filter = new CustomFilter(ko, $, self);
-                    filter.filterName(filterDict["name"]);
-                    filter.parameter(filterDict["parameter"]);
-                    filter.searchTerm(filterDict["searchTerm"]);
-                    filter.inversed(filterDict["inversed"]);
-                    filter.enabled(false);
-
-                    self.remoteCustomFilters.push(filter);
-                });
-            }).fail(function(data){
-                alert("Failed Get for all Filters " + JSON.stringify(data));
-            });
-        }
-    };
-
-    self.getFiltersForUser = ko.computed(function() {
-        if (self.login.elements.authenticated) {
-            self.fetchAllFilters();
-        }
-        else {
-            self.remoteCustomFilters.removeAll();
-        }
-    });
-
-    // Setup default filters
-    self.defaultFilters = ko.observableArray([]);
-
-    var downFilter = new CustomFilter(ko, $, self);
-    downFilter.filterName("Down");
-    downFilter.parameter(downFilter.parameters.applicationStatus);
-    downFilter.searchTerm(downFilter.searchTerms.stopped);
-    self.defaultFilters.push(downFilter);
-
-
-
-    var errorFilter = new CustomFilter(ko, $, self);
-    errorFilter.filterName("Error");
-    errorFilter.parameter(errorFilter.parameters.errorState);
-    errorFilter.searchTerm(errorFilter.searchTerms.error);
-    self.defaultFilters.push(errorFilter);
-
-    self.time = ko.observable(Date.now());
-    self.filterByTime = ko.observable(false);
-    self.enableTimeFilter = function() {
-        //Reset filter time on double click
-        if (self.filterByTime()){
-            self.time(Date.now());
-        }
-        self.filterByTime(true);
-        self.sortByTime();
-    };
-
-    self.timeToolTip = ko.computed(function() {
-        if (self.filterByTime()){
-            return "Click to clear old updates";
-        }
-        return "Click to enable update mode";
-    });
-    
     self.sortByTime = function() {
         var timeheader = {title: 'Time', sortPropertyName: 'mtime', asc: ko.observable(true)};
         self.activeSort(timeheader);
@@ -415,16 +297,16 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         var filter = self.textFilter().toLowerCase();
         // check for enabled custom filters, otherwise use global appStates array
         var ret;
-        if (!filter && self.enabledCustomFilters().length == 0) {
-            ret = self.applicationStates();
+        if (!filter && self.customFilters.enabled().length == 0) {
+            ret = self.applicationStateArray();
         } 
-        else if(self.enabledCustomFilters().length > 0) {
-            ret = ko.utils.arrayFilter(self.customFilteredItems(), function(item) {
+        else if(self.customFilters.enabled().length > 0) {
+            ret = ko.utils.arrayFilter(self.customFilters.allMatchedItems(), function(item) {
                 var re = new RegExp(filter, "i");
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
         } else {
-            ret = ko.utils.arrayFilter(self.applicationStates(), function(item) {
+            ret = ko.utils.arrayFilter(self.applicationStateArray(), function(item) {
                 var re = new RegExp(filter, "i");
                 return (item.configurationPath.match(re) || item.applicationHost().match(re));
             });
@@ -432,7 +314,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
         //filter for time last
         return ko.utils.arrayFilter(ret, function(item) {
-            if(self.filterByTime()){
+            if(self.customFilters.filterByTime()){
                 return (item.mtime > self.time());
             }else{
                 return true;
@@ -455,12 +337,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
 
     self.toggleAllDependencies = ko.computed(function() {
         if (self.showingAllDependencies()) {
-            ko.utils.arrayForEach(self.applicationStates(), function(appState) {
+            ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
                 appState.showDependencies(true);
             });
         }
         else {
-            ko.utils.arrayForEach(self.applicationStates(), function(appState) {
+            ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
                 appState.showDependencies(false);
             });
         }
@@ -472,11 +354,11 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.views.push(self);
 
     // dependency maps
-    self.dependencyMaps = new DependencyMaps(ko, $, d3, self);
+    self.dependencyMaps = new DependencyMaps(self);
 
     // create new app state
     self.createApplicationState = function(data) {
-        return new ApplicationState(ko, data, self)
+        return new ApplicationState(data, self)
     };
 
     // handle updates from web server
@@ -484,12 +366,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         // Search the array for row with matching path
         
         if (update.delete) {
-            self.applicationStates.remove(function(currentRow) {
+            self.applicationStateArray.remove(function(currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
         }
         else{
-            var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -503,7 +385,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
             else { 
                 // add new item to array
                 var newRow = self.createApplicationState(update);
-                self.applicationStates.push(newRow);
+                self.applicationStateArray.push(newRow);
             }
         }
     };
@@ -511,7 +393,7 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
     self.handleApplicationDependencyUpdate = function (message) {
         $.each(message.application_dependencies, function() {
             var update = this;
-            var row = ko.utils.arrayFirst(self.applicationStates(), function (currentRow) {
+            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
@@ -520,13 +402,13 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         });
     };
 
-    self.fnReloadCaches = function () {
+    self.reloadCaches = function () {
         if (confirm("Please confirm you want to clear and reload all server side caches by pressing OK.")) {
             var dict = {
                 "command" : "all",
                 "user": self.login.elements.username()
             };
-            self.applicationStates.removeAll();
+            self.applicationStateArray.removeAll();
             $.post("/api/cache/reload/", dict, function(data){
                 alert(data);
             }).fail(function(data) {
@@ -535,13 +417,12 @@ return function ApplicationStateModel(service, ko, $, login, d3) {
         }
     };
 
-
     var onApplicationStatesSuccess = function (data) {
         var table = $.map(data.application_states, function (row) {
             return self.createApplicationState(row)
         });
 
-        self.applicationStates(table);
+        self.applicationStateArray(table);
         // sort initially on descending start time
         self.sort(self.activeSort());
     };

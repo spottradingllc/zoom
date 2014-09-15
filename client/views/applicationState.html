@@ -14,16 +14,16 @@
         </div>
     </div>
 
-    <!--foreach only to access the applicationStates array class-->
-    <!--<div data-bind="foreach: applicationState.filteredItems">-->
+    <!--foreach only to access the applicationStateArray array class-->
+    <!--<div data-bind="foreach: appStateModel.filteredItems">-->
        <!--</div>-->
 
 
     <div id="groupCheckModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
-        data-bind="with:applicationState">
+        data-bind="with:appStateModel">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" data-bind="style: {backgroundColor: applicationState.envModalColor}">
+                <div class="modal-header" data-bind="style: {backgroundColor: appStateModel.envModalColor}">
                     <h2 data-bind="text: environment"></h2>
                     <h4>Please re-enter your domain password to proceed.</h4>
                 </div>
@@ -72,24 +72,24 @@
 
     <div class="page-header">
         <h1>
-            <span data-bind="text: applicationState.environment"/>
+            <span data-bind="text: appStateModel.environment"/>
             <small>
-              <span data-bind="text: applicationState.applicationStates().length"></span> total services
+              <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
             </small>
             <small class="pull-right">
                 Zookeeper startup is :
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
-                    <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('auto')}, 
+                    <button type="button" data-bind="click: function(){mode.setGlobalMode('auto')},
                                                      attr: {class: mode.OnClass()}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Set Zookeeper to react to state changes.">On</button>
-                    <button type="button" data-bind="click: function(){mode.fnSetGlobalMode('manual')}, attr: {class: mode.OffClass()}"
+                    <button type="button" data-bind="click: function(){mode.setGlobalMode('manual')}, attr: {class: mode.OffClass()}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Set Zookeeper to ignore state changes.">Off</button>
                 </div>
-                <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'">
+                <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'"/>
 
                 <small>
                 <span data-bind="text: mode.timingString"/>
@@ -100,8 +100,8 @@
         <!-- View Toggling -->
         <div class="row" style="margin-bottom: 5px">
             <div class="col-md-6 text-left">
-                <div class="btn-group" data-bind="foreach: applicationState.views">
-                    <button class="btn btn-default" data-bind="radio: $parent.applicationState.currentView">
+                <div class="btn-group" data-bind="foreach: appStateModel.views">
+                    <button class="btn btn-default" data-bind="radio: $parent.appStateModel.currentView">
                         <span data-bind="text: name"></span>
                     </button>
                 </div>
@@ -112,22 +112,22 @@
                         Diff Mode :
                         <div class="btn-group">
                             <button type="button" 
-                                    data-bind="click: function(){applicationState.enableTimeFilter()},
-                                               attr: {class: ('btn btn-default' + (applicationState.filterByTime() ? ' active' : '')),
-                                                      title: applicationState.timeToolTip}"
+                                    data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
+                                               attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
+                                                      title: appStateModel.customFilters.timeToolTip}"
                                     data-toggle="tooltip"
                                     data-placement="top"> Update
 
-                                <span class="glyphicon glyphicon-refresh" data-bind="visible: applicationState.filterByTime()"> </span>
+                                <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
                             </button>
-                            <button type="button" data-bind="click: function(){applicationState.filterByTime(false)},
-                                                             attr: {class: ('btn btn-default' + (!applicationState.filterByTime() ? ' active' : ''))}"
+                            <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
+                                                             attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Set Zoom to normal operation">Normal
                             </button>
                         </div>
-                        <button type="button" data-bind="click: function(){applicationState.fnReloadCaches()}"
+                        <button type="button" data-bind="click: function(){appStateModel.reloadCaches()}"
                                               class="btn btn-default"
                                               data-toggle="tooltip"
                                               data-placement="top"
@@ -141,32 +141,33 @@
             <div class="col-md-6 text-left">
                 <!-- Search Box -->
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" data-bind="value: applicationState.textFilter, valueUpdate: 'afterkeydown'">
+                    <input type="text" class="form-control" placeholder="Search"
+                           data-bind="value: appStateModel.textFilter, valueUpdate: 'afterkeydown'">
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button">
                             <span class="glyphicon glyphicon-search"></span>
                         </button>
                         <button class="btn btn-default" type="button"
-                                                        data-bind="click: applicationState.clearSearch"
+                                                        data-bind="click: appStateModel.clearSearch"
                                                         data-toggle="tooltip"
                                                         data-placement="top"
                                                         title="Clear the search bar.">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
                         <button class="btn btn-default dropdown-toggle" type="button"
-                                data-bind="click: applicationState.fetchAllFilters"
+                                data-bind="click: appStateModel.customFilters.fetchAllFilters"
                                 data-toggle="dropdown"
                                 data-toggle="tooltip"
                                 data-placement="top"
                                 title="View filtering options.">
                             Filters
-                            <span class="badge" data-bind="text: applicationState.customFilteredItems().length,
-                                                           visible: applicationState.customFilteredItems().length > 0">
+                            <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
+                                                           visible: appStateModel.customFilters.allMatchedItems().length > 0">
                             </span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu pull-right" role="menu">
-                            <!-- ko foreach: applicationState.defaultFilters -->
+                            <!-- ko foreach: appStateModel.customFilters.defaultFilters -->
                                 <li role="presentation">
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
@@ -176,7 +177,7 @@
                                 </li>
                             <!-- /ko -->
                             <li role="presentation" class="divider"></li>
-                            <!-- ko foreach: applicationState.remoteCustomFilters -->
+                            <!-- ko foreach: appStateModel.customFilters.remoteCustomFilters -->
                                 <li role="presentation">
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
@@ -187,13 +188,13 @@
                             <!-- /ko -->
                             <li role="presentation" class="divider"></li>
                             <li role="presentation">
-                                <a data-bind="click: applicationState.addCustomFilter"
+                                <a data-bind="click: appStateModel.customFilters.addCustomFilter"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Create a custom filter.">New Custom Filter</a>
                             </li>
                             <li role="presentation">
-                                <a data-bind="click: applicationState.clearAllFilters"
+                                <a data-bind="click: appStateModel.customFilters.clearAllFilters"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Clear all filters.">Clear All</a>
@@ -207,49 +208,49 @@
             <div class="col-md-6 text-right">
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent({'com':'stop', 'arg':true,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'stop', 'arg':true,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Stop the starred services.">
                         <span class="glyphicon glyphicon-stop"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent({'com':'restart', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'restart', 'arg':false,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent()}"
+                                          data-bind="click: function(){appStateModel.controlAgent()}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services."> 
                         <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent({'com':'ignore', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'ignore', 'arg':false, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent({'com':'react', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'react', 'arg':false, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to react to Zookeeper changes.">React</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){applicationState.controlAgent({'com':'cancel', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'cancel', 'arg':false,'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Cancel pending commands for the starred agents.">Cancel</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: applicationState.filteredGroupControl"
+                                          data-bind="click: appStateModel.filteredGroupControl"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Star all of the filtered agents.">
                         <span class="glyphicon glyphicon-star"></span> all</button>
-                    <button class="btn btn-default" data-bind="click: applicationState.clearGroupControl"
+                    <button class="btn btn-default" data-bind="click: appStateModel.clearGroupControl"
                                                     data-toggle="tooltip"
                                                     data-placement="top"
                                                     title="Release all starred agents.">
-                        <span class="badge" data-bind="text: applicationState.groupControl().length"></span>
+                        <span class="badge" data-bind="text: appStateModel.groupControl().length"></span>
                         <span class="glyphicon glyphicon-remove"></span>
                     </button>
                 </div>
@@ -260,7 +261,7 @@
         <div class="row">
             <!-- Custom Filters -->
             <div class="col-md-12">
-                <div data-bind="foreach: applicationState.customFilters">
+                <div data-bind="foreach: appStateModel.customFilters.all">
                     <div class="row" style="margin-top: 5px">
                         <div class="col-md-12">
                             <div class="btn-group">
@@ -269,7 +270,7 @@
                                         data-placement="top"
                                         title="Close the filter.">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                    <span class="badge" data-bind="text: $data.customFilteredItems().length,
+                                    <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
                                                                    visible: enabled() "></span>
                                 </button>
                                 <button class="btn btn-default"
@@ -362,30 +363,30 @@
     </div>
 
     <div class="page-body">
-        <table class="table table-bordered table-condensed" data-bind="visible: applicationState.currentView() == applicationState">
+        <table class="table table-bordered table-condensed" data-bind="visible: appStateModel.currentView() == appStateModel">
             <!-- Headers -->
             <thead>
-                <tr data-bind="foreach: applicationState.headers">
+                <tr data-bind="foreach: appStateModel.headers">
                     <th style="cursor:pointer"
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Toggle ascending/descending sort based on this column."
-                        data-bind="visible: $parent.applicationState.showHeader($index())">
-                        <span data-bind="visible: $parent.applicationState.activeSort().title == title">
+                        data-bind="visible: $parent.appStateModel.showHeader($index())">
+                        <span data-bind="visible: $parent.appStateModel.activeSort().title == title">
                             <span class="caret-reversed" data-bind="visible: asc"></span>
                             <span class="caret" data-bind="visible: !asc()"></span>
                         </span>
-                        <span data-bind="text: title, click: $parent.applicationState.sort"></span>
+                        <span data-bind="text: title, click: $parent.appStateModel.sort"></span>
                         <span data-bind="visible: title == 'Configuration Path'">
-                            <small data-bind="click: $parent.applicationState.expandAllDependencies,
-                                              visible: !$parent.applicationState.showingAllDependencies()"
+                            <small data-bind="click: $parent.appStateModel.expandAllDependencies,
+                                              visible: !$parent.appStateModel.showingAllDependencies()"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Toggle the display of all dependencies.">
                                 (Expand All)
                             </small>
-                            <small data-bind="click: $parent.applicationState.collapseAllDependencies,
-                                              visible: $parent.applicationState.showingAllDependencies()"
+                            <small data-bind="click: $parent.appStateModel.collapseAllDependencies,
+                                              visible: $parent.appStateModel.showingAllDependencies()"
                                    data-toggle="tooltip"
                                    data-placement="top"
                                    title="Toggle the display of all dependencies.">
@@ -397,18 +398,18 @@
             </thead>
             <!-- END Headers -->
             <!-- Rows -->
-            <tbody data-bind="foreach: applicationState.filteredItems">
+            <tbody data-bind="foreach: appStateModel.filteredItems">
                 <tr>
                     <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
                         <span data-bind="attr : {class : applicationStatusClass},
-                                         click: function(){modalShow([graphiteApplicationURL()])} "></span>
+                                         click: function(){graphite.modalShow([graphite.applicationURL])} "></span>
                     </td>
                     <td data-toggle="tooltip"
                         data-placement="top"
                         title="Toggle the display of dependencies.">
                         <span data-bind="text: configurationPath, click: toggleDependencies"></span>
                         <span data-bind="attr : {class : dependencyClass}"></span>
-                        <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: toggleInfo"></span>
+                        <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                         <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
                             <span data-bind="visible: requires().length > 0">I require:</span>
                             <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
@@ -420,13 +421,13 @@
                             </ul>
                         </div>
                         <div class="alert alert-info" role="alert" 
-                             data-bind="visible: (showInfo() && $parent.login.elements.authenticated()), text: serviceInfo,
-                                        event : {mouseout: function(){saveInfo();}},
+                             data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
+                                        event : {mouseout: function(){appInfo.save();}},
                                         attr : {name: configurationPath}"
                              contenteditable="true">
                         </div>
                         <div class="alert alert-info" role="alert"
-                             data-bind="visible: (showInfo() && !$parent.login.elements.authenticated()), text: serviceInfo">
+                             data-bind="visible: (appInfo.showInfo() && !$parent.login.elements.authenticated()), text: appInfo.data">
                         </div>
                     </td>
                     <td class="text-left">
@@ -438,32 +439,36 @@
                                 <span data-bind="text: applicationHost"/>
                             </div>
                             <ul class="dropdown-menu" role=menu >
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="#"
+                                       data-bind="click: function(){graphite.modalShow([graphite.cpuURL,
+                                                                                        graphite.networkURL,
+                                                                                        graphite.memoryURL,
+                                                                                        graphite.diskSpaceURL,
+                                                                                        graphite.bufferErrorsURL])}">
+                                        All Metrics
+                                    </a>
+                                </li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteCPUURL(),
-                                                                                                   graphiteNetworkURL(), 
-                                                                                                   graphiteMemoryURL(),
-                                                                                                   graphiteDiskSpaceURL(),
-                                                                                                   graphiteBufferErrorsURL()])}">All Metrics</a></li>
+                                                           data-bind="click: function(){graphite.modalShow([graphite.cpuURL])}">CPU Graph</a></li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteCPUURL()])}">CPU Graph</a></li>
+                                                           data-bind="click: function(){graphite.modalShow([graphite.memoryURL])}">Memory Graph</a></li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteMemoryURL()])}">Memory Graph</a></li>
+                                                           data-bind="click: function(){graphite.modalShow([graphite.networkURL])}">Network Graph</a></li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteNetworkURL()])}">Network Graph</a></li>
+                                                           data-bind="click: function(){graphite.modalShow([graphite.diskSpaceURL])}">Disk Graph</a></li>
                                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteDiskSpaceURL()])}">Disk Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
-                                                           data-bind="click: function(){modalShow([graphiteBufferErrorsURL()])}">Buffer Errors</a></li>
+                                                           data-bind="click: function(){graphite.modalShow([graphite.bufferErrorsURL])}">Buffer Errors</a></li>
                             </ul>
                         </div>
                     </td>
                     <td data-bind="text: startTime"></td>
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass,
-                                                 title : errorState}"/>
+                                                 title : errorState}">
                         </span>
                         <span data-bind="attr : {class : modeClass,
-                                                 title : mode}"/>
+                                                 title : mode}">
                         </span>
                     </td>
                     <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
@@ -486,7 +491,7 @@
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
                                 <a data-bind="click: function()
-                                    {$parent.applicationState.controlAgent({'com':'stop', 'arg':true}, {'componentId':componentId, 
+                                    {$parent.appStateModel.controlAgent({'com':'stop', 'arg':true}, {'componentId':componentId, 
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -494,7 +499,7 @@
                                 </li>
                                 <li role="presentation">
                                 <a data-bind="click: function()
-                                    {$parent.applicationState.controlAgent({'com':'restart', 'arg':false}, {'componentId':componentId,   
+                                    {$parent.appStateModel.controlAgent({'com':'restart', 'arg':false}, {'componentId':componentId,   
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -502,7 +507,7 @@
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                     {$parent.applicationState.controlAgent({'com':'cancel', 'arg':false}, {'componentId':componentId,   
+                                     {$parent.appStateModel.controlAgent({'com':'cancel', 'arg':false}, {'componentId':componentId,   
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -510,7 +515,7 @@
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                      {$parent.applicationState.controlAgent({'com':'ignore', 'arg':false}, {'componentId':componentId,   
+                                      {$parent.appStateModel.controlAgent({'com':'ignore', 'arg':false}, {'componentId':componentId,   
                                       'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -518,7 +523,7 @@
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                     {$parent.applicationState.controlAgent({'com':'react', 'arg':false}, {'componentId':componentId,   
+                                     {$parent.appStateModel.controlAgent({'com':'react', 'arg':false}, {'componentId':componentId,   
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -527,7 +532,7 @@
                             </ul>
                         </div>
                     </td>
-                    <td class="text-center" data-bind="visible: $parent.applicationState.admin.enabled">
+                    <td class="text-center" data-bind="visible: $parent.appStateModel.admin.enabled">
                         <div class="btn-group btn-group-xs" >
                             <button class="btn btn-default"
                                     type="button"
@@ -545,7 +550,7 @@
         </table>
     </div>
     <div class="splash">
-        <i class="fa fa-spinner fa-spin" data-bind="visible: applicationState.applicationStates().length == 0"></i>
+        <i class="fa fa-spinner fa-spin" data-bind="visible: appStateModel.applicationStateArray().length == 0"></i>
     </div>
 </div>
 
