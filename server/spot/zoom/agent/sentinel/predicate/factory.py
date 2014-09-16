@@ -4,11 +4,13 @@ from xml.etree import ElementTree
 
 from spot.zoom.common.types import PredicateType
 from spot.zoom.agent.sentinel.predicate.health import PredicateHealth
+from spot.zoom.agent.sentinel.predicate.holiday import PredicateHoliday
 from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
 from spot.zoom.agent.sentinel.predicate.pred_not import PredicateNot
 from spot.zoom.agent.sentinel.predicate.pred_or import PredicateOr
 from spot.zoom.agent.sentinel.predicate.process import PredicateProcess
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
+from spot.zoom.agent.sentinel.predicate.weekend import PredicateWeekend
 from spot.zoom.agent.sentinel.predicate.zkgut import ZookeeperGoodUntilTime
 from spot.zoom.agent.sentinel.predicate.zkhas_children \
     import ZookeeperHasChildren
@@ -96,8 +98,7 @@ class PredicateFactory(object):
             return self._ensure_new(
                 PredicateProcess(self._component_name,
                                  self._proc_client,
-                                 verify_attribute(root, 'interval',
-                                                  cast=float),
+                                 verify_attribute(root, 'interval', cast=float),
                                  parent=self._parent),
                 callback=callback
             )
@@ -105,11 +106,21 @@ class PredicateFactory(object):
             return self._ensure_new(
                 PredicateHealth(self._component_name,
                                 verify_attribute(root, 'command'),
-                                verify_attribute(root, 'interval',
-                                                 cast=float),
+                                verify_attribute(root, 'interval', cast=float),
                                 self._system,
                                 parent=self._parent),
                 callback=callback
+            )
+        elif ptype == PredicateType.HOLIDAY:
+            return self._ensure_new(PredicateHoliday(self._component_name,
+                                                     self.zkclient,
+                                                     parent=self._parent),
+                                    callback=callback
+            )
+        elif ptype == PredicateType.WEEKEND:
+            return self._ensure_new(PredicateWeekend(self._component_name,
+                                                     parent=self._parent),
+                                    callback=callback
             )
 
         # below, use recursion to get nested predicates
