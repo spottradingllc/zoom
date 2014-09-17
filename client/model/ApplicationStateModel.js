@@ -86,6 +86,10 @@ return function ApplicationStateModel(login) {
         }
     };
 
+    $('#groupCheckModal').on('shown.bs.modal', function() {
+           console.log("worked");
+    });
+
     self.executeSingleControl = function(options) {
         if (!self.isHostEmpty()) {
                 var dict = {
@@ -137,7 +141,7 @@ return function ApplicationStateModel(login) {
     };
 
     // Replaces dep_restart by checking self.options. Will also call every other command by passing
-    // through self.options to executeGroupControl
+    // through self.options to executeGroupControl or executeSingleControl
     self.determineAndExecute = function() {
         if (self.groupMode()){
             if (self.options.com === 'dep_restart'){

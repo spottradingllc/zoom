@@ -39,7 +39,7 @@
                             </div>
                         </div>
                     </li>
-                    <li class="dropdown" >
+                    <li class="dropdown" id="parentOfDrop">
                         <a class="dropdown-toggle" href="#" id="loginDropDown" data-toggle="dropdown">
                             <span data-bind="text: login.advertise()"/>
                             <strong class="caret"></strong>
@@ -47,7 +47,7 @@
                         <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" aria-labelledby="loginDropDown">
                             <!-- Login form here -->
                             <form role="form" class="form-horizontal">
-                                <div class="input-group" style="margin-bottom: 25px">
+                                <div class="input-group" style="margin-bottom: 25px" data-bind= "visible: !login.elements.authenticated()">
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                                     <input id="username"
                                         data-bind="value: login.elements.username"
@@ -56,18 +56,20 @@
                                         placeholder="username"
                                         class="form-control">
                                 </div>
-                                <div class="input-group" style="margin-bottom: 25px">
+                                <div class="input-group" style="margin-bottom: 25px" data-bind= "visible: !login.elements.authenticated()">
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                                     <input id="password"
                                         data-bind="value: login.elements.password"
                                         style="width: 200px"
                                         type="password"
                                         placeholder="password"
-                                        class="form-control">
+                                        class="form-control" rel="popover" data-content="Incorrect Password" data-placement="bottom">
+
                                 </div>
                                 <div class="row">
                                     <div class="row-fluid">
-                                        <div class="col-xs-6" style="padding: 5px 5px 5px 5px;">
+                                        <div class="col-xs-6" style="padding: 5px 5px 5px 5px"
+                                            data-bind="visible: !login.elements.authenticated()">
                                             <button data-bind="click: function(){login.submit()}"
                                                     style="width: 75%"
                                                     type="submit"
@@ -78,7 +80,6 @@
                                         </div>
                                         <div data-bind="visible: login.elements.authenticated" class="col-xs-6" style="padding: 5px 5px 5px 5px;">
                                             <button data-bind="click: function() { login.reset() }"
-                                                    style="width: 75%"
                                                     class="btn btn-primary"
                                                     data-toggle="tooltip"
                                                     data-placement="top"
