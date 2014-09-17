@@ -1,4 +1,4 @@
-define(['knockout', 'service' ], function (ko, service) {
+define(['knockout', 'service', 'jquery' ], function (ko, service, $) {
 
     var login = {};
 
@@ -9,7 +9,6 @@ define(['knockout', 'service' ], function (ko, service) {
         error: ko.observable(""),
         readWrite: ko.observable(false),
         authenticated: ko.observable(false),
-        passCheck: false
     };
 
     login.advertise = ko.computed(function(){
@@ -34,14 +33,13 @@ define(['knockout', 'service' ], function (ko, service) {
 
     login.onSuccess = function(data) {
         login.setUserFromCookie();
-        login.elements.passCheck = true;
+        login.hide();
     };
 
     login.onFailure = function(data) {
-        console.log("FAILED login attempt");
         console.log(JSON.stringify(data));
-        //alert(JSON.stringify(data));
-        login.elements.passCheck = false;
+        
+        if (login.elements.password() != "")$('#password').popover('show');
     };
 
     login.submit = function() {
@@ -55,12 +53,17 @@ define(['knockout', 'service' ], function (ko, service) {
            
     };
 
-
     login.reset = function () {
         login.elements.username("");
         login.elements.password("");
         login.elements.authenticated(false);
+        login.hide();
         login.submit();
+    };
+
+    login.hide = function() {
+        $('#password').popover('destroy');
+        $('#loginDropDown').click();
     };
 
     login.setUserFromCookie();

@@ -27,8 +27,9 @@ return function ApplicationStateModel(login) {
 
     var envColor = {
         staging: '#FFDA47',
-        uat: '#3399FF',
+        stagText: '#000000',
         production: '#E64016',
+        prodText: '#FFFFFF',
         unknown: '#FF33CC'
     };
 
@@ -71,6 +72,17 @@ return function ApplicationStateModel(login) {
                 break;
             default:
                 return envColor.unknown;
+                break;
+        }
+    });
+
+    self.envTextColor = ko.computed(function(){
+        switch(self.environment.toLowerCase()){
+            case env.prod:
+                return envColor.prodText;
+                break;
+            default:
+                return envColor.stagText;
                 break;
         }
     });
@@ -137,7 +149,7 @@ return function ApplicationStateModel(login) {
     };
 
     // Replaces dep_restart by checking self.options. Will also call every other command by passing
-    // through self.options to executeGroupControl
+    // through self.options to executeGroupControl or executeSingleControl
     self.determineAndExecute = function() {
         if (self.groupMode()){
             if (self.options.com === 'dep_restart'){

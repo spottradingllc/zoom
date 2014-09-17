@@ -23,7 +23,7 @@
         data-bind="with:appStateModel">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" data-bind="style: {backgroundColor: appStateModel.envModalColor}">
+                <div class="modal-header" data-bind="style: {backgroundColor: appStateModel.envModalColor, color: appStateModel.envTextColor}">
                     <h2 data-bind="text: environment"></h2>
                     <h4>Please re-enter your domain password to proceed.</h4>
                 </div>
@@ -92,7 +92,7 @@
                 <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'"/>
 
                 <small>
-                <span data-bind="text: mode.timingString"/>
+                <span data-bind="text: mode.timingString, visible: mode.isOn()"/>
                 </small>
             </small>
         </h1>
