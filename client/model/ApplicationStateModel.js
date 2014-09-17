@@ -86,6 +86,7 @@ return function ApplicationStateModel(login) {
         }
     };
 
+    // ignore this for now - it's the equivalent for another object
     $('#groupCheckModal').on('shown.bs.modal', function() {
            console.log("worked");
     });

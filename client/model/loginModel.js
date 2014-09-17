@@ -66,13 +66,14 @@ define(['knockout', 'service', 'jquery' ], function (ko, service, $) {
         $('#loginDropDown').click();
     };
 
+    // this is the function I cannot get to work... according to bootstrap documentation,
+    // shown.bs.dropdown will be called on the parent of the tag containing toggle: dropdown
+    // which in this case is parentOfDrop. I added the document.ready to be conservative
     $(document).ready(function(){
-
-    $('#parentOfDrop').on('shown.bs.dropdown', function(){
-        alert("worked");    
-    //    $('#username').focus();
-    });
-
+        $('#parentOfDrop').on('shown.bs.dropdown', function(){
+            alert("worked");    
+            $('#username').focus();
+        });
     });
 
     login.setUserFromCookie();
