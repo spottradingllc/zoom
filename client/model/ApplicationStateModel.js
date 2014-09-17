@@ -27,8 +27,9 @@ return function ApplicationStateModel(login) {
 
     var envColor = {
         staging: '#FFDA47',
-        uat: '#3399FF',
+        stagText: '#000000',
         production: '#E64016',
+        prodText: '#FFFFFF',
         unknown: '#FF33CC'
     };
 
@@ -75,6 +76,17 @@ return function ApplicationStateModel(login) {
         }
     });
 
+    self.envTextColor = ko.computed(function(){
+        switch(self.environment.toLowerCase()){
+            case env.prod:
+                return envColor.prodText;
+                break;
+            default:
+                return envColor.stagText;
+                break;
+        }
+    });
+
     // control agent
     self.isHostEmpty = function () {
         if (self.clickedApp.applicationHost == "") {
@@ -85,11 +97,6 @@ return function ApplicationStateModel(login) {
             return false;
         }
     };
-
-    // ignore this for now - it's the equivalent for another object
-    $('#groupCheckModal').on('shown.bs.modal', function() {
-           console.log("worked");
-    });
 
     self.executeSingleControl = function(options) {
         if (!self.isHostEmpty()) {
