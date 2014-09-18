@@ -72,7 +72,7 @@ input:required:invalid::-webkit-input-placeholder {
     font-size: 12px;
 }
 
-/*Overrides bootstrap to properly display modal
+/* Overrides bootstrap to properly display modal
  * header with a background color
  */
 .modal-header {
@@ -91,7 +91,6 @@ input:required:invalid::-webkit-input-placeholder {
     text-align: center;
     font-size: 16px;
     font-weight: bold;
-
 }
 
 .navbar {
