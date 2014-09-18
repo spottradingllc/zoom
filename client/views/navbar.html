@@ -92,8 +92,14 @@
                     </li>
                 </ul>
             </div>
+
         </div>
-    </nav>
+    
+        <div class="envbanner" data-bind="text: appStateModel.environment, style: {backgroundColor: appStateModel.envModalColor,
+            color: appStateModel.envTextColor}">
+        </div>
+
+        </nav>
 
     <div class="page-host" data-bind="router: { transition:'entrance' }"></div>
 </div>

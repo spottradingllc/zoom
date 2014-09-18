@@ -1,6 +1,5 @@
 body{background-color: #F7F7F6;}
 
-.login{padding-top: 65px;}
 
 .center {
     float: none;
@@ -86,4 +85,15 @@ input:required:invalid::-webkit-input-placeholder {
     -moz-border-radius-topright: 5px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px; 
+}
+
+.envbanner {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+
+}
+
+.navbar {
+    border: 0px;
 }
