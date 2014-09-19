@@ -326,6 +326,13 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
+                                <button data-bind="click: function(){setParameter('triggerTime')},
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'triggerTime') ? ' active' : ''))}"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Filter by trigger time.">
+                                    Trigger Time
+                                </button>
                                 <button data-bind="click: function(){setParameter('startTime')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'startTime') ? ' active' : ''))}"
                                         data-toggle="tooltip"
@@ -462,6 +469,7 @@
                             </ul>
                         </div>
                     </td>
+                    <td data-bind="text: triggerTime"></td>
                     <td data-bind="text: startTime"></td>
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass,

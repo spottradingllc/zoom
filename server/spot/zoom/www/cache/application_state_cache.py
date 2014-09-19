@@ -133,6 +133,7 @@ class ApplicationStateCache(object):
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
                 application_host=host,
+                trigger_time=data.get('trigger_time', ''),
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown')
             )
@@ -156,6 +157,7 @@ class ApplicationStateCache(object):
                 application_status=ApplicationStatus.RUNNING,
                 application_host=host,
                 start_time=stat.created,
+                trigger_time=data.get('trigger_time', ''),
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown')
             )

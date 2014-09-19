@@ -2,6 +2,7 @@ import logging
 import json
 import os.path
 import platform
+from datetime import datetime
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
@@ -72,6 +73,7 @@ class Application(object):
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = SimpleObject(ApplicationState.OK)
         self._start_allowed = SimpleObject(False)  # allowed_instances
+        self._trigger_time = None
         self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
@@ -165,6 +167,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
+        self._trigger_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._state.set_value(ApplicationState.STARTING)
         self._update_agent_node_with_app_details()
 
@@ -268,7 +271,8 @@ class Application(object):
                 'host': self._host,
                 'platform': self._system,
                 'mode': self._mode.value,
-                'state': self._state.value}
+                'state': self._state.value,
+                'trigger_time': self._trigger_time}
 
     @connected
     def _update_agent_node_with_app_details(self, event=None):
