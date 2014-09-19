@@ -130,7 +130,6 @@ class Application(object):
                 self._log.info('Registering %s in state tree.' % self.name)
                 self.zkclient.create(self._paths['zk_state_path'],
                                      ephemeral=True,
-                                     value=json.dumps(self._app_details()),
                                      makepath=True)
 
                 self._state.set_value(ApplicationState.OK)
