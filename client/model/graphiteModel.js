@@ -14,6 +14,12 @@ return function GraphiteModel(environment, host, configPath) {
         $('#graphiteModal').modal('show');
     };
 
+    self.serverConfigURL = function(){
+        var url = "#config";
+        url = url + "/";
+        url = url + host;
+    };
+
     self.applicationURL = function(){
         var url = "http://graphite" + environment + "/render?";
         var appName = configPath.replace("/spot/software/state/", "");
