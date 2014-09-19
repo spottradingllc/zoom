@@ -148,7 +148,7 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                 parent.groupControl.remove(self);
             }
         };
-
+        
         self.onControlAgentError = function () {
             alert("Error controlling agent.");
         };

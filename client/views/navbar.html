@@ -39,15 +39,17 @@
                             </div>
                         </div>
                     </li>
-                    <li class="dropdown" >
+                    <li class="dropdown">
                         <a class="dropdown-toggle" href="#" id="loginDropDown" data-toggle="dropdown">
                             <span data-bind="text: login.advertise()"/>
                             <strong class="caret"></strong>
                         </a>
                         <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" aria-labelledby="loginDropDown">
                             <!-- Login form here -->
-                            <form role="form" class="form-horizontal">
-                                <div class="input-group" style="margin-bottom: 25px">
+                            <form role="form" class="form-horizontal"
+                                style="text-align: center"
+                                data-bind="visible: !login.elements.authenticated()">
+                                <div class="input-group" style="margin-bottom: 15px" >
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                                     <input id="username"
                                         data-bind="value: login.elements.username"
@@ -56,45 +58,48 @@
                                         placeholder="username"
                                         class="form-control">
                                 </div>
-                                <div class="input-group" style="margin-bottom: 25px">
+                                <div class="input-group" style="margin-bottom: 15px">
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                                     <input id="password"
                                         data-bind="value: login.elements.password"
                                         style="width: 200px"
                                         type="password"
                                         placeholder="password"
-                                        class="form-control">
+                                        class="form-control" rel="popover" data-content="Incorrect Password" data-placement="bottom">
+
                                 </div>
-                                <div class="row">
-                                    <div class="row-fluid">
-                                        <div class="col-xs-6" style="padding: 5px 5px 5px 5px;">
+                                <div style="padding: 5px 5px 5px 5px">
                                             <button data-bind="click: function(){login.submit()}"
-                                                    style="width: 75%"
+                                                    style="width: 50%; margin: 0 auto"
                                                     type="submit"
                                                     class="btn btn-primary">
                                             <i class="icon-user icon-white"></i>
                                             Login
                                             </button>
-                                        </div>
-                                        <div data-bind="visible: login.elements.authenticated" class="col-xs-6" style="padding: 5px 5px 5px 5px;">
-                                            <button data-bind="click: function() { login.reset() }"
-                                                    style="width: 75%"
-                                                    class="btn btn-primary"
-                                                    data-toggle="tooltip"
-                                                    data-placement="top"
-                                                    title="Logout">
-                                            Logout
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
                             </form>
+                            <div data-bind="visible: login.elements.authenticated" style="padding: 5px 5px 5px 5px;">                
+                                    <button data-bind="click: function() { login.reset() }"
+                                            style="width: 100%"
+                                            class="btn btn-primary"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Logout">
+                                            Logout
+                                    </button>
+                            </div>
                         </div>
                     </li>
                 </ul>
             </div>
+
         </div>
-    </nav>
+    
+        <div class="envbanner" data-bind="text: appStateModel.environment, style: {backgroundColor: appStateModel.envModalColor,
+            color: appStateModel.envTextColor}">
+        </div>
+
+        </nav>
 
     <div class="page-host" data-bind="router: { transition:'entrance' }"></div>
 </div>

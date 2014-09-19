@@ -1,4 +1,5 @@
 define(['knockout',
+        'plugins/router',
         'service',
         'jquery',
         'model/ApplicationState',
@@ -8,7 +9,7 @@ define(['knockout',
         'model/customFilterModel',
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'],
-function(ko, service, $, ApplicationState, Environment, admin, GlobalMode, CustomFilterModel, ApplicationStateArray, DependencyMaps){
+function(ko, router, service, $, ApplicationState, Environment, admin, GlobalMode, CustomFilterModel, ApplicationStateArray, DependencyMaps){
 return function ApplicationStateModel(login) {
     var self = this;
     self.login = login;
@@ -27,8 +28,9 @@ return function ApplicationStateModel(login) {
 
     var envColor = {
         staging: '#FFDA47',
-        uat: '#3399FF',
+        stagText: '#000000',
         production: '#E64016',
+        prodText: '#FFFFFF',
         unknown: '#FF33CC'
     };
 
@@ -58,6 +60,10 @@ return function ApplicationStateModel(login) {
 
     };
 
+    self.showServerConfig = function(hostname) {
+        router.navigate('#config/' +  hostname(), { trigger: true });
+    };
+
     // Changes modal header color to reflect current environment
     self.envModalColor = ko.computed(function(){
         switch(self.environment.toLowerCase()){
@@ -72,6 +78,17 @@ return function ApplicationStateModel(login) {
                 break;
             default:
                 return envColor.unknown;
+                break;
+        }
+    });
+
+    self.envTextColor = ko.computed(function(){
+        switch(self.environment.toLowerCase()){
+            case env.prod:
+                return envColor.prodText;
+                break;
+            default:
+                return envColor.stagText;
                 break;
         }
     });
@@ -138,7 +155,7 @@ return function ApplicationStateModel(login) {
     };
 
     // Replaces dep_restart by checking self.options. Will also call every other command by passing
-    // through self.options to executeGroupControl
+    // through self.options to executeGroupControl or executeSingleControl
     self.determineAndExecute = function() {
         if (self.groupMode()){
             if (self.options.com === 'dep_restart'){
@@ -316,7 +333,7 @@ return function ApplicationStateModel(login) {
         //filter for time last
         return ko.utils.arrayFilter(ret, function(item) {
             if(self.customFilters.filterByTime()){
-                return (item.mtime > self.time());
+                return (item.mtime > self.customFilters.time());
             }else{
                 return true;
             }
