@@ -1,12 +1,10 @@
 define(['knockout', 'service' ], function (ko, service) {
 
-    var env = {};
+    var env = ko.observable("Unknown");
 
     var onSuccess = function(data) {
-        var environment = data.environment;
-        env.environment = environment;
-
-        var stylename = environment.toLowerCase().concat('_style');
+        env(data.environment);
+        var stylename = data.environment.toLowerCase().concat('_style');
         document.getElementById(stylename).removeAttribute('disabled');
     };
 
