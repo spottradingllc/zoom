@@ -1,6 +1,7 @@
 import json
 import logging
 import httplib
+import sys
 
 import tornado.web
 
@@ -21,7 +22,10 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
 
             self.write(result.to_json())
 
-        except Exception as e:
+
+        except:
+            logging.info("here")
+            e = sys.exc_info()[0]
             logging.exception(e)
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write(json.dumps({'errorText': str(e)}))

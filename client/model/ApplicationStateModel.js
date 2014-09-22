@@ -273,7 +273,9 @@ return function ApplicationStateModel(login) {
     // Sorting
     self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
     self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
-    self.sort = function (header) {
+    self.sort = function (header, initialRun) {
+        if (typeof initialRun == "undefined") initialRun = false;
+        // initialRun == true if self.sort is called on page initialization
         if (header.title == "Control") { return }  // ignore sorting on Control header
 
         //if this header was just clicked a second time...
@@ -296,7 +298,7 @@ return function ApplicationStateModel(login) {
         var sortFunc = self.activeSort().asc() ? ascSort : descSort;
 
         self.applicationStateArray.sort(sortFunc);
-        self.holdSortDirection(false);
+        if (!initialRun) self.holdSortDirection(false);
     };
 
     self.clearSearch = function () {
@@ -306,7 +308,7 @@ return function ApplicationStateModel(login) {
     self.sortByTime = function() {
         var timeheader = {title: 'Time', sortPropertyName: 'mtime', asc: ko.observable(true)};
         self.activeSort(timeheader);
-        self.sort(self.activeSort());
+        self.sort(self.activeSort(), false);
     };
 
     // Filtering from the search bar
@@ -440,8 +442,8 @@ return function ApplicationStateModel(login) {
         });
 
         self.applicationStateArray(table);
-        // sort initially on descending start time
-        self.sort(self.activeSort());
+        // sort initially on descending start time - initial run so give true param
+        self.sort(self.activeSort(), true);
     };
 
     var onApplicationStatesError = function (data) {
