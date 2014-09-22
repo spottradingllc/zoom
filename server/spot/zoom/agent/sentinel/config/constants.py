@@ -35,6 +35,7 @@ ZK_TASK_PATH = '/spot/software/task'
 ZK_GLOBAL_PATH = '/'.join([ZK_CONFIG_PATH, 'global'])
 ZK_AGENT_STATE_PATH = '/'.join([ZK_STATE_PATH, 'agent'])
 ZK_AGENT_CONFIG_PATH = '/'.join([ZK_CONFIG_PATH, 'agent'])
+ZK_HOLIDAY_PATH = '/'.join([ZK_CONFIG_PATH, 'holiday'])
 GRAPHITE_RUNTIME_METRIC = 'Infrastructure.startup.{0}.runtime'
 GRAPHITE_RESULT_METRIC = 'Infrastructure.startup.{0}.result'
 ALLOWED_WORK = [

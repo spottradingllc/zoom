@@ -21,7 +21,7 @@ requirejs.config({
 
 define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function (system, app, viewLocator) {
     //>>excludeStart("build", true);
-    system.debug(false);
+    system.debug(true);
     //>>excludeEnd("build");
 
     app.title = 'Zoom';

@@ -17,7 +17,7 @@ return function ApplicationStateModel(login) {
     self.globalMode = GlobalMode;
     self.applicationStateArray = ApplicationStateArray;
     self.textFilter = ko.observable("");
-    self.environment = Environment.environment;
+    self.environment = Environment;
     self.name = "Application State Table";
     self.passwordConfirm = ko.observable("");
     self.options = {};
@@ -65,7 +65,7 @@ return function ApplicationStateModel(login) {
 
     // Changes modal header color to reflect current environment
     self.envModalColor = ko.computed(function(){
-        switch(self.environment.toLowerCase()){
+        switch(self.environment().toLowerCase()){
             case env.stg:
                 return envColor.staging;
                 break;
@@ -82,7 +82,7 @@ return function ApplicationStateModel(login) {
     });
 
     self.envTextColor = ko.computed(function(){
-        switch(self.environment.toLowerCase()){
+        switch(self.environment().toLowerCase()){
             case env.prod:
                 return envColor.prodText;
                 break;
