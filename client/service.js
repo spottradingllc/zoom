@@ -41,6 +41,20 @@ function($) {
             });
         },
 
+        synchronousGet: function(path, callback, errorCallback) {
+            return $.ajax(getUrl(path), {
+                async: false, 
+                dataType: 'json',
+                type: "GET",
+                success: function(data) {
+                    return callback(data);
+                },
+                error: function(jqxhr) {
+                    return errorCallback(jqxhr.responseJSON);
+                }
+            });
+        },
+
         post: function(path, params, callback, errorCallback) {
             return $.ajax(getUrl(path), {
                 data: JSON.stringify(params),

@@ -366,29 +366,28 @@
             <!-- Headers -->
             <thead>
                 <tr data-bind="foreach: appStateModel.headers">
-                    <th style="cursor:pointer"
+                    <th
                         data-toggle="tooltip"
                         data-placement="top"
-                        title="Toggle ascending/descending sort based on this column."
                         data-bind="visible: $parent.appStateModel.showHeader($index())">
                         <span data-bind="visible: $parent.appStateModel.activeSort().title == title">
                             <span class="caret-reversed" data-bind="visible: asc"></span>
                             <span class="caret" data-bind="visible: !asc()"></span>
                         </span>
-                        <span data-bind="text: title, click: $parent.appStateModel.sort"></span>
-                        <span data-bind="visible: title == 'Configuration Path'">
+                        <span data-bind="text: title, click: $parent.appStateModel.sort" style="cursor:pointer"
+                            title="Toggle ascending/descending sort based on this column."></span>
+                        <span data-bind="visible: title == 'Configuration Path'" style="cursor:pointer"
+                            title="Toggle the display of all dependencies.">
                             <small data-bind="click: $parent.appStateModel.expandAllDependencies,
                                               visible: !$parent.appStateModel.showingAllDependencies()"
                                    data-toggle="tooltip"
-                                   data-placement="top"
-                                   title="Toggle the display of all dependencies.">
+                                   data-placement="top">
                                 (Expand All)
                             </small>
                             <small data-bind="click: $parent.appStateModel.collapseAllDependencies,
                                               visible: $parent.appStateModel.showingAllDependencies()"
                                    data-toggle="tooltip"
-                                   data-placement="top"
-                                   title="Toggle the display of all dependencies.">
+                                   data-placement="top">
                                 Collapse All
                             </small>
                         </span>
