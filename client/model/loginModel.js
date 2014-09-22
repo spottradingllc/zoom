@@ -8,7 +8,7 @@ define(['knockout', 'service', 'jquery' ], function (ko, service, $) {
         showError: ko.observable(false),
         error: ko.observable(""),
         readWrite: ko.observable(false),
-        authenticated: ko.observable(false),
+        authenticated: ko.observable(false)
     };
 
     login.advertise = ko.computed(function(){

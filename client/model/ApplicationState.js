@@ -39,7 +39,7 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         self.errorState = ko.observable(data.error_state);
         self.mode = ko.observable(data.local_mode);
         self.mtime = Date.now();
-        self.graphite = new GraphiteModel(parent.environment.toLowerCase(), self.applicationHost(), self.configurationPath);
+        self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
         self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
 
         self.applicationStatusClass = ko.computed(function () {
