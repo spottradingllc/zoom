@@ -274,12 +274,13 @@ return function ApplicationStateModel(login) {
     self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
     self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
     self.sort = function (header, initialRun) {
-        if (typeof initialRun == "undefined") initialRun = false;
-        // initialRun == true if self.sort is called on page initialization
         if (header.title == "Control") { return }  // ignore sorting on Control header
 
+        // initialRun == true if self.sort is called on page initialization 
+        if (typeof initialRun == "undefined" || typeof initialRun == "object") initialRun = false;
+
         //if this header was just clicked a second time...
-        if (self.activeSort() == header && !self.holdSortDirection()) {
+        if (self.activeSort() == header && !self.holdSortDirection() && !initialRun) {
             header.asc(!header.asc()); // ...toggle the direction of the sort
         } else {
             self.activeSort(header); // first click, remember it
@@ -451,7 +452,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.loadApplicationStates = function () {
-        return service.get('api/application/states/',
+        return service.nonAsyncGet('api/application/states/',
                            onApplicationStatesSuccess, 
                            onApplicationStatesError);
     };
@@ -461,7 +462,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.loadApplicationDependencies = function () {
-        return service.get('api/application/dependencies/',
+        return service.nonAsyncGet('api/application/dependencies/',
                            self.handleApplicationDependencyUpdate, 
                            onApplicationDependenciesError);
     };
