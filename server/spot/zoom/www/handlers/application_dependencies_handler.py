@@ -23,9 +23,7 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
             self.write(result.to_json())
 
 
-        except:
-            logging.info("here")
-            e = sys.exc_info()[0]
+        except Exception as e:
             logging.exception(e)
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write(json.dumps({'errorText': str(e)}))

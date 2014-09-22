@@ -452,7 +452,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.loadApplicationStates = function () {
-        return service.nonAsyncGet('api/application/states/',
+        return service.synchronousGet('api/application/states/',
                            onApplicationStatesSuccess, 
                            onApplicationStatesError);
     };
@@ -462,7 +462,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.loadApplicationDependencies = function () {
-        return service.nonAsyncGet('api/application/dependencies/',
+        return service.synchronousGet('api/application/dependencies/',
                            self.handleApplicationDependencyUpdate, 
                            onApplicationDependenciesError);
     };

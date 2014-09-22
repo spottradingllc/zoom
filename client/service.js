@@ -41,7 +41,7 @@ function($) {
             });
         },
 
-        nonAsyncGet: function(path, callback, errorCallback) {
+        synchronousGet: function(path, callback, errorCallback) {
             return $.ajax(getUrl(path), {
                 async: false, 
                 dataType: 'json',
