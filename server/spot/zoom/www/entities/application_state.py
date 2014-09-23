@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from spot.zoom.www.entities.types import ApplicationStatus
 
@@ -77,7 +78,10 @@ class ApplicationState(object):
 
     @property
     def start_time(self):
-        if self._start_time is not None:
+        if self._error_state in ('starting', 'stopping'):
+            return ""
+        if self._start_time is not None and \
+                self._error_state not in ('starting', 'stopping'):
             return datetime.fromtimestamp(
                 self._start_time).strftime('%Y-%m-%d %H:%M:%S')
 

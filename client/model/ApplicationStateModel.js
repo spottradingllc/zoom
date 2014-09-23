@@ -272,7 +272,7 @@ return function ApplicationStateModel(login) {
     };
 
     // Sorting
-    self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
+    self.activeSort = ko.observable(self.headers[4]); //set the default sort by start time
     self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
     self.sort = function (header, initialRun) {
         if (header.title == "Control") { return }  // ignore sorting on Control header

@@ -166,7 +166,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
-        self._trigger_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self._trigger_time = self._get_current_time()
         self._state.set_value(ApplicationState.STARTING)
         self._update_agent_node_with_app_details()
 
@@ -197,6 +197,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
+        self._trigger_time = self._get_current_time()
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()
 
@@ -216,6 +217,7 @@ class Application(object):
         :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
         self.stop(**kwargs)
+        self.unregister()   # to ensure stopped app is unregistered
         self.start(**kwargs)
 
     def dep_restart(self, **kwargs):
@@ -452,6 +454,9 @@ class Application(object):
         type_path = state_path.split('state/', 1)[1]
         type_metric = type_path.replace('/', '.')
         return type_metric
+
+    def _get_current_time(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')
