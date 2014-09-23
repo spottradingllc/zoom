@@ -325,12 +325,19 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
-                                <button data-bind="click: function(){setParameter('startTime')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'startTime') ? ' active' : ''))}"
+                                <button data-bind="click: function(){setParameter('triggerTime')},
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'triggerTime') ? ' active' : ''))}"
                                         data-toggle="tooltip"
                                         data-placement="top"
-                                        title="Filter by start time.">
-                                    Start Time
+                                        title="Filter by trigger time.">
+                                    Trigger Time
+                                </button>
+                                <button data-bind="click: function(){setParameter('completionTime')},
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'completionTime') ? ' active' : ''))}"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Filter by completion time.">
+                                    Completion Time
                                 </button>
                                 <button data-bind="click: function(){setParameter('errorState')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
@@ -468,7 +475,8 @@
                             </ul>
                         </div>
                     </td>
-                    <td data-bind="text: startTime"></td>
+                    <td data-bind="text: triggerTime"></td>
+                    <td data-bind="text: completionTime"></td>
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass,
                                                  title : errorState}">
@@ -574,7 +582,11 @@
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "startTime" -->
+    <!-- ko if: parameter() == "triggerTime" -->
+    <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
+    <!-- /ko -->
+
+    <!-- ko if: parameter() == "completionTime" -->
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 

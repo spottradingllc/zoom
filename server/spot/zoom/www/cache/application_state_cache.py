@@ -133,6 +133,8 @@ class ApplicationStateCache(object):
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
                 application_host=host,
+                completion_time=stat.last_modified,
+                trigger_time=data.get('trigger_time', ''),
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown')
             )
@@ -144,6 +146,8 @@ class ApplicationStateCache(object):
                                           watch=self._on_update)
 
             host = os.path.basename(path)
+            # if it is running, path = /app/path/HOSTNAME
+            # need to convert to /app/path to get the app_details
             config_path = os.path.dirname(path)
             parent_data, parent_stat = self._get_app_details(config_path)
 
@@ -155,7 +159,8 @@ class ApplicationStateCache(object):
                 configuration_path=config_path,
                 application_status=ApplicationStatus.RUNNING,
                 application_host=host,
-                start_time=stat.created,
+                completion_time=stat.last_modified,
+                trigger_time=parent_data.get('trigger_time', ''),
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown')
             )

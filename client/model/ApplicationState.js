@@ -35,7 +35,8 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         self.configurationPath = data.configuration_path;
         self.applicationStatus = ko.observable(data.application_status);
         self.applicationHost = ko.observable(data.application_host);
-        self.startTime = ko.observable(data.start_time);
+        self.triggerTime = ko.observable(data.trigger_time);
+        self.completionTime = ko.observable(data.completion_time);
         self.errorState = ko.observable(data.error_state);
         self.mode = ko.observable(data.local_mode);
         self.mtime = Date.now();
