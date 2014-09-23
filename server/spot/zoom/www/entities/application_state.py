@@ -1,5 +1,4 @@
 from datetime import datetime
-import logging
 
 from spot.zoom.www.entities.types import ApplicationStatus
 
@@ -7,13 +6,13 @@ from spot.zoom.www.entities.types import ApplicationStatus
 class ApplicationState(object):
     def __init__(self, application_name=None, configuration_path=None,
                  application_status=None, application_host=None,
-                 start_time=None, trigger_time=None, error_state=None, local_mode=None,
+                 completion_time=None, trigger_time=None, error_state=None, local_mode=None,
                  delete=False):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
         self._application_host = application_host
-        self._start_time = start_time
+        self._completion_time = completion_time
         self._trigger_time = trigger_time
         self._error_state = error_state
         self._local_mode = local_mode
@@ -37,14 +36,14 @@ class ApplicationState(object):
     def __repr__(self):
         return (
             "{0}(application_name={0}, configuration_path={1}, "
-            "application_status={2}, application_host={3}, start_time={4}, "
+            "application_status={2}, application_host={3}, completion_time={4}, "
             "trigger_time-{5}, error_state={6}, local_mode={7}"
             .format(self.__class__.__name__,
                     self._application_name,
                     self._configuration_path,
                     self._application_status,
                     self._application_host,
-                    self._start_time,
+                    self._completion_time,
                     self._trigger_time,
                     self._error_state,
                     self._local_mode)
@@ -77,13 +76,11 @@ class ApplicationState(object):
         return ""
 
     @property
-    def start_time(self):
-        if self._error_state in ('starting', 'stopping'):
-            return ""
-        if self._start_time is not None and \
+    def completion_time(self):
+        if self._completion_time is not None and \
                 self._error_state not in ('starting', 'stopping'):
             return datetime.fromtimestamp(
-                self._start_time).strftime('%Y-%m-%d %H:%M:%S')
+                self._completion_time).strftime('%Y-%m-%d %H:%M:%S')
 
         return ""
 
@@ -93,7 +90,7 @@ class ApplicationState(object):
             'configuration_path': self.configuration_path,
             'application_status': self.application_status,
             'application_host': self.application_host,
-            'start_time': self.start_time,
+            'completion_time': self.completion_time,
             'trigger_time': self._trigger_time,
             'error_state': self._error_state,
             'delete': self._delete,

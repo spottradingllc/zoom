@@ -6,7 +6,8 @@ return function CustomFilter(parent, appStateModel) {
         applicationStatus : "applicationStatus",
         configurationPath : "configurationPath",
         applicationHost : "applicationHost",
-        startTime : "startTime",
+        triggerTime : "triggerTime",
+        completionTime : "completionTime",
         errorState : "errorState",
         dependency : "dependency",
         requires : "requires",
@@ -82,6 +83,8 @@ return function CustomFilter(parent, appStateModel) {
     self.applyFilter = ko.computed(function() {
         self.matchedItems.removeAll();
 
+        console.log(self.parameter())
+
         if (self.enabled() && appStateModel.applicationStateArray) {
             // check each application state for matches, perform appropriate filtering technique
             ko.utils.arrayForEach(appStateModel.applicationStateArray(), function(appState) {
@@ -96,8 +99,11 @@ return function CustomFilter(parent, appStateModel) {
                     self.searchTerm(self.searchTerm().toUpperCase());
                     self.applyLogicalFilter(appState.applicationHost().toUpperCase(), appState);
                 }
-                else if (self.parameter() == self.parameters.startTime) {
-                    self.applyLogicalFilter(appState.startTime().toLowerCase(), appState);
+                else if (self.parameter() == self.parameters.triggerTime) {
+                    self.applyLogicalFilter(appState.triggerTime().toLowerCase(), appState);
+                }
+                else if (self.parameter() == self.parameters.completionTime) {
+                    self.applyLogicalFilter(appState.completionTime().toLowerCase(), appState);
                 }
                 else if (self.parameter() == self.parameters.errorState) {
                     self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);

@@ -45,7 +45,7 @@ return function ApplicationStateModel(login) {
         {title: 'Configuration Path', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
         {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
         {title: 'Trigger Time', sortPropertyName: 'triggerTime', asc: ko.observable(false)},
-        {title: 'Start Time', sortPropertyName: 'startTime', asc: ko.observable(false)},
+        {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
         {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
         {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
@@ -397,7 +397,7 @@ return function ApplicationStateModel(login) {
             });
             if (row) {
                 row.applicationStatus(update.application_status);
-                row.startTime(update.start_time);
+                row.completionTime(update.completion_time);
                 row.triggerTime(update.trigger_time);
                 row.applicationHost(update.application_host);
                 row.errorState(update.error_state);
