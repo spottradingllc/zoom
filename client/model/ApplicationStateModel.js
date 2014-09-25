@@ -61,7 +61,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.showServerConfig = function(hostname) {
-        router.navigate('#config/' +  hostname(), {replace:true, trigger: true });
+        router.navigate('#config/' +  hostname(), {trigger: true });
     };
 
     // Changes modal header color to reflect current environment
