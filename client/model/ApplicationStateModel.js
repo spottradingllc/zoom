@@ -60,7 +60,7 @@ return function ApplicationStateModel(login) {
     };
 
     self.showServerConfig = function(hostname) {
-        router.navigate('#config/' +  hostname(), { trigger: true });
+        router.navigate('#config/' +  hostname(), {replace:true, trigger: true });
     };
 
     // Changes modal header color to reflect current environment
@@ -417,7 +417,7 @@ return function ApplicationStateModel(login) {
                 return currentRow.configurationPath == update.configuration_path;
             });
             if (row) {
-                row.setRequires(update)
+                row.setPred(update);
             }
         });
     };

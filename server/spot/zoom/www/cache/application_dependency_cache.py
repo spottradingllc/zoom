@@ -115,20 +115,42 @@ class ApplicationDependencyCache(object):
 
                     start_action = node.find('Actions/Action[@id="start"]')
 
-                    if start_action is None: 
+                    if start_action is None:
                         logging.warn("No Start Action Found for {}"
                                      .format(registrationpath))
                         continue
 
+                    #prevPredNot keeps track of the outer class was 'not'
+                    prevPredNot = False
                     for predicate in start_action.iter('Predicate'):
                         if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASCHILDREN:
                             d = {'type': PredicateType.ZOOKEEPERHASCHILDREN,
                                  'path': predicate.get("path")}
                             dependencies.append(d)
+                            prevPredNot = False
                         if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
                             d = {'type': PredicateType.ZOOKEEPERHASGRANDCHILDREN,
                                  'path': predicate.get("path")}
                             dependencies.append(d)
+                            prevPredNot = False
+                        if predicate.get('type').lower() == PredicateType.ZOOKEEPERGOODUNTILTIME:
+                            logging.info(predicate.get("path"))
+                            d = {'type': PredicateType.ZOOKEEPERGOODUNTILTIME,
+                                 'path': predicate.get("path").split("gut/")[1]}
+                            dependencies.append(d)
+                            prevPredNot = False
+                        if predicate.get('type').lower() == PredicateType.HOLIDAY:
+                            d = {'type': PredicateType.HOLIDAY,
+                                 'path': "False" if prevPredNot else "True"}
+                            dependencies.append(d)
+                            prevPredNot = False
+                        if predicate.get('type').lower() == PredicateType.WEEKEND:
+                            d = {'type': PredicateType.WEEKEND,
+                                 'path': "False" if prevPredNot else "True"}
+                            dependencies.append(d)
+                            prevPredNot = False
+                        if predicate.get('type').lower() == PredicateType.NOT:
+                            prevPredNot = True
 
                     result.update({"dependencies": dependencies})
 

@@ -1,4 +1,5 @@
 ﻿<section>
+
 <div id="application_state_page" class="container-fluid" style="margin-top: 40px">
 
     <!-- Big Modal -->
@@ -410,6 +411,16 @@
                             data-bind="text: configurationPath, click: toggleDependencies"></span>
                         <span data-bind="attr : {class : dependencyClass}"></span>
                         <span title="Toggle the display of notes." style="cursor:pointer" class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
+                        
+                        <!-- Always show this because 'hidden' predicates are dangerous --> 
+                        <div>
+                            <span data-bind="visible: unknown().length > 0, style="></span>
+                            <ul data-bind="foreach: unknown, visible: unknown().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name: 'unknown-template'}"></span>
+                            </ul>
+                            </span>
+                        </div>
+                        
                         <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
                             <span data-bind="visible: requires().length > 0">I require:</span>
                             <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
@@ -419,6 +430,22 @@
                             <ul data-bind="foreach: requiredBy, visible: requiredBy().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
+                            <div class="row">
+                                <div class="col-md-4" data-bind="visible: zookeepergooduntiltime().length > 0">I should be up between:</div>
+                                    <div class="col-md-4" data-bind="foreach: zookeepergooduntiltime, visible: zookeepergooduntiltime().length > 0" style="list-style-type: none">
+                                        <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                                    <div/>
+                                </div>
+                            </div>
+                            <span data-bind="visible: holiday().length > 0">Holiday:</span>
+                            <ul data-bind="foreach: holiday, visible: holiday().length > 0" >
+                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul> 
+                            <span data-bind="visible: weekend().length > 0">Weekend:</span>
+                            <ul data-bind="foreach: weekend, visible: weekend().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul>
+                           
                         </div>
                         <div class="alert alert-info" role="alert" 
                              data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
@@ -435,7 +462,7 @@
                             <div class="dropdown-toggle" 
                                 tabindex="-1"
                                 href="#"
-                                title="List metrics and options for this host."
+                                title="View server config and metrics for this host."
                                 data-toggle="dropdown" >
                                 <span data-bind="text: applicationHost" style="cursor:pointer"/>
                             </div>
@@ -714,14 +741,33 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
+
+<!--Template for Displaying other predicates-->
+<script type="text/html" id="other-predicates-template">
+    <span data-bind="text: $data"></span>
+</script>
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}">
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}">
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span data-bind="text: $data.configurationPath"></span>
     </li>
 </script>
-
+<!-- Template for showing unknown states -->
+<script type="text/html" id="unknown-template">
+    <div data-bind="style : {backgroundColor : $data.applicationStatusBg}">
+    <span>Predicate not in configuration!</span>
+    <ul style="list-style-type: none">
+        <li>   
+            <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
+            <span data-bind="text: $data.configurationPath"></span>
+        </li>
+        <li>Predicate type: 
+            <span data-bind="text: $data.predType"></span>
+        </li>
+    </ul>
+</div>
+</script>
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });

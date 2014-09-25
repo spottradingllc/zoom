@@ -42,6 +42,24 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
         self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
 
+        self.predType = {zookeeperhaschildren: "requires",
+                         zookeeperhasgrandchildren: "requires",
+                         zookeepergooduntiltime: "zookeepergooduntiltime",
+                         holiday: "holiday",
+                         weekend: "weekend"};
+
+        
+        self.unknown = ko.observableArray([]);
+        self.unknown.extend({rateLimit: 2000});
+        self.holiday = ko.observableArray([]);
+        self.holiday.extend({rateLimit: 2000});
+        self.weekend = ko.observableArray([]);
+        self.weekend.extend({rateLimit: 2000});
+        self.zookeepergooduntiltime = ko.observableArray([]);
+        self.zookeepergooduntiltime.extend({rateLimit: 2000});
+        self.requires = ko.observableArray([]);
+        self.requires.extend({rateLimit: 2000});
+        
         self.applicationStatusClass = ko.computed(function () {
             if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
                 return glyphs.runningCheck;
@@ -137,8 +155,9 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                 return glyphs.filledStar;
             }
         });
-        self.groupControlStar.extend({rateLimit: 10});
 
+        self.groupControlStar.extend({rateLimit: 10});
+        
         self.toggleGroupControl = function () {
             if (parent.groupControl.indexOf(self) == -1) {
                 parent.groupControl.push(self);
@@ -157,43 +176,71 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         self.toggleDependencies = function() {
             self.showDependencies(!self.showDependencies());
         };
-
-        self.predType = {children: "zookeeperhaschildren",
-                         grandchildren: "zookeeperhasgrandchildren"};
-
-        self.requires = ko.observableArray([]);
-        self.setRequires = function(update) {
-            self.requires.removeAll();
+        
+        self.setPred = function(update) {
             self.mtime = Date.now();
             if (self.applicationHost() == "") return;
 
-            update.dependencies.forEach( function(entry) {
+            var deleted = new Object; 
+            
+            deleted.zookeepergooduntiltime = false;
+            deleted.holiday = false;
+            deleted.weekend = false; 
+            deleted.requires = false;
 
+            neverFound = true;
+
+            update.dependencies.forEach( function(entry) {
+                // if we haven't seen this pred type before, delete once only
+                if (!deleted[self.predType[entry.type]]){ 
+                    self[self.predType[entry.type]].removeAll();
+                    deleted[self.predType[entry.type]] = true; 
+                }
                 var predType = entry.type;
                 var path = entry.path;
-
-                // determine predicate type and filter proper application states
-                if (predType == self.predType.children) {
+                
+                if (predType == "zookeeperhasgrandchildren") {
+                    ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
+                        if (applicationState.configurationPath.substring(0, path.length) == path){
+                            self[self.predType[entry.type]].push(applicationState);
+                            neverFound = false;
+                        }
+                    });
+                
+                }
+                 
+                else if (self.predType[predType] == "requires") {
                     var applicationState = ko.utils.arrayFirst(ApplicationStateArray(), function(applicationState) {
                         return (path == applicationState.configurationPath);
                     });
-                    if (applicationState) self.requires.push(applicationState);
+                    if (applicationState){ 
+                        neverFound = false; 
+                        self[self.predType[entry.type]].push(applicationState);
+                    }
                 }
-                else if (predType == self.predType.grandchildren) {
-                    ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
-                        if (applicationState.configurationPath.substring(0, path.length) == path) {
-                            self.requires.push(applicationState);
-                        }
-                    });
-                }
+                
+                // if this predicate type exists in predType
+                else if (typeof self.predType[predType] != undefined){
+                    self[self.predType[entry.type]].push(path);
+                    neverFound = false;               
+                } 
                 else {
-                    throw "Unknown predType: " + predType;
+                    console.log(predType);
+                    neverFound = false;
+                }
+
+                if(neverFound) {     
+                    console.log("found missing " + entry.type + " " + entry.path + " " + self.configurationPath); 
+                    var showAsMissing = new Object;
+                    showAsMissing.configurationPath = path;
+                    showAsMissing.applicationStatusClass = glyphs.unknownQMark;
+                    showAsMissing.applicationStatusBg = colors.unknownGray; 
+                    showAsMissing.predType = predType;
+                    self.unknown.push(showAsMissing);
                 }
             });
         };
-
-        self.requires.extend({rateLimit: 2000});
-
+        
         self.requirementsAreUp = ko.computed(function() {
             if (self.requires().length > 0) {
                 for(var i = 0; i < self.requires().length; i++) {
@@ -218,6 +265,7 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
 
             return dependencies().slice();
         });
+
         self.requiredBy.extend({rateLimit: 1000});
 
         self.deleteRow = function() {
@@ -309,7 +357,9 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         };
 
         self.dependencyClass = ko.computed(function() {
-            if (self.requires().length == 0 && self.requiredBy().length == 0){
+            if (self.requires().length == 0 && self.requiredBy().length == 0
+                && self.holiday().length == 0 && self.weekend.length == 0
+                && self.zookeepergooduntiltime().length == 0){
                 return "";
             }
             else if (self.showDependencies()) {
