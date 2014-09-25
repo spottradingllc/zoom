@@ -44,7 +44,8 @@ return function ApplicationStateModel(login) {
         {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
         {title: 'Configuration Path', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
         {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
-        {title: 'Start Time', sortPropertyName: 'startTime', asc: ko.observable(false)},
+        {title: 'Trigger Time', sortPropertyName: 'triggerTime', asc: ko.observable(false)},
+        {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
         {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
         {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
         {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
@@ -271,7 +272,7 @@ return function ApplicationStateModel(login) {
     };
 
     // Sorting
-    self.activeSort = ko.observable(self.headers[3]); //set the default sort by start time
+    self.activeSort = ko.observable(self.headers[4]); //set the default sort by start time
     self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
     self.sort = function (header, initialRun) {
         if (header.title == "Control") { return }  // ignore sorting on Control header
@@ -396,7 +397,8 @@ return function ApplicationStateModel(login) {
             });
             if (row) {
                 row.applicationStatus(update.application_status);
-                row.startTime(update.start_time);
+                row.completionTime(update.completion_time);
+                row.triggerTime(update.trigger_time);
                 row.applicationHost(update.application_host);
                 row.errorState(update.error_state);
                 row.mode(update.local_mode);

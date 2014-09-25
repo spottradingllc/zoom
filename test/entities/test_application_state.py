@@ -8,14 +8,14 @@ class TestApplicationState(TestCase):
                                       configuration_path="2",
                                       application_status="3",
                                       application_host="4",
-                                      start_time=5.0,
+                                      completion_time=5.0,
                                       error_state="6",
                                       local_mode="7")
 
     def test_repr(self):
         self.assertEquals(('ApplicationState(application_name=ApplicationState,'
                            ' configuration_path=1, application_status=2, '
-                           'application_host=3, start_time=4, error_state=5.0, '
+                           'application_host=3, completion_time=4, error_state=5.0, '
                            'local_mode=6'
                           ),
                           repr(self.state))
@@ -27,4 +27,4 @@ class TestApplicationState(TestCase):
                            'configuration_path': '2',
                            'delete': False,
                            'error_state': '6',
-                           'start_time': '1969-12-31 18:00:05'}, self.state.to_dictionary())
+                           'completion_time': '1969-12-31 18:00:05'}, self.state.to_dictionary())

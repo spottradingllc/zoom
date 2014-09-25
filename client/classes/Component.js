@@ -91,6 +91,8 @@ return function Component(parent) {
         }
 
         if(checkNull(self.command())) {
+            var command = self.command().replaceAll('"', '&quot;');
+            self.command(command);
             XML = XML.concat('command="'+self.command()+'" ');
         }
         if(checkNull(self.restartmax())) {

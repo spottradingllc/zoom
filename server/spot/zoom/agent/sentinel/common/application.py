@@ -2,6 +2,7 @@ import logging
 import json
 import os.path
 import platform
+from datetime import datetime
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
@@ -72,6 +73,7 @@ class Application(object):
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = SimpleObject(ApplicationState.OK)
         self._start_allowed = SimpleObject(False)  # allowed_instances
+        self._trigger_time = None
         self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
@@ -128,7 +130,6 @@ class Application(object):
                 self._log.info('Registering %s in state tree.' % self.name)
                 self.zkclient.create(self._paths['zk_state_path'],
                                      ephemeral=True,
-                                     value=json.dumps(self._app_details()),
                                      makepath=True)
 
                 self._state.set_value(ApplicationState.OK)
@@ -165,6 +166,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
+        self._trigger_time = self._get_current_time()
         self._state.set_value(ApplicationState.STARTING)
         self._update_agent_node_with_app_details()
 
@@ -195,6 +197,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
+        self._trigger_time = self._get_current_time()
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()
 
@@ -214,6 +217,7 @@ class Application(object):
         :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
         self.stop(**kwargs)
+        self.unregister()   # to ensure stopped app is unregistered
         self.start(**kwargs)
 
     def dep_restart(self, **kwargs):
@@ -268,7 +272,8 @@ class Application(object):
                 'host': self._host,
                 'platform': self._system,
                 'mode': self._mode.value,
-                'state': self._state.value}
+                'state': self._state.value,
+                'trigger_time': self._trigger_time}
 
     @connected
     def _update_agent_node_with_app_details(self, event=None):
@@ -449,6 +454,9 @@ class Application(object):
         type_path = state_path.split('state/', 1)[1]
         type_metric = type_path.replace('/', '.')
         return type_metric
+
+    def _get_current_time(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')

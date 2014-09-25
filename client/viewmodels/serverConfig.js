@@ -48,6 +48,7 @@ function(ko, router, AlertsViewModel, SearchUpdateViewModel){
     };
 
     ServerConfigViewModel.search = function() {
+        ServerConfigViewModel.alertsViewModel.closeAlerts();
         router.navigate('#config/' + ServerConfigViewModel.serverName(), { replace: true, trigger: false });
         ServerConfigViewModel.searchUpdateViewModel.search();
     };
