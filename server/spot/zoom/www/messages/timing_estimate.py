@@ -1,5 +1,5 @@
 import json
-from spot.zoom.www.entities.types import UpdateType
+from spot.zoom.common.types import UpdateType
 
 
 class TimeEstimateMessage(object):

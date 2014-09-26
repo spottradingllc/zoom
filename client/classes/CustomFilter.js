@@ -83,8 +83,6 @@ return function CustomFilter(parent, appStateModel) {
     self.applyFilter = ko.computed(function() {
         self.matchedItems.removeAll();
 
-        console.log(self.parameter())
-
         if (self.enabled() && appStateModel.applicationStateArray) {
             // check each application state for matches, perform appropriate filtering technique
             ko.utils.arrayForEach(appStateModel.applicationStateArray(), function(appState) {

@@ -6,20 +6,21 @@ import json
 import re
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperGoodUntilTime(SimplePredicate):
-    def __init__(self, comp_name, zkclient, nodepath, parent=None, interval=5):
+    def __init__(self, comp_name, settings, zkclient, nodepath, parent=None, interval=5):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self.interval = interval
@@ -28,7 +29,7 @@ class ZookeeperGoodUntilTime(SimplePredicate):
         self._log = logging.getLogger('sent.{0}.pred.gut'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._started = False

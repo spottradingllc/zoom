@@ -3,14 +3,15 @@ import json
 import signal
 import sys
 import platform
+import pprint
 from multiprocessing import Lock
-import tornado.httpserver
+from xml.etree import ElementTree
+from xml.etree.ElementTree import ParseError
 
+import tornado.httpserver
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import ZookeeperError, NodeExistsException
 from kazoo.handlers.threading import SequentialThreadingHandler
-from xml.etree import ElementTree
-from xml.etree.ElementTree import ParseError
 
 from spot.zoom.agent.sentinel.web.rest import RestServer
 from spot.zoom.agent.sentinel.util.decorators import (
@@ -18,14 +19,14 @@ from spot.zoom.agent.sentinel.util.decorators import (
     catch_exception,
     run_only_one
 )
+from spot.zoom.common.types import PlatformType
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.child_process import ChildProcess
-from spot.zoom.agent.sentinel.common.enum import PlatformType
 from spot.zoom.agent.sentinel.client.task_client import TaskClient
-from spot.zoom.agent.sentinel.config.constants import (
+from spot.zoom.common.constants import (
     ZK_CONN_STRING,
-    ZK_AGENT_CONFIG_PATH,
-    ZK_AGENT_STATE_PATH
+    ZK_AGENT_CONFIG,
 )
 
 
@@ -38,6 +39,7 @@ class SentinelDaemon(object):
         self._log.info('Creating Sentinel')
 
         self.children = dict()
+        self._settings = ThreadSafeObject(dict())
         self._system = self._get_system()
         self._hostname = platform.node().upper()  # must be uppercase
         self._prev_state = None
@@ -52,13 +54,16 @@ class SentinelDaemon(object):
                                         handler=SequentialThreadingHandler())
 
         self.zkclient.add_listener(self._zk_listener)
+        # this will run self._reset_after_connection_loss
         self.zkclient.start()
 
-        self.task_client = TaskClient(children=self.children,
-                                      zkclient=self.zkclient)
+        self.task_client = None
+        self.task_client = TaskClient(self.children,
+                                      self.zkclient,
+                                      self._settings)
 
         self._rest_server = tornado.httpserver.HTTPServer(
-            RestServer(self.children))
+            RestServer(self.children, self._settings))
 
         signal.signal(signal.SIGINT, self._handle_sigint)
         signal.signal(signal.SIGTERM, self._handle_sigint)
@@ -84,13 +89,24 @@ class SentinelDaemon(object):
         self._log.info('Caught signal %s.' % sig)
         self.stop()
 
+    @connected
+    def _get_settings(self):
+        """
+        Populate self._settings dict.
+        """
+        data, stat = self.zkclient.get(ZK_AGENT_CONFIG)
+        self._settings.set_value(json.loads(data))
+        self._log.info('Got settings:\n{0}'
+                      .format(pprint.pformat(self._settings.value)))
+
     @catch_exception(NodeExistsException)
     @connected
     def _register(self, event=None):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        path = '/'.join([ZK_AGENT_STATE_PATH, self._hostname])
+        agent_state_path = self._settings.get('ZK_AGENT_STATE_PATH')
+        path = '/'.join([agent_state_path, self._hostname])
         if not self.zkclient.exists(path, watch=self._register):
             self.zkclient.create(path,
                                  value=json.dumps({}),
@@ -102,7 +118,8 @@ class SentinelDaemon(object):
         Grab config from Zookeeper. Spawn ChildProcess instances.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        config_path = '/'.join([ZK_AGENT_CONFIG_PATH, self._hostname])
+        agent_config_path = self._settings.get('ZK_AGENT_CONFIG_PATH')
+        config_path = '/'.join([agent_config_path, self._hostname])
         try:
             if not self.zkclient.exists(config_path,
                                         watch=self._get_config_and_run):
@@ -138,7 +155,9 @@ class SentinelDaemon(object):
                 self._log.info('Spawning %s' % name)
                 self.children[name] = {
                     'config': component,
-                    'process': ChildProcess(component, self._system)
+                    'process': ChildProcess(component,
+                                            self._system,
+                                            self._settings)
                 }
 
             except ValueError as e:
@@ -165,9 +184,11 @@ class SentinelDaemon(object):
         changes. This includes the first connection to Zookeeper (on startup).
         """
         self._log.info('Daemon listener callback triggered')
+        self._get_settings()
         self._register()
         self._get_config_and_run()
-        self.task_client.reset_watches()
+        if self.task_client is not None:
+            self.task_client.reset_watches()
         self._log.info('Daemon listener callback complete!')
                 
     def _zk_listener(self, state):

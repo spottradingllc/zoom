@@ -5,16 +5,17 @@ from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperHasChildren(SimplePredicate):
-    def __init__(self, comp_name, zkclient, nodepath, met_on_delete=False,
+    def __init__(self, comp_name, settings, zkclient, nodepath, met_on_delete=False,
                  parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type met_on_delete: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._met_on_delete = met_on_delete

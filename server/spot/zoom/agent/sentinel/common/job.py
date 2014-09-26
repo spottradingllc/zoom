@@ -4,8 +4,8 @@ from time import sleep
 from datetime import datetime
 from kazoo.exceptions import NodeExistsError, NoNodeError
 
+from spot.zoom.common.types import JobState
 from spot.zoom.agent.sentinel.common.application import Application
-from spot.zoom.agent.sentinel.common.enum import JobState
 from spot.zoom.agent.sentinel.util.decorators import (
     connected,
     time_this,
@@ -19,8 +19,8 @@ class Job(Application):
         :type config: dict (json)
         :type conn: multiprocessing.Connection
         :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
-        :type application_type: spot.zoom.agent.sentinel.common.enum.ApplicationType
+        :type system: spot.zoom.common.types.PlatformType
+        :type application_type: spot.zoom.common.types.ApplicationType
         """
         Application.__init__(self, *args, **kwargs)
         self._paths['zk_state_path'] = \
@@ -85,7 +85,7 @@ class Job(Application):
 
     def _register_job_state(self, state, runtime=''):
         """
-        :type state: spot.zoom.agent.sentinel.common.enum.JobState
+        :type state: spot.zoom.common.types.JobState
         :param runtime: str
         """
         data = {

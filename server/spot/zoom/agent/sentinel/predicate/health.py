@@ -5,21 +5,22 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from time import sleep
 
-from spot.zoom.agent.sentinel.common.enum import PlatformType
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.common.types import PlatformType
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateHealth(SimplePredicate):
-    def __init__(self, comp_name, command, interval, system, parent=None):
+    def __init__(self, comp_name, settings, command, interval, system, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type command: str
         :type interval: int or float
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type system: spot.zoom.common.types.PlatformType
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self._log = logging.getLogger('sent.{0}.pred.health'.format(comp_name))
         self.interval = interval
         self.rawcmd = command
@@ -27,7 +28,7 @@ class PredicateHealth(SimplePredicate):
         self._system = system
         self._verify()
 
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._log.info('Registered {0}'.format(self))

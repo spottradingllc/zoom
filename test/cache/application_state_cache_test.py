@@ -1,11 +1,8 @@
 import mox
 
 from unittest import TestCase
-from spot.zoom.www.cache.time_estimate_cache \
-    import TimeEstimateCache
-from spot.zoom.www.cache.application_state_cache \
-    import ApplicationStateCache
-from spot.zoom.www.entities.types import UpdateType
+from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
+from spot.zoom.www.cache.application_state_cache import ApplicationStateCache
 from spot.zoom.www.zoo_keeper import ZooKeeper
 from test.test_utils import (
     StatMock,
@@ -109,7 +106,6 @@ class ApplicationStateCacheTest(TestCase):
         self.mox.StubOutWithMock(cache, "_load")
         cache._load()
         cache._load()
-        
 
         self.mox.ReplayAll()
          

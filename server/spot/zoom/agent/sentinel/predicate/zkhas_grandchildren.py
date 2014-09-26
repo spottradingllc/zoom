@@ -8,14 +8,15 @@ from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperHasGrandChildren(SimplePredicate):
-    def __init__(self, comp_name, zkclient, nodepath, parent=None):
+    def __init__(self, comp_name, settings, zkclient, nodepath, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._children = list()
@@ -56,6 +57,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             data, stat = self.zkclient.get(node)
             if stat.ephemeralOwner == 0:  # not ephemeral
                 self._children.append(ZookeeperHasChildren(self._comp_name,
+                                                           self._settings,
                                                            self.zkclient,
                                                            node,
                                                            met_on_delete=True,
@@ -63,6 +65,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             else:
                 self._children.append(
                     ZookeeperHasChildren(self._comp_name,
+                                         self._settings,
                                          self.zkclient,
                                          os.path.dirname(node),
                                          met_on_delete=True,

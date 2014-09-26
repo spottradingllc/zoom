@@ -2,7 +2,7 @@ import logging
 
 from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
-from spot.zoom.common.types import ApplicationMode
+from spot.zoom.agent.sentinel.common.thread_safe_object import ApplicationMode
 from spot.zoom.agent.sentinel.common.task import Task
 
 
@@ -10,7 +10,7 @@ class Action(object):
     def __init__(self, name, component_name, action, xmlpart,
                  staggerpath=None, staggertime=None, mode_controlled=None,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
-                 system=None, pred_list=None):
+                 system=None, pred_list=None, settings=None):
         """
         :type name: str
         :type component_name: str
@@ -24,9 +24,10 @@ class Action(object):
         :type action_q: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
         :type zkclient: kazoo.client.KazooClient
         :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
-        :type mode: spot.zoom.agent.sentinel.common.enum.ApplicationMode
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type mode: spot.zoom.agent.sentinel.common.thread_safe_object.ApplicationMode
+        :type system: spot.zoom.common.types.PlatformType
         :type pred_list: list
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         """
         self.name = name
         self._log = logging.getLogger('sent.{0}.act'.format(component_name))
@@ -45,7 +46,7 @@ class Action(object):
         factory = PredicateFactory(component_name=component_name,
                                    parent=self.name, zkclient=zkclient,
                                    proc_client=proc_client, system=system,
-                                   pred_list=pred_list)
+                                   pred_list=pred_list, settings=settings)
         self._predicate = factory.create(xmlpart.find('./Dependency/Predicate'),
                                          callback=self._callback)
 

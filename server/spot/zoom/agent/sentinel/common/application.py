@@ -3,27 +3,22 @@ import json
 import os.path
 import platform
 from datetime import datetime
+from multiprocessing import Lock
+from time import sleep
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.handlers.threading import SequentialThreadingHandler
-from multiprocessing import Lock
-from time import sleep
 
 from spot.zoom.agent.sentinel.action.factory import ActionFactory
-from spot.zoom.agent.sentinel.config.constants import (
-    ZK_AGENT_STATE_PATH,
-    ZK_STATE_PATH,
+from spot.zoom.common.constants import (
     ZK_CONN_STRING,
-    ZK_CONFIG_PATH,
-    ZK_GLOBAL_PATH,
-    ALLOWED_WORK
+)
+from spot.zoom.agent.sentinel.common.thread_safe_object import (
+    ApplicationMode,
+    ThreadSafeObject
 )
 from spot.zoom.common.types import (
-    ApplicationMode,
-    SimpleObject
-)
-from spot.zoom.agent.sentinel.common.enum import (
     PlatformType,
     ApplicationState
 )
@@ -37,6 +32,7 @@ from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
 
+
 if 'Linux' in platform.platform():
     from spot.zoom.agent.sentinel.client.process_client import ProcessClient
 else:
@@ -48,15 +44,17 @@ class Application(object):
     """
     Service object to represent an deployed service.
     """
-    def __init__(self, config, conn, queue, system, application_type):
+    def __init__(self, config, settings, conn, queue, system, application_type):
         """
         :type config: dict (xml)
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type conn: multiprocessing.Connection
         :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
-        :type application_type: spot.zoom.agent.sentinel.common.enum.ApplicationType
+        :type system: spot.zoom.common.types.PlatformType
+        :type application_type: spot.zoom.common.types.ApplicationType
         """
         self.config = config
+        self._settings = settings
         self.name = verify_attribute(self.config, 'id', none_allowed=False)
         self._log = logging.getLogger('sent.{0}.app'.format(self.name))
         # informational attributes
@@ -71,13 +69,13 @@ class Application(object):
         self.listener_lock = Lock()
         self._action_queue = queue
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
-        self._state = SimpleObject(ApplicationState.OK)
-        self._start_allowed = SimpleObject(False)  # allowed_instances
+        self._state = ThreadSafeObject(ApplicationState.OK)
+        self._start_allowed = ThreadSafeObject(False)  # allowed_instances
         self._trigger_time = None
         self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
-        self._paths = self._init_paths(self.config, application_type)
+        self._paths = self._init_paths(self.config, settings, application_type)
 
         # clients
         if self._system == PlatformType.LINUX:
@@ -91,9 +89,10 @@ class Application(object):
 
         self.zkclient.add_listener(self._zk_listener)
         self._proc_client = self._init_proc_client(self.config,
+                                                   settings,
                                                    application_type)
 
-        self._actions = self._init_actions()
+        self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
 
     def run(self):
@@ -299,7 +298,7 @@ class Application(object):
                                   json.dumps(current_data))
                 self._log.debug('Registering app data {0}'.format(current_data))
 
-    def _init_paths(self, config, atype):
+    def _init_paths(self, config, settings, atype):
         """
         :rtype: dict
         """
@@ -310,14 +309,15 @@ class Application(object):
         if registrationpath is not None:
             paths['zk_state_base'] = registrationpath
         else:
-            paths['zk_state_base'] = self._pathjoin(ZK_STATE_PATH, atype,
-                                                    self.name)
+            paths['zk_state_base'] = \
+                self._pathjoin(settings.get('ZK_STATE_PATH'), atype, self.name)
 
-        paths['zk_state_path'] = self._pathjoin(paths['zk_state_base'],
-                                                self._host)
-        paths['zk_config_path'] = self._pathjoin(ZK_CONFIG_PATH, atype,
-                                                 self.name)
-        paths['zk_agent_path'] = self._pathjoin(ZK_AGENT_STATE_PATH, self._host)
+        paths['zk_state_path'] = \
+            self._pathjoin(paths['zk_state_base'], self._host)
+        paths['zk_config_path'] = \
+            self._pathjoin(settings.get('ZK_CONFIG_PATH'), atype, self.name)
+        paths['zk_agent_path'] = \
+            self._pathjoin(settings.get('ZK_AGENT_STATE_PATH'), self._host)
         paths['graphite_type_metric'] = \
             self._get_graphite_type_metric(paths['zk_state_base'])
 
@@ -336,7 +336,7 @@ class Application(object):
 
         return allowed_instances
 
-    def _init_proc_client(self, config, atype):
+    def _init_proc_client(self, config, settings, atype):
         """Create the process client."""
         command = verify_attribute(config, 'command', none_allowed=True)
         script = verify_attribute(config, 'script', none_allowed=True)
@@ -356,10 +356,11 @@ class Application(object):
                              system=self._system,
                              restart_max=restartmax,
                              restart_on_crash=restart_on_crash,
-                             graphite_app_metric=self._paths['graphite_type_metric']
+                             graphite_app_metric=self._paths['graphite_type_metric'],
+                             settings=settings
                              )
 
-    def _init_actions(self):
+    def _init_actions(self, settings):
         """
         :rtype: dict
         """
@@ -369,7 +370,8 @@ class Application(object):
                                        action_queue=self._action_queue,
                                        mode=self._mode,
                                        system=self._system,
-                                       pred_list=self._predicates)
+                                       pred_list=self._predicates,
+                                       settings=settings)
         return action_factory.create(self.config)
 
     def _init_work_manager(self, queue, pipe):
@@ -377,7 +379,7 @@ class Application(object):
         :rtype: spot.zoom.agent.sentinel.common.work_manager.WorkManager
         """
         acceptable_work = dict()
-        for w in ALLOWED_WORK:
+        for w in self._settings.get('ALLOWED_WORK'):
             if hasattr(self, w):
                 acceptable_work[w] = self.__getattribute__(w)
             else:
@@ -423,7 +425,7 @@ class Application(object):
         Check global run mode for the agents.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        modepath = self._pathjoin(ZK_GLOBAL_PATH, 'mode')
+        modepath = self._pathjoin(self._settings.get('ZK_GLOBAL_PATH'), 'mode')
         try:
             data, stat = self.zkclient.get(modepath, watch=self._check_mode)
             j = json.loads(data)

@@ -1,3 +1,45 @@
+
+
+class ApplicationType():
+    JOB = "job"
+    APPLICATION = "application"
+
+
+class ApplicationState():
+    OK = "ok"
+    ERROR = "error"
+    STARTING = "starting"
+    STOPPING = "stopping"
+    NOTIFY = "notify"
+
+
+class ApplicationStatus():
+    RUNNING = 1
+    STARTING = 2
+    STOPPED = 3
+
+
+class CommandType():
+    CANCEL = "cancel"
+
+
+class JobState():
+    RUNNING = 'running'
+    SUCCESS = 'success'
+    FAILURE = 'failure'
+
+
+class OperationType():
+    ADD = 'add'
+    REMOVE = 'remove'
+
+
+class PlatformType():
+    UNKNOWN = -1
+    LINUX = 0
+    WINDOWS = 1
+
+
 class PredicateType():
     AND = "and"
     OR = "or"
@@ -11,32 +53,19 @@ class PredicateType():
     ZOOKEEPERHASGRANDCHILDREN = "zookeeperhasgrandchildren"
     ZOOKEEPERGOODUNTILTIME = "zookeepergooduntiltime"
 
-class SimpleObject(object):
-    def __init__(self, value):
-        self.value = value
 
-    def set_value(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        return self.value == other
-
-    def __ne__(self, other):
-        return self.value != other
-
-    def __str__(self):
-        return str(self.value)
-
-    def __repr__(self):
-        return '{0}(value={1})'.format(self.__class__.__name__, self.value)
-
-class ApplicationMode(SimpleObject):
-    AUTO = "auto"
-    MANUAL = "manual"
-
-    def __init__(self, val):
-        SimpleObject.__init__(self, val)
+class UpdateType():
+    APPLICATION_STATE_UPDATE = "application_state"
+    APPLICATION_DEPENDENCY_UPDATE = "application_dependency"
+    GLOBAL_MODE_UPDATE = "global_mode"
+    TIMING_UPDATE = "timing_estimate"
 
 
-
-
+class Weekdays():
+    MONDAY = 0
+    TUESDAY = 1
+    WEDNESDAY = 2
+    THURSDAY = 3
+    FRIDAY = 4
+    SATURDAY = 5
+    SUNDAY = 6

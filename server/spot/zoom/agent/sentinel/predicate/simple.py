@@ -1,11 +1,11 @@
 import logging
-from spot.zoom.agent.sentinel.config.constants import CALLBACK_PRIORITY
 
 
 class SimplePredicate(object):
-    def __init__(self, comp_name, parent=None):
+    def __init__(self, comp_name, settings, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type parent: str or None
         """
         self._met = False
@@ -15,6 +15,7 @@ class SimplePredicate(object):
         self._started = False
         self._log = logging.getLogger('sent.{0}.pred'.format(comp_name))
         self._started = False
+        self._settings = settings
 
     @property
     def met(self):
@@ -31,8 +32,9 @@ class SimplePredicate(object):
         """
         Sort callbacks based on CALLBACKS dictionary values
         """
+        priority = self._settings.get('CALLBACK_PRIORITY')
         self._callbacks = sorted(self._callbacks,
-                                 key=lambda item: [CALLBACK_PRIORITY.get(k, 99)
+                                 key=lambda item: [priority.get(k, 99)
                                                    for k in item.keys()])
 
     def set_met(self, value):

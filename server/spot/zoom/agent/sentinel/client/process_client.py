@@ -7,26 +7,23 @@ import socket
 from multiprocessing import Lock
 from time import sleep, time
 from subprocess import call
-from spot.zoom.agent.sentinel.common.enum import PlatformType, ApplicationType
+
+from spot.zoom.common.types import PlatformType, ApplicationType
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
 from spot.zoom.agent.sentinel.util.decorators import synchronous
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
-from spot.zoom.agent.sentinel.config.constants import (
-    GRAPHITE_RUNTIME_METRIC, 
-    GRAPHITE_RESULT_METRIC
-)
 
 
 class ProcessClient(object):
     def __init__(self, name=None, command=None, script=None, apptype=None,
                  system=None, restart_max=None, restart_on_crash=None,
-                 graphite_app_metric=None):
+                 graphite_app_metric=None, settings=None):
         """
         :type name: str or None
         :type command: str or None
         :type script: str or None
-        :type apptype: spot.zoom.agent.sentinel.common.enum.ApplicationType
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type apptype: spot.zoom.common.types.ApplicationType
+        :type system: spot.zoom.common.types.PlatformType
         :type restart_max: int or None
         :type restart_on_crash: bool or None
         """
@@ -45,6 +42,7 @@ class ProcessClient(object):
 
         self.last_status = False
         self._graphite_app_metric = graphite_app_metric
+        self._settings = settings
 
     @property
     def script_name(self):
@@ -96,8 +94,10 @@ class ProcessClient(object):
                 dostart = self._service_start
 
         returncode = -1
-        metric_result = self._append_metrics(GRAPHITE_RESULT_METRIC)
-        metric_runtime = self._append_metrics(GRAPHITE_RUNTIME_METRIC)        
+        result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
+        runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
+        metric_result = self._append_metrics(result_path)
+        metric_runtime = self._append_metrics(runtime_path)
         while not self._restart_logic.restart_max_reached:
             self._restart_logic.increment_count()
             start_time = time()
