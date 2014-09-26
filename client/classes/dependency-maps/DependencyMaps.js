@@ -53,7 +53,7 @@ return function DependencyMaps(parent) {
 		}
 	};
 
-	// check if some appState's dependencts contain a particular appState
+	// check if some appState's dependents contain a particular appState
 	self.dependentsContainAppState = function(parent, appState) {
 		var result;
 

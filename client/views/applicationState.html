@@ -406,8 +406,8 @@
             <!-- Rows -->
             <tbody data-bind="foreach: appStateModel.filteredItems">
                 <tr>
-                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
-                        <span style="cursor:pointer" title="Show startup time and exit code history."
+                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center" style="cursor:pointer">
+                        <span title="Show startup time and exit code history."
                             data-bind="attr : {class : applicationStatusClass},
                                          click: function(){graphite.modalShow([graphite.applicationURL])} "></span>
                     </td>
@@ -415,7 +415,7 @@
                         data-placement="top"
                         >
                         <span title="Toggle the display of dependencies." style="cursor:pointer" 
-                            data-bind="text: configurationPath, click: toggleDependencies"></span>
+                            data-bind="text: configurationPath, click: toggleDependencies, style: {cursor: dependencyPointer}"></span>
                         <span data-bind="attr : {class : dependencyClass}"></span>
                         <span title="Toggle the display of notes." style="cursor:pointer" class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                         
@@ -437,13 +437,10 @@
                             <ul data-bind="foreach: requiredBy, visible: requiredBy().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
-                            <div class="row">
-                                <div class="col-md-4" data-bind="visible: zookeepergooduntiltime().length > 0">I should be up between:</div>
-                                    <div class="col-md-4" data-bind="foreach: zookeepergooduntiltime, visible: zookeepergooduntiltime().length > 0" style="list-style-type: none">
-                                        <span data-bind="template: {name : 'other-predicates-template'}"></span>
-                                    <div/>
-                                </div>
-                            </div>
+                            <span data-bind="visible: zookeepergooduntiltime().length > 0">Good until time:</span>
+                            <ul  data-bind="foreach: zookeepergooduntiltime, visible: zookeepergooduntiltime().length > 0" style="list-style-type: none">
+                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul>
                             <span data-bind="visible: holiday().length > 0">Holiday:</span>
                             <ul data-bind="foreach: holiday, visible: holiday().length > 0" >
                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
@@ -753,32 +750,17 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
-
 <!--Template for Displaying other predicates-->
 <script type="text/html" id="other-predicates-template">
     <span data-bind="text: $data"></span>
 </script>
+
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}">
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" style="cursor: pointer" title="Click to jump to this server config" >
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span data-bind="text: $data.configurationPath"></span>
     </li>
-</script>
-<!-- Template for showing unknown states -->
-<script type="text/html" id="unknown-template">
-    <div data-bind="style : {backgroundColor : $data.applicationStatusBg}">
-    <span>Predicate not in configuration!</span>
-    <ul style="list-style-type: none">
-        <li>   
-            <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
-            <span data-bind="text: $data.configurationPath"></span>
-        </li>
-        <li>Predicate type: 
-            <span data-bind="text: $data.predType"></span>
-        </li>
-    </ul>
-</div>
 </script>
 
 <script>

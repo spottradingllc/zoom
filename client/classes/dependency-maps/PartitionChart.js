@@ -4,7 +4,7 @@ return function PartitionChart(d3, ko, parent, divName) {
     var self = this;
     self.parent = parent;
 
-    self.name = "Parition Chart";
+    self.name = "Partition Chart";
     self.shortName = "chart";
 
     self.root = null;

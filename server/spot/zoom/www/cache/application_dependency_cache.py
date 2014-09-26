@@ -136,17 +136,17 @@ class ApplicationDependencyCache(object):
                         if predicate.get('type').lower() == PredicateType.ZOOKEEPERGOODUNTILTIME:
                             logging.info(predicate.get("path"))
                             d = {'type': PredicateType.ZOOKEEPERGOODUNTILTIME,
-                                 'path': predicate.get("path").split("gut/")[1]}
+                                    'path': "I should be up between: " + predicate.get("path").split("gut/")[1]}
                             dependencies.append(d)
                             prevPredNot = False
                         if predicate.get('type').lower() == PredicateType.HOLIDAY:
                             d = {'type': PredicateType.HOLIDAY,
-                                 'path': "False" if prevPredNot else "True"}
+                                 'path': "Does NOT run on holidays" if prevPredNot else "Runs on holidays"}
                             dependencies.append(d)
                             prevPredNot = False
                         if predicate.get('type').lower() == PredicateType.WEEKEND:
                             d = {'type': PredicateType.WEEKEND,
-                                 'path': "False" if prevPredNot else "True"}
+                                 'path': "Does NOT run on weekends" if prevPredNot else "Runs on weekends"}
                             dependencies.append(d)
                             prevPredNot = False
                         if predicate.get('type').lower() == PredicateType.NOT:

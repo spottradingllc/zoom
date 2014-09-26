@@ -191,8 +191,11 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
 
             neverFound = true;
 
+            // self.predType maps zookeeperhaschildren and zookeeperhasgrandchildren
+            // to requires 
+
             update.dependencies.forEach( function(entry) {
-                // if we haven't seen this pred type before, delete once only
+                // if we haven't seen this pred type before for this round of updates, delete once only
                 if (!deleted[self.predType[entry.type]]){ 
                     self[self.predType[entry.type]].removeAll();
                     deleted[self.predType[entry.type]] = true; 
@@ -203,23 +206,20 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                 if (predType == "zookeeperhasgrandchildren") {
                     ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) == path){
-                            self[self.predType[entry.type]].push(applicationState);
+                            self.requires.push(applicationState);
                             neverFound = false;
                         }
                     });
-                
                 }
-                 
-                else if (self.predType[predType] == "requires") {
+                else if (predType == "zookeeperhaschildren") {
                     var applicationState = ko.utils.arrayFirst(ApplicationStateArray(), function(applicationState) {
                         return (path == applicationState.configurationPath);
                     });
                     if (applicationState){ 
                         neverFound = false; 
-                        self[self.predType[entry.type]].push(applicationState);
+                        self.requires.push(applicationState);
                     }
                 }
-                
                 // if this predicate type exists in predType
                 else if (typeof self.predType[predType] != undefined){
                     self[self.predType[entry.type]].push(path);
@@ -229,15 +229,22 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                     console.log(predType);
                     neverFound = false;
                 }
-
+                
+                // Since the server only gets applications located in /spot/software/state/application,
+                // this handles applications outside of that path that were added in the configuration
                 if(neverFound) {     
-                    console.log("found missing " + entry.type + " " + entry.path + " " + self.configurationPath); 
+                    // 'simulate' an applicationState object - /classes/DependencyMaps and this file rely
+                    // on having these attributes, at a minimum. We just want to display the missing app
+                    // so this should be OK - but not ideal
                     var showAsMissing = new Object;
                     showAsMissing.configurationPath = path;
                     showAsMissing.applicationStatusClass = glyphs.unknownQMark;
-                    showAsMissing.applicationStatusBg = colors.unknownGray; 
+                    showAsMissing.applicationStatusBg = colors.unknownGray;
+                    showAsMissing.applicationStatus = ko.observable(applicationStatuses.unknown);
                     showAsMissing.predType = predType;
-                    self.unknown.push(showAsMissing);
+                    showAsMissing.requires = ko.observableArray([]);
+                    showAsMissing.errorState = ko.observable(errorStates.unknown); 
+                    self.requires.push(showAsMissing);
                 }
             });
         };
@@ -268,6 +275,27 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         });
 
         self.requiredBy.extend({rateLimit: 1000});
+
+        self.dependencyClass = ko.computed(function() {
+            if (self.requires().length == 0 && self.requiredBy().length == 0
+                && self.holiday().length == 0 && self.weekend.length == 0
+                && self.zookeepergooduntiltime().length == 0){
+                return "";
+            }
+            else if (self.showDependencies()) {
+                return "caret";
+            }
+            else {
+                return "caret-left"
+            }
+        });
+
+        self.dependencyPointer = ko.computed(function() {
+            if (self.dependencyClass() != "")
+                return "pointer";
+            else
+                return "";
+        });
 
         self.deleteRow = function() {
             // delete an application row on the web page
@@ -356,20 +384,6 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
             }
 
         };
-
-        self.dependencyClass = ko.computed(function() {
-            if (self.requires().length == 0 && self.requiredBy().length == 0
-                && self.holiday().length == 0 && self.weekend.length == 0
-                && self.zookeepergooduntiltime().length == 0){
-                return "";
-            }
-            else if (self.showDependencies()) {
-                return "caret";
-            }
-            else {
-                return "caret-left"
-            }
-        });
-    }
+    } 
 });
 
