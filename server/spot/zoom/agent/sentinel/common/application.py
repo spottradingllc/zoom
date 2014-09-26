@@ -32,6 +32,7 @@ from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
 
+from spot.zoom.common.pagerduty import PagerDuty
 
 if 'Linux' in platform.platform():
     from spot.zoom.agent.sentinel.client.process_client import ProcessClient
@@ -64,6 +65,7 @@ class Application(object):
         self._running = True  # used to manually stop the run loop
         self._prev_state = None
         self._actions = dict()  # created in _reset_watches on zk connect
+        self._env = os.environ.get('EnvironmentToUse', 'Staging')
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -78,6 +80,9 @@ class Application(object):
         self._paths = self._init_paths(self.config, settings, application_type)
 
         # clients
+        self._pagerduty_client = PagerDuty(settings.get('PAGERDUTY_SUBDOMAIN'),
+                                           settings.get('PAGERDUTY_API_TOKEN'),
+                                           settings.get('PAGERDUTY_SERVICE_TOKEN'))
         if self._system == PlatformType.LINUX:
             self.zkclient = KazooClient(
                 hosts=ZK_CONN_STRING,
@@ -131,6 +136,11 @@ class Application(object):
                                      ephemeral=True,
                                      makepath=True)
 
+                # resolve any pager duty alarms
+                if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
+                    key = self._pathjoin(self.name, self._host)
+                    self._pagerduty_client.resolve(key)
+
                 self._state.set_value(ApplicationState.OK)
                 self._update_agent_node_with_app_details()
 
@@ -177,6 +187,8 @@ class Application(object):
 
         if result != 0:
             self._state.set_value(ApplicationState.ERROR)
+            if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
+                self._send_pagerduty_alarm()
         else:
             self._state.set_value(ApplicationState.OK)
 
@@ -460,6 +472,16 @@ class Application(object):
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    def _send_pagerduty_alarm(self):
+        key = self._pathjoin(self.name, self._host)
+        description = ('Sentinel Error: Application {0} has failed to start on '
+                       'host {1}.'.format(self.name, self._host))
+        details = (
+            '{0}.\nReview the application log and contact the appropriate '
+            'development  group.'.format(description))
+
+        self._pagerduty_client.trigger(key, description, details)
+
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')
     def _reset_after_connection_loss(self):
@@ -472,7 +494,7 @@ class Application(object):
             map(lambda x: x.stop(), self._actions.values())  # stop actions
             self._actions.clear()
             self._predicates = []
-            self._actions = self._init_actions()
+            self._actions = self._init_actions(self._settings)
             map(lambda x: x.reset(), self._predicates)  # reset predicates
             map(lambda x: x.start(), self._actions.values())  # start actions
             self._check_allowed_instances()
