@@ -136,9 +136,9 @@ class ApplicationDependencyCache(object):
                                 {'type': pred_type,
                                  'path': "Does NOT run on holidays" if prev_was_not else "Runs on holidays"})
                             prev_was_not = False
-                        if pred_type == pred_type:
+                        if pred_type == PredicateType.WEEKEND:
                             dependencies.append(
-                                {'type': PredicateType.WEEKEND,
+                                {'type': pred_type,
                                  'path': "Does NOT run on weekends" if prev_was_not else "Runs on weekends"})
                             prev_was_not = False
                         if pred_type == PredicateType.NOT:

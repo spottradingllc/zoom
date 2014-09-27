@@ -415,38 +415,38 @@
                         data-placement="top"
                         >
                         <span title="Toggle the display of dependencies." style="cursor:pointer" 
-                            data-bind="text: configurationPath, click: toggleDependencies, style: {cursor: dependencyPointer}"></span>
-                        <span data-bind="attr : {class : dependencyClass}"></span>
+                            data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, style: {cursor: dependencyModel.dependencyPointer}"></span>
+                        <span data-bind="attr : {class : dependencyModel.dependencyClass}"></span>
                         <span title="Toggle the display of notes." style="cursor:pointer" class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
                         
                         <!-- Always show this because 'hidden' predicates are dangerous --> 
                         <div>
-                            <span data-bind="visible: unknown().length > 0, style="></span>
-                            <ul data-bind="foreach: unknown, visible: unknown().length > 0" style="list-style-type: none">
+                            <span data-bind="visible: dependencyModel.unknown().length > 0, style="></span>
+                            <ul data-bind="foreach: dependencyModel.unknown, visible: dependencyModel.unknown().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name: 'unknown-template'}"></span>
                             </ul>
                             </span>
                         </div>
                         
-                        <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
-                            <span data-bind="visible: requires().length > 0">I require:</span>
-                            <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
+                        <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 && dependencyModel.showDependencies">
+                            <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
+                            <ul data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
-                            <span data-bind="visible: requiredBy().length > 0">I am required by:</span>
-                            <ul data-bind="foreach: requiredBy, visible: requiredBy().length > 0" style="list-style-type: none">
+                            <span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>
+                            <ul data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
-                            <span data-bind="visible: zookeepergooduntiltime().length > 0">Good until time:</span>
-                            <ul  data-bind="foreach: zookeepergooduntiltime, visible: zookeepergooduntiltime().length > 0" style="list-style-type: none">
+                            <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
+                            <ul  data-bind="foreach: dependencyModel.zookeepergooduntiltime, visible: dependencyModel.zookeepergooduntiltime().length > 0" style="list-style-type: none">
                                  <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul>
-                            <span data-bind="visible: holiday().length > 0">Holiday:</span>
-                            <ul data-bind="foreach: holiday, visible: holiday().length > 0" >
+                            <span data-bind="visible: dependencyModel.holiday().length > 0">Holiday:</span>
+                            <ul data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul> 
-                            <span data-bind="visible: weekend().length > 0">Weekend:</span>
-                            <ul data-bind="foreach: weekend, visible: weekend().length > 0" style="list-style-type: none">
+                            <span data-bind="visible: dependencyModel.weekend().length > 0">Weekend:</span>
+                            <ul data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul>
                            

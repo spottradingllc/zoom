@@ -17,37 +17,39 @@ return function DependencyMaps(parent) {
 
 	self.createDependentsDict = function(appState) {
 		var name = appState.configurationPath.substring(appState.configurationPath.indexOf("application/") + "application/".length);
-		if (appState.requiredBy().length == 0) {
+		if (appState.dependencyModel.requiredBy().length == 0) {
 			return {name : name, 
 				    status : appState.applicationStatus(), 
-				    size : appState.requiredBy().length + 1};
+				    size : appState.dependencyModel.requiredBy().length + 1};
 		}
 		else {
 			return {name : name, 
-				    children : ko.utils.arrayMap(appState.requiredBy(), function(dependent) {
+				    children : ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
 						return self.createDependentsDict(dependent);
 					}), 
 					status : appState.applicationStatus(),
-					size : appState.requiredBy().length + 1
+					size : appState.dependencyModel.requiredBy().length + 1
 					};
 		}
 	};
 
 	self.createRequirementsDict = function(appState) {
 		var name = appState.configurationPath.substring(appState.configurationPath.indexOf("application/") + "application/".length);
-		if (appState.requires().length == 0) {
+        // this is a fake app state created from outside the ../state/application tree
+        if (typeof appState.dependencyModel == 'undefined' || appState.dependencyModel.requires().length == 0) {
 			return {name : name, 
 				    status: appState.applicationStatus(), 
-				    size : appState.requires().length + 1, 
+				    size : 1,
+//				    size : appState.dependencyModel.requires().length + 1,
 				    errorState : appState.errorState()};
 		}
 		else {
 			return {name : name,
-					children : ko.utils.arrayMap(appState.requires(), function(requirement) {
+					children : ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
 						return self.createRequirementsDict(requirement);
 					}),
 					status : appState.applicationStatus(),
-					size : appState.requires().length + 1,
+					size : appState.dependencyModel.requires().length + 1,
 					errorState : appState.errorState()
 					};
 		}
@@ -57,12 +59,12 @@ return function DependencyMaps(parent) {
 	self.dependentsContainAppState = function(parent, appState) {
 		var result;
 
-		if (parent.requiredBy().indexOf(appState) != -1 || parent == appState) {
+		if (parent.dependencyModel.requiredBy().indexOf(appState) != -1 || parent == appState) {
 			return true;
 		}
 		else {
-			for(var i = 0; i < parent.requiredBy().length; i++) {
-				result = self.dependentsContainAppState(parent.requiredBy()[i], appState);
+			for(var i = 0; i < parent.dependencyModel.requiredBy().length; i++) {
+				result = self.dependentsContainAppState(parent.dependencyModel.requiredBy()[i], appState);
 				if (result) {
 					return result;
 				}
@@ -91,10 +93,10 @@ return function DependencyMaps(parent) {
 
 		// sort app states based on number of requirements
 		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
-								if (left.requiredBy().length == right.requiredBy().length) {
+								if (left.dependencyModel.requiredBy().length == right.dependencyModel.requiredBy().length) {
 									return 0;
 								}
-								else if (left.requiredBy().length < right.requiredBy().length) {
+								else if (left.dependencyModel.requiredBy().length < right.dependencyModel.requiredBy().length) {
 									return 1;
 								}
 								else {
@@ -125,7 +127,7 @@ return function DependencyMaps(parent) {
 		// sort app states based on status, then whether or not their requirements are up, then alphabetically
 		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
 			if (left.applicationStatus() == right.applicationStatus()) {
-				if (left.requirementsAreUp() == right.requirementsAreUp()) {
+				if (left.dependencyModel.requirementsAreUp() == right.dependencyModel.requirementsAreUp()) {
 					if (left.configurationPath < right.configurationPath) {
 						return -1;
 					}
@@ -136,7 +138,7 @@ return function DependencyMaps(parent) {
 						return 0;
 					}
 				}
-				else if (left.requirementsAreUp() && !right.requirementsAreUp()) {
+				else if (left.dependencyModel.requirementsAreUp() && !right.dependencyModel.requirementsAreUp()) {
 					return 1;
 				}
 				else {
