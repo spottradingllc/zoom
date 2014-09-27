@@ -18,40 +18,46 @@ return function DependencyMaps(parent) {
 	self.createDependentsDict = function(appState) {
 		var name = appState.configurationPath.substring(appState.configurationPath.indexOf("application/") + "application/".length);
 		if (appState.dependencyModel.requiredBy().length == 0) {
-			return {name : name, 
-				    status : appState.applicationStatus(), 
-				    size : appState.dependencyModel.requiredBy().length + 1};
+			return {
+                name : name,
+				status : appState.applicationStatus(),
+				size : appState.dependencyModel.requiredBy().length + 1
+            };
 		}
 		else {
-			return {name : name, 
-				    children : ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
-						return self.createDependentsDict(dependent);
-					}), 
-					status : appState.applicationStatus(),
-					size : appState.dependencyModel.requiredBy().length + 1
-					};
+			return {
+                name : name,
+				children : ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
+                    return self.createDependentsDict(dependent);
+                }),
+			    status : appState.applicationStatus(),
+			    size : appState.dependencyModel.requiredBy().length + 1
+            };
 		}
 	};
 
 	self.createRequirementsDict = function(appState) {
 		var name = appState.configurationPath.substring(appState.configurationPath.indexOf("application/") + "application/".length);
-        // this is a fake app state created from outside the ../state/application tree
+        // this is either an app that requires nothing or
+        // a fake app state created from outside the ../state/application tree (doesn't have all the needed attributes of a real state)
         if (typeof appState.dependencyModel == 'undefined' || appState.dependencyModel.requires().length == 0) {
-			return {name : name, 
-				    status: appState.applicationStatus(), 
-				    size : 1,
-//				    size : appState.dependencyModel.requires().length + 1,
-				    errorState : appState.errorState()};
+			return {
+                name : name,
+				status: appState.applicationStatus(),
+				size : 1,
+				errorState : appState.errorState()
+            };
 		}
 		else {
-			return {name : name,
-					children : ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
-						return self.createRequirementsDict(requirement);
-					}),
-					status : appState.applicationStatus(),
-					size : appState.dependencyModel.requires().length + 1,
-					errorState : appState.errorState()
-					};
+			return {
+                name : name,
+			    children : ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
+                    return self.createRequirementsDict(requirement);
+			    }),
+				status : appState.applicationStatus(),
+				size : appState.dependencyModel.requires().length + 1,
+				errorState : appState.errorState()
+            };
 		}
 	};
 
@@ -93,15 +99,15 @@ return function DependencyMaps(parent) {
 
 		// sort app states based on number of requirements
 		var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
-								if (left.dependencyModel.requiredBy().length == right.dependencyModel.requiredBy().length) {
-									return 0;
-								}
-								else if (left.dependencyModel.requiredBy().length < right.dependencyModel.requiredBy().length) {
-									return 1;
-								}
-								else {
-									return -1;
-								}
+            if (left.dependencyModel.requiredBy().length == right.dependencyModel.requiredBy().length) {
+                return 0;
+            }
+            else if (left.dependencyModel.requiredBy().length < right.dependencyModel.requiredBy().length) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
 		});
 
 		// filter the sorted app states so no dependencies are included more than once
