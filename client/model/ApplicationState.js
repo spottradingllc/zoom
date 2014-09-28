@@ -1,11 +1,13 @@
 define(['knockout',
         'classes/applicationStateArray',
         'model/graphiteModel',
-        'model/appInfoModel'],
-function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
+        'model/appInfoModel',
+        'model/dependencyModel'],
+function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel){
     return function ApplicationState(data, parent) {
         var self = this;
-        var colors = {
+
+        self.colors = {
             actionBlue: '#057D9F',
             errorRed: '#CC574F',
             successTrans: "",
@@ -13,7 +15,7 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
             warnOrange: '#FFAE2F'
         };
 
-        var glyphs = {
+        self.glyphs = {
             runningCheck: "glyphicon glyphicon-ok-circle",
             stoppedX: "glyphicon glyphicon-remove-circle",
             unknownQMark: "glyphicon glyphicon-question-sign",
@@ -28,8 +30,8 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
             modeManual: "glyphicon glyphicon-eye-close"
         };
 
-        var applicationStatuses = {running : "running", stopped : "stopped", unknown : "unknown"};
-        var errorStates = {ok : "ok", starting : "starting", stopping : "stopping", error : "error", notify: "notify", unknown : "unknown"};
+        self.applicationStatuses = {running : "running", stopped : "stopped", unknown : "unknown"};
+        self.errorStates = {ok : "ok", starting : "starting", stopping : "stopping", error : "error", notify: "notify", unknown : "unknown"};
 
         self.componentId = data.application_name;
         self.configurationPath = data.configuration_path;
@@ -42,28 +44,29 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
         self.mtime = Date.now();
         self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
         self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
+        self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
 
         self.applicationStatusClass = ko.computed(function () {
-            if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
-                return glyphs.runningCheck;
+            if (self.applicationStatus().toLowerCase() == self.applicationStatuses.running) {
+                return self.glyphs.runningCheck;
             }
-            else if (self.applicationStatus().toLowerCase() == applicationStatuses.stopped) {
-                return glyphs.stoppedX;
+            else if (self.applicationStatus().toLowerCase() == self.applicationStatuses.stopped) {
+                return self.glyphs.stoppedX;
             }
             else {
-                return glyphs.unknownQMark;
+                return self.glyphs.unknownQMark;
             }
         }, self);
 
         self.applicationStatusBg = ko.computed(function () {
-            if (self.applicationStatus().toLowerCase() == applicationStatuses.running) {
-                return colors.successTrans;
+            if (self.applicationStatus().toLowerCase() == self.applicationStatuses.running) {
+                return self.colors.successTrans;
             }
-            else if (self.applicationStatus().toLowerCase() == applicationStatuses.stopped) {
-                return colors.errorRed;
+            else if (self.applicationStatus().toLowerCase() == self.applicationStatuses.stopped) {
+                return self.colors.errorRed;
             }
             else {
-                return colors.unknownGray;
+                return self.colors.unknownGray;
             }
         }, self);
 
@@ -72,74 +75,75 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                 return "";
             }
             else if(self.mode() == 'auto'){
-                return glyphs.modeAuto;
+                return self.glyphs.modeAuto;
             }
             else if(self.mode() == 'manual'){
-                return glyphs.modeManual;
+                return self.glyphs.modeManual;
             }
             else {
-                return glyphs.runningCheck;
+                return self.glyphs.runningCheck;
             }
 
         });
 
         self.errorStateClass = ko.computed(function () {
-            if (self.errorState() && self.errorState().toLowerCase() == errorStates.ok) {
-                return glyphs.thumpsUp;
+            if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.ok) {
+                return self.glyphs.thumpsUp;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.starting) {
-                return glyphs.startingRetweet;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.starting) {
+                return self.glyphs.startingRetweet;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.stopping) {
-                return glyphs.stoppingDown;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.stopping) {
+                return self.glyphs.stoppingDown;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.error) {
-                return glyphs.errorWarning;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.error) {
+                return self.glyphs.errorWarning;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.notify) {
-                return glyphs.notifyExclamation;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.notify) {
+                return self.glyphs.notifyExclamation;
             }
             else {
-                return glyphs.unknownQMark;
+                return self.glyphs.unknownQMark;
             }
         }, self);
 
         self.errorStateBg = ko.computed(function () {
-            if (self.errorState() && self.errorState().toLowerCase() == errorStates.ok) {
+            if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.ok) {
                 if (self.mode() != parent.globalMode.current()){
-                    return colors.warnOrange;
+                    return self.colors.warnOrange;
                 }
 
-                return colors.successTrans;
+                return self.colors.successTrans;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.starting) {
-                return colors.actionBlue;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.starting) {
+                return self.colors.actionBlue;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.stopping) {
-                return colors.actionBlue;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.stopping) {
+                return self.colors.actionBlue;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.error) {
-                return colors.errorRed;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.error) {
+                return self.colors.errorRed;
             }
-            else if (self.errorState() && self.errorState().toLowerCase() == errorStates.notify) {
-                return colors.warnOrange;
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.notify) {
+                return self.colors.warnOrange;
             }
             else {
-                return colors.unknownGray;
+                return self.colors.unknownGray;
             }
         }, self);
 
         // Creates group for sending commands
         self.groupControlStar = ko.computed(function() {
             if (parent.groupControl.indexOf(self) == -1) {
-                return glyphs.emptyStar;
+                return self.glyphs.emptyStar;
             }
             else {
-                return glyphs.filledStar;
+                return self.glyphs.filledStar;
             }
         });
-        self.groupControlStar.extend({rateLimit: 10});
 
+        self.groupControlStar.extend({rateLimit: 10});
+        
         self.toggleGroupControl = function () {
             if (parent.groupControl.indexOf(self) == -1) {
                 parent.groupControl.push(self);
@@ -153,81 +157,15 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
             alert("Error controlling agent.");
         };
 
-        // Dependency bubbling
-        self.showDependencies = ko.observable(false);
-        self.toggleDependencies = function() {
-            self.showDependencies(!self.showDependencies());
-        };
 
-        self.predType = {children: "zookeeperhaschildren",
-                         grandchildren: "zookeeperhasgrandchildren"};
-
-        self.requires = ko.observableArray([]);
-        self.setRequires = function(update) {
-            self.requires.removeAll();
-            self.mtime = Date.now();
-            if (self.applicationHost() == "") return;
-
-            update.dependencies.forEach( function(entry) {
-
-                var predType = entry.type;
-                var path = entry.path;
-
-                // determine predicate type and filter proper application states
-                if (predType == self.predType.children) {
-                    var applicationState = ko.utils.arrayFirst(ApplicationStateArray(), function(applicationState) {
-                        return (path == applicationState.configurationPath);
-                    });
-                    if (applicationState) self.requires.push(applicationState);
-                }
-                else if (predType == self.predType.grandchildren) {
-                    ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
-                        if (applicationState.configurationPath.substring(0, path.length) == path) {
-                            self.requires.push(applicationState);
-                        }
-                    });
-                }
-                else {
-                    throw "Unknown predType: " + predType;
-                }
-            });
-        };
-
-        self.requires.extend({rateLimit: 2000});
-
-        self.requirementsAreUp = ko.computed(function() {
-            if (self.requires().length > 0) {
-                for(var i = 0; i < self.requires().length; i++) {
-                    if (self.requires()[i].applicationStatus() == applicationStatuses.stopped) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else {
-                return true;
-            }
-        });
-
-        self.requiredBy = ko.computed(function() {
-            var dependencies = ko.observableArray([]);
-            ko.utils.arrayForEach(ApplicationStateArray(), function(applicationState) {
-                if (applicationState.requires().indexOf(self) > -1) {
-                    dependencies.push(applicationState);
-                }
-            });
-
-            return dependencies().slice();
-        });
-        self.requiredBy.extend({rateLimit: 1000});
 
         self.deleteRow = function() {
             // delete an application row on the web page
             // parses the config and deletes the component with a matching id
             // deletes the path in zookeeper matching the configurationPath
-            if (self.requiredBy().length > 0){
+            if (self.dependencyModel.requiredBy().length > 0){
                 var message = "Someone depends on this! ";
-                ko.utils.arrayForEach(self.requiredBy(), function(applicationState) {
+                ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
                     message = message + "\n" + applicationState.configurationPath;
                 });
                 alert(message);
@@ -243,7 +181,10 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                 if(confirm(self.configurationPath + " will be deleted, and its dependency configuration lost, continue?"))
                 {
 
-                    var dict = {loginName : parent.login.elements.username(), delete : self.configurationPath};
+                    var dict = {
+                        "loginName": parent.login.elements.username(),
+                        "delete": self.configurationPath
+                    };
 
                     var zk_deleted = true;
 
@@ -256,8 +197,8 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
                         $.get("/api/config/" + self.applicationHost(),
                             function(data){
                                 if (data != "Node does not exist.") {
-                                    parser = new DOMParser();
-                                    xmlDoc = parser.parseFromString(data,"text/xml");
+                                    var parser = new DOMParser();
+                                    var xmlDoc = parser.parseFromString(data,"text/xml");
                                     var found = 0;
                                     var x = xmlDoc.getElementsByTagName("Component");
                                     for (var i=0;i<x.length;i++)
@@ -308,18 +249,6 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel){
             }
 
         };
-
-        self.dependencyClass = ko.computed(function() {
-            if (self.requires().length == 0 && self.requiredBy().length == 0){
-                return "";
-            }
-            else if (self.showDependencies()) {
-                return "caret";
-            }
-            else {
-                return "caret-left"
-            }
-        });
-    }
+    } 
 });
 
