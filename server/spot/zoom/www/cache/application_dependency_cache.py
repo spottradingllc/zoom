@@ -86,9 +86,7 @@ class ApplicationDependencyCache(object):
         """
         if self._zoo_keeper.exists(path):
             data, stat = self._zoo_keeper.get(path, watch=self._on_update)
-            if data is None:
-                return
-            if data == "":
+            if not data:
                 return
 
             try:
@@ -96,49 +94,68 @@ class ApplicationDependencyCache(object):
 
                 for node in root.findall('Automation/Component'):
 
-                    result = {}
                     dependencies = []
-                    registrationpath = None
-
-                    if node.attrib.get('id') is not None:
-                        registrationpath = os.path.join(
-                            self._configuration.application_state_path,
-                            node.attrib['id'])
-                    if node.attrib.get('registrationpath') is not None:
-                        registrationpath = node.attrib['registrationpath']
+                    app_id = node.attrib.get('id')
+                    registrationpath = node.attrib.get('registrationpath', None)
 
                     if registrationpath is None:
-                        logging.error("no entry found!")
-                        continue
-
-                    result.update({"configuration_path": registrationpath})
+                        registrationpath = os.path.join(
+                            self._configuration.application_state_path, app_id)
 
                     start_action = node.find('Actions/Action[@id="start"]')
 
-                    if start_action is None: 
-                        logging.warn("No Start Action Found for {}"
+                    if start_action is None:
+                        logging.warn("No Start Action Found for {0}"
                                      .format(registrationpath))
                         continue
 
+                    # prev_was_not keeps track of the outer class was 'not'
+                    prev_was_not = False
                     for predicate in start_action.iter('Predicate'):
-                        if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASCHILDREN:
-                            d = {'type': PredicateType.ZOOKEEPERHASCHILDREN,
-                                 'path': predicate.get("path")}
-                            dependencies.append(d)
-                        if predicate.get('type').lower() == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
-                            d = {'type': PredicateType.ZOOKEEPERHASGRANDCHILDREN,
-                                 'path': predicate.get("path")}
-                            dependencies.append(d)
+                        pred_type = predicate.get('type').lower()
+                        pred_path = predicate.get('path', None)
+                        if pred_type == PredicateType.ZOOKEEPERHASCHILDREN:
+                            dependencies.append({'type': pred_type,
+                                                 'path': pred_path})
+                            prev_was_not = False
+                        if pred_type == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
+                            dependencies.append({'type': pred_type,
+                                                 'path': pred_path})
+                            prev_was_not = False
+                        if pred_type == PredicateType.ZOOKEEPERGOODUNTILTIME:
+                            if len(pred_path.split('gut/')) > 1:
+                                dependencies.append(
+                                    {'type': pred_type,
+                                     'path': "I should be up between: {0}".format(pred_path.split("gut/")[1])})
+                            else:
+                                logging.warning('Invalid GUT path: {0}'
+                                                .format(pred_path))
+                            prev_was_not = False
+                        if pred_type == PredicateType.HOLIDAY:
+                            dependencies.append(
+                                {'type': pred_type,
+                                 'path': "Does NOT run on holidays" if prev_was_not else "Runs on holidays"})
+                            prev_was_not = False
+                        if pred_type == PredicateType.WEEKEND:
+                            dependencies.append(
+                                {'type': pred_type,
+                                 'path': "Does NOT run on weekends" if prev_was_not else "Runs on weekends"})
+                            prev_was_not = False
+                        if pred_type == PredicateType.NOT:
+                            prev_was_not = True
 
-                    result.update({"dependencies": dependencies})
+                    result = {
+                        "configuration_path": registrationpath,
+                        "dependencies": dependencies
+                    }
 
                     result_dict.update({registrationpath: result})
 
-            except Exception as e:
-                logging.exception(e)
+            except Exception:
+                logging.exception('An unhandled exception occurred')
 
         else:
-            logging.warn("config path DNE: {0}".format(path))
+            logging.warn("config path does not exist: {0}".format(path))
 
     def _on_update(self, event):
         """

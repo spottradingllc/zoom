@@ -1,4 +1,5 @@
 ﻿<section>
+
 <div id="application_state_page" class="container-fluid" style="margin-top: 40px">
 
     <!-- Big Modal -->
@@ -405,8 +406,8 @@
             <!-- Rows -->
             <tbody data-bind="foreach: appStateModel.filteredItems">
                 <tr>
-                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
-                        <span style="cursor:pointer" title="Show startup time and exit code history."
+                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center" style="cursor:pointer">
+                        <span title="Show startup time and exit code history."
                             data-bind="attr : {class : applicationStatusClass},
                                          click: function(){graphite.modalShow([graphite.applicationURL])} "></span>
                     </td>
@@ -414,18 +415,41 @@
                         data-placement="top"
                         >
                         <span title="Toggle the display of dependencies." style="cursor:pointer" 
-                            data-bind="text: configurationPath, click: toggleDependencies"></span>
-                        <span data-bind="attr : {class : dependencyClass}"></span>
+                            data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, style: {cursor: dependencyModel.dependencyPointer}"></span>
+                        <span data-bind="attr : {class : dependencyModel.dependencyClass}"></span>
                         <span title="Toggle the display of notes." style="cursor:pointer" class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
-                        <div data-bind="visible:(requires().length > 0 || requiredBy().length) > 0 && showDependencies">
-                            <span data-bind="visible: requires().length > 0">I require:</span>
-                            <ul data-bind="foreach: requires, visible: requires().length > 0" style="list-style-type: none">
+                        
+                        <!-- Always show this because 'hidden' predicates are dangerous --> 
+                        <div>
+                            <span data-bind="visible: dependencyModel.unknown().length > 0, style="></span>
+                            <ul data-bind="foreach: dependencyModel.unknown, visible: dependencyModel.unknown().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name: 'unknown-template'}"></span>
+                            </ul>
+                            </span>
+                        </div>
+                        
+                        <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 && dependencyModel.showDependencies">
+                            <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
+                            <ul data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
-                            <span data-bind="visible: requiredBy().length > 0">I am required by:</span>
-                            <ul data-bind="foreach: requiredBy, visible: requiredBy().length > 0" style="list-style-type: none">
+                            <span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>
+                            <ul data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0" style="list-style-type: none">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
+                            <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
+                            <ul  data-bind="foreach: dependencyModel.zookeepergooduntiltime, visible: dependencyModel.zookeepergooduntiltime().length > 0" style="list-style-type: none">
+                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul>
+                            <span data-bind="visible: dependencyModel.holiday().length > 0">Holiday:</span>
+                            <ul data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
+                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul> 
+                            <span data-bind="visible: dependencyModel.weekend().length > 0">Weekend:</span>
+                            <ul data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0" style="list-style-type: none">
+                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            </ul>
+                           
                         </div>
                         <div class="alert alert-info" role="alert" 
                              data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
@@ -442,7 +466,7 @@
                             <div class="dropdown-toggle" 
                                 tabindex="-1"
                                 href="#"
-                                title="List metrics and options for this host."
+                                title="View server config and metrics for this host."
                                 data-toggle="dropdown" >
                                 <span data-bind="text: applicationHost" style="cursor:pointer"/>
                             </div>
@@ -726,14 +750,18 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
+<!--Template for Displaying other predicates-->
+<script type="text/html" id="other-predicates-template">
+    <span data-bind="text: $data"></span>
+</script>
+
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}">
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" style="cursor: pointer" title="Click to jump to this server config" >
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span data-bind="text: $data.configurationPath"></span>
     </li>
 </script>
-
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });

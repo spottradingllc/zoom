@@ -134,7 +134,7 @@ return function CustomFilter(parent, appStateModel) {
             });    
         }
         else if (self.parameter() == self.parameters.requiredBy && !self.inversed()) {
-            ko.utils.arrayForEach(appState.requiredBy(), function(dependent) {
+            ko.utils.arrayForEach(appState.dependencyModel.requiredBy(), function(dependent) {
                 if (dependent.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()){
                     self.pushMatchedItem(appState);
                 }
@@ -158,7 +158,7 @@ return function CustomFilter(parent, appStateModel) {
         }
         else { // (self.parameter() == "requiredBy" && self.inversed()) case
             // generate an array of the config paths of each dependent
-            var dependentConfigPaths = ko.utils.arrayMap(appState.requiredBy(), function(dependent) {
+            var dependentConfigPaths = ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
                 return dependent.configurationPath;
             });
 
