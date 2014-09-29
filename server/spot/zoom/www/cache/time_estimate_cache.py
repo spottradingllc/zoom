@@ -11,7 +11,7 @@ class TimeEstimateCache(object):
 
     def __init__(self, configuration, web_socket_clients):
         """
-        :type configuration: zoom.config.configuration.Configuration
+        :type configuration: spot.zoom.www.config.configuration.Configuration
         :type web_socket_clients: list
         """
         self.configuration = configuration
@@ -50,7 +50,7 @@ class TimeEstimateCache(object):
         """
         :type send: bool
             Whether to send messages to clients.
-        :rtype: zoom.messages.global_mode_message.TimeEstimateMessage
+        :rtype: spot.zoom.www.messages.global_mode_message.TimeEstimateMessage
         """
         logging.info("Recomputing Timing Estimates...")
         try:

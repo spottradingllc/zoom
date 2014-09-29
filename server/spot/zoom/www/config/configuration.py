@@ -45,6 +45,7 @@ class Configuration(object):
             self._application_state_path = zookeeper_settings.get('application_state_path')
             self._global_mode_path = zookeeper_settings.get('global_mode_path')
             self._pillar_path = zookeeper_settings.get('pillar_path')
+            self._alert_path = zookeeper_settings.get('alert_path')
 
             self._zookeeper_host = ZK_CONN_STRING
 
@@ -125,6 +126,10 @@ class Configuration(object):
     @property
     def pillar_path(self):
         return self._pillar_path
+
+    @property
+    def alert_path(self):
+        return self._alert_path
 
     @property
     def db_type(self):

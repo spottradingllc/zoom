@@ -15,8 +15,8 @@ class ApplicationDependencyCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients,
                  time_estimate_cache):
         """
-        :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
+        :type configuration: spot.zoom.config.configuration.Configuration
+        :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
         self._cache = ApplicationDependenciesMessage()
