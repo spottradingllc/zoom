@@ -29,6 +29,7 @@ call:pythonInstall wmi
 call:pythonInstall tornado
 call:pythonInstall kazoo
 call:pythonInstall requests
+call:pythonInstall pygerduty
 
 REM Do Xcopy Installs
 call:xcopyInstall psutil

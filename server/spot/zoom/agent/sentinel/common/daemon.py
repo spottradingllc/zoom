@@ -90,14 +90,16 @@ class SentinelDaemon(object):
         self.stop()
 
     @connected
-    def _get_settings(self):
+    def _get_settings(self, event=None):
         """
         Populate self._settings dict.
+        :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        data, stat = self.zkclient.get(ZK_AGENT_CONFIG)
+        data, stat = self.zkclient.get(ZK_AGENT_CONFIG,
+                                       watch=self._get_settings)
         self._settings.set_value(json.loads(data))
         self._log.info('Got settings:\n{0}'
-                      .format(pprint.pformat(self._settings.value)))
+                       .format(pprint.pformat(self._settings.value)))
 
     @catch_exception(NodeExistsException)
     @connected
