@@ -1,6 +1,6 @@
 ﻿<section>
 
-<div id="application_state_page" class="container-fluid" style="margin-top: 40px">
+<div id="application_state_page" class="container-fluid">
 
     <!-- Big Modal -->
     <div id = "graphiteModal" class="modal big-modal-class" 
@@ -14,11 +14,6 @@
             </div>
         </div>
     </div>
-
-    <!--foreach only to access the applicationStateArray array class-->
-    <!--<div data-bind="foreach: appStateModel.filteredItems">-->
-       <!--</div>-->
-
 
     <div id="groupCheckModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
         data-bind="with:appStateModel">
@@ -70,7 +65,6 @@
         </div>
     </div>
 
-
     <div class="page-header">
         <h1>
             <small>
@@ -98,7 +92,7 @@
         </h1>
 
         <!-- View Toggling -->
-        <div class="row" style="margin-bottom: 5px">
+        <div class="row view-tabs">
             <div class="col-md-6 text-left">
                 <div class="btn-group" data-bind="foreach: appStateModel.views">
                     <button class="btn btn-default" data-bind="radio: $parent.appStateModel.currentView">
@@ -121,7 +115,7 @@
                                 <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
                             </button>
                             <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
-                                                             attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
+                                    attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
                                                   data-toggle="tooltip"
                                                   data-placement="top"
                                                   title="Set Zoom to normal operation">Normal
@@ -131,7 +125,8 @@
                                               class="btn btn-default"
                                               data-toggle="tooltip"
                                               data-placement="top"
-                                              title="Reload Server Side Caches">Reload Server Cache</button>
+                                              title="Reload Server Side Caches">Reload Server Cache
+                        </button>
                     </div>
                 </small>
             </div>
@@ -262,7 +257,7 @@
             <!-- Custom Filters -->
             <div class="col-md-12">
                 <div data-bind="foreach: appStateModel.customFilters.all">
-                    <div class="row" style="margin-top: 5px">
+                    <div class="row app-row">
                         <div class="col-md-12">
                             <div class="btn-group">
                                 <button class="btn btn-default" data-bind="click: deleteFilter"
@@ -382,9 +377,9 @@
                             <span class="caret-reversed" data-bind="visible: asc"></span>
                             <span class="caret" data-bind="visible: !asc()"></span>
                         </span>
-                        <span data-bind="text: title, click: $parent.appStateModel.sort" style="cursor:pointer"
+                        <span data-bind="text: title, click: $parent.appStateModel.sort" class= "cursor-pointer"
                             title="Toggle ascending/descending sort based on this column."></span>
-                        <span data-bind="visible: title == 'Configuration Path'" style="cursor:pointer"
+                        <span data-bind="visible: title == 'Configuration Path'" class="cursor-pointer"
                             title="Toggle the display of all dependencies.">
                             <small data-bind="click: $parent.appStateModel.expandAllDependencies,
                                               visible: !$parent.appStateModel.showingAllDependencies()"
@@ -406,41 +401,54 @@
             <!-- Rows -->
             <tbody data-bind="foreach: appStateModel.filteredItems">
                 <tr>
-                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center" style="cursor:pointer">
+                    <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
                         <span title="Show startup time and exit code history."
                             data-bind="attr : {class : applicationStatusClass},
-                                         click: function(){graphite.modalShow([graphite.applicationURL])} "></span>
+                            click: function(){graphite.modalShow([graphite.applicationURL])}">
+                        </span>
                     </td>
                     <td data-toggle="tooltip"
-                        data-placement="top"
-                        >
-                        <span title="Toggle the display of dependencies." style="cursor:pointer" 
-                            data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, style: {cursor: dependencyModel.dependencyPointer}"></span>
+                        data-placement="top">
+                        <span title="Toggle the display of dependencies." class="cursor-pointer" 
+                            data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, 
+                            style: {cursor: dependencyModel.dependencyPointer}">
+                        </span>
                         <span data-bind="attr : {class : dependencyModel.dependencyClass}"></span>
                         <span title="Toggle the display of notes." 
-                            style="cursor:pointer" 
-                            class="glyphicon glyphicon-info-sign pull-right" 
+                            class="glyphicon glyphicon-info-sign pull-right cursor-pointer" 
                             data-bind="click: appInfo.toggle">
                         </span>
-                        <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 && dependencyModel.showDependencies">
+                        <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 
+                            && dependencyModel.showDependencies">
+                            
                             <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
-                            <ul data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0" style="list-style-type: none">
+                            <ul class="dep-list" 
+                                data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
+                            
                             <span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>
-                            <ul data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0" style="list-style-type: none">
+                            <ul class="dep-list" 
+                                data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
+
                             <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
-                            <ul  data-bind="foreach: dependencyModel.zookeepergooduntiltime, visible: dependencyModel.zookeepergooduntiltime().length > 0" style="list-style-type: none">
+                            <ul class="dep-list"
+                                data-bind="foreach: dependencyModel.zookeepergooduntiltime, 
+                                visible: dependencyModel.zookeepergooduntiltime().length > 0"> 
                                  <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul>
+
                             <span data-bind="visible: dependencyModel.holiday().length > 0">Holiday:</span>
-                            <ul data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
+                            <ul class="dep-list" 
+                                data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul> 
+
                             <span data-bind="visible: dependencyModel.weekend().length > 0">Weekend:</span>
-                            <ul data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0" style="list-style-type: none">
+                            <ul class="dep-list"
+                                data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0"> 
                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
                             </ul>
                            
@@ -456,13 +464,13 @@
                         </div>
                     </td>
                     <td class="text-left">
-                        <div class="dropdown" style="margin-right: 10px">
+                        <div class="dropdown server-opt"> 
                             <div class="dropdown-toggle" 
                                 tabindex="-1"
                                 href="#"
                                 title="View server config and metrics for this host."
                                 data-toggle="dropdown" >
-                                <span data-bind="text: applicationHost" style="cursor:pointer"/>
+                                <span data-bind="text: applicationHost" class="cursor-pointer"/>
                             </div>
                             <ul class="dropdown-menu" role=menu >
                                 <li role="presentation">
@@ -738,8 +746,8 @@
         </button>
     </div>
     <span class="form-inline">
-        <input type="text" data-bind="value: filterName, valueUpdate: 'keyup'" class="form-control" placeholder="Filter Name..."
-         style="width: 10%">
+        <input type="text" data-bind="value: filterName, valueUpdate: 'keyup'" class="form-control filter-name" 
+        placeholder="Filter Name...">
     </span>
 </script>
 <!-- END Templates for Custom Filters -->
@@ -751,7 +759,7 @@
 
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" style="cursor: pointer" title="Click to jump to this server config" >
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" title="Click to jump to this server config" >
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span data-bind="text: $data.configurationPath"></span>
     </li>

@@ -47,15 +47,18 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel
         self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
 
         self.applicationStatusClass = ko.computed(function () {
+            var ret;
             if (self.applicationStatus().toLowerCase() == self.applicationStatuses.running) {
-                return self.glyphs.runningCheck;
+                ret = self.glyphs.runningCheck;
             }
             else if (self.applicationStatus().toLowerCase() == self.applicationStatuses.stopped) {
-                return self.glyphs.stoppedX;
+                ret = self.glyphs.stoppedX;
             }
             else {
-                return self.glyphs.unknownQMark;
+                ret = self.glyphs.unknownQMark;
             }
+            // add the cursor-pointer css class so it appears as clickable
+            return ret + " cursor-pointer"
         }, self);
 
         self.applicationStatusBg = ko.computed(function () {
