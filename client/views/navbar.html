@@ -21,7 +21,7 @@
                             <span>Admin</span>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="adminDropDown">
+                        <div class="dropdown-menu navbar-drop" aria-labelledby="adminDropDown">
                             <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success"> 
                                 Disable Admin </button>
                             <button data-bind="click: function() { admin.enable() }, visible: !admin.enabled()" class="btn btn-danger"> 
@@ -33,7 +33,7 @@
                             <span>FAQ</span>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu" style="padding: 15px;" aria-labelledby="faqDropDown" data-bind="foreach: router.navigationModel()">
+                        <div class="dropdown-menu navbar-drop" aria-labelledby="faqDropDown" data-bind="foreach: router.navigationModel()">
                             <div data-bind="visible: $parent.isFAQ(title), css: { active: isActive }">
                                 <a data-bind="attr: { href: hash }, text: title"></a>
                             </div>
@@ -44,7 +44,7 @@
                             <span data-bind="text: login.advertise()"/>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" aria-labelledby="loginDropDown">
+                        <div class="dropdown-menu navbar-drop-login" style="padding: 15px; padding-bottom: 0px;" aria-labelledby="loginDropDown">
                             <!-- Login form here -->
                             <form role="form" class="form-horizontal"
                                 style="text-align: center"
