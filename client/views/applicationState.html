@@ -417,17 +417,11 @@
                         <span title="Toggle the display of dependencies." style="cursor:pointer" 
                             data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, style: {cursor: dependencyModel.dependencyPointer}"></span>
                         <span data-bind="attr : {class : dependencyModel.dependencyClass}"></span>
-                        <span title="Toggle the display of notes." style="cursor:pointer" class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
-                        
-                        <!-- Always show this because 'hidden' predicates are dangerous --> 
-                        <div>
-                            <span data-bind="visible: dependencyModel.unknown().length > 0, style="></span>
-                            <ul data-bind="foreach: dependencyModel.unknown, visible: dependencyModel.unknown().length > 0" style="list-style-type: none">
-                                <span data-bind="template: {name: 'unknown-template'}"></span>
-                            </ul>
-                            </span>
-                        </div>
-                        
+                        <span title="Toggle the display of notes." 
+                            style="cursor:pointer" 
+                            class="glyphicon glyphicon-info-sign pull-right" 
+                            data-bind="click: appInfo.toggle">
+                        </span>
                         <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 && dependencyModel.showDependencies">
                             <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
                             <ul data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0" style="list-style-type: none">
