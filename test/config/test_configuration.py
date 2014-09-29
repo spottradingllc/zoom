@@ -1,5 +1,6 @@
 from unittest import TestCase
-from configuration import Configuration
+
+from spot.zoom.www.config.configuration import Configuration
 
 
 class TestApplicationState(TestCase):

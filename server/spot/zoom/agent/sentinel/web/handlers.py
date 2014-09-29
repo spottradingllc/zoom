@@ -1,7 +1,6 @@
 import json
 import tornado.web
 
-from spot.zoom.agent.sentinel.config.constants import ALLOWED_WORK
 from spot.zoom.agent.sentinel.common.task import Task
 
 
@@ -10,6 +9,10 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def log(self):
         return self.application.log
+
+    @property
+    def settings(self):
+        return self.application.settings
 
     def _send_work_all(self, work):
         """
@@ -48,7 +51,7 @@ class WorkHandler(BaseHandler):
         :type work: str
         :param target: str
         """
-        if work in ALLOWED_WORK:
+        if work in self.settings.get('ALLOWED_WORK'):
             if target is not None:
                 result = self._send_work_single(work, target)
                 self.write(json.dumps(result))

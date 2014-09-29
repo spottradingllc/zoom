@@ -2,9 +2,9 @@ import logging
 from multiprocessing import Pipe
 from threading import Thread
 
+from spot.zoom.common.types import ApplicationType
 from spot.zoom.agent.sentinel.common.application import Application
 from spot.zoom.agent.sentinel.common.job import Job
-from spot.zoom.agent.sentinel.common.enum import ApplicationType
 from spot.zoom.agent.sentinel.common.task import Task
 from spot.zoom.agent.sentinel.common.unique_queue import UniqueQueue
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
@@ -15,10 +15,10 @@ class ChildProcess(object):
     Wraps a multiprocess.Process instance, providing a Pipe and a Queue for
     communication between the SentinelDaemon and the ChildProcess.
     """
-    def __init__(self, config, system):
+    def __init__(self, config, system, settings):
         """
         :type config: xml.etree.ElementTree.Element
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type system: spot.zoom.common.types.PlatformType
         """
         self._log = logging.getLogger('sent.child')
         self.parent_conn, self.child_conn = Pipe()
@@ -28,6 +28,7 @@ class ChildProcess(object):
         self._application_type = verify_attribute(config, 'type')
         self._config = config
         self._system = system  # Linux or Windows
+        self._settings = settings
         self._process = self._create_process()
 
     def add_work(self, work, immediate=False):
@@ -57,11 +58,12 @@ class ChildProcess(object):
         self._log.debug('Starting worker process for %s' % self.name)
         
         if self._application_type == ApplicationType.APPLICATION:
-            s = Application(self._config, self.child_conn, self._action_queue,
-                            self._system, self._application_type)
+            s = Application(self._config, self._settings, self.child_conn,
+                            self._action_queue, self._system,
+                            self._application_type)
         elif self._application_type == ApplicationType.JOB:
-            s = Job(self._config, self.child_conn, self._action_queue,
-                    self._system, self._application_type)
+            s = Job(self._config, self._settings, self.child_conn,
+                    self._action_queue, self._system, self._application_type)
             
         t = Thread(target=s.run, name=self.name)
         t.daemon = True

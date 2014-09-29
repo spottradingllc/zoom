@@ -1,8 +1,6 @@
 import json
 import logging
 import httplib
-import sys
-
 import tornado.web
 
 from spot.zoom.www.utils.decorators import TimeThis
@@ -21,7 +19,6 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
             result = self.data_store.load_application_dependency_cache()
 
             self.write(result.to_json())
-
 
         except Exception as e:
             logging.exception(e)

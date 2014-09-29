@@ -4,8 +4,8 @@ import json
 
 from kazoo.exceptions import NoNodeError
 
+from spot.zoom.common.types import ApplicationStatus
 from spot.zoom.www.entities.application_state import ApplicationState
-from spot.zoom.www.entities.types import ApplicationStatus
 from spot.zoom.www.messages.application_states import ApplicationStatesMessage
 from spot.zoom.www.messages.message_throttler import MessageThrottle
 
@@ -154,8 +154,8 @@ class ApplicationStateCache(object):
             self._path_to_host_mapping[host] = config_path
 
             application_state = ApplicationState(
-                application_name=data.get('name',
-                                          os.path.basename(config_path)),
+                application_name=parent_data.get('name',
+                                                 os.path.basename(config_path)),
                 configuration_path=config_path,
                 application_status=ApplicationStatus.RUNNING,
                 application_host=host,

@@ -1,15 +1,11 @@
 import logging
-
-import kazoo.client
+from kazoo.client import KazooClient
+from spot.zoom.common.constants import ZK_CONN_STRING
 
 
 class ZooKeeper(object):
-    def __init__(self, configuration):
-        """
-        :type configuration: zoom.config.configuration.Configuration
-        """
+    def __init__(self):
         self._kazoo = None
-        self._configuration = configuration
 
     @property
     def client(self):
@@ -19,13 +15,11 @@ class ZooKeeper(object):
         return self._kazoo
 
     def start(self):
-        hosts = self._configuration.zookeeper_host
-
         try:
-            self._kazoo = kazoo.client.KazooClient(hosts=hosts)
+            self._kazoo = KazooClient(hosts=ZK_CONN_STRING)
             self._kazoo.start()
             logging.info("ZooKeeper client started against cluster <{0}>"
-                         .format(hosts))
+                         .format(ZK_CONN_STRING))
 
         except Exception as e:
             logging.error(e)

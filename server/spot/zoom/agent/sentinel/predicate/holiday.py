@@ -4,26 +4,26 @@ from time import sleep
 from threading import Thread
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 from spot.zoom.agent.sentinel.util.decorators import connected
-from spot.zoom.agent.sentinel.config.constants import ZK_HOLIDAY_PATH
 
 
 class PredicateHoliday(SimplePredicate):
-    def __init__(self, comp_name, zkclient, parent=None, interval=10):
+    def __init__(self, comp_name, settings, zkclient, parent=None, interval=10):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.zkclient = zkclient
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.holiday'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._started = False
@@ -70,15 +70,16 @@ class PredicateHoliday(SimplePredicate):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        exists = self.zkclient.exists(ZK_HOLIDAY_PATH, watch=self._watch_node)
+        holiday_path = self._settings.get('ZK_HOLIDAY_PATH')
+        exists = self.zkclient.exists(holiday_path, watch=self._watch_node)
         if exists:
-            self._holidays = self.zkclient.get_children(ZK_HOLIDAY_PATH,
+            self._holidays = self.zkclient.get_children(holiday_path,
                                                         watch=self._watch_node)
             self._log.info('Got holidays {0}'.format(self._holidays))
             self._process_met()
         else:
             self._log.info('No gut node was found. Watcher is set at {0}'
-                           .format(ZK_HOLIDAY_PATH))
+                           .format(holiday_path))
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, met={3})'

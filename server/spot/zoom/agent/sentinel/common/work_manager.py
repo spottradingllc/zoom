@@ -2,7 +2,7 @@ import logging
 import time
 from threading import Thread
 
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 
 
 class WorkManager(object):
@@ -13,7 +13,7 @@ class WorkManager(object):
         :type queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
         :type tasks: dict
         """
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run,
                               name='work_manager',
                               args=(self._operate, queue, pipe, tasks))

@@ -6,7 +6,7 @@ import tornado.httpclient
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.common.types import ApplicationMode
+from spot.zoom.agent.sentinel.common.thread_safe_object import ApplicationMode
 from spot.zoom.www.utils.decorators import TimeThis
 
 

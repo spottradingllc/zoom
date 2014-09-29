@@ -9,7 +9,7 @@ import tornado.web
 from kazoo.retry import KazooRetry
 
 from spot.zoom.www.utils.decorators import TimeThis
-from spot.zoom.www.entities.types import CommandType
+from spot.zoom.common.types import CommandType
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):

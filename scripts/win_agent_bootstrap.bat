@@ -29,6 +29,7 @@ call:pythonInstall wmi
 call:pythonInstall tornado
 call:pythonInstall kazoo
 call:pythonInstall requests
+call:pythonInstall pygerduty
 
 REM Do Xcopy Installs
 call:xcopyInstall psutil
@@ -37,7 +38,7 @@ call:xcopyInstall zope
 REM Install zkagent as a Windows Service
 echo.
 echo Installing agent as the "zkagent" Windows service.  >> %OUTPUTFILE%
-C:\Python27\python.exe "C:\Program Files\Spot Trading LLC\zoom\server\spot\zoom\common\win_install.py" --username spottrading\svc.python --password Pyth0n --startup auto install  >> %OUTPUTFILE%
+C:\Python27\python.exe "C:\Program Files\Spot Trading LLC\zoom\scripts\win_install.py" --username spottrading\svc.python --password Pyth0n --startup auto install  >> %OUTPUTFILE%
 
 exit
 

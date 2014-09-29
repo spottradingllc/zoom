@@ -3,12 +3,14 @@ from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateNot(SimplePredicate):
-    def __init__(self, comp_name, pred, parent=None):
+    def __init__(self, comp_name, settings, pred, parent=None):
         """
+        :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type pred: spot.zoom.agent.sentinel.common.dependency object
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.dependency = pred
         self._log = logging.getLogger('sent.{0}.pred.not'.format(comp_name))
         self._log.info('Registered {0}'.format(self))

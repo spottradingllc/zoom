@@ -3,25 +3,25 @@ import datetime
 from time import sleep
 from threading import Thread
 
+from spot.zoom.common.types import Weekdays
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.agent.sentinel.common.enum import Weekdays
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 
 
 class PredicateWeekend(SimplePredicate):
-    def __init__(self, comp_name, parent=None, interval=10):
+    def __init__(self, comp_name, settings, parent=None, interval=10):
         """
         :type comp_name: str
-        :type zkclient: kazoo.client.KazooClient
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.weekend'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._started = False

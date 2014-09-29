@@ -4,8 +4,6 @@ import httplib
 import tornado.web
 import tornado.httpclient
 
-from kazoo.exceptions import NoNodeError
-
 from spot.zoom.www.utils.decorators import TimeThis
 
 
@@ -17,7 +15,7 @@ class EnvironmentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         try:
-            message = { 'environment' : self.configuration.environment }
+            message = {'environment': self.configuration.environment}
 
             self.write(json.dumps(message))
 
@@ -27,4 +25,3 @@ class EnvironmentHandler(tornado.web.RequestHandler):
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
-

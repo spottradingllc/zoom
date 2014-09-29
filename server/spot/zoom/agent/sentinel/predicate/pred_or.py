@@ -3,13 +3,14 @@ from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 
 
 class PredicateOr(SimplePredicate):
-    def __init__(self, comp_name, predicates, parent=None):
+    def __init__(self, comp_name, settings, predicates, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type predicates: list of spot.zoom.agent.sentinel.common.predicate objects
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.dependencies = predicates
         self._log = logging.getLogger('sent.{0}.pred.or'.format(comp_name))
         self._log.info('Registered {0}'.format(self))

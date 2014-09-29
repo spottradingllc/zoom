@@ -87,7 +87,7 @@ return function GraphiteModel(environment, host, configPath) {
     self.bufferErrorsURL = function(){
         var url = self.baseURL;
         url = url + "&target="+ host + '.tcpinfo.udperrs';
-        url = url + "&target="+ host + '.nicinfo.*.*';
+        url = url + "&target="+ host + '.nicinfo.*.rx_hardware_errors';
         url = url + '&title='+ host + "'s Buffer Errors";
         url = url + "&vtitle= Errors";
         return encodeURI(url);
