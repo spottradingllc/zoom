@@ -138,7 +138,7 @@ class Application(object):
 
                 # resolve any pager duty alarms
                 if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
-                    key = self._pathjoin(self.name, self._host)
+                    key = self._pathjoin('sentinel', self.name, self._host)
                     self._pagerduty_client.resolve(key)
 
                 self._state.set_value(ApplicationState.OK)
@@ -189,6 +189,9 @@ class Application(object):
             self._state.set_value(ApplicationState.ERROR)
             if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
                 self._send_pagerduty_alarm()
+            else:
+                self._log.info('Not sending pagerduty alert for env: {0}'
+                               .format(self._env))
         else:
             self._state.set_value(ApplicationState.OK)
 
@@ -473,7 +476,7 @@ class Application(object):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def _send_pagerduty_alarm(self):
-        key = self._pathjoin(self.name, self._host)
+        key = self._pathjoin('sentinel', self.name, self._host)
         description = ('Sentinel Error: Application {0} has failed to start on '
                        'host {1}.'.format(self.name, self._host))
         details = (

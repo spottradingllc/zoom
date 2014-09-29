@@ -111,7 +111,8 @@ class ProcessClient(object):
                 self.send_to_graphite(metric_runtime, finish_time - start_time)
                 break
             else:
-                self._log.info('{0} start failed.'.format(self.name))
+                self._log.info('{0} start attempt {1} failed.'
+                               .format(self.name, self._restart_logic.count))
                 self._stop_if_running()
                 self._log.debug('Waiting 10 seconds before trying again.')
                 self.send_to_graphite(metric_result, returncode)
