@@ -54,15 +54,20 @@ return function Component(parent) {
         self.expanded(true);
     };
 
+    var checkNull = function(param) {
+        return (param != null && param != "")
+    };
+
     self.validate = function() {
         var valid = true;
 
         if(self.error() != ""){
             valid = false;
         }
-        if(self.ID() == null || self.ID() == '' ||
-           self.script() == null || self.script() == '' ||
-           self.compType() == null || self.compType == ''){
+        if(!checkNull(self.ID()) || !checkNull(self.compType()) || !checkNull(self.script())) {
+            valid = false
+        }
+        if(self.compType() == 'job' && !checkNull(self.command())) {
             valid = false
         }
         for (var i = 0; i < self.actions().length; i++) {
@@ -76,22 +81,21 @@ return function Component(parent) {
         return valid;
     };
 
-    var checkNull = function(param) {
-        return (param != null && param != "")
-    };
-
     self.createComponentXML = function() {
         var XML = '<Component ';
         XML = XML.concat('id="'+self.ID()+'" ');
         XML = XML.concat('type="'+self.compType()+'" ');
-        XML = XML.concat('script="'+self.script()+'" ');
+
+        if(checkNull(self.script())) {
+            XML = XML.concat('script="'+self.script()+'" ');
+        }
 
         if(checkNull(self.registrationpath())) {
             XML = XML.concat('registrationpath="'+self.registrationpath()+'" ');
         }
 
         if(checkNull(self.command())) {
-            var command = self.command().replaceAll('"', '&quot;');
+            var command = self.command().replace(/"/g, '&quot;');
             self.command(command);
             XML = XML.concat('command="'+self.command()+'" ');
         }
