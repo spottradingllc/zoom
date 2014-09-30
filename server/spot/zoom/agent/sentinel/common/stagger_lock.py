@@ -1,11 +1,11 @@
 import logging
 import platform
 import time
-
-from kazoo.client import KazooClient
 from threading import Thread
 
-from spot.zoom.agent.sentinel.config.constants import ZK_CONN_STRING
+from kazoo.client import KazooClient
+
+from spot.zoom.common.constants import ZK_CONN_STRING
 
 
 class StaggerLock(object):

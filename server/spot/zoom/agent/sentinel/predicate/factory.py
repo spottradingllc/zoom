@@ -23,14 +23,15 @@ from spot.zoom.agent.sentinel.util.decorators import catch_exception
 
 class PredicateFactory(object):
     def __init__(self, component_name=None, parent=None, zkclient=None,
-                 proc_client=None, system=None, pred_list=None):
+                 proc_client=None, system=None, pred_list=None, settings=None):
         """
         :type component_name: str or None
         :type parent: str or None
         :type zkclient: kazoo.client.KazooClient or None
         :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type system: spot.zoom.common.types.PlatformType
         :type pred_list: list
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         """
         self.zkclient = zkclient
         self._proc_client = proc_client
@@ -40,6 +41,7 @@ class PredicateFactory(object):
         self._log = logging.getLogger('sent.{0}.pred.factory'
                                       .format(component_name))
         self._pred_list = pred_list
+        self._settings = settings
 
     @catch_exception(Exception)
     def create(self, xmlpart, callback=None):
@@ -59,12 +61,15 @@ class PredicateFactory(object):
 
         if ptype == 'simple':
             return self._ensure_new(
-                SimplePredicate(self._component_name, parent=self._parent),
+                SimplePredicate(self._component_name,
+                                self._settings,
+                                parent=self._parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERNODEEXISTS:
             return self._ensure_new(
                 ZookeeperNodeExists(self._component_name,
+                                    self._settings,
                                     self.zkclient,
                                     verify_attribute(root, 'path'),
                                     parent=self._parent),
@@ -73,6 +78,7 @@ class PredicateFactory(object):
         elif ptype == PredicateType.ZOOKEEPERHASCHILDREN:
             return self._ensure_new(
                 ZookeeperHasChildren(self._component_name,
+                                     self._settings,
                                      self.zkclient,
                                      verify_attribute(root, 'path'),
                                      parent=self._parent),
@@ -81,6 +87,7 @@ class PredicateFactory(object):
         elif ptype == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
             return self._ensure_new(
                 ZookeeperHasGrandChildren(self._component_name,
+                                          self._settings,
                                           self.zkclient,
                                           verify_attribute(root, 'path'),
                                           parent=self._parent),
@@ -89,6 +96,7 @@ class PredicateFactory(object):
         elif ptype == PredicateType.ZOOKEEPERGOODUNTILTIME:
             return self._ensure_new(
                 ZookeeperGoodUntilTime(self._component_name,
+                                       self._settings,
                                        self.zkclient,
                                        verify_attribute(root, 'path'),
                                        parent=self._parent),
@@ -97,6 +105,7 @@ class PredicateFactory(object):
         elif ptype == PredicateType.PROCESS:
             return self._ensure_new(
                 PredicateProcess(self._component_name,
+                                 self._settings,
                                  self._proc_client,
                                  verify_attribute(root, 'interval', cast=float),
                                  parent=self._parent),
@@ -105,6 +114,7 @@ class PredicateFactory(object):
         elif ptype == PredicateType.HEALTH:
             return self._ensure_new(
                 PredicateHealth(self._component_name,
+                                self._settings,
                                 verify_attribute(root, 'command'),
                                 verify_attribute(root, 'interval', cast=float),
                                 self._system,
@@ -113,12 +123,14 @@ class PredicateFactory(object):
             )
         elif ptype == PredicateType.HOLIDAY:
             return self._ensure_new(PredicateHoliday(self._component_name,
+                                                     self._settings,
                                                      self.zkclient,
                                                      parent=self._parent),
                                     callback=callback
             )
         elif ptype == PredicateType.WEEKEND:
             return self._ensure_new(PredicateWeekend(self._component_name,
+                                                     self._settings,
                                                      parent=self._parent),
                                     callback=callback
             )
@@ -128,21 +140,21 @@ class PredicateFactory(object):
             for element in root.findall('Predicate'):
                 dep = self.create(element, callback=callback)
                 return self._ensure_new(
-                    PredicateNot(self._component_name, dep)
+                    PredicateNot(self._component_name, self._settings, dep)
                 )
         elif ptype == PredicateType.AND:
             deps = list()
             for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
-                PredicateAnd(self._component_name, deps)
+                PredicateAnd(self._component_name, self._settings, deps)
             )
         elif ptype == PredicateType.OR:
             deps = list()
             for element in root.findall('Predicate'):
                 deps.append(self.create(element, callback=callback))
             return self._ensure_new(
-                PredicateOr(self._component_name, deps)
+                PredicateOr(self._component_name, self._settings, deps)
             )
         else:
             self._log.error('Unknown predicate type "{0}". Ignoring'
@@ -178,6 +190,8 @@ class PredicateFactory(object):
 
         :rtype: spot.zoom.agent.sentinel.predicate.simple.SimplePredicate
         """
-        dummy = SimplePredicate(self._component_name, parent=self._parent)
+        dummy = SimplePredicate(self._component_name,
+                                self._settings,
+                                parent=self._parent)
         dummy.set_met(True)
         return dummy

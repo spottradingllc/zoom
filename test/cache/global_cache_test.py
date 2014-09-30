@@ -2,7 +2,6 @@ import mox
 
 from unittest import TestCase
 from spot.zoom.www.cache.global_cache import GlobalCache
-from spot.zoom.www.entities.types import UpdateType
 from spot.zoom.www.zoo_keeper import ZooKeeper
 from test.test_utils import ConfigurationMock, EventMock, FakeMessage
 

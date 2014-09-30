@@ -114,8 +114,8 @@ return function ApplicationStateModel(login) {
                     "user": self.login.elements.username()
                 };
                 $.post("/api/agent/", dict, function() {
-                    $('#groupCheckModal').modal('hide');                
-                    })    
+                    $('#groupCheckModal').modal('hide');
+                    })
                     .fail(function(data) {
                         alert("Error Posting ControlAgent " + JSON.stringify(data));
                     });

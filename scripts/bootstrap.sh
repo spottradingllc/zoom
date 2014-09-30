@@ -37,7 +37,8 @@ then
             mox-0.5.3.tar.gz \
             coverage-3.6.tar.gz \
             psutil-1.2.1.tar.gz \
-            zope.interface-4.0.5.tar.gz
+            zope.interface-4.0.5.tar.gz \
+            pygerduty-0.23-py2.7.egg
     do
         FULLPATH=${PY_3RDPARTY}/${PACKAGE}
         /bin/echo "## Installing ${FULLPATH} ##";
@@ -58,7 +59,8 @@ else
             mox-0.5.3.tar.gz \
             coverage-3.6.tar.gz \
             psutil-1.2.1.tar.gz \
-            zope.interface-4.0.5.tar.gz
+            zope.interface-4.0.5.tar.gz \
+            pygerduty-0.23-py2.7.egg
 
     do
         FULLPATH=${PY_3RDPARTY}/${PACKAGE}

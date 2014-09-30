@@ -6,12 +6,14 @@ from spot.zoom.agent.sentinel.web.handlers import WorkHandler
 
 
 class RestServer(tornado.web.Application):
-    def __init__(self, children):
+    def __init__(self, children, settings):
         """
         :type children: dict
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
+        self.settings = settings
         handlers = [
             (r"/log", LogHandler),
             (r"/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", WorkHandler),

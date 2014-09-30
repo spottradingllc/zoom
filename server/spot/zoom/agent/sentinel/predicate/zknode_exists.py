@@ -5,14 +5,15 @@ from spot.zoom.agent.sentinel.util.decorators import connected
 
 
 class ZookeeperNodeExists(SimplePredicate):
-    def __init__(self, comp_name, zkclient, nodepath, parent=None):
+    def __init__(self, comp_name, settings, zkclient, nodepath, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._log = logging.getLogger('sent.{0}.pred.ne'.format(comp_name))

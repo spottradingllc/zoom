@@ -1,19 +1,26 @@
 import logging
 import platform
 import json
+import time
 
-from spot.zoom.agent.sentinel.config.constants import ALLOWED_WORK
-from spot.zoom.agent.sentinel.config.constants import ZK_TASK_PATH
 from spot.zoom.agent.sentinel.common.task import Task
 
 
 class TaskClient(object):
-    def __init__(self, zkclient, children):
+    def __init__(self, children, zkclient, settings):
         self._log = logging.getLogger('sent.task_client')
         self._children = children
         self._zkclient = zkclient
+        self._settings = settings
         self._host = platform.node()
-        self._path = '/'.join([ZK_TASK_PATH, self._host])
+
+        # this is to handle a race condition
+        while not settings.get('ZK_TASK_PATH'):
+            self._log.info('Waiting for settings.')
+            time.sleep(1)
+
+        task_path = settings.get('ZK_TASK_PATH')
+        self._path = '/'.join([task_path, self._host])
 
         self.reset_watches()
 
@@ -25,7 +32,7 @@ class TaskClient(object):
             argument = {'argument': data.get('argument', None)}
             target = data.get('target', None)
 
-            if work in ALLOWED_WORK:
+            if work in self._settings.get('ALLOWED_WORK'):
                 if target is not None:
                     # TODO: do something with result?
                     result = self._send_work_single(work, target, kwargs=argument)

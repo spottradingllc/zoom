@@ -9,15 +9,17 @@ from spot.zoom.agent.sentinel.util.decorators import catch_exception
 
 class ActionFactory(object):
     def __init__(self, component=None, zkclient=None, proc_client=None,
-                 action_queue=None, mode=None, system=None, pred_list=None):
+                 action_queue=None, mode=None, system=None, pred_list=None,
+                 settings=None):
         """
         :type component: spot.zoom.agent.sentinel.common.application.Application
         :type zkclient: kazoo.client.KazooClient or None
         :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
         :type action_queue: spot.zoom.agent.sentinel.common.unique_queue.UniqueQueue
-        :type mode: spot.zoom.agent.sentinel.common.enum.ApplicationMode
-        :type system: spot.zoom.agent.sentinel.common.enum.PlatformType
+        :type mode: spot.zoom.agent.sentinel.common.thread_safe_object.ApplicationMode
+        :type system: spot.zoom.common.types.PlatformType
         :type pred_list: list
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         """
         self._zk = zkclient
         self._proc = proc_client
@@ -26,6 +28,7 @@ class ActionFactory(object):
         self._mode = mode
         self._system = system
         self._pred_list = pred_list
+        self._settings = settings
         self._log = logging.getLogger('sent.{0}.act.factory'
                                       .format(self._comp.name))
 
@@ -59,7 +62,8 @@ class ActionFactory(object):
                                    proc_client=self._proc,
                                    mode=self._mode,
                                    system=self._system,
-                                   pred_list=self._pred_list)
+                                   pred_list=self._pred_list,
+                                   settings=self._settings)
             self._log.info('Registered {0}.'.format(actions[name]))
 
         return actions

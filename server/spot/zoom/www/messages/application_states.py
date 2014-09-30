@@ -1,7 +1,7 @@
 import json
 import logging
 
-from spot.zoom.www.entities.types import UpdateType
+from spot.zoom.common.types import UpdateType
 
 
 class ApplicationStatesMessage(object):

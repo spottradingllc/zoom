@@ -4,19 +4,20 @@ from time import sleep
 from multiprocessing import Lock
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.common.types import SimpleObject
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 from spot.zoom.agent.sentinel.util.decorators import synchronous
 
 
 class PredicateProcess(SimplePredicate):
-    def __init__(self, comp_name, proc_client, interval, parent=None):
+    def __init__(self, comp_name, settings, proc_client, interval, parent=None):
         """
         :type comp_name: str
+        :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type proc_client: spot.zoom.agent.sentinel.client.process_client.ProcessClient
         :type interval: int or float
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self._log = logging.getLogger('sent.{0}.pred.process'.format(comp_name))
         self._proc_client = proc_client
 
@@ -27,7 +28,7 @@ class PredicateProcess(SimplePredicate):
             self.process_client_lock = Lock()
 
         self.interval = interval
-        self._operate = SimpleObject(True)
+        self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._started = False
