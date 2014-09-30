@@ -6,8 +6,8 @@ from spot.zoom.www.messages.global_mode_message import GlobalModeMessage
 class GlobalCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients):
         """
-        :type configuration: zoom.config.Configuration
-        :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
+        :type configuration: spot.zoom.www.config.configuration.Configuration
+        :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
         self._configuration = configuration

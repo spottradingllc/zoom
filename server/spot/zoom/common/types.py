@@ -1,5 +1,10 @@
 
 
+class AlertActionType():
+    TRIGGER = 'trigger'
+    RESOLVE = 'resolve'
+
+
 class ApplicationType():
     JOB = "job"
     APPLICATION = "application"

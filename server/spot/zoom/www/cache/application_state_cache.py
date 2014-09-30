@@ -37,7 +37,7 @@ class ApplicationStateCache(object):
 
     def load(self):
         """
-        :rtype: zoom.messages.application_states.ApplicationStatesMessage
+        :rtype: spot.zoom.messages.application_states.ApplicationStatesMessage
         """
         if not len(self._cache):
             self._load()
@@ -62,7 +62,7 @@ class ApplicationStateCache(object):
     def _walk(self, path, result):
         """
         :type path: str
-        :type result: zoom.messages.application_states.ApplicationStatesMessage
+        :type result: spot.zoom.messages.application_states.ApplicationStatesMessage
         """
         try:
             children = self._zoo_keeper.get_children(path, watch=self._on_update)
@@ -106,7 +106,7 @@ class ApplicationStateCache(object):
     def _get_application_state(self, path):
         """
         :type path: str
-        :rtype: zoom.entities.application_state.ApplicationState
+        :rtype: spot.zoom.entities.application_state.ApplicationState
         """
         data, stat = self._get_app_details(path)
 

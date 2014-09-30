@@ -26,8 +26,9 @@ from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 class WebServer(tornado.web.Application):
     def __init__(self, configuration, data_store, zk):
         """
-        :type configuration: zoom.config.configuration.Configuration
-        :type data_store: zoom.cache.data_store.DataStore
+        :type configuration: spot.zoom.config.configuration.Configuration
+        :type data_store: spot.zoom.cache.data_store.DataStore
+        :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
         self._configuration = configuration
         self._data_store = data_store

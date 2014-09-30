@@ -3,16 +3,19 @@ from spot.zoom.www.cache.application_dependency_cache \
     import ApplicationDependencyCache
 from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from spot.zoom.www.cache.global_cache import GlobalCache
+from spot.zoom.www.entities.alert_manager import AlertManager
 
 
 class DataStore(object):
     def __init__(self, configuration, zoo_keeper):
         """
-        :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
+        :type configuration: spot.zoom.config.configuration.Configuration
+        :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
         """
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
+        self._alert_manager = AlertManager(configuration.alert_path, zoo_keeper)
+
         self._web_socket_clients = list()
 
         self._time_estimate_cache = TimeEstimateCache(self._configuration,
@@ -39,34 +42,36 @@ class DataStore(object):
         self._application_state_cache.start()
         self._application_dependency_cache.start()
         self._time_estimate_cache.start()
+        self._alert_manager.start()
 
     def stop(self):
         self._global_cache.stop()
         self._application_state_cache.stop()
         self._application_dependency_cache.stop()
         self._time_estimate_cache.stop()
+        self._alert_manager.stop()
 
     def load_application_state_cache(self):
         """
-        :rtype: from zoom.messages.application_states.ApplicationStatesMessage
+        :rtype: spot.zoom.messages.application_states.ApplicationStatesMessage
         """
         return self._application_state_cache.load()
 
     def load_application_dependency_cache(self):
         """
-        :rtype: zoom.messages.global_mode_message.ApplicationDependenciesMessage
+        :rtype: spot.zoom.messages.global_mode_message.ApplicationDependenciesMessage
         """
         return self._application_dependency_cache.load()
 
     def load_time_estimate_cache(self):
         """
-        :rtype: zoom.messages.global_mode_message.TimeEstimateMessage
+        :rtype: spot.zoom.messages.global_mode_message.TimeEstimateMessage
         """
         return self._time_estimate_cache.load()
 
     def get_global_mode(self):
         """
-        :rtype: zoom.messages.global_mode_message.GlobalModeMessage
+        :rtype: spot.zoom.messages.global_mode_message.GlobalModeMessage
         """
         return self._global_cache.get_mode()
 
@@ -80,6 +85,7 @@ class DataStore(object):
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()
         self._time_estimate_cache.reload()
+        self._alert_manager.start()
         return {'cache_clear': 'okay'}
 
     def load(self):
