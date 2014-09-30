@@ -1,0 +1,32 @@
+#application_state_page {
+    margin-top: 40px;
+}
+
+.navbar-drop {
+    padding: 15px;
+}
+
+.view-tabs {
+    margin-bottom: 5px;
+}
+
+.app-row {
+    margin-top: 5px;
+}
+
+.cursor-pointer{
+    cursor: pointer;
+}
+
+.dep-list{
+    list-style-type: none;
+}
+
+.server-opt{
+    margin-right: 10px;
+}
+
+.filter-name{
+    width: 10% !important;
+}
+
