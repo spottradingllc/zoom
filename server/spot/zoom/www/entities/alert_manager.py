@@ -27,6 +27,8 @@ class AlertManager(object):
 
     def _handle_alerts(self, event=None):
         """
+        Watch path in ZooKeeper for node creation. If there is a node, connect
+        to PagerDuty and either Trigger or Resolve an incident.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
         # TODO: sort by ctime? Could there be a race condition here?

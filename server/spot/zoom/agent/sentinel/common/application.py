@@ -486,10 +486,12 @@ class Application(object):
     @connected
     def _send_alert(self, alert_action):
         """
-        Create Node in ZooKeeper that will result in a pagerduty alarm
+        Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
         """
         if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
+            self._log.info('Creating alert "{0}" node for env: {1}'
+                           .format(alert_action, self._env))
             alert_details = self._get_alert_details()
             alert_details['action'] = alert_action
             path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'), 'alert')
@@ -497,7 +499,8 @@ class Application(object):
                                  value=json.dumps(alert_details),
                                  sequence=True)
         else:
-            self._log.info('Not sending alert for env: {0}'.format(self._env))
+            self._log.info('Not creating alert "{0}" node for env: {1}'
+                           .format(alert_action, self._env))
 
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')
