@@ -133,7 +133,7 @@ class Application(object):
                                      makepath=True)
 
                 # resolve any pager duty alarms
-                self._send_alert(AlertActionType.RESOLVE)
+                self._create_alert_node(AlertActionType.RESOLVE)
 
                 self._state.set_value(ApplicationState.OK)
                 self._update_agent_node_with_app_details()
@@ -181,7 +181,7 @@ class Application(object):
 
         if result != 0:
             self._state.set_value(ApplicationState.ERROR)
-            self._send_alert(AlertActionType.TRIGGER)
+            self._create_alert_node(AlertActionType.TRIGGER)
         else:
             self._state.set_value(ApplicationState.OK)
 
@@ -484,7 +484,7 @@ class Application(object):
         }
 
     @connected
-    def _send_alert(self, alert_action):
+    def _create_alert_node(self, alert_action):
         """
         Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
