@@ -72,7 +72,8 @@ class WebServer(tornado.web.Application):
         settings = dict(
             # is equivalent to (autoreload=True, compiled_template_cache=False,
             # static_hash_cache=False, serve_traceback=True)
-            debug=configuration.is_debug
+            debug=configuration.is_debug,
+            gzip=True
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
