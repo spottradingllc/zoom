@@ -114,7 +114,7 @@ class ApplicationStateCache(object):
         if stat.ephemeralOwner == 0:
             # watch node to see if children are created
             self._zoo_keeper.get_children(path, watch=self._on_update)
-            host = data.get('host', None)
+            host = data.get('host', 'Unknown')
             agent_path = os.path.join(self._configuration.agent_state_path,
                                       host)
 
