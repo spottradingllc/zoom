@@ -81,11 +81,11 @@ class DataStore(object):
         """
         # restart client to destroy any existing watches
         self._zoo_keeper.restart()
-        self._alert_manager.start()
         self._global_cache.on_update()
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()
         self._time_estimate_cache.reload()
+        self._alert_manager.start()
         return {'cache_clear': 'okay'}
 
     def load(self):
