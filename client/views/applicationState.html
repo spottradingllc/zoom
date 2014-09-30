@@ -761,7 +761,7 @@
 <script type="text/html" id="dependencies-template">
     <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" title="Click to jump to this server config" >
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
-        <span data-bind="text: $data.configurationPath"></span>
+        <span class="cursor-pointer" data-bind="text: $data.configurationPath"></span>
     </li>
 </script>
 
