@@ -15,7 +15,12 @@ module.exports = function(grunt) {
         config: '.jscsrc'
       },
       files: {
-        src: ['*.js', 'client/**/*.js']
+        src: ['client/bindings/*.js',
+              'client/classes/**/*.js',
+              'client/model/*.js',
+              'client/viewmodels/**/*.js',
+              'client/views/*.js',
+              'client/*.js']
       }
     }
   });

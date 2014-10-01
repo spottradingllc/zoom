@@ -10,9 +10,14 @@ module.exports = function(grunt) {
     },
     app: {
       options: {
-        jshintrc: 'src/.jshintrc'
+        jshintrc: 'client/.jshintrc'
       },
-      src: ['client/**/*.js']
+      src: ['client/bindings/*.js',
+            'client/classes/**/*.js',
+            'client/model/*.js',
+            'client/viewmodels/**/*.js',
+            'client/views/*.js',
+            'client/*.js']
     }
   });
 
