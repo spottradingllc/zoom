@@ -13,11 +13,11 @@ module.exports = function(grunt) {
         jshintrc: 'client/.jshintrc'
       },
       src: ['client/bindings/*.js',
-            'client/classes/**/*.js',
-            'client/model/*.js',
-            'client/viewmodels/**/*.js',
-            'client/views/*.js',
-            'client/*.js']
+        'client/classes/**/*.js',
+        'client/model/*.js',
+        'client/viewmodels/**/*.js',
+        'client/views/*.js',
+        'client/*.js']
     }
   });
 
