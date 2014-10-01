@@ -11,11 +11,11 @@ return function DependencyModel(applicationStateArray, parentAppState) {
 
     // maps a predicate type to an observable array
     var arrayMapping = {
-        "zookeeperhaschildren": self.requires,
-        "zookeeperhasgrandchildren": self.requires,
-        "zookeepergooduntiltime": self.zookeepergooduntiltime,
         "holiday": self.holiday,
-        "weekend": self.weekend
+        "weekend": self.weekend,
+        "zookeepergooduntiltime": self.zookeepergooduntiltime,
+        "zookeeperhaschildren": self.requires,
+        "zookeeperhasgrandchildren": self.requires
     };
 
     // Dependency bubbling
@@ -27,24 +27,18 @@ return function DependencyModel(applicationStateArray, parentAppState) {
         parentAppState.mtime = Date.now();
         if (parentAppState.applicationHost() == "") return;
 
-        var deleted = {
-            "zookeepergooduntiltime": false,
-            "holiday": false,
-            "weekend": false,
-            "requires": false
-        };
+        // clear all dependencies
+        for(var key in arrayMapping) {
+            if (arrayMapping.hasOwnProperty(key)) {
+                arrayMapping[key].removeAll()
+            }
+        }
 
         var neverFound = true;
 
         update.dependencies.forEach(function (entry) {
             var predType = entry.type;
             var path = entry.path;
-
-            // On a new update, clear the array for the predicate type, but do so only once.
-            if (!deleted[predType]) {
-                arrayMapping[predType].removeAll();
-                deleted[predType] = true;
-            }
 
             // if path = /foo, match both /foo/bar and /foo/baz
             if (predType == "zookeeperhasgrandchildren") {
