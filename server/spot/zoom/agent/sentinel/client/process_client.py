@@ -78,7 +78,7 @@ class ProcessClient(object):
         """Try to start process"""
         if self._restart_logic.restart is False \
                 and self._apptype == ApplicationType.APPLICATION:
-            self._log.info('Process was brought down un-intentionally.')
+            self._log.warn('Process was brought down un-intentionally.')
             return 1
         else:
             self._log.debug('Restarts allowed.')

@@ -80,7 +80,7 @@ class DataStore(object):
         Clear all cache objects and send reloaded data as updates.
         """
         # restart client to destroy any existing watches
-        self._zoo_keeper.restart()
+        # self._zoo_keeper.restart()
         self._global_cache.on_update()
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()

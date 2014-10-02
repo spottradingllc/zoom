@@ -3,6 +3,7 @@ import logging
 import platform
 import signal
 
+from kazoo.client import KazooState
 from spot.zoom.www.cache.data_store import DataStore
 from spot.zoom.www.web_server import WebServer
 from spot.zoom.www.zoo_keeper import ZooKeeper
@@ -15,7 +16,8 @@ class Session(object):
             signal.signal(signal.SIGINT, self._handle_sig_event)
             signal.signal(signal.SIGTERM, self._handle_sig_event)
 
-            self._zoo_keeper = ZooKeeper()
+            self._prev_state = None
+            self._zoo_keeper = ZooKeeper(self._zk_listener)
             self._zoo_keeper.start()
             self._configuration = Configuration(self._zoo_keeper)
 
@@ -37,6 +39,44 @@ class Session(object):
     def _handle_sig_event(self, signum, frame):
         logging.info("Signal handler called with signal {0}".format(signum))
         self.stop()
+
+    def _zk_listener(self, state):
+        """
+        The callback function that runs when the connection state to Zookeeper
+        changes.
+        Either passes or immediately spawns a new thread that resets any
+        watches, etc., so that it can listen to future connection state changes.
+        """
+        try:
+            logging.info('Zookeeper Connection went from {0} to {1}'
+                         .format(self._prev_state, state))
+            if self._prev_state is None and state == KazooState.CONNECTED:
+                pass
+            elif (self._prev_state == KazooState.LOST
+                  and state == KazooState.CONNECTED):
+                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+            elif (self._prev_state == KazooState.CONNECTED
+                  and state == KazooState.SUSPENDED):
+                pass
+            elif (self._prev_state == KazooState.CONNECTED
+                  and state == KazooState.LOST):
+                pass
+            elif (self._prev_state == KazooState.SUSPENDED
+                  and state == KazooState.LOST):
+                pass
+            elif (self._prev_state == KazooState.SUSPENDED
+                  and state == KazooState.CONNECTED):
+                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+            elif state == KazooState.CONNECTED:
+                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+            else:
+                logging.info('Zookeeper Connection in unknown state: {0}'
+                             .format(state))
+                return
+            self._prev_state = state
+
+        except Exception:
+            logging.exception('An uncaught exception has occurred')
 
 if __name__ == "__main__":
     try:
