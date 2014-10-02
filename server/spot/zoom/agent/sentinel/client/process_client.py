@@ -68,7 +68,7 @@ class ProcessClient(object):
         if self._apptype == ApplicationType.JOB:
             return self._job_status
         elif self._apptype == ApplicationType.APPLICATION:
-            return self._service_status()
+            return self._service_status
 
     @property
     def stop_method(self):
@@ -88,7 +88,7 @@ class ProcessClient(object):
         :return: Whether the process is running.
         :rtype: bool
         """
-        self.last_status = self.start_method()
+        self.last_status = self.status_method()
 
         self._log.debug('Process {0} running: {1}'
                         .format(self.name, self.last_status))

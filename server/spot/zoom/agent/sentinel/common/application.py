@@ -462,7 +462,7 @@ class Application(object):
         :rtype: dict
         """
         type_path = self._paths.get('zk_state_base')\
-            .split(self._settings.get('ZK_STATE_PATH'), 1)[1]
+            .split(self._settings.get('ZK_STATE_PATH') + '/', 1)[1]
         type_metric = type_path.replace('/', '.')
         result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
         runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
