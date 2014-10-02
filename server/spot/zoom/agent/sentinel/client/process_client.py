@@ -149,7 +149,7 @@ class ProcessClient(object):
 
         return_code = self.stop_method()
 
-        if return_code != 0 :
+        if return_code != 0:
             self._log.error('There was some issue with the stop command. '
                             'Return code was: {0}'.format(return_code))
 
@@ -188,10 +188,10 @@ class ProcessClient(object):
             cmd = self.command
 
         with open(os.devnull, 'w') as devnull:
-            retcode = call(cmd, stdout=devnull, stderr=devnull)
+            return_code = call(cmd, stdout=devnull, stderr=devnull)
 
-        self._log.debug('RETURNCODE: {0}'.format(retcode))
-        return retcode
+        self._log.debug('RETURNCODE: {0}'.format(return_code))
+        return return_code
 
     def _job_status(self):
         """
@@ -257,22 +257,10 @@ class ProcessClient(object):
         cmd = '/sbin/service {0} {1}'.format(self.script_name, action)
 
         with open(os.devnull, 'w') as devnull:
-            retcode = call(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            return_code = call(shlex.split(cmd), stdout=devnull, stderr=devnull)
 
-        self._log.debug('RETURNCODE: {0}'.format(retcode))
-        return retcode
-        # p.communicate was removed b/c there was issue that would never allow
-        # the stdout or stderr .read() to return. It would block forever and the
-        # process would become a zombie
-        #
-        # out, err = p.communicate()
-        #
-        # self._log.debug('RETURNCODE: {0}'.format(p.return_code))
-        # if out:
-        #     self._log.debug('STDOUT: {0}'.format(out.rstrip('\n')))
-        # if err:
-        #     self._log.warning('STDERR: {0}'.format(err.rstrip('\n')))
-        # return p.return_code
+        self._log.debug('RETURNCODE: {0}'.format(return_code))
+        return return_code
 
 
 class WindowsProcessClient(ProcessClient):
