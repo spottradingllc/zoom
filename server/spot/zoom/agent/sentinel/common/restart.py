@@ -24,12 +24,12 @@ class RestartLogic(object):
         return self._count
 
     @property
-    def restart(self):
+    def restart_allowed(self):
         """
         Return if restarts are allowed or not
+        :rtype: bool
         """
-        self._log.debug('The restart mode is set to {0}'
-                        .format(self._restart_on_crash))
+        self._log.debug('Restart on crash: {0}'.format(self._restart_on_crash))
         if self._restart_on_crash is True:
             return True
         else:
@@ -39,7 +39,7 @@ class RestartLogic(object):
     def restart_max_reached(self):
         """
         Determines if number of restarts reached the max restart count
-        :return: bool
+        :type: bool
         """
         result = self._count >= self._restart_max
         if result:
