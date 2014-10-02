@@ -180,7 +180,6 @@ class ProcessClient(object):
     def _job_start(self):
         """
         Start process by running some arbitrary command
-        :rtype:
         """
         self._log.info('Starting {0}'.format(self.command))
         if self._system == PlatformType.LINUX:
