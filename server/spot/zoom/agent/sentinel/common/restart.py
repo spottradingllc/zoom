@@ -39,7 +39,7 @@ class RestartLogic(object):
     def restart_max_reached(self):
         """
         Determines if number of restarts reached the max restart count
-        :type: bool
+        :rtype: bool
         """
         result = self._count >= self._restart_max
         if result:
