@@ -323,8 +323,6 @@ class Application(object):
             self._pathjoin(settings.get('ZK_CONFIG_PATH'), atype, self.name)
         paths['zk_agent_path'] = \
             self._pathjoin(settings.get('ZK_AGENT_STATE_PATH'), self._host)
-        paths['graphite_type_metric'] = \
-            self._get_graphite_type_metric(paths['zk_state_base'])
 
         return paths
 
@@ -354,6 +352,8 @@ class Application(object):
             self._log.info('Restartmax not specified. Assuming 3.')
             restartmax = 3
 
+        g_names = self._get_graphite_metric_names()
+
         return ProcessClient(name=self.name,
                              command=command,
                              script=script,
@@ -361,9 +361,8 @@ class Application(object):
                              system=self._system,
                              restart_max=restartmax,
                              restart_on_crash=restart_on_crash,
-                             graphite_app_metric=self._paths['graphite_type_metric'],
-                             settings=settings
-                             )
+                             graphite_metric_names=g_names,
+                             settings=settings)
 
     def _init_actions(self, settings):
         """
@@ -456,11 +455,22 @@ class Application(object):
         elif self._system == PlatformType.WINDOWS:
             return '/'.join(args)
 
-    def _get_graphite_type_metric(self, state_path):
-        # splits the state path at 'application' and returns the latter index
-        type_path = state_path.split('state/', 1)[1]
+    def _get_graphite_metric_names(self):
+        """
+        splits the state path at 'application' and returns the latter index
+        :type state_path: str
+        :rtype: dict
+        """
+        type_path = self._paths.get('zk_state_base')\
+            .split(self._settings.get('ZK_STATE_PATH') + '/', 1)[1]
         type_metric = type_path.replace('/', '.')
-        return type_metric
+        result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
+        runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
+
+        return {
+            "result": result_path.format(type_metric),
+            "runtime": runtime_path.format(type_metric)
+        }
 
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

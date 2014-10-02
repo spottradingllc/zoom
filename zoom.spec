@@ -8,7 +8,7 @@
 # Variables
 %define DATE    %(date "+ %a %b %d %Y")
 %define USER    svc.python
-%define GROUP   "domain users"
+%define GROUP   LinuxDevelopers
 %define EMAIL   serviceregistration@spottrading.com
 %define SYMLNK  /opt/spot/zoom
 %define SNAME   %{name}-%{version}
@@ -174,7 +174,7 @@ else
 fi
 
 # ownership changes
-chown -R %{USER}:"'%{GROUP}'" /opt/spot/%{SNAME}
+chown -R %{USER}:%{GROUP} /opt/spot/%{SNAME}
 
 logger -t %{name} "Exiting pre section for build: %{SNAME}"
 

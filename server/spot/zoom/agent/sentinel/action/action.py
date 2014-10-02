@@ -69,7 +69,8 @@ class Action(object):
             if (self._mode != ApplicationMode.MANUAL or
                     not self._mode_controlled):
                 self._action_queue.append_unique(Task(self.name,
-                                                      func=self._execute))
+                                                      func=self._execute),
+                                                 sender=str(self))
 
             else:
                 self._log.info('Run mode is set to Manual. Not triggering "{0}"'

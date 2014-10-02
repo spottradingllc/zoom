@@ -35,7 +35,8 @@ class ChildProcess(object):
         """
         :type work: spot.zoom.agent.sentinel.common.task.Task
         """
-        self._action_queue.append_unique(work, first=immediate)
+        self._action_queue.append_unique(work, sender=str(self),
+                                         first=immediate)
 
     def stop(self):
         """
