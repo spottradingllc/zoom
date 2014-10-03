@@ -5,6 +5,9 @@ from spot.zoom.common.constants import ZK_CONN_STRING
 
 class ZooKeeper(object):
     def __init__(self, zk_listener):
+        """
+        :type zk_listener: types.funcType
+        """
         self.kazoo = None
         self._zk_listener = zk_listener
 
@@ -15,7 +18,14 @@ class ZooKeeper(object):
         """
         return self.kazoo
 
+    @property
+    def connected(self):
+        return self.client.connected
+
     def start(self):
+        """
+        Start KazooClient and add connection listener.
+        """
         try:
             self.kazoo = KazooClient(hosts=ZK_CONN_STRING)
             self.kazoo.add_listener(self._zk_listener)
@@ -27,6 +37,9 @@ class ZooKeeper(object):
             logging.error(e)
 
     def stop(self):
+        """
+        Stop and close KazooClient
+        """
         try:
             if self.kazoo is not None:
                 self.kazoo.stop()
@@ -58,4 +71,4 @@ class ZooKeeper(object):
     def create(self, path,
                value="", ephemeral=False, sequence=False, makepath=False):
         return self.kazoo.create(path, value=value, ephemeral=ephemeral,
-                                  sequence=sequence, makepath=makepath)
+                                 sequence=sequence, makepath=makepath)

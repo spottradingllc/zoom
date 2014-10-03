@@ -5,6 +5,52 @@ from functools import wraps
 from kazoo.exceptions import ConnectionLoss
 
 
+class TimeThis(object):
+
+    def __init__(self, filename=""):
+        if filename is not "":
+            filename += ' '
+        self.filename = filename
+
+    def __call__(self, function):
+        @wraps(function)
+        def new_function(*args, **kwargs):
+            start = time.time()
+            out = function(*args, **kwargs)
+            stop = time.time()
+            logging.info(":timethis: {0} {1}, {2:0.6f}"
+                         .format(self.filename,function.__name__, stop - start))
+            return out
+
+        return new_function
+
+
+def connected_with_return(return_object):
+    """
+    Decorator for ensuring zookeeper client is connected.
+    If it is not, return the default object 'return_object' and log a warning.
+    """
+    # TODO: merge the two connected decorators
+    def conn(method):
+        @wraps(method)
+        def conn_wrapper(cls, *args, **kwargs):
+            if hasattr(cls, '_zoo_keeper'):
+                if cls._zoo_keeper.connected:
+                    try:
+                        return method(cls, *args, **kwargs)
+                    except ConnectionLoss:
+                        logging.warning('ZK client lost connection during {0}'
+                                        .format(method.__name__))
+                        return return_object
+                else:
+                    logging.warning('ZK client disconnected. Cannot run {0}'
+                                    .format(method.__name__))
+                    return return_object
+
+        return conn_wrapper
+    return conn
+
+
 def connected(method):
     """
     Decorator for ensuring zookeeper client is connected.
@@ -72,6 +118,7 @@ def time_this(method):
 
     return time_this_wrapper
 
+
 def synchronous(lockname):
     """
     A decorator to place an instance-based lock around a method.
@@ -96,6 +143,7 @@ def synchronous(lockname):
                 lock.release()
         return _synchronizer
     return _synched
+
 
 def run_only_one(lockname):
     """

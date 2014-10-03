@@ -1,16 +1,15 @@
 import logging
 import os
 import shlex
-import psutil
 import socket
-
 from multiprocessing import Lock
 from time import sleep, time
 from subprocess import call
 
+import psutil
 from spot.zoom.common.types import PlatformType, ApplicationType
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
-from spot.zoom.agent.sentinel.util.decorators import synchronous
+from spot.zoom.common.decorators import synchronous
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
 
 

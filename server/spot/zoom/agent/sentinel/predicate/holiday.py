@@ -5,7 +5,7 @@ from threading import Thread
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
-from spot.zoom.agent.sentinel.util.decorators import connected
+from spot.zoom.common.decorators import connected
 
 
 class PredicateHoliday(SimplePredicate):

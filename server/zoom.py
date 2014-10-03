@@ -1,4 +1,3 @@
-import getopt
 import logging
 import platform
 import signal
@@ -12,21 +11,17 @@ from spot.zoom.www.config.configuration import Configuration
 
 class Session(object):
     def __init__(self):
-        try:
-            signal.signal(signal.SIGINT, self._handle_sig_event)
-            signal.signal(signal.SIGTERM, self._handle_sig_event)
+        signal.signal(signal.SIGINT, self._handle_sig_event)
+        signal.signal(signal.SIGTERM, self._handle_sig_event)
 
-            self._prev_state = None
-            self._zoo_keeper = ZooKeeper(self._zk_listener)
-            self._zoo_keeper.start()
-            self._configuration = Configuration(self._zoo_keeper)
+        self._prev_connection_state = None
+        self._zoo_keeper = ZooKeeper(self._zk_listener)
+        self._zoo_keeper.start()
+        self._configuration = Configuration(self._zoo_keeper)
 
-            self._data_store = DataStore(self._configuration, self._zoo_keeper)
-            self._web_server = WebServer(self._configuration, self._data_store,
-                                         self._zoo_keeper)
-
-        except getopt.GetoptError as e:
-            print str(e)
+        self._data_store = DataStore(self._configuration, self._zoo_keeper)
+        self._web_server = WebServer(self._configuration, self._data_store,
+                                     self._zoo_keeper)
 
     def start(self):
         self._data_store.load()
@@ -49,31 +44,35 @@ class Session(object):
         """
         try:
             logging.info('Zookeeper Connection went from {0} to {1}'
-                         .format(self._prev_state, state))
-            if self._prev_state is None and state == KazooState.CONNECTED:
+                         .format(self._prev_connection_state, state))
+            if self._prev_connection_state is None \
+                    and state == KazooState.CONNECTED:
                 pass
-            elif (self._prev_state == KazooState.LOST
-                  and state == KazooState.CONNECTED):
+            elif self._prev_connection_state == KazooState.LOST \
+                    and state == KazooState.CONNECTED:
+                logging.info('Connection restored. Initiating data reload.')
                 self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.SUSPENDED):
+            elif self._prev_connection_state == KazooState.CONNECTED \
+                    and state == KazooState.SUSPENDED:
                 pass
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.LOST):
+            elif self._prev_connection_state == KazooState.CONNECTED \
+                    and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.LOST):
+            elif self._prev_connection_state == KazooState.SUSPENDED \
+                    and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.CONNECTED):
+            elif self._prev_connection_state == KazooState.SUSPENDED \
+                    and state == KazooState.CONNECTED:
+                logging.info('Connection restored. Initiating data reload.')
                 self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
             elif state == KazooState.CONNECTED:
+                logging.info('Connection restored. Initiating data reload.')
                 self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
             else:
                 logging.info('Zookeeper Connection in unknown state: {0}'
                              .format(state))
                 return
-            self._prev_state = state
+            self._prev_connection_state = state
 
         except Exception:
             logging.exception('An uncaught exception has occurred')

@@ -23,7 +23,7 @@ from spot.zoom.common.types import (
     AlertActionType,
     ApplicationState
 )
-from spot.zoom.agent.sentinel.util.decorators import (
+from spot.zoom.common.decorators import (
     connected,
     time_this,
     catch_exception,
@@ -32,6 +32,7 @@ from spot.zoom.agent.sentinel.util.decorators import (
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
+
 
 if 'Linux' in platform.platform():
     from spot.zoom.agent.sentinel.client.process_client import ProcessClient

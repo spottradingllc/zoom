@@ -1,14 +1,12 @@
 import logging
 import json
 import os
-
-from httplib import INTERNAL_SERVER_ERROR
-
 import tornado.web
 
+from httplib import INTERNAL_SERVER_ERROR
 from kazoo.retry import KazooRetry
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 from spot.zoom.common.types import CommandType
 
 

@@ -1,12 +1,12 @@
 import json
-
 from time import sleep
 from datetime import datetime
+
 from kazoo.exceptions import NodeExistsError, NoNodeError
 
 from spot.zoom.common.types import JobState
 from spot.zoom.agent.sentinel.common.application import Application
-from spot.zoom.agent.sentinel.util.decorators import (
+from spot.zoom.common.decorators import (
     connected,
     time_this,
     catch_exception

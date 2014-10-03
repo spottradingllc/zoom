@@ -7,7 +7,7 @@ import tornado.escape
 import tornado.gen
 import tornado.web
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class LoginHandler(tornado.web.RequestHandler):

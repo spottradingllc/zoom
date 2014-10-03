@@ -4,7 +4,7 @@ import httplib
 import tornado.web
 import tornado.httpclient
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class EnvironmentHandler(tornado.web.RequestHandler):

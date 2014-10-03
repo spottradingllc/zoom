@@ -1,5 +1,6 @@
 import logging
 
+from spot.zoom.common.decorators import connected_with_return
 from spot.zoom.www.messages.global_mode_message import GlobalModeMessage
 
 
@@ -20,6 +21,7 @@ class GlobalCache(object):
     def stop(self):
         pass
 
+    @connected_with_return(GlobalModeMessage('{"mode":"Unknown"}'))
     def get_mode(self):
         data, stat = self._zoo_keeper.get(
             self._configuration.global_mode_path, watch=self.on_update)

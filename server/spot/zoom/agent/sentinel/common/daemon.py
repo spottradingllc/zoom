@@ -14,7 +14,7 @@ from kazoo.exceptions import ZookeeperError, NodeExistsException
 from kazoo.handlers.threading import SequentialThreadingHandler
 
 from spot.zoom.agent.sentinel.web.rest import RestServer
-from spot.zoom.agent.sentinel.util.decorators import (
+from spot.zoom.common.decorators import (
     connected,
     catch_exception,
     run_only_one
