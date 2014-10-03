@@ -1,26 +1,26 @@
-define(['jquery'],
-function($) {
+define(['jquery'], function($) {
+
     var getUrl = function(path) {
-        return "" + location.origin + "/" + path;
+        return '' + location.origin + '/' + path;
     };
 
     var getCookie = function(c_name) {
         var c_value = document.cookie;
-        // c_value looks like: user="foo.bar@spottrading.com"
-        var c_start = c_value.indexOf(" " + c_name + "=");
+        // c_value looks like: user='foo.bar@spottrading.com'
+        var c_start = c_value.indexOf(' ' + c_name + '=');
         if (c_start == -1) {
-            c_start = c_value.indexOf(c_name + "=");
+            c_start = c_value.indexOf(c_name + '=');
         }
         if (c_start == -1) {
             c_value = null;
         }
         else {
-            c_start = c_value.indexOf("=", c_start) + 1;
-            var c_end = c_value.indexOf(";", c_start);
-            if (c_end == -1) {
+            c_start = c_value.indexOf('=', c_start) + 1;
+            var c_end = c_value.indexOf(';', c_start);
+            if (c_end === -1) {
                 c_end = c_value.length;
             }
-            c_value = c_value.substring(c_start,c_end);
+            c_value = c_value.substring(c_start, c_end);
         }
         return c_value;
     };
@@ -31,7 +31,7 @@ function($) {
         get: function(path, callback, errorCallback) {
             return $.ajax(getUrl(path), {
                 dataType: 'json',
-                type: "GET",
+                type: 'GET',
                 success: function(data) {
                     return callback(data);
                 },
@@ -43,9 +43,9 @@ function($) {
 
         synchronousGet: function(path, callback, errorCallback) {
             return $.ajax(getUrl(path), {
-                async: false, 
+                async: false,
                 dataType: 'json',
-                type: "GET",
+                type: 'GET',
                 success: function(data) {
                     return callback(data);
                 },
@@ -58,8 +58,8 @@ function($) {
         post: function(path, params, callback, errorCallback) {
             return $.ajax(getUrl(path), {
                 data: JSON.stringify(params),
-                dataType: "json",
-                type: "POST",
+                dataType: 'json',
+                type: 'POST',
                 success: function(data) {
                     return callback(data);
                 },
@@ -72,8 +72,8 @@ function($) {
         put: function(path, params, callback, errorCallback) {
             return $.ajax(getUrl(path), {
                 data: JSON.stringify(params),
-                dataType: "json",
-                type: "PUT",
+                dataType: 'json',
+                type: 'PUT',
                 success: function(data) {
                     return callback(data);
                 },
@@ -85,7 +85,7 @@ function($) {
 
         del: function(path, params, callback, errorCallback) {
             return $.ajax(getUrl(path), {
-                type: "DELETE",
+                type: 'DELETE',
                 success: function(data) {
                     if (callback) {
                         return callback(data);
@@ -104,11 +104,11 @@ function($) {
 
 //  ...modern way of doing things....using promises/futures
 //
-//  var jqxhr = $.post("/login", JSON.stringify(data), function (response) {
-//        console.log("POST (response):" + JSON.stringify(response));
+//  var jqxhr = $.post('/login', JSON.stringify(data), function(response) {
+//        console.log('POST (response):' + JSON.stringify(response));
 //    });
 //
-//    jqxhr.fail(function (response) {
-//        console.log("POST (response):" + JSON.stringify(response));
+//    jqxhr.fail(function(response) {
+//        console.log('POST (response):' + JSON.stringify(response));
 //        self.showErrorText(true);
 //    });

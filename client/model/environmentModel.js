@@ -1,6 +1,6 @@
-define(['knockout', 'service' ], function (ko, service) {
+define(['knockout', 'service' ], function(ko, service) {
 
-    var env = ko.observable("Unknown");
+    var env = ko.observable('Unknown');
 
     var onSuccess = function(data) {
         env(data.environment);
@@ -10,7 +10,7 @@ define(['knockout', 'service' ], function (ko, service) {
 
 
     var onFailure = function(data) {
-        alert("There was an error getting environment");
+        alert('There was an error getting environment');
     };
 
     service.get('api/environment/', onSuccess, onFailure);

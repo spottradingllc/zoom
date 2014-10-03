@@ -52,7 +52,7 @@ class TimeEstimateCache(object):
             Whether to send messages to clients.
         :rtype: spot.zoom.www.messages.global_mode_message.TimeEstimateMessage
         """
-        logging.info("Recomputing Timing Estimates...")
+        logging.debug("Recomputing Timing Estimates...")
         try:
             message = TimeEstimateMessage()
 

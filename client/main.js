@@ -15,14 +15,14 @@ requirejs.config({
         'bootstrap': {
             deps: ['jquery'],
             exports: 'jQuery'
-       }
+        }
     }
 });
 
-define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function (system, app, viewLocator) {
-    //>>excludeStart("build", true);
+define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function(system, app, viewLocator) {
+    // >>excludeStart("build", true);
     system.debug(true);
-    //>>excludeEnd("build");
+    // >>excludeEnd("build");
 
     app.title = 'Zoom';
 
@@ -32,11 +32,11 @@ define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function (s
     });
 
     app.start().then(function() {
-        //Replace 'viewmodels' in the moduleId with 'views' to locate the view.
-        //Look for partial views in a 'views' folder in the root.
+        // Replace 'viewmodels' in the moduleId with 'views' to locate the view.
+        // Look for partial views in a 'views' folder in the root.
         viewLocator.useConvention();
 
-        //Show the app by setting the root view model for our application with a transition.
+        // Show the app by setting the root view model for our application with a transition.
         app.setRoot('viewmodels/navbar');
     });
 });

@@ -3,7 +3,7 @@ import tornado.web
 
 from httplib import NOT_ACCEPTABLE
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class DeletePathHandler(tornado.web.RequestHandler):

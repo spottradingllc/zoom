@@ -4,7 +4,7 @@ import logging
 import tornado.web
 
 from spot.zoom.www.entities.database import Database
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 from spot.zoom.www.entities.custom_filter import CustomFilter
 from spot.zoom.common.types import OperationType
 

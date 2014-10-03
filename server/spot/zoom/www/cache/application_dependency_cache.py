@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 from kazoo.exceptions import NoNodeError
 
+from spot.zoom.common.decorators import connected_with_return
 from spot.zoom.common.types import PredicateType
 from spot.zoom.www.messages.application_dependencies \
     import ApplicationDependenciesMessage
@@ -63,6 +64,7 @@ class ApplicationDependencyCache(object):
         self._time_estimate_cache.update_dependencies(
             self._cache.application_dependencies)
 
+    @connected_with_return(None)
     def _walk(self, path, result_dict):
         """
         :type path: str

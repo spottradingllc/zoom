@@ -5,7 +5,7 @@ from multiprocessing import Lock
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
-from spot.zoom.agent.sentinel.util.decorators import synchronous
+from spot.zoom.common.decorators import synchronous
 
 
 class PredicateProcess(SimplePredicate):

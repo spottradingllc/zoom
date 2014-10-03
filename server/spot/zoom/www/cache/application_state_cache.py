@@ -4,6 +4,7 @@ import json
 
 from kazoo.exceptions import NoNodeError
 
+from spot.zoom.common.decorators import connected_with_return
 from spot.zoom.common.types import ApplicationStatus
 from spot.zoom.www.entities.application_state import ApplicationState
 from spot.zoom.www.messages.application_states import ApplicationStatesMessage
@@ -59,6 +60,7 @@ class ApplicationStateCache(object):
             self._cache.application_states)
         self._cache.remove_deletes()
 
+    @connected_with_return(None)
     def _walk(self, path, result):
         """
         :type path: str
