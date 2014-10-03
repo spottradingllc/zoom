@@ -1,5 +1,5 @@
 define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautify'],
-    function($, ko, AlertsViewModel, TreeViewModel, vkbeautify) {
+    function($, ko, AlertsViewModel, TreeViewModel) {
 
         /******* SEARCH AND UPDATE VIEW MODEL *******/
         return function SearchUpdateViewModel(ServerConfigViewModel) {

@@ -1,5 +1,5 @@
 define(['knockout', 'classes/Component', 'vkbeautify'],
-    function(ko, Component, vkbeautify) {
+    function(ko, Component) {
 
         return function TreeViewModel(parent) {
             var self = this;
