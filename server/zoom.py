@@ -78,6 +78,7 @@ class Session(object):
         except Exception:
             logging.exception('An uncaught exception has occurred')
 
+
 if __name__ == "__main__":
     try:
         if 'Linux' in platform.platform():

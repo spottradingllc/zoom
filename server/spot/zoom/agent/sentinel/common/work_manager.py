@@ -34,7 +34,7 @@ class WorkManager(object):
         while operate == True:
             if queue:  # if queue is not empty
 
-                item = queue.popleft()
+                item = queue[0]  # grab item, but keep it in the queue
                 if item.func is None:
                     task = tasks.get(item.name, None)
                 else:
@@ -56,6 +56,11 @@ class WorkManager(object):
                         pipe.send('')
                     self._log.warning('Cannot do "%s", it is not allowed.'
                                       % item.name)
+                try:
+                    queue.remove(item)
+                except ValueError:
+                    self._log.warning('Item no longer exists in the queue: {0}'
+                                      .format(item))
             else:
                 time.sleep(1)
 
