@@ -17,7 +17,7 @@
     "try",
     "catch"
   ],
-  "maximumLineLength": 80,
+  "maximumLineLength": 120,
   "validateQuoteMarks": "'",
   "disallowMultipleVarDecl": true,
   "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-", "~", "!"],

@@ -1,4 +1,4 @@
-define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFilter){
+define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFilter) {
     return function CustomFilterModel(parent) {
         var self = this;
         // Custom Filtering
@@ -10,12 +10,12 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
             });
         });
 
-        self.allMatchedItems = ko.computed(function () {
+        self.allMatchedItems = ko.computed(function() {
             // first aggregate all items from all custom filters
             var allCustomFilteredItems = ko.observableArray([]);
             ko.utils.arrayForEach(self.enabled(), function(customFilter) { // loop over all enabled filters
                 ko.utils.arrayForEach(customFilter.matchedItems(), function(item) {
-                    if (allCustomFilteredItems.indexOf(item) == -1) {
+                    if (allCustomFilteredItems.indexOf(item) === -1) {
                         // only push unique items
                         allCustomFilteredItems.push(item);
                     }
@@ -26,9 +26,11 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
             var intersection = ko.observableArray(allCustomFilteredItems().slice());
             ko.utils.arrayForEach(allCustomFilteredItems(), function(filteredItem) { // loop over all items
                 ko.utils.arrayForEach(self.enabled(), function(customFilter) { // loop over all filters
-                    if (customFilter.matchedItems().indexOf(filteredItem) == -1) {
+                    if (customFilter.matchedItems().indexOf(filteredItem) === -1) {
                         // remove the item if it is missing in any filter
-                        intersection(intersection.remove(function(item) {return item != filteredItem}));
+                        intersection(intersection.remove(function(item) {
+                            return item !== filteredItem;
+                        }));
                     }
                 });
             });
@@ -50,23 +52,23 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
 
         self.remoteCustomFilters = ko.observableArray([]);
         self.fetchAllFilters = function() {
-            var dict = {loginName : parent.login.elements.username()};
+            var dict = {loginName: parent.login.elements.username()};
 
             if (parent.login.elements.authenticated()) {
                 self.remoteCustomFilters.removeAll();
-                $.getJSON("/api/filters/", dict, function(data) {
+                $.getJSON('/api/filters/', dict, function(data) {
                     $.each(data, function(index, filterDict) {
                         var filter = new CustomFilter(self, parent);
-                        filter.filterName(filterDict["name"]);
-                        filter.parameter(filterDict["parameter"]);
-                        filter.searchTerm(filterDict["searchTerm"]);
-                        filter.inversed(filterDict["inversed"]);
+                        filter.filterName(filterDict.name);
+                        filter.parameter(filterDict.parameter);
+                        filter.searchTerm(filterDict.searchTerm);
+                        filter.inversed(filterDict.inversed);
                         filter.enabled(false);
 
                         self.remoteCustomFilters.push(filter);
                     });
-                }).fail(function(data){
-                    alert("Failed Get for all Filters " + JSON.stringify(data));
+                }).fail(function(data) {
+                    alert('Failed Get for all Filters ' + JSON.stringify(data));
                 });
             }
         };
@@ -85,13 +87,13 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         self.defaultFilters = ko.observableArray([]);
 
         var downFilter = new CustomFilter(self, parent);
-        downFilter.filterName("Down");
+        downFilter.filterName('Down');
         downFilter.parameter(downFilter.parameters.applicationStatus);
         downFilter.searchTerm(downFilter.searchTerms.stopped);
         self.defaultFilters.push(downFilter);
 
         var errorFilter = new CustomFilter(self, parent);
-        errorFilter.filterName("Error");
+        errorFilter.filterName('Error');
         errorFilter.parameter(errorFilter.parameters.errorState);
         errorFilter.searchTerm(errorFilter.searchTerms.error);
         self.defaultFilters.push(errorFilter);
@@ -99,8 +101,8 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         self.time = ko.observable(Date.now());
         self.filterByTime = ko.observable(false);
         self.enableTimeFilter = function() {
-            //Reset filter time on double click
-            if (self.filterByTime()){
+            // Reset filter time on double click
+            if (self.filterByTime()) {
                 self.time(Date.now());
             }
             self.filterByTime(true);
@@ -108,10 +110,10 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         };
 
         self.timeToolTip = ko.computed(function() {
-            if (self.filterByTime()){
-                return "Click to clear old updates";
+            if (self.filterByTime()) {
+                return 'Click to clear old updates';
             }
-            return "Click to enable update mode";
+            return 'Click to enable update mode';
         });
-    }
+    };
 });
