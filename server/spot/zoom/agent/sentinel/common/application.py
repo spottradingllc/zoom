@@ -2,6 +2,7 @@ import logging
 import json
 import os.path
 import platform
+import re
 from datetime import datetime
 from multiprocessing import Lock
 from time import sleep
@@ -459,7 +460,6 @@ class Application(object):
     def _get_graphite_metric_names(self):
         """
         splits the state path at 'application' and returns the latter index
-        :type state_path: str
         :rtype: dict
         """
         type_path = self._paths.get('zk_state_base')\
@@ -494,24 +494,31 @@ class Application(object):
             )
         }
 
+    @catch_exception(NoNodeError)
     @connected
     def _create_alert_node(self, alert_action):
         """
         Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
         """
+        alert_details = self._get_alert_details()
+        alert_details['action'] = alert_action
+        # path example: /foo/sentinel.bar.baz.HOSTFOO
+        alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
+                                    re.sub('/', '.', alert_details['key']))
+
         if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
             self._log.info('Creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
-            alert_details = self._get_alert_details()
-            alert_details['action'] = alert_action
-            path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'), 'alert')
-            self.zkclient.create(path,
-                                 value=json.dumps(alert_details),
-                                 sequence=True)
+
+            if self.zkclient.exists(alert_path):
+                self.zkclient.set(alert_path, value=json.dumps(alert_details))
+            else:
+                self.zkclient.create(alert_path, value=json.dumps(alert_details))
         else:
             self._log.info('Not creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
+            self._log.info('Would have created path {0}'.format(alert_path))
 
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')
