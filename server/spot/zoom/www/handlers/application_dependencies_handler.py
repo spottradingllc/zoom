@@ -10,6 +10,9 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
 
     @property
     def data_store(self):
+        """
+        :rtype: spot.zoom.www.cache.data_store.DataStore
+        """
         return self.application.data_store
 
     @TimeThis(__file__)

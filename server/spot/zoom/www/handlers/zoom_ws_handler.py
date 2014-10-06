@@ -8,6 +8,9 @@ class ZoomWSHandler(tornado.websocket.WebSocketHandler):
 
     @property
     def socket_clients(self):
+        """
+        :rtype: list
+        """
         return self.application.data_store.web_socket_clients
 
     @TimeThis(__file__)

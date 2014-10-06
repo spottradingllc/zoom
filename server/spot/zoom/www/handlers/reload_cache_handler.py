@@ -6,6 +6,12 @@ from spot.zoom.common.decorators import TimeThis
 
 
 class ReloadCacheHandler(tornado.web.RequestHandler):
+    @property
+    def data_store(self):
+        """
+        :rtype: spot.zoom.www.cache.data_store.DataStore
+        """
+        return self.application.data_store
 
     @TimeThis(__file__)
     def post(self):
@@ -16,7 +22,7 @@ class ReloadCacheHandler(tornado.web.RequestHandler):
             logging.info("Received reload cache command for target '{0}' from "
                          "user '{1}'".format(command, user))
             logging.info("Clearing and reloading all server side caches")
-            self.application.data_store.reload()
+            self.data_store.reload()
             self.write('Cache Reloaded')
             self.set_header('Content-Type', 'text/html')
         except Exception as e:

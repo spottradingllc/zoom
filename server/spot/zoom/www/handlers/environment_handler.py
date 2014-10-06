@@ -9,15 +9,17 @@ from spot.zoom.common.decorators import TimeThis
 
 class EnvironmentHandler(tornado.web.RequestHandler):
     @property
-    def configuration(self):
-        return self.application.configuration
+    def environment(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.environment
 
     @TimeThis(__file__)
     def get(self):
         try:
-            message = {'environment': self.configuration.environment}
 
-            self.write(json.dumps(message))
+            self.write({'environment': self.environment})
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)

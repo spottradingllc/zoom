@@ -11,6 +11,19 @@ from spot.zoom.common.types import CommandType
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):
+    @property
+    def task_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.task_path
+
+    @property
+    def zk(self):
+        """
+        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        """
+        return self.application.zk
 
     @TimeThis(__file__)
     def post(self):
@@ -26,13 +39,12 @@ class ControlAgentHandler(tornado.web.RequestHandler):
                          .format(self.command, user, application_host,
                                  self.component_id))
     
-            self.path = os.path.join(self.application.configuration.task_path,
-                                     application_host)
+            self.path = os.path.join(self.task_path, application_host)
 
             retry = KazooRetry()
             if self.command == CommandType.CANCEL:
                 logging.info("removing zk path {0}".format(self.path))
-                retry(self.application.zk.delete, self.path)
+                retry(self.zk.delete, self.path)
             else:
                 logging.info("attempting to add work {0} on path {1}"
                              .format(self.command, self.path))
@@ -48,11 +60,11 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         :type event: kazoo.protocol.states.WatchedEvent
         """
         # TODO find a better way to pass parameters here
-        if self.application.zk.exists(self.path) is None:
+        if self.zk.exists(self.path) is None:
             logging.info("command {0} with argument {1} going to zk path {2}"
                          .format(self.command, self.argument, self.path))
-            self.application.zk.create(self.path, json.dumps(
+            self.zk.create(self.path, json.dumps(
                 {'work': self.command, 'argument': self.argument,
                  'target': self.component_id}))
         else:
-            self.application.zk.exists(self.path, watch=self.add_command)
+            self.zk.exists(self.path, watch=self.add_command)
