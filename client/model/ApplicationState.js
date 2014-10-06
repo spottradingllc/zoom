@@ -45,6 +45,7 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel
         self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
         self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
         self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
+        self.loginUser = ko.observable(data.login_user);
 
         self.applicationStatusClass = ko.computed(function () {
             var ret;
@@ -136,15 +137,14 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel
         }, self);
 
         var command;
-        self.lastCommand = ko.computed(function (login) {
-            console.log(login)
+        self.lastCommand = ko.computed(function () {
             if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.starting) {
                 command = 'Start'
             }
             else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.stopping) {
                 command = 'Stop'
             }
-            return "Last Command: " + command + "\nTriggered by: " + parent.login.elements.username()
+            return "Last Command: " + command + "\nTriggered by: " + self.loginUser() //parent.login.elements.username()
         })
 
         // Creates group for sending commands

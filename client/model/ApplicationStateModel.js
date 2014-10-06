@@ -403,6 +403,7 @@ return function ApplicationStateModel(login) {
                 row.errorState(update.error_state);
                 row.mode(update.local_mode);
                 row.mtime = Date.now();
+                row.loginUser(update.login_user);
             }
             else { 
                 // add new item to array

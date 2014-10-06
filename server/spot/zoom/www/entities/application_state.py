@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from spot.zoom.common.types import ApplicationStatus
 
@@ -7,7 +8,7 @@ class ApplicationState(object):
     def __init__(self, application_name=None, configuration_path=None,
                  application_status=None, application_host=None,
                  completion_time=None, trigger_time=None, error_state=None, local_mode=None,
-                 delete=False):
+                 delete=False, login_user=None):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -17,6 +18,7 @@ class ApplicationState(object):
         self._error_state = error_state
         self._local_mode = local_mode
         self._delete = delete
+        self._login_user = login_user
 
     def __del__(self):
         pass
@@ -94,7 +96,8 @@ class ApplicationState(object):
             'trigger_time': self._trigger_time,
             'error_state': self._error_state,
             'delete': self._delete,
-            'local_mode': self._local_mode
+            'local_mode': self._local_mode,
+            'login_user': self._login_user
         }
 
         return result

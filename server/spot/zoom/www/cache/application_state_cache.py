@@ -62,7 +62,7 @@ class ApplicationStateCache(object):
     def _walk(self, path, result):
         """
         :type path: str
-        :type result: spot.zoom.messages.application_states.ApplicationStatesMessage
+        :type result: spot.zoom.www.messages.application_states.ApplicationStatesMessage
         """
         try:
             children = self._zoo_keeper.get_children(path, watch=self._on_update)
@@ -136,7 +136,8 @@ class ApplicationStateCache(object):
                 completion_time=stat.last_modified,
                 trigger_time=data.get('trigger_time', ''),
                 error_state=data.get('state', 'unknown'),
-                local_mode=data.get('mode', 'unknown')
+                local_mode=data.get('mode', 'unknown'),
+                login_user=data.get('login_user', 'Zoom')
             )
 
         # ephemeral node
@@ -162,9 +163,9 @@ class ApplicationStateCache(object):
                 completion_time=stat.last_modified,
                 trigger_time=parent_data.get('trigger_time', ''),
                 error_state=parent_data.get('state', 'unknown'),
-                local_mode=parent_data.get('mode', 'unknown')
+                local_mode=parent_data.get('mode', 'unknown'),
+                login_user=parent_data.get('login_user', 'Zoom')
             )
-
         return application_state
 
     def _on_update(self, event):
