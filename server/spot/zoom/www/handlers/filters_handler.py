@@ -12,6 +12,9 @@ from spot.zoom.common.types import OperationType
 class FiltersHandler(tornado.web.RequestHandler):
     @property
     def configuration(self):
+        """
+        :rtype: spot.zoom.www.config.configuration.Configuration
+        """
         return self.application.configuration
 
     @TimeThis(__file__)

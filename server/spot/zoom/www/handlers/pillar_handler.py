@@ -15,10 +15,16 @@ class PillarHandler(tornado.web.RequestHandler):
 
     @property
     def pillar_path(self):
+        """
+        :rtype: str
+        """
         return self.application.configuration.pillar_path
 
     @property
     def zk(self):
+        """
+        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        """
         return self.application.zk
 
     @TimeThis(__file__)

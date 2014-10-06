@@ -13,16 +13,29 @@ from spot.zoom.common.decorators import TimeThis
 class GlobalModeHandler(tornado.web.RequestHandler):
     @property
     def zk(self):
+        """
+        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        """
         return self.application.zk
 
     @property
-    def configuration(self):
-        return self.application.configuration
+    def global_mode_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.global_mode_path
+
+    @property
+    def data_store(self):
+        """
+        :rtype: spot.zoom.www.cache.data_store.DataStore
+        """
+        return self.application.data_store
 
     @TimeThis(__file__)
     def get(self):
         try:
-            message = self.application.data_store.get_global_mode()
+            message = self.data_store.get_global_mode()
 
             self.write(message.to_json())
 
@@ -61,6 +74,6 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     def _update_mode(self, mode):
         logging.info('Updating Zookeeper global mode to {0}'.format(mode))
         data = {"mode": mode}
-        self.zk.set(self.configuration.global_mode_path, json.dumps(data))
+        self.zk.set(self.global_mode_path, json.dumps(data))
         self.write('Node successfully updated.')
         logging.info('Updated Zookeeper global mode to {0}'.format(mode))

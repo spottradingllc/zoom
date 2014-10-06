@@ -8,8 +8,11 @@ from spot.zoom.common.decorators import TimeThis
 
 class DeletePathHandler(tornado.web.RequestHandler):
     @property
-    def configuration(self):
-        return self.application.configuration
+    def zk(self):
+        """
+        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        """
+        return self.application.zk
 
     @TimeThis(__file__)
     def post(self):
@@ -20,10 +23,10 @@ class DeletePathHandler(tornado.web.RequestHandler):
         path = self.get_argument("delete")
         logging.info("Recieved delete request from {0} for path {1}"
                      .format(login_name, path))
-        if self.application.zk.get_children(path):
+        if self.zk.get_children(path):
             warn = "Path {} has children, not deleting!".format(path)
             logging.warn(warn)
             self.set_status(NOT_ACCEPTABLE)
             self.write(warn)
         else:
-            self.application.zk.delete(path)
+            self.zk.delete(path)
