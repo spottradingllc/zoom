@@ -1,12 +1,12 @@
 import logging
 import os
+import psutil
 import shlex
 import socket
+
 from multiprocessing import Lock
 from time import sleep, time
-from subprocess import call
 
-import psutil
 from spot.zoom.common.types import PlatformType, ApplicationType
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
 from spot.zoom.common.decorators import synchronous
@@ -180,6 +180,7 @@ class ProcessClient(object):
         """
         Start process by running some arbitrary command
         """
+        return_code = -1
         self._log.info('Starting {0}'.format(self.command))
         if self._system == PlatformType.LINUX:
             cmd = shlex.split(self.command)
@@ -187,7 +188,17 @@ class ProcessClient(object):
             cmd = self.command
 
         with open(os.devnull, 'w') as devnull:
-            return_code = call(cmd, stdout=devnull, stderr=devnull)
+            p = psutil.Popen(cmd, stdout=devnull, stderr=devnull)
+            while True:
+                return_code = p.poll()
+                if return_code is not None:  # None = still running
+                    break
+                elif p.status == psutil.STATUS_ZOMBIE:
+                    self._log.warning(
+                        '{0} command resulted in a zombie process. '
+                        'Returning with -1'.format(cmd))
+                    break
+                sleep(1)
 
         self._log.debug('RETURNCODE: {0}'.format(return_code))
         return return_code
@@ -253,10 +264,21 @@ class ProcessClient(object):
         :return: The return code of the command.
         :rtype: int
         """
+        return_code = -1
         cmd = '/sbin/service {0} {1}'.format(self.script_name, action)
 
         with open(os.devnull, 'w') as devnull:
-            return_code = call(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            p = psutil.Popen(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            while True:
+                return_code = p.poll()
+                if return_code is not None:  # None = still running
+                    break
+                elif p.status == psutil.STATUS_ZOMBIE:
+                    self._log.warning(
+                        '{0} command resulted in a zombie process. '
+                        'Returning with -1'.format(action))
+                    break
+                sleep(1)
 
         self._log.debug('RETURNCODE: {0}'.format(return_code))
         return return_code
