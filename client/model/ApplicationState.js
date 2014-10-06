@@ -135,6 +135,18 @@ function(ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel
             }
         }, self);
 
+        var command;
+        self.lastCommand = ko.computed(function (login) {
+            console.log(login)
+            if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.starting) {
+                command = 'Start'
+            }
+            else if (self.errorState() && self.errorState().toLowerCase() == self.errorStates.stopping) {
+                command = 'Stop'
+            }
+            return "Last Command: " + command + "\nTriggered by: " + parent.login.elements.username()
+        })
+
         // Creates group for sending commands
         self.groupControlStar = ko.computed(function() {
             if (parent.groupControl.indexOf(self) == -1) {
