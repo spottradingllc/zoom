@@ -28,6 +28,7 @@ class ApplicationStateCache(object):
         self._time_estimate_cache = time_estimate_cache
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
+        self._last_command = None
 
     def start(self):
         self._message_throttle.start()
@@ -137,7 +138,8 @@ class ApplicationStateCache(object):
                 trigger_time=data.get('trigger_time', ''),
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown'),
-                login_user=data.get('login_user', 'Zoom')
+                login_user=data.get('login_user', 'Zoom'),
+                last_command=self._get_last_command(data)
             )
 
         # ephemeral node
@@ -164,7 +166,8 @@ class ApplicationStateCache(object):
                 trigger_time=parent_data.get('trigger_time', ''),
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown'),
-                login_user=parent_data.get('login_user', 'Zoom')
+                login_user=parent_data.get('login_user', 'Zoom'),
+                last_command=self._get_last_command(parent_data)
             )
         return application_state
 
@@ -201,3 +204,13 @@ class ApplicationStateCache(object):
         path = self._path_to_host_mapping.get(host, None)
         if path is not None:  # if data is in the cache
             self._on_update_path(path)
+
+    def _get_last_command(self, data):
+        if data.get('state', 'Unknown') == 'starting':
+            self._last_command = "Start"
+        elif data.get('state', 'Unknown') == 'stopping':
+            self._last_command = "Stop"
+        else:
+            logging.debug('Neither Start/Stop for the last command')
+
+        return self._last_command
