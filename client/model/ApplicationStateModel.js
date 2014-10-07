@@ -234,77 +234,6 @@ define(
                 return true;
             };
 
-<<<<<<< HEAD
-    // view toggling
-    self.currentView = ko.observable(self);
-    self.views = ko.observableArray([]);
-    self.views.push(self);
-
-    // dependency maps
-    self.dependencyMaps = new DependencyMaps(self);
-
-    // create new app state
-    self.createApplicationState = function(data) {
-        return new ApplicationState(data, self)
-    };
-
-    // handle updates from web server
-    self.handleApplicationStatusUpdate = function (update) {
-        // Search the array for row with matching path
-        
-        if (update.delete) {
-            self.applicationStateArray.remove(function(currentRow) {
-                return currentRow.configurationPath == update.configuration_path;
-            });
-        }
-        else{
-            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
-                return currentRow.configurationPath == update.configuration_path;
-            });
-            if (row) {
-                row.applicationStatus(update.application_status);
-                row.completionTime(update.completion_time);
-                row.triggerTime(update.trigger_time);
-                row.applicationHost(update.application_host);
-                row.errorState(update.error_state);
-                row.mode(update.local_mode);
-                row.mtime = Date.now();
-                row.loginUser(update.login_user);
-                row.lastCommand(update.last_command)
-            }
-            else { 
-                // add new item to array
-                var newRow = self.createApplicationState(update);
-                self.applicationStateArray.push(newRow);
-            }
-        }
-    };
-
-    self.handleApplicationDependencyUpdate = function (message) {
-        $.each(message.application_dependencies, function() {
-            var update = this;
-            var row = ko.utils.arrayFirst(self.applicationStateArray(), function (currentRow) {
-                return currentRow.configurationPath == update.configuration_path;
-            });
-            if (row) {
-                row.dependencyModel.handleUpdate(update);
-            }
-        });
-    };
-
-    self.reloadCaches = function () {
-        if (confirm("Please confirm you want to clear and reload all server side caches by pressing OK.")) {
-            var dict = {
-                "command" : "all",
-                "user": self.login.elements.username()
-            };
-            self.applicationStateArray.removeAll();
-            $.post("/api/cache/reload/", dict, function(data){
-                alert(data);
-            }).fail(function(data) {
-                alert( "Error Posting Clear Cache " + JSON.stringify(data));
-=======
-
             // Checks if all groupControl services are down. Used in self.determineAndExecute
             var interval = 0;
             self.checkDown = function() {
@@ -446,7 +375,6 @@ define(
                         appState.dependencyModel.showDependencies(false);
                     });
                 }
->>>>>>> origin
             });
 
             // view toggling
@@ -483,6 +411,8 @@ define(
                         row.errorState(update.error_state);
                         row.mode(update.local_mode);
                         row.mtime = Date.now();
+                        row.loginUser(update.login_user);
+                        row.lastCommand(update.last_command);
                     }
                     else {
                         // add new item to array
