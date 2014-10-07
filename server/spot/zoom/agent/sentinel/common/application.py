@@ -75,6 +75,7 @@ class Application(object):
         self._state = ThreadSafeObject(ApplicationState.OK)
         self._start_allowed = ThreadSafeObject(False)  # allowed_instances
         self._trigger_time = None
+        self._login_user = None
         self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
@@ -172,6 +173,7 @@ class Application(object):
             self.ignore()
 
         self._trigger_time = self._get_current_time()
+        self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STARTING)
         self._update_agent_node_with_app_details()
 
@@ -204,6 +206,7 @@ class Application(object):
             self.ignore()
 
         self._trigger_time = self._get_current_time()
+        self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()
 
@@ -279,7 +282,8 @@ class Application(object):
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
-                'trigger_time': self._trigger_time}
+                'trigger_time': self._trigger_time,
+                'login_user': self._login_user}
 
     @connected
     def _update_agent_node_with_app_details(self, event=None):

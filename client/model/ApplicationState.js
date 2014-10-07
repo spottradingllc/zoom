@@ -49,6 +49,8 @@ define(
             self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
+            self.loginUser = ko.observable(data.login_user);
+            self.lastCommand = ko.observable(data.last_command);
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
@@ -139,9 +141,13 @@ define(
                 }
             }, self);
 
+            self.triggerTimeTitle = ko.computed(function () {
+                return "Last Command: " + self.lastCommand() + "\nTriggered by: " + self.loginUser();
+            });
+
             // Creates group for sending commands
             self.groupControlStar = ko.computed(function() {
-                if (parent.groupControl.indexOf(self) === -1) {
+                if (parent.groupControl.indexOf(self) == -1) {
                     return self.glyphs.emptyStar;
                 }
                 else {
@@ -150,6 +156,7 @@ define(
             });
 
             self.groupControlStar.extend({rateLimit: 10});
+
 
             self.toggleGroupControl = function() {
                 if (parent.groupControl.indexOf(self) === -1) {

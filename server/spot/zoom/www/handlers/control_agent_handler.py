@@ -32,11 +32,11 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             application_host = self.get_argument("applicationHost")
             self.command = self.get_argument("command")
             self.argument = self.get_argument("argument")
-            user = self.get_argument("user")
+            self.user = self.get_argument("user")
     
             logging.info("Received {0} command from user '{1}' for host '{2}' "
                          "for ID '{3}'"
-                         .format(self.command, user, application_host,
+                         .format(self.command, self.user, application_host,
                                  self.component_id))
     
             self.path = os.path.join(self.task_path, application_host)
@@ -65,6 +65,6 @@ class ControlAgentHandler(tornado.web.RequestHandler):
                          .format(self.command, self.argument, self.path))
             self.zk.create(self.path, json.dumps(
                 {'work': self.command, 'argument': self.argument,
-                 'target': self.component_id}))
+                 'target': self.component_id, 'login_user': self.user}))
         else:
             self.zk.exists(self.path, watch=self.add_command)

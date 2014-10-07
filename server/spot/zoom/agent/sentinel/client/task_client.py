@@ -29,7 +29,8 @@ class TaskClient(object):
             jsonstr, stat = self._zkclient.get(self._path)
             data = json.loads(jsonstr)
             work = data.get('work', None)
-            argument = {'argument': data.get('argument', None)}
+            argument = {'argument': data.get('argument', None),
+                        'login_user': data.get('login_user', None)}
             target = data.get('target', None)
 
             if work in self._settings.get('ALLOWED_WORK'):

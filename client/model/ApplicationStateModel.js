@@ -234,7 +234,6 @@ define(
                 return true;
             };
 
-
             // Checks if all groupControl services are down. Used in self.determineAndExecute
             var interval = 0;
             self.checkDown = function() {
@@ -412,6 +411,8 @@ define(
                         row.errorState(update.error_state);
                         row.mode(update.local_mode);
                         row.mtime = Date.now();
+                        row.loginUser(update.login_user);
+                        row.lastCommand(update.last_command);
                     }
                     else {
                         // add new item to array
