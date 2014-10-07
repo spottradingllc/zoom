@@ -74,8 +74,8 @@ class Application(object):
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = ThreadSafeObject(ApplicationState.OK)
         self._start_allowed = ThreadSafeObject(False)  # allowed_instances
-        self._trigger_time = None
-        self._login_user = None
+        self._trigger_time = ''     #Default to empty string for comparison
+        self._login_user = 'Zoom'   #Default to Zoom
         self._run_check_mode = False
 
         self._allowed_instances = self._init_allowed_inst(self.config)
