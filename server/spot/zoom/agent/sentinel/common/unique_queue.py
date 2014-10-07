@@ -8,9 +8,10 @@ class UniqueQueue(deque):
         deque.__init__(self)
         self._log = logging.getLogger('sent.q')
 
-    def append_unique(self, task, first=False):
+    def append_unique(self, task, sender='', first=False):
         """
         :type task: spot.zoom.agent.sentinel.common.task.Task
+        :type sender: str
         :type first: bool
         """
         if not isinstance(task, Task):
@@ -22,10 +23,10 @@ class UniqueQueue(deque):
                            .format(task))
         else:
             if first:
-                self._log.info('Adding "{0}" to the head of the queue.'
-                               .format(task.name))
+                self._log.info('{0} Adding "{1}" to the head of the queue.'
+                               .format(sender, task.name))
                 self.appendleft(task)
             else:
-                self._log.info('Adding "{0}" to the tail of the queue.'
-                               .format(task.name))
+                self._log.info('{0} Adding "{1}" to the tail of the queue.'
+                               .format(sender, task.name))
                 self.append(task)

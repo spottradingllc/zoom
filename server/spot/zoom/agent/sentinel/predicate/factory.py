@@ -1,5 +1,4 @@
 import logging
-
 from xml.etree import ElementTree
 
 from spot.zoom.common.types import PredicateType
@@ -18,7 +17,7 @@ from spot.zoom.agent.sentinel.predicate.zkhas_grandchildren \
     import ZookeeperHasGrandChildren
 from spot.zoom.agent.sentinel.predicate.zknode_exists import ZookeeperNodeExists
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
-from spot.zoom.agent.sentinel.util.decorators import catch_exception
+from spot.zoom.common.decorators import catch_exception
 
 
 class PredicateFactory(object):

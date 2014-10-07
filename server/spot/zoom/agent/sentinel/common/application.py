@@ -2,6 +2,7 @@ import logging
 import json
 import os.path
 import platform
+import re
 from datetime import datetime
 from multiprocessing import Lock
 from time import sleep
@@ -23,7 +24,7 @@ from spot.zoom.common.types import (
     AlertActionType,
     ApplicationState
 )
-from spot.zoom.agent.sentinel.util.decorators import (
+from spot.zoom.common.decorators import (
     connected,
     time_this,
     catch_exception,
@@ -32,6 +33,7 @@ from spot.zoom.agent.sentinel.util.decorators import (
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
+
 
 if 'Linux' in platform.platform():
     from spot.zoom.agent.sentinel.client.process_client import ProcessClient
@@ -327,8 +329,6 @@ class Application(object):
             self._pathjoin(settings.get('ZK_CONFIG_PATH'), atype, self.name)
         paths['zk_agent_path'] = \
             self._pathjoin(settings.get('ZK_AGENT_STATE_PATH'), self._host)
-        paths['graphite_type_metric'] = \
-            self._get_graphite_type_metric(paths['zk_state_base'])
 
         return paths
 
@@ -358,6 +358,8 @@ class Application(object):
             self._log.info('Restartmax not specified. Assuming 3.')
             restartmax = 3
 
+        g_names = self._get_graphite_metric_names()
+
         return ProcessClient(name=self.name,
                              command=command,
                              script=script,
@@ -365,9 +367,8 @@ class Application(object):
                              system=self._system,
                              restart_max=restartmax,
                              restart_on_crash=restart_on_crash,
-                             graphite_app_metric=self._paths['graphite_type_metric'],
-                             settings=settings
-                             )
+                             graphite_metric_names=g_names,
+                             settings=settings)
 
     def _init_actions(self, settings):
         """
@@ -460,11 +461,21 @@ class Application(object):
         elif self._system == PlatformType.WINDOWS:
             return '/'.join(args)
 
-    def _get_graphite_type_metric(self, state_path):
-        # splits the state path at 'application' and returns the latter index
-        type_path = state_path.split('state/', 1)[1]
+    def _get_graphite_metric_names(self):
+        """
+        splits the state path at 'application' and returns the latter index
+        :rtype: dict
+        """
+        type_path = self._paths.get('zk_state_base')\
+            .split(self._settings.get('ZK_STATE_PATH') + '/', 1)[1]
         type_metric = type_path.replace('/', '.')
-        return type_metric
+        result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
+        runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
+
+        return {
+            "result": result_path.format(type_metric),
+            "runtime": runtime_path.format(type_metric)
+        }
 
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -487,24 +498,31 @@ class Application(object):
             )
         }
 
+    @catch_exception(NoNodeError)
     @connected
     def _create_alert_node(self, alert_action):
         """
         Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
         """
+        alert_details = self._get_alert_details()
+        alert_details['action'] = alert_action
+        # path example: /foo/sentinel.bar.baz.HOSTFOO
+        alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
+                                    re.sub('/', '.', alert_details['key']))
+
         if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
             self._log.info('Creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
-            alert_details = self._get_alert_details()
-            alert_details['action'] = alert_action
-            path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'), 'alert')
-            self.zkclient.create(path,
-                                 value=json.dumps(alert_details),
-                                 sequence=True)
+
+            if self.zkclient.exists(alert_path):
+                self.zkclient.set(alert_path, value=json.dumps(alert_details))
+            else:
+                self.zkclient.create(alert_path, value=json.dumps(alert_details))
         else:
             self._log.info('Not creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
+            self._log.info('Would have created path {0}'.format(alert_path))
 
     @catch_exception(Exception, traceback=True)
     @run_only_one('listener_lock')

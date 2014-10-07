@@ -3,13 +3,16 @@ import logging
 import httplib
 import tornado.web
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class ApplicationDependenciesHandler(tornado.web.RequestHandler):
 
     @property
     def data_store(self):
+        """
+        :rtype: spot.zoom.www.cache.data_store.DataStore
+        """
         return self.application.data_store
 
     @TimeThis(__file__)

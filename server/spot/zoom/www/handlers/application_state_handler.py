@@ -4,16 +4,22 @@ import logging
 
 import tornado.web
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class ApplicationStateHandler(tornado.web.RequestHandler):
+    @property
+    def data_store(self):
+        """
+        :rtype: spot.zoom.www.cache.data_store.DataStore
+        """
+        return self.application.data_store
 
     @TimeThis(__file__)
     def get(self):
         try:
             logging.info('Retrieving Application State Cache')
-            result = self.application.data_store.load_application_state_cache()
+            result = self.data_store.load_application_state_cache()
             self.write(result.to_json())
 
         except Exception as e:

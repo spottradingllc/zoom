@@ -20,6 +20,7 @@ from spot.zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from spot.zoom.www.handlers.server_config_handler import ServerConfigHandler
 from spot.zoom.www.handlers.service_info_handler import ServiceInfoHandler
 from spot.zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
+from spot.zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
 
@@ -62,6 +63,8 @@ class WebServer(tornado.web.Application):
             (r"/api/timingestimate", TimeEstimateHandler),
             # pillar
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
+            # zookeeer data
+            (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
             # tornado-specific
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": ""}),
             (r'/front-end/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.client_path}),

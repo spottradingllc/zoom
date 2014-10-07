@@ -1,3 +1,4 @@
+/node_modules/
 .project
 .cproject
 .pydevproject
@@ -16,35 +17,10 @@ lib/
 *.dot
 *.png
 
-# Compiled source #
-###################
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
-*.so.*
-
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
 # Logs and databases #
 ######################
 logs/
 *.log
-*.sql
-*.sqlite
 
 # OS generated files #
 ######################
@@ -55,37 +31,3 @@ logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# User-specific files #
-#######################
-*.suo
-*.user
-*.sln.docstates
-*.swp
-*.orig
-
-# Build results #
-#################
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-x64/
-build/
-bld/
-[Bb]in/
-[Oo]bj/
-
-# Visual Studio profiler #
-##########################
-*.psess
-*.vsp
-*.vspx
-
-# Visual C++ cache files #
-##########################
-ipch/
-*.aps
-
-# Testing               #
-#########################
-test.xml

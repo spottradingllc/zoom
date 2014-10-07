@@ -7,17 +7,23 @@ import tornado.escape
 import tornado.gen
 import tornado.web
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class LoginHandler(tornado.web.RequestHandler):
 
     @property
     def read_write_groups(self):
+        """
+        :rtype: list
+        """
         return self.application.configuration.read_write_groups
 
     @property
     def ldap_url(self):
+        """
+        :rtype: str
+        """
         return self.application.configuration.ldap_url
 
     #@tornado.gen.coroutine
@@ -33,13 +39,13 @@ class LoginHandler(tornado.web.RequestHandler):
                 logging.info('No username and no password set. Clearing cookie.')
                 self.clear_cookie("username")
                 self.clear_cookie("read_write")
-                self.write(json.dumps({'errorText': "No username and no password: you have been logged out."}))
+                self.write({'errorText': "No username and no password: you have been logged out."})
                 self.set_status(httplib.UNAUTHORIZED)
 
             # Case 2 of 4 and 3 of 4
             elif not user or not password:
                 logging.info('No username or no password set.')
-                self.write(json.dumps({'errorText': "No username or no password: try again."}))
+                self.write({'errorText': "No username or no password: try again."})
                 self.set_status(httplib.UNAUTHORIZED)
 
             # Case 4 of 4
@@ -72,7 +78,7 @@ class LoginHandler(tornado.web.RequestHandler):
                 self.set_cookie("username", user)
                 if can_read_write:
                     self.set_cookie("read_write", user)
-                self.write(json.dumps({'message': "Login successful"}))
+                self.write({'message': "Login successful"})
                 logging.info('successful login')
 
         except ldap.INVALID_CREDENTIALS:
@@ -83,14 +89,14 @@ class LoginHandler(tornado.web.RequestHandler):
         except ldap.LDAPError as e:
             if isinstance(e.message, dict) and 'desc' in e.message:
                 self.set_status(httplib.GATEWAY_TIMEOUT)
-                self.write(json.dumps({'errorText': e.message['desc']}))
+                self.write({'errorText': e.message['desc']})
                 logging.error(e)
             else:
                 logging.error(e)
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
-            self.write(json.dumps({'errorText': e.message['desc'] }))
+            self.write({'errorText': e.message['desc'] })
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')

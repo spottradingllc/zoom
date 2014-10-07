@@ -1,23 +1,22 @@
 import logging
 import os
-import shlex
 import psutil
+import shlex
 import socket
 
 from multiprocessing import Lock
 from time import sleep, time
-from subprocess import call
 
 from spot.zoom.common.types import PlatformType, ApplicationType
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
-from spot.zoom.agent.sentinel.util.decorators import synchronous
+from spot.zoom.common.decorators import synchronous
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
 
 
 class ProcessClient(object):
     def __init__(self, name=None, command=None, script=None, apptype=None,
                  system=None, restart_max=None, restart_on_crash=None,
-                 graphite_app_metric=None, settings=None):
+                 graphite_metric_names=None, settings=None):
         """
         :type name: str or None
         :type command: str or None
@@ -26,10 +25,12 @@ class ProcessClient(object):
         :type system: spot.zoom.common.types.PlatformType
         :type restart_max: int or None
         :type restart_on_crash: bool or None
+        :type graphite_metric_names: dict
+        :type settings: dict
         """
-        assert any((name, command, script)), ('Cannot initialize ProcessClient '
-                                              'if name, command, and script are'
-                                              ' all None.')
+        assert any((name, command, script)), \
+            ('Cannot initialize ProcessClient if name, command, and script'
+             ' are all None.')
 
         self._log = logging.getLogger('sent.{0}.process'.format(name))
         self.command = command
@@ -41,7 +42,7 @@ class ProcessClient(object):
         self._restart_logic = RestartLogic(restart_on_crash, restart_max)
 
         self.last_status = False
-        self._graphite_app_metric = graphite_app_metric
+        self._graphite_metric_names = graphite_metric_names
         self._settings = settings
 
     @property
@@ -50,6 +51,30 @@ class ProcessClient(object):
             return self._script
         else:
             return self.name
+
+    @property
+    def start_method(self):
+        if self._apptype == ApplicationType.JOB:
+            return self._job_start
+        elif self._apptype == ApplicationType.APPLICATION:
+            if self.command is not None:  # custom start command
+                return self._job_start
+            else:
+                return self._service_start
+
+    @property
+    def status_method(self):
+        if self._apptype == ApplicationType.JOB:
+            return self._job_status
+        elif self._apptype == ApplicationType.APPLICATION:
+            return self._service_status
+
+    @property
+    def stop_method(self):
+        if self._apptype == ApplicationType.JOB:
+            return self._job_stop
+        elif self._apptype == ApplicationType.APPLICATION:
+            return self._service_stop
 
     @property
     def reset_counters(self):
@@ -62,10 +87,7 @@ class ProcessClient(object):
         :return: Whether the process is running.
         :rtype: bool
         """
-        if self._apptype == ApplicationType.JOB:
-            self.last_status = self._job_status()
-        elif self._apptype == ApplicationType.APPLICATION:
-            self.last_status = self._service_status()
+        self.last_status = self.status_method()
 
         self._log.debug('Process {0} running: {1}'
                         .format(self.name, self.last_status))
@@ -76,67 +98,64 @@ class ProcessClient(object):
     @synchronous('process_client_lock')  # shares lock with PredicateProcess
     def start(self):
         """Try to start process"""
-        if self._restart_logic.restart is False \
+        if not self._restart_logic.restart_allowed \
                 and self._apptype == ApplicationType.APPLICATION:
-            self._log.info('Process was brought down un-intentionally.')
+            self._log.warning(
+                'Process was brought down outside of Zoom, and restart_on_crash'
+                ' is False. Will not start. This will be logged as a start '
+                'failure, which will throw an alert to Zoom.')
             return 1
         else:
             self._log.debug('Restarts allowed.')
 
-        if self._apptype == ApplicationType.JOB:
-            dostart = self._job_start
-        elif self._apptype == ApplicationType.APPLICATION:
+        if self._apptype == ApplicationType.APPLICATION:
             self._stop_if_running()
 
-            if self.command is not None:
-                dostart = self._job_start
-            else:
-                dostart = self._service_start
+        return_code = -1
 
-        returncode = -1
-        result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
-        runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
-        metric_result = self._append_metrics(result_path)
-        metric_runtime = self._append_metrics(runtime_path)
         while not self._restart_logic.restart_max_reached:
             self._restart_logic.increment_count()
+
             start_time = time()
-            returncode = dostart()
+            return_code = self.start_method()
             finish_time = time()
-            if returncode == 0:
+            # send runtime and return code to graphite
+            self.send_to_graphite(self._graphite_metric_names['result'],
+                                  return_code)
+            self.send_to_graphite(self._graphite_metric_names['runtime'],
+                                  finish_time - start_time)
+
+            if return_code == 0:
                 self._log.info('{0} start successful in {1} tries.'
                                .format(self.name, self._restart_logic.count))
                 self.reset_counters()
-                self.send_to_graphite(metric_result, returncode)
-                self.send_to_graphite(metric_runtime, finish_time - start_time)
                 break
             else:
                 self._log.info('{0} start attempt {1} failed.'
                                .format(self.name, self._restart_logic.count))
                 self._stop_if_running()
                 self._log.debug('Waiting 10 seconds before trying again.')
-                self.send_to_graphite(metric_result, returncode)
-                self.send_to_graphite(metric_runtime, finish_time - start_time)  
                 sleep(10)  # minor wait before we try again
 
         self._restart_logic.set_false()
-        return returncode
+        return return_code
 
     def stop(self, **kwargs):
         """Stop process"""
         # if argument is false, allow start
         if kwargs.get('argument', 'false') == 'false':
             self._restart_logic.set_true()
-        returncode = -1
-        if self._apptype == ApplicationType.JOB:
-            returncode = self._job_stop()
-        elif self._apptype == ApplicationType.APPLICATION:
-            returncode = self._service_stop()
 
-        if returncode != 0 or self.running(reset=False):
-            self._log.error('There was some issue with the stop command.')
+        return_code = self.stop_method()
 
-        return returncode
+        if return_code != 0:
+            self._log.error('There was some issue with the stop command. '
+                            'Return code was: {0}'.format(return_code))
+
+        if self.running(reset=False):
+            self._log.error('App is still running after running stop!')
+
+        return return_code
 
     def send_to_graphite(self, metric, data, tstamp=None, env=None):
         try:
@@ -150,13 +169,18 @@ class ProcessClient(object):
                             ' {0}'.format(e))
 
     def _stop_if_running(self):
-        # Stop if already running
+        """
+        Will run stop() if the application is running.
+        """
         if self.running(reset=False):
             self._log.warning('The application is running. Attempting stop.')
             self.stop()
             
     def _job_start(self):
-        """Start process by executing a binary."""
+        """
+        Start process by running some arbitrary command
+        """
+        return_code = -1
         self._log.info('Starting {0}'.format(self.command))
         if self._system == PlatformType.LINUX:
             cmd = shlex.split(self.command)
@@ -164,10 +188,20 @@ class ProcessClient(object):
             cmd = self.command
 
         with open(os.devnull, 'w') as devnull:
-            retcode = call(cmd, stdout=devnull, stderr=devnull)
+            p = psutil.Popen(cmd, stdout=devnull, stderr=devnull)
+            while True:
+                return_code = p.poll()
+                if return_code is not None:  # None = still running
+                    break
+                elif p.status == psutil.STATUS_ZOMBIE:
+                    self._log.warning(
+                        '{0} command resulted in a zombie process. '
+                        'Returning with -1'.format(cmd))
+                    break
+                sleep(1)
 
-        self._log.debug('RETURNCODE: {0}'.format(retcode))
-        return retcode
+        self._log.debug('RETURNCODE: {0}'.format(return_code))
+        return return_code
 
     def _job_status(self):
         """
@@ -230,28 +264,24 @@ class ProcessClient(object):
         :return: The return code of the command.
         :rtype: int
         """
+        return_code = -1
         cmd = '/sbin/service {0} {1}'.format(self.script_name, action)
 
         with open(os.devnull, 'w') as devnull:
-            retcode = call(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            p = psutil.Popen(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            while True:
+                return_code = p.poll()
+                if return_code is not None:  # None = still running
+                    break
+                elif p.status == psutil.STATUS_ZOMBIE:
+                    self._log.warning(
+                        '{0} command resulted in a zombie process. '
+                        'Returning with -1'.format(action))
+                    break
+                sleep(1)
 
-        self._log.debug('RETURNCODE: {0}'.format(retcode))
-        return retcode
-        # p.communicate was removed b/c there was issue that would never allow
-        # the stdout or stderr .read() to return. It would block forever and the
-        # process would become a zombie
-        #
-        # out, err = p.communicate()
-        #
-        # self._log.debug('RETURNCODE: {0}'.format(p.returncode))
-        # if out:
-        #     self._log.debug('STDOUT: {0}'.format(out.rstrip('\n')))
-        # if err:
-        #     self._log.warning('STDERR: {0}'.format(err.rstrip('\n')))
-        # return p.returncode
-    
-    def _append_metrics(self, base_metric):
-        return base_metric.format(self._graphite_app_metric)      
+        self._log.debug('RETURNCODE: {0}'.format(return_code))
+        return return_code
 
 
 class WindowsProcessClient(ProcessClient):

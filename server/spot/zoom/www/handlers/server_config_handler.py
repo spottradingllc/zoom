@@ -6,20 +6,29 @@ import tornado.web
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.www.utils.decorators import TimeThis
+from spot.zoom.common.decorators import TimeThis
 
 
 class ServerConfigHandler(tornado.web.RequestHandler):
     @property
+    def agent_configuration_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.agent_configuration_path
+
+    @property
     def zk(self):
+        """
+        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        """
         return self.application.zk
 
     @TimeThis(__file__)
     def put(self, server):
         logging.info('Updating server {0}'.format(server))
         server = server.upper()
-        zk_path = os.path.join(
-            self.application.configuration.agent_configuration_path, server)
+        zk_path = os.path.join(self.agent_configuration_path, server)
 
         try:
             request = json.loads(self.request.body)
@@ -43,8 +52,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def get(self, server):
         logging.info('Searching for server {0}'.format(server))
         server = server.upper()
-        path = os.path.join(
-            self.application.configuration.agent_configuration_path, server)
+        path = os.path.join(self.agent_configuration_path, server)
 
         # get tuple (value, ZnodeStat) if the node exists
         if self.zk.exists(path):
@@ -64,8 +72,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def post(self, server):
         logging.info('Adding server {0}'.format(server))
         server = server.upper()
-        path = os.path.join(
-            self.application.configuration.agent_configuration_path, server)
+        path = os.path.join(self.agent_configuration_path, server)
 
         # add server if it does not already exist
         if self.zk.exists(path):
@@ -88,8 +95,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def delete(self, server):
         logging.info('Deleting server {0}'.format(server))
         server = server.upper()
-        path = os.path.join(
-            self.application.configuration.agent_configuration_path, server)
+        path = os.path.join(self.agent_configuration_path, server)
 
         # recursively delete server and children
         try:
