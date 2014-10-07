@@ -298,6 +298,11 @@ define(
                 var ascSort = function(a, b) {
                     var aprop = ko.unwrap(a[prop]);
                     var bprop = ko.unwrap(b[prop]);
+                    console.log(aprop + "........." + bprop);
+                    console.log("">"2014-10-07 14:31:49")
+                    console.log(""<"2014-10-07 14:31:49")
+                    console.log("null"<"2014-10-07 14:31:49")
+                    console.log("null"<"2014-10-08 14:31:49")
                     return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop === bprop ? 0 : 0;
                 };
                 var descSort = function(a, b) {
