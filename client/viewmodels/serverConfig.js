@@ -78,7 +78,7 @@ define(
         };
 
         ServerConfigViewModel.keyPressed = function(data, event) {
-            if (event.keyCode === '13') {
+            if (event.keyCode == '13') {
                 ServerConfigViewModel.search();
             }
             return true;
