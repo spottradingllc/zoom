@@ -12,7 +12,7 @@ define(
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'
     ],
-    function(ko, router, service, $, ApplicationState, Environment, admin, GlobalMode,
+    function(ko, router, service, $, ApplicationState, environment, admin, GlobalMode,
              CustomFilterModel, ApplicationStateArray, DependencyMaps) {
         return function ApplicationStateModel(login) {
             var self = this;
@@ -21,7 +21,7 @@ define(
             self.globalMode = GlobalMode;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
-            self.environment = Environment.env; // observable in environmentModel.js
+            self.environment = environment; 
             self.name = 'Application State Table';
             self.passwordConfirm = ko.observable('');
             self.options = {};

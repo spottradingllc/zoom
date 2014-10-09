@@ -19,8 +19,8 @@
         data-bind="with:appStateModel">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" data-bind="style: {backgroundColor: appStateModel.envModalColor, color: appStateModel.envTextColor}">
-                    <h2 data-bind="text: environment"></h2>
+                <div class="modal-header" data-bind="style: {backgroundColor: environment.envColor, color: environment.envTextColor}">
+                    <h2 data-bind="text: environment.env"></h2>
                     <h4>Please re-enter your domain password to proceed.</h4>
                 </div>
                 <div class="modal-body">

@@ -17,7 +17,7 @@ define(['knockout', 'service' ], function(ko, service) {
     };
 
     environment.envColor = ko.computed(function() {
-        switch (self.environment().toLowerCase()) {
+        switch (environment.env().toLowerCase()) {
             case envType.stg:
                 return envColor.staging;
             case envType.uat:
@@ -30,7 +30,7 @@ define(['knockout', 'service' ], function(ko, service) {
     });
 
     environment.envTextColor = ko.computed(function() {
-        switch (self.environment().toLowerCase()) {
+        switch (environment.env().toLowerCase()) {
             case envType.prod:
                 return envColor.prodText;
             default:
@@ -39,7 +39,7 @@ define(['knockout', 'service' ], function(ko, service) {
     });
 
     var onSuccess = function(data) {
-        env(data.environment);
+        environment.env(data.environment);
         var stylename = data.environment.toLowerCase().concat('_style');
         document.getElementById(stylename).removeAttribute('disabled');
     };
