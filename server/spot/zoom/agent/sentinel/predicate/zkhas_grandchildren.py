@@ -31,10 +31,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         if not self._started:
             self._log.debug('Starting {0}'.format(self))
             self._started = True
-            self._walk(self.node)
-            for child in self._children:
-                child.add_callback({"zk_hgc": self._callback})
-            map(lambda x: x.start(), self._children)
+            self._rewalk_tree()
         else:
             self._log.debug('Already started {0}'.format(self))
 
@@ -48,6 +45,11 @@ class ZookeeperHasGrandChildren(SimplePredicate):
 
     @connected
     def _walk(self, node):
+        """
+        Recursively walk a ZooKeeper path and add all children to the _children
+            list as ZookeeperHasChildren objects.
+        :type node: str
+        """
         children = self.zkclient.get_children(node)
         if children:
             for c in children:
@@ -56,12 +58,13 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         else:
             data, stat = self.zkclient.get(node)
             if stat.ephemeralOwner == 0:  # not ephemeral
-                self._children.append(ZookeeperHasChildren(self._comp_name,
-                                                           self._settings,
-                                                           self.zkclient,
-                                                           node,
-                                                           met_on_delete=True,
-                                                           parent='zk.has.gc'))
+                self._children.append(
+                    ZookeeperHasChildren(self._comp_name,
+                                         self._settings,
+                                         self.zkclient,
+                                         node,
+                                         met_on_delete=True,
+                                         parent='zk.has.gc'))
             else:
                 self._children.append(
                     ZookeeperHasChildren(self._comp_name,
@@ -70,6 +73,40 @@ class ZookeeperHasGrandChildren(SimplePredicate):
                                          os.path.dirname(node),
                                          met_on_delete=True,
                                          parent='zk.has.gc'))
+
+    @connected
+    def _rewalk_tree(self, event=None):
+        """
+        Clear children list and rewalk the tree starting at self.node.
+        If the node does not exist, set a watch.
+        When the node is created the watch will trigger the recursive walk.
+        :type event: kazoo.protocol.states.WatchedEvent or None
+        """
+        if self.zkclient.exists(self.node, watch=self._rewalk_tree):
+            del self._children[:]  # clear children list
+            self._walk(self.node)
+            for child in self._children:
+                child.add_callback({"zk_hgc": self._callback})
+            map(lambda x: x.start(), self._children)
+        else:
+            self._children.append(self._create_dummy_predicate())
+            self._log.warning('Node {0} does not exist. Will wait until it '
+                              'does.'.format(self.node))
+
+    def _create_dummy_predicate(self):
+        # TODO: This is duplicate code (available in PredicateFactory)
+        """
+        This is a placeholder for when the path the ZKHGC is given a path
+            that doesn't exist
+        This will ensure that while the path doesn't exist, self.met
+            returns False.
+        :rtype: spot.zoom.agent.sentinel.predicate.simple.SimplePredicate
+        """
+        dummy = SimplePredicate(self._comp_name,
+                                self._settings,
+                                parent=self._parent)
+        dummy.set_met(False)
+        return dummy
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, zkpath={3}, met={4})'
