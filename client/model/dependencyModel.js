@@ -57,6 +57,10 @@ define(['knockout'], function(ko) {
                         neverFound = false;
                         self.requires.push(applicationState);
                     }
+                    // if no appState was found in the array, mark as neverFound
+                    else {
+                        neverFound = true;
+                    }
                 }
                 // if this predicate type exists in arrayMapping
                 else if (typeof arrayMapping[predType] !== undefined) {
