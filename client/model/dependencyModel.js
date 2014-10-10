@@ -34,9 +34,8 @@ define(['knockout'], function(ko) {
                 }
             }
 
-            var neverFound = true;
-
             update.dependencies.forEach(function(entry) {
+                var neverFound = true;
                 var predType = entry.type;
                 var path = entry.path;
 
