@@ -7,13 +7,15 @@
         'service',
         'model/loginModel',
         'model/adminModel',
+        'model/environmentModel',
         'bootstrap'
     ],
-    function(router, app, $, ko, service, login, admin) {
+    function(router, app, $, ko, service, login, admin, environment) {
         return {
             router: router,
             login: login,
             admin: admin,
+            environment: environment,
             isFAQ: function(title) {
                 return title.search('FAQ') !== -1;
             },

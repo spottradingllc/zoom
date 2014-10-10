@@ -46,7 +46,7 @@ define(
             self.errorState = ko.observable(data.error_state);
             self.mode = ko.observable(data.local_mode);
             self.mtime = Date.now();
-            self.graphite = new GraphiteModel(parent.environment().toLowerCase(), self.applicationHost(), self.configurationPath);
+            self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHost(), self.configurationPath);
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);

@@ -12,7 +12,7 @@ define(
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'
     ],
-    function(ko, router, service, $, ApplicationState, Environment, admin, GlobalMode,
+    function(ko, router, service, $, ApplicationState, environment, admin, GlobalMode,
              CustomFilterModel, ApplicationStateArray, DependencyMaps) {
         return function ApplicationStateModel(login) {
             var self = this;
@@ -21,7 +21,7 @@ define(
             self.globalMode = GlobalMode;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
-            self.environment = Environment;
+            self.environment = environment; 
             self.name = 'Application State Table';
             self.passwordConfirm = ko.observable('');
             self.options = {};
@@ -29,20 +29,6 @@ define(
             self.groupMode = ko.observable(false);
             self.clickedApp = ko.observable({});
             self.customFilters = new CustomFilterModel(self);
-
-            var envColor = {
-                staging: '#FFDA47',
-                stagText: '#000000',
-                production: '#E64016',
-                prodText: '#FFFFFF',
-                unknown: '#FF33CC'
-            };
-
-            var env = {
-                stg: 'staging',
-                uat: 'uat',
-                prod: 'production'
-            };
 
             self.headers = [
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
@@ -66,29 +52,6 @@ define(
             self.showServerConfig = function(hostname) {
                 router.navigate('#config/' + hostname(), {trigger: true });
             };
-
-            // Changes modal header color to reflect current environment
-            self.envModalColor = ko.computed(function() {
-                switch (self.environment().toLowerCase()) {
-                    case env.stg:
-                        return envColor.staging;
-                    case env.uat:
-                        return envColor.uat;
-                    case env.prod:
-                        return envColor.production;
-                    default:
-                        return envColor.unknown;
-                }
-            });
-
-            self.envTextColor = ko.computed(function() {
-                switch (self.environment().toLowerCase()) {
-                    case env.prod:
-                        return envColor.prodText;
-                    default:
-                        return envColor.stagText;
-                }
-            });
 
             // control agent
             self.isHostEmpty = function() {
