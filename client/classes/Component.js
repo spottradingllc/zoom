@@ -64,10 +64,13 @@ define(['knockout', './Action', './applicationStateArray'],
                 if (self.error() !== '') {
                     valid = false;
                 }
-                if (!checkNull(self.ID()) || !checkNull(self.compType()) || !checkNull(self.script())) {
+                if (!checkNull(self.ID()) || !checkNull(self.compType())) {
                     valid = false;
                 }
-                if (self.compType() === 'job' && !checkNull(self.command())) {
+                if (self.compType() === 'job' && !checkNull(self.command()) ) {
+                    valid = false;
+                }
+                else if (self.compType() === 'application' && !checkNull(self.script())) {
                     valid = false;
                 }
                 for (var i = 0; i < self.actions().length; i++) {
