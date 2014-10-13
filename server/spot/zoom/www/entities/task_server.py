@@ -37,6 +37,7 @@ class TaskServer(object):
         children = self._zookeeper.get_children(self._configuration.task_path)
         for c in children:
             path = os.path.join(self._configuration.task_path, c)
+            logging.info('Deleting stale task node {0}'.format(path))
             self._zookeeper.delete(path)
 
     def _submit_task(self, task):
@@ -73,9 +74,7 @@ class TaskServer(object):
         """
         try:
             data, stat = self._zookeeper.get(event.path)
-            logging.error(data)
             task = Task.from_json(data)
-            logging.info(task)
             if task.result == ApplicationState.OK:
                 self._remove(task, event.path)
                 self._submit_next(task.host)
