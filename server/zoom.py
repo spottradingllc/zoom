@@ -20,8 +20,9 @@ class Session(object):
         self._zoo_keeper.start()
         self._configuration = Configuration(self._zoo_keeper)
 
-        self._data_store = DataStore(self._configuration, self._zoo_keeper)
         self._task_server = TaskServer(self._configuration, self._zoo_keeper)
+        self._data_store = DataStore(self._configuration, self._zoo_keeper,
+                                     self._task_server)
         self._web_server = WebServer(self._configuration, self._data_store,
                                      self._task_server, self._zoo_keeper)
 
