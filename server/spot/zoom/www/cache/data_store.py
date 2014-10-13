@@ -15,13 +15,15 @@ from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 
 
 class DataStore(object):
-    def __init__(self, configuration, zoo_keeper):
+    def __init__(self, configuration, zoo_keeper, task_server):
         """
         :type configuration: spot.zoom.config.configuration.Configuration
         :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
+        :type task_server: spot.zoom.www.entities.task_server.TaskServer
         """
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
+        self._task_server = task_server
         self._alert_manager = AlertManager(configuration.alert_path, zoo_keeper)
 
         self._web_socket_clients = list()
@@ -99,6 +101,7 @@ class DataStore(object):
         # restart client to destroy any existing watches
         # self._zoo_keeper.restart()
         logging.info('Reloading all cache types.')
+        self._task_server.clear_all_tasks()
         self._global_cache.on_update()
         self._application_state_cache.reload()
         self._application_dependency_cache.reload()

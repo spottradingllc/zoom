@@ -46,7 +46,7 @@ class PredicateFactory(object):
     def create(self, xmlpart, callback=None):
         """
         :type xmlpart: xml.etree.ElementTree.Element
-        :type callback: types.FuncType or None
+        :type callback: types.FunctionType or None
         """
         if xmlpart is None:
             return self._create_dummy_predicate()
@@ -166,7 +166,7 @@ class PredicateFactory(object):
         Make sure we are not needlessly creating a second predicate with the
         same attributes.
         :type new: one of spot.zoom.agent.sentinel.common.predicate.*
-        :type callback: types.funcType or None
+        :type callback: types.FunctionType or None
         :return: one of spot.zoom.agent.sentinel.common.predicate.*
         """
         for predicate in self._pred_list:

@@ -23,7 +23,7 @@ class SimplePredicate(object):
 
     def add_callback(self, cb):
         """
-        :type cb: dict ({str: types.funcType})
+        :type cb: dict ({str: types.FunctionType})
         """
         self._callbacks.append(cb)
         self._sort_callbacks()
