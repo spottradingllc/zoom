@@ -6,7 +6,7 @@ from spot.zoom.common.constants import ZK_CONN_STRING
 class ZooKeeper(object):
     def __init__(self, zk_listener):
         """
-        :type zk_listener: types.funcType
+        :type zk_listener: types.FunctionType
         """
         self.kazoo = None
         self._zk_listener = zk_listener

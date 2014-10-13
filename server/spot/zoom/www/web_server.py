@@ -25,14 +25,16 @@ from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
 
 class WebServer(tornado.web.Application):
-    def __init__(self, configuration, data_store, zk):
+    def __init__(self, configuration, data_store, task_server, zk):
         """
         :type configuration: spot.zoom.config.configuration.Configuration
         :type data_store: spot.zoom.cache.data_store.DataStore
+        :type task_server: spot.zoom.www.entities.task_server.TaskServer
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
         self._configuration = configuration
         self._data_store = data_store
+        self._task_server = task_server
         self.zk = zk
 
         # initialize Tornado
@@ -99,8 +101,21 @@ class WebServer(tornado.web.Application):
 
     @property
     def configuration(self):
+        """
+        :rtype configuration: spot.zoom.config.configuration.Configuration
+        """
         return self._configuration
 
     @property
     def data_store(self):
+        """
+        :rtype data_store: spot.zoom.cache.data_store.DataStore
+        """
         return self._data_store
+
+    @property
+    def task_server(self):
+        """
+        :rtype task_server: spot.zoom.www.entities.task_server.TaskServer
+        """
+        return self._task_server
