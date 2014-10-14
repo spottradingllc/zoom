@@ -108,13 +108,13 @@ class Application(object):
         self.zkclient.start()
         self._check_allowed_instances()
         # make all action objects start processing predicates
-        self._check_mode()
         self._log.info('Starting to process Actions.')
         map(lambda x: x.start(), self._actions.values())  # start actions
+        self._check_mode()  # get global mode AFTER starting actions
 
         while self._running:
             sleep(5)
-            
+
         self.uninitialize()
 
     @catch_exception(NodeExistsError)

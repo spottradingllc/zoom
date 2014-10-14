@@ -27,6 +27,13 @@ class ZookeeperHasGrandChildren(SimplePredicate):
     def met(self):
         return all([d.met for d in self._children])
 
+    @property
+    def started(self):
+        return all([
+            self._started,
+            all([d.started for d in self._children])
+        ])
+
     def start(self):
         if not self._started:
             self._log.debug('Starting {0}'.format(self))
