@@ -1,5 +1,4 @@
 import logging
-import time
 
 from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock

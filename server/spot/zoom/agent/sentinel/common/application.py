@@ -112,15 +112,8 @@ class Application(object):
         map(lambda x: x.start(), self._actions.values())  # start actions
         self._check_mode()  # get global mode AFTER starting actions
 
-        # while self._running:
-        #     sleep(5)
         while self._running:
-            sleep(30)
-            self.zkclient.stop()
-            self._zk_listener("SUSPENDED")
-            sleep(30)
-            self.zkclient.start()
-            self._zk_listener("CONNECTED")
+            sleep(5)
 
         self.uninitialize()
 
