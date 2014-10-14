@@ -20,6 +20,13 @@ class PredicateOr(SimplePredicate):
     def met(self):
         return any([d.met for d in self.dependencies])
 
+    @property
+    def started(self):
+        return all([
+            self._started,
+            all([d.started for d in self.dependencies])
+        ])
+
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))

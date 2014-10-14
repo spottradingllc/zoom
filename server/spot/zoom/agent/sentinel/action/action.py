@@ -1,4 +1,5 @@
 import logging
+import time
 
 from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
@@ -64,7 +65,10 @@ class Action(object):
     def _callback(self):
         self._log.info('Callback triggered for {0}:\n{1}'
                        .format(self, self._predicate))
-        if self._action is not None and self._predicate.met:
+
+        if (self._action is not None and
+                self._predicate.started and
+                self._predicate.met):
             self._log.debug('There is a callback and all predicates are met.')
             if (self._mode != ApplicationMode.MANUAL or
                     not self._mode_controlled):
@@ -77,8 +81,12 @@ class Action(object):
                                ' action based on dependency change.'
                                .format(self.name))
         else:
-            self._log.debug('Not triggering action for {0}. Predicate not met.'
-                            .format(self))
+            if not self._predicate.started:
+                self._log.warning('All predicates are not started. '
+                                  'Ignoring action {0}'.format(self.name))
+            elif not self._predicate.met:
+                self._log.debug('Not triggering action for {0}. '
+                                'Predicate not met.'.format(self))
 
     def _execute(self):
         self._log.info('Attempting action "{0}"'.format(self.name))
