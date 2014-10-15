@@ -17,15 +17,16 @@ class ZoomWSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         logging.debug("[WEBSOCKET] Opening")
         self.socket_clients.append(self)
-        logging.debug('Added websocket client. Total clients: {0}'
-                      .format(len(self.socket_clients)))
+        logging.debug('Added websocket client {0}. Total clients: {1}'
+                      .format(self.request.remote_ip, len(self.socket_clients)))
 
     @TimeThis(__file__)
     def on_message(self, message):
-        logging.debug("[WEBSOCKET] Message: '{0}'".format(message))
+        logging.debug("[WEBSOCKET] Message: '{0}' for client {1}"
+                      .format(message, self.request.remote_ip))
 
     @TimeThis(__file__)
     def on_close(self):
         self.socket_clients.remove(self)
-        logging.debug("[WEBSOCKET] Closed.  Total clients: {0}"
-                      .format(len(self.socket_clients)))
+        logging.debug("[WEBSOCKET] Closed for client {0}.  Total clients: {1}"
+                      .format(self.request.remote_ip, len(self.socket_clients)))

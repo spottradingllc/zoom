@@ -39,7 +39,8 @@ class ControlAgentHandler(tornado.web.RequestHandler):
                         pipe=True,
                         host=self.get_argument("applicationHost"))
 
-            logging.info("Received task request: {0}".format(task))
+            logging.info("Received task request from client {0}: {1}"
+                         .format(self.request.remote_ip, task))
             self.task_server.add_task(task)
 
         except Exception as e:
