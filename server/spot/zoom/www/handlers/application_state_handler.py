@@ -18,7 +18,8 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         try:
-            logging.info('Retrieving Application State Cache')
+            logging.info('Retrieving Application State Cache for client {0}'
+                         .format(self.request.remote_ip))
             result = self.data_store.load_application_state_cache()
             self.write(result.to_json())
 

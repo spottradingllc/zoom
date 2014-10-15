@@ -56,8 +56,8 @@ class GlobalModeHandler(tornado.web.RequestHandler):
             command = self.get_argument("command")
             user = self.get_argument("user")
 
-            logging.info("Received {0} config for Zookeeper from user '{1}'"
-                         .format(command, user))
+            logging.info("Received {0} config for Zookeeper from user {1}:{2}"
+                         .format(command, user, self.request.remote_ip))
 
             if command == ApplicationMode.MANUAL:
                 self._update_mode(ApplicationMode.MANUAL)

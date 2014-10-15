@@ -26,7 +26,8 @@ class ServerConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def put(self, server):
-        logging.info('Updating server {0}'.format(server))
+        logging.info('Updating server {0} for client {1}'
+                     .format(server, self.request.remote_ip))
         server = server.upper()
         zk_path = os.path.join(self.agent_configuration_path, server)
 
@@ -70,7 +71,8 @@ class ServerConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def post(self, server):
-        logging.info('Adding server {0}'.format(server))
+        logging.info('Adding server {0} for client {1}'
+                     .format(server, self.request.remote_ip))
         server = server.upper()
         path = os.path.join(self.agent_configuration_path, server)
 
@@ -93,7 +95,8 @@ class ServerConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def delete(self, server):
-        logging.info('Deleting server {0}'.format(server))
+        logging.info('Deleting server {0} for client'
+                     .format(server, self.request.remote_ip))
         server = server.upper()
         path = os.path.join(self.agent_configuration_path, server)
 
