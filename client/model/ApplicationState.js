@@ -54,17 +54,17 @@ define(
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
-                if (self.applicationStatus().toLowerCase() == self.applicationStatuses.running) {
+                if (self.applicationStatus().toLowerCase() === self.applicationStatuses.running) {
                     ret = self.glyphs.runningCheck;
                 }
-                else if (self.applicationStatus().toLowerCase() == self.applicationStatuses.stopped) {
+                else if (self.applicationStatus().toLowerCase() === self.applicationStatuses.stopped) {
                     ret = self.glyphs.stoppedX;
                 }
                 else {
                     ret = self.glyphs.unknownQMark;
                 }
                 // add the cursor-pointer css class so it appears as clickable
-                return ret + ' cursor-pointer'
+                return ret + ' cursor-pointer';
             }, self);
 
             self.applicationStatusBg = ko.computed(function() {
@@ -141,13 +141,13 @@ define(
                 }
             }, self);
 
-            self.triggerTimeTitle = ko.computed(function () {
-                return "Last Command: " + self.lastCommand() + "\nTriggered by: " + self.loginUser();
+            self.triggerTimeTitle = ko.computed(function() {
+                return 'Last Command: ' + self.lastCommand() + '\nTriggered by: ' + self.loginUser();
             });
 
             // Creates group for sending commands
             self.groupControlStar = ko.computed(function() {
-                if (parent.groupControl.indexOf(self) == -1) {
+                if (parent.groupControl.indexOf(self) === -1) {
                     return self.glyphs.emptyStar;
                 }
                 else {
@@ -197,14 +197,14 @@ define(
                             'delete': self.configurationPath
                         };
 
-                        var zk_deleted = true;
+                        var zkDeleted = true;
 
                         $.post('/api/delete/', dict)
                             .fail(function(data) {
-                                zk_deleted = false;
+                                zkDeleted = false;
                             });
 
-                        if (zk_deleted) {
+                        if (zkDeleted) {
                             $.get('/api/config/' + self.applicationHost(),
                                 function(data) {
                                     if (data !== 'Node does not exist.') {
