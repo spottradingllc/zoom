@@ -9,7 +9,7 @@ define([
 
         var self = this;
         self.parent = parent;
-        self.colors = {green: '#64FF74', yellow: '#FFE033', red: '#E85923'};
+        self.colors = {green: '#64FF74', yellow: '#FFE033', red: '#E85923', purple: '#AC0CE8'};
 
         self.applicationStateArray = ko.computed(function() {
             return self.parent.filteredItems().slice();
@@ -21,7 +21,8 @@ define([
                 return {
                     name: name,
                     status: appState.applicationStatus(),
-                    size: appState.dependencyModel.requiredBy().length + 1
+                    size: appState.dependencyModel.requiredBy().length + 1,
+                    timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
                 };
             }
             else {
@@ -31,7 +32,8 @@ define([
                         return self.createDependentsDict(dependent);
                     }),
                     status: appState.applicationStatus(),
-                    size: appState.dependencyModel.requiredBy().length + 1
+                    size: appState.dependencyModel.requiredBy().length + 1,
+                    timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
                 };
             }
         };
@@ -45,7 +47,8 @@ define([
                     name: name,
                     status: appState.applicationStatus(),
                     size: 1,
-                    errorState: appState.errorState()
+                    errorState: appState.errorState(),
+                    timeComponent: false
                 };
             }
             else {
@@ -56,7 +59,8 @@ define([
                     }),
                     status: appState.applicationStatus(),
                     size: appState.dependencyModel.requires().length + 1,
-                    errorState: appState.errorState()
+                    errorState: appState.errorState(),
+                    timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
                 };
             }
         };
