@@ -125,7 +125,7 @@ class Application(object):
         Add entry to the state tree
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if not self.zkclient.exists(self._paths['zk_state_path'],
+        if not self.zkclient.exists(self._paths['zk_state_path']
                                     # watch=self.register
         ):
             ready_action = self._actions.get('register', None)
