@@ -49,14 +49,11 @@ class TaskClient(object):
                     self._log.warning(err)
 
                 task.result = ApplicationState.OK
-                try:
-                    logging.info(task.to_json())
-                    self._zkclient.set(self._path, task.to_json())
-                except NoNodeError:
-                    logging.error('No node.')
-                    pass
+                self._log.info(task.to_json())
+                self._zkclient.set(self._path, task.to_json())
+
         except NoNodeError:
-            logging.debug('No Node at {0}'.format(self._path))
+            self._log.debug('No Node at {0}'.format(self._path))
 
     def reset_watches(self):
         self.on_exist()

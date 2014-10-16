@@ -9,16 +9,17 @@ from spot.zoom.common.constants import ZK_CONN_STRING
 
 
 class StaggerLock(object):
-    def __init__(self, temp_path, timeout):
+    def __init__(self, temp_path, timeout, parent='None'):
         """
         :type temp_path: str
         :type timeout: int
         """
         self._path = temp_path
         self._timeout = timeout
+        self._parent = parent
         self._thread = None
         self._zk = KazooClient(hosts=ZK_CONN_STRING)
-        self._log = logging.getLogger('sent.sl')
+        self._log = logging.getLogger('sent.{0}.sl'.format(parent))
         self._counter = 0
 
     def join(self):

@@ -33,7 +33,7 @@ class PredicateProcess(SimplePredicate):
         self._thread.daemon = True
         self._started = False
 
-    @synchronous('process_client_lock')  # shares lock with ProcessClient
+    # @synchronous('process_client_lock')  # shares lock with ProcessClient
     def running(self):
         """
         With the synchronous decorator, this shares a Lock object with the

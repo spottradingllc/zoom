@@ -38,7 +38,8 @@ class Action(object):
         self._mode = mode
 
         if staggerpath is not None and staggertime is not None:
-            self._stag_lock = StaggerLock(staggerpath, staggertime)
+            self._stag_lock = StaggerLock(staggerpath, staggertime,
+                                          parent=component_name)
             self._log.info('Using {0}'.format(self._stag_lock))
         else:
             self._stag_lock = None
