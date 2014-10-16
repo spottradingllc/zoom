@@ -1,4 +1,5 @@
 import logging
+import pprint
 import time
 from threading import Thread
 
@@ -33,7 +34,8 @@ class WorkManager(object):
     def _run(self, operate, queue, pipe, tasks):
         while operate == True:
             if queue:  # if queue is not empty
-
+                self._log.info('Current Task Queue:\n{0}'
+                               .format(pprint.pformat(list(queue))))
                 item = queue[0]  # grab item, but keep it in the queue
                 if item.func is None:
                     task = tasks.get(item.name, None)
@@ -59,8 +61,8 @@ class WorkManager(object):
                 try:
                     queue.remove(item)
                 except ValueError:
-                    self._log.warning('Item no longer exists in the queue: {0}'
-                                      .format(item))
+                    self._log.debug('Item no longer exists in the queue: {0}'
+                                    .format(item))
             else:
                 time.sleep(1)
 

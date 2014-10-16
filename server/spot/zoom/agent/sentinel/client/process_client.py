@@ -7,7 +7,11 @@ import socket
 from multiprocessing import Lock
 from time import sleep, time
 
-from spot.zoom.common.types import PlatformType, ApplicationType
+from spot.zoom.common.types import (
+    PlatformType,
+    ApplicationType,
+    ApplicationStatus
+)
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
 from spot.zoom.common.decorators import synchronous
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
@@ -95,7 +99,7 @@ class ProcessClient(object):
             self.reset_counters()
         return self.last_status
 
-    @synchronous('process_client_lock')  # shares lock with PredicateProcess
+    # @synchronous('process_client_lock')  # shares lock with PredicateProcess
     def start(self):
         """Try to start process"""
         if not self._restart_logic.restart_allowed \
@@ -104,7 +108,7 @@ class ProcessClient(object):
                 'Process was brought down outside of Zoom, and restart_on_crash'
                 ' is False. Will not start. This will be logged as a start '
                 'failure, which will throw an alert to Zoom.')
-            return 1
+            return ApplicationStatus.CRASHED
         else:
             self._log.debug('Restarts allowed.')
 
