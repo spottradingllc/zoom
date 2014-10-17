@@ -18,6 +18,7 @@
 
 APP="ZKagent"
 LOGDATE=`date +%C%y%m%d`
+LOGTIME=`date +%H%M%S`
 APPPATH="/opt/spot/zoom/server"
 VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python sentinel.py"
@@ -61,6 +62,11 @@ function dostart()
     if [ ! -f ${VENV_PATH}/bin/activate ]; then
         die "Virtual Environment not found. Please create it first.";
     fi;
+
+    if [ -f $RUNLOG ]; then
+        mv $RUNLOG $RUNLOG.$LOGDATE.$LOGTIME
+    fi;
+
     # check for log dir
     if [ ! -d $APPPATH/logs ]; then
         /bin/mkdir $APPPATH/logs;

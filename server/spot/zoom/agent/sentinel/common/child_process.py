@@ -35,8 +35,13 @@ class ChildProcess(object):
         """
         :type work: spot.zoom.agent.sentinel.common.task.Task
         """
-        self._action_queue.append_unique(work, sender=str(self),
-                                         first=immediate)
+        added = self._action_queue.append_unique(work, sender=str(self),
+                                                 first=immediate)
+        # Here we are assuming that the work submitted is already in the queue.
+        # In this case, we still need to alert the TaskManager that the work
+        # was submitted (even if it was already there)
+        if not added:
+            self.child_conn.send('OK')
 
     def stop(self):
         """

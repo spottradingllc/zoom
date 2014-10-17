@@ -48,16 +48,14 @@ class TaskServer(object):
         try:
             task_path = os.path.join(self._configuration.task_path, task.host)
 
-            if self._zookeeper.exists(task_path):
-                if task.name == CommandType.CANCEL:
-                    # TODO: do we really want to delete the node on CANCEL?
-                    self._remove(task, task_path, clear_queue=True)
-
-                else:
-                    # if the node exists, the callback _on_update will submit the
-                    # next task.
-                    logging.info("Task path {0} already exists. Waiting to "
-                                 "submit task: {0}".format(task))
+            if task.name == CommandType.CANCEL:
+                # TODO: do we really want to delete the node on CANCEL?
+                self._remove(task, task_path, clear_queue=True)
+            elif self._zookeeper.exists(task_path):
+                # if the node exists, the callback _on_update will submit the
+                # next task.
+                logging.info("{0} already exists. Waiting to submit task: {0}"
+                             .format(task))
             else:
                 logging.info("Creating task node for path {0}: {1}"
                              .format(task_path, task))
@@ -91,8 +89,11 @@ class TaskServer(object):
         """
         Remove from self._task_queue. Delete node in ZooKeeper.
         :type task: spot.zoom.agent.sentinel.common.task.Task
+        :type path: str
+        :type clear_queue: bool
         """
         try:
+            logging.debug('Removing Task from queue: {0}'.format(task))
             host_q = self._task_queue.get(task.host, None)
             if host_q is not None:
                 if clear_queue:
@@ -102,7 +103,6 @@ class TaskServer(object):
 
             retry = KazooRetry()
             retry(self._zookeeper.delete, path)
-
         except NoNodeError:
             pass
 
