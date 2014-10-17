@@ -87,6 +87,6 @@ class TaskClient(object):
 
         else:
             process = child['process']
-            process.add_work(task, immediate=True)
+            process.add_work(task, immediate=False)
             result = process.parent_conn.recv()  # will block until done
             return {'target': task.target, 'work': task.name, 'result': result}
