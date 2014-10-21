@@ -60,7 +60,7 @@ define(
         });
 
         var onGlobalModeError = function(data) {
-            alert('An Error has occurred while getting the global mode.');
+            swal('Well shoot...', 'An Error has occurred while getting the global mode.', 'error');
         };
 
         self.getGlobalMode = function() {
@@ -71,7 +71,7 @@ define(
             return service.get('api/timingestimate',
                 self.handleTimingUpdate,
                 function() {
-                    alert('An Error has occurred while getting the initial time estimate');
+                    swal('Well shoot...', 'An Error has occurred while getting the initial time estimate', 'error');
                 });
         };
 
@@ -82,7 +82,7 @@ define(
                     'user': self.login.elements.username()
                 };
                 $.post('/api/mode/', dict).fail(function(data) {
-                    alert('Error Posting Mode Control ' + JSON.stringify(data));
+                    swal('Error Posting Mode Control.', JSON.stringify(data), 'error');
                 });
             }
         };

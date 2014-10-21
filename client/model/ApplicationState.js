@@ -168,7 +168,7 @@ define(
             };
 
             self.onControlAgentError = function() {
-                alert('Error controlling agent.');
+                swal('Error controlling agent.');
             };
 
 
@@ -181,7 +181,7 @@ define(
                     ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
                         message = message + '\n' + applicationState.configurationPath;
                     });
-                    alert(message);
+                    swal(message);
                 }
                 else if (self.applicationHost() === '') {
                     if (confirm(self.configurationPath + ' has no Host listed, this delete is mostly artificial')) {
@@ -222,7 +222,7 @@ define(
                                         }
 
                                         if (found === 0) {
-                                            alert('Didn\'t find component ' + self.configurationPath + ' in' + self.applicationHost() + '\'s config');
+                                            swal('Didn\'t find component ' + self.configurationPath + ' in' + self.applicationHost() + '\'s config');
                                         }
                                         else if (found === 1) {
                                             var oSerializer = new XMLSerializer();
@@ -237,23 +237,23 @@ define(
                                                     type: 'PUT',
                                                     data: JSON.stringify(params)
                                                 }).fail(function(data) {
-                                                    alert('Failed putting Config ' + JSON.stringify(data));
+                                                    swal('Failed putting Config ' + JSON.stringify(data));
                                                 });
                                         }
                                         else {
-                                            alert('Multiple components matched ' + self.configurationPath + ' in ' + self.applicationHost() + '\'s config, not acting');
+                                            swal('Multiple components matched ' + self.configurationPath + ' in ' + self.applicationHost() + '\'s config, not acting');
                                         }
                                     }
                                     else {
-                                        alert('no data for host ' + self.applicationHost());
+                                        swal('no data for host ' + self.applicationHost());
                                     }
                                 })
                                 .fail(function(data) {
-                                    alert('Failed Get Config ' + JSON.stringify(data));
+                                    swal('Failed Get Config ' + JSON.stringify(data));
                                 });
                         }
                         else {
-                            alert('Error deleting path: ' + JSON.stringify(data.responseText));
+                            swal('Error deleting path: ' + JSON.stringify(data.responseText));
                         }
 
                     }

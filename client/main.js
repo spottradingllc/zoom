@@ -9,7 +9,8 @@ requirejs.config({
         'bootstrap':    './libs/bootstrap-3.2.0.min',
         'jquery':       './libs/jquery-2.1.1.min',
         'd3':           './libs/d3.min',
-        'vkbeautify':   './libs/vkbeautify.0.99.00.beta'
+        'vkbeautify':   './libs/vkbeautify.0.99.00.beta',
+        'sweet-alert':  './libs/sweet-alert.min'
     },
     shim: {
         'bootstrap': {
