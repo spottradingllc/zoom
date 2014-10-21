@@ -45,7 +45,7 @@ define(['knockout', 'service' ], function(ko, service) {
     };
 
     var onFailure = function(data) {
-        alert('There was an error getting environment');
+        swal('Well shoot...', 'There was an error getting environment', 'error');
     };
 
     service.get('api/environment/', onSuccess, onFailure);
