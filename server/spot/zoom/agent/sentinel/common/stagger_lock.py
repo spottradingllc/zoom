@@ -27,18 +27,11 @@ class StaggerLock(object):
         self._acquire_lock = acquire_lock
 
     def join(self):
-        try:
-            if self._thread is not None and self._zk.connected():
-                self._thread.join()
-                self._zk.stop()
-                self._zk.close()
-                self._thread = None
-            else:
-                return
-        except TypeError as e:
-            self._log.info('### join {0}'.format(e))
-        except Exception as e:
-            self._log.info('### some exception: {0}'.format(e))
+        if self._thread is not None and self._zk.connected:
+            self._thread.join()
+            self._close()
+        else:
+            return
 
     def start(self):
         """
@@ -47,28 +40,45 @@ class StaggerLock(object):
         election.
         """
         self._zk.start()
+        self._acquire_lock.set_value(True)
         self._acquire()
-        self._log.info('### Passing Acquire')
 
     def _acquire(self):
         try:
-            self._log.info('### acquire_lock value: {0}'.format(self._acquire_lock.value))
-            lock = self._zk.Lock(self._path, identifier=platform.node())
             while self._acquire_lock.value:
-                if lock.acquire(blocking=True, timeout=5):
-                    self._log.info('### Got that lock')
-                    self._thread = Thread(target=self._sleep_and_unlock,
-                                          args=(lock,),
-                                          name=str(self))
-                    self._thread.daemon = True
-                    self._thread.start()
-                    break
+                if self._zk.connected:
+                    lock = self._zk.Lock(self._path, identifier=platform.node())
+                    if lock.acquire(blocking=True, timeout=5):
+                        self._thread = Thread(target=self._sleep_and_unlock,
+                                              args=(lock,),
+                                              name=str(self))
+                        self._thread.daemon = True
+                        self._thread.start()
+                        break
+                    else:
+                        pass
                 else:
-                    self._log.info("In the else of self.acquire()")
+                    self._log.info('No connection to ZK. Will not try to '
+                                   'acquire stagger lock.')
 
         except LockTimeout as e:
-            self._log.info('###Lock timed out. Re-running Acquire')
+            self._log.debug('Lock timed out. Trying to acquire lock again.')
             self._acquire()
+
+        except Exception as e:
+            self._log.error('Unhandled exception: {0}'.format(e))
+
+    def _close(self):
+        try:
+            self._thread = None
+            self._zk.stop()
+            self._zk.close()
+
+        # TypeError happens when stop() is called when already stopping
+        except TypeError as e:
+            pass
+        except Exception as e:
+            self._log.error('Unhandled exception: {0}'.format(e))
 
     def _sleep_and_unlock(self, lck):
         self._log.info('Got stagger lock. Sleeping for {0} seconds.'
@@ -78,18 +88,8 @@ class StaggerLock(object):
         self._log.info('Released stagger lock.')
 
     def _reset_after_connection_loss(self):
-        try:
-            self._log.info("### ZK Connection about to Close")
-            self._thread = None
-            self._acquire_lock.set_value(False)
-            self._zk.stop()
-            self._zk.close()
-
-        except TypeError as e:
-            self._log.info('### {0}'.format(e))
-        except Exception as e:
-            self._log.info('### some exception: {0}'.format(e))
-
+        self._close()
+        self._acquire_lock.set_value(False)
 
     def _zk_listener(self, state):
         """
@@ -99,13 +99,13 @@ class StaggerLock(object):
         watches, etc., so that it can listen to future connection state changes.
         """
         try:
-            self._log.info('###Zookeeper Connection went from {0} to {1}'
+            self._log.info('Zookeeper Connection went from {0} to {1}'
                            .format(self._prev_state, state))
             if self._prev_state is None and state == KazooState.CONNECTED:
                 pass
             elif (self._prev_state == KazooState.LOST
                   and state == KazooState.CONNECTED):
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                pass
             elif (self._prev_state == KazooState.CONNECTED
                   and state == KazooState.SUSPENDED):
                 self._zk.handler.spawn(self._reset_after_connection_loss)
@@ -117,7 +117,7 @@ class StaggerLock(object):
                 self._zk.handler.spawn(self._reset_after_connection_loss)
             elif (self._prev_state == KazooState.SUSPENDED
                   and state == KazooState.CONNECTED):
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                pass
             elif state == KazooState.CONNECTED:
                 self._zk.handler.spawn(self._reset_after_connection_loss)
             else:

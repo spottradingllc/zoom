@@ -96,11 +96,8 @@ class Action(object):
         self._log.info('Attempting action "{0}"'.format(self.name))
         if self._stag_lock is not None:
             self._stag_lock.start()
-            self._log.info('### Checkpoint 1')
             self._action()
-            self._log.info('### Checkpoint 2')
             self._stag_lock.join()
-            self._log.info('### Checkpoint 3')
         else:
             self._action()
 
