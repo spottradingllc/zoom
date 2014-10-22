@@ -1,5 +1,6 @@
 import os.path
 import logging
+
 from spot.zoom.agent.sentinel.common.task import Task
 from spot.zoom.agent.sentinel.common.unique_queue import UniqueQueue
 from spot.zoom.common.types import ApplicationState
@@ -99,7 +100,11 @@ class TaskServer(object):
                 if clear_queue:
                     host_q.clear()
                 else:
-                    host_q.remove(task)
+                    try:
+                        # if Task is the the queue, remove it.
+                        host_q.remove(task)
+                    except ValueError:
+                        pass
 
             retry = KazooRetry()
             retry(self._zookeeper.delete, path)
