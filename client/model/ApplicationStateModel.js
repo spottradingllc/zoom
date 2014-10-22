@@ -207,6 +207,7 @@ define(
                 if (alldown) {
                     interval = setInterval(self.checkDown, 5000);
                 } else {
+                    swal('Dependency Restart', 'All selected applications are now shut down. These applications will react to changes in ZooKeeper and start up organically.');
                     self.executeGroupControl({'com': 'dep_restart', 'arg': false, 'clear_group': true});
                 }
             };
