@@ -4,6 +4,7 @@ from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
 from spot.zoom.agent.sentinel.common.thread_safe_object import ApplicationMode
 from spot.zoom.agent.sentinel.common.task import Task
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 
 
 class Action(object):
@@ -36,10 +37,12 @@ class Action(object):
         self._action_queue = action_q
         self._mode_controlled = mode_controlled
         self._mode = mode
+        self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
             self._stag_lock = StaggerLock(staggerpath, staggertime,
-                                          parent=component_name)
+                                          parent=self.component_name,
+                                          acquire_lock=self._acquire_lock)
             self._log.info('Using {0}'.format(self._stag_lock))
         else:
             self._stag_lock = None
