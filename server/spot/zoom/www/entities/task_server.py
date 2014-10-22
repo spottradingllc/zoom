@@ -111,7 +111,6 @@ class TaskServer(object):
         except NoNodeError:
             pass
 
-
     def _submit_next(self, host):
         """
         Submit next task from the queue (if there is one)
