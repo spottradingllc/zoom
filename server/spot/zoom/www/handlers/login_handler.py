@@ -33,6 +33,8 @@ class LoginHandler(tornado.web.RequestHandler):
             request = json.loads(self.request.body)  # or '{"login": {}}'
             user = request['username']
             password = request['password']
+            # expire the persistent cookie after 14 days
+            days_to_expire = 14
 
             # User, password combination Case 1 of 4
             if not user and not password:
@@ -75,9 +77,9 @@ class LoginHandler(tornado.web.RequestHandler):
                         break
 
                 # set cookie(s) if login successful
-                self.set_cookie("username", user)
+                self.set_cookie("username", user, expires_days=days_to_expire)
                 if can_read_write:
-                    self.set_cookie("read_write", user)
+                    self.set_cookie("read_write", user, expires_days=days_to_expire)
                 self.write({'message': "Login successful"})
                 logging.info('successful login')
 
