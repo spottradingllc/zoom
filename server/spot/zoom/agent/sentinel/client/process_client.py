@@ -13,7 +13,6 @@ from spot.zoom.common.types import (
     ApplicationStatus
 )
 from spot.zoom.agent.sentinel.common.restart import RestartLogic
-from spot.zoom.common.decorators import synchronous
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
 
 
@@ -84,9 +83,8 @@ class ProcessClient(object):
     def reset_counters(self):
         return self._restart_logic.reset_count
 
-    def running(self, reset=True):
+    def running(self):
         """
-        :param reset: Whether to reset the start counters.
         :type reset: bool
         :return: Whether the process is running.
         :rtype: bool
@@ -95,11 +93,8 @@ class ProcessClient(object):
 
         self._log.debug('Process {0} running: {1}'
                         .format(self.name, self.last_status))
-        if self.last_status and reset:
-            self.reset_counters()
         return self.last_status
 
-    # @synchronous('process_client_lock')  # shares lock with PredicateProcess
     def start(self):
         """Try to start process"""
         if not self._restart_logic.restart_allowed \
@@ -156,7 +151,7 @@ class ProcessClient(object):
             self._log.error('There was some issue with the stop command. '
                             'Return code was: {0}'.format(return_code))
 
-        if self.running(reset=False):
+        if self.running():
             self._log.error('App is still running after running stop!')
 
         return return_code
@@ -176,7 +171,7 @@ class ProcessClient(object):
         """
         Will run stop() if the application is running.
         """
-        if self.running(reset=False):
+        if self.running():
             self._log.warning('The application is running. Attempting stop.')
             self.stop()
             
