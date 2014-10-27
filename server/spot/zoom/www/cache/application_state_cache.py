@@ -213,6 +213,6 @@ class ApplicationStateCache(object):
         elif data.get('state', 'Unknown') == 'stopping':
             self._last_command = "Stop"
         else:
-            logging.debug('Neither Start/Stop for the last command')
+            pass
 
         return self._last_command

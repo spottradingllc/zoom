@@ -20,7 +20,8 @@ class ReloadCacheHandler(tornado.web.RequestHandler):
             command = self.get_argument("command")
 
             logging.info("Received reload cache command for target '{0}' from "
-                         "user '{1}'".format(command, user))
+                         "user {1}:{2}"
+                         .format(command, user, self.request.remote_ip))
             logging.info("Clearing and reloading all server side caches")
             self.data_store.reload()
             self.write('Cache Reloaded')

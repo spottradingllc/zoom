@@ -34,9 +34,8 @@ define(['knockout'], function(ko) {
                 }
             }
 
-            var neverFound = true;
-
             update.dependencies.forEach(function(entry) {
+                var neverFound = true;
                 var predType = entry.type;
                 var path = entry.path;
 
@@ -56,10 +55,6 @@ define(['knockout'], function(ko) {
                     if (applicationState) {
                         neverFound = false;
                         self.requires.push(applicationState);
-                    }
-                    // if no appState was found in the array, mark as neverFound
-                    else {
-                        neverFound = true;
                     }
                 }
                 // if this predicate type exists in arrayMapping

@@ -22,11 +22,13 @@ define(
 
             connection.onopen = function() {
                 console.log('websocket connected');
+
             };
 
             connection.onclose = function(evt) {
                 console.log('websocket closed');
-                alert('The connection to the server has closed.\nYou will need to refresh the page to receive updates.');
+                document.getElementById("application_state_page").style.backgroundColor = '#FF7BFE';
+                swal('Uh oh...', 'You will need to refresh the page to receive updates.', 'error');
             };
 
             connection.onmessage = function(evt) {

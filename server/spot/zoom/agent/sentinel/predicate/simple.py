@@ -21,9 +21,13 @@ class SimplePredicate(object):
     def met(self):
         return self._met
 
+    @property
+    def started(self):
+        return self._started
+
     def add_callback(self, cb):
         """
-        :type cb: dict ({str: types.funcType})
+        :type cb: dict ({str: types.FunctionType})
         """
         self._callbacks.append(cb)
         self._sort_callbacks()

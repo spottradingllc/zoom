@@ -54,17 +54,17 @@ define(
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
-                if (self.applicationStatus().toLowerCase() == self.applicationStatuses.running) {
+                if (self.applicationStatus().toLowerCase() === self.applicationStatuses.running) {
                     ret = self.glyphs.runningCheck;
                 }
-                else if (self.applicationStatus().toLowerCase() == self.applicationStatuses.stopped) {
+                else if (self.applicationStatus().toLowerCase() === self.applicationStatuses.stopped) {
                     ret = self.glyphs.stoppedX;
                 }
                 else {
                     ret = self.glyphs.unknownQMark;
                 }
                 // add the cursor-pointer css class so it appears as clickable
-                return ret + ' cursor-pointer'
+                return ret + ' cursor-pointer';
             }, self);
 
             self.applicationStatusBg = ko.computed(function() {
@@ -141,13 +141,13 @@ define(
                 }
             }, self);
 
-            self.triggerTimeTitle = ko.computed(function () {
-                return "Last Command: " + self.lastCommand() + "\nTriggered by: " + self.loginUser();
+            self.triggerTimeTitle = ko.computed(function() {
+                return 'Last Command: ' + self.lastCommand() + '\nTriggered by: ' + self.loginUser();
             });
 
             // Creates group for sending commands
             self.groupControlStar = ko.computed(function() {
-                if (parent.groupControl.indexOf(self) == -1) {
+                if (parent.groupControl.indexOf(self) === -1) {
                     return self.glyphs.emptyStar;
                 }
                 else {
@@ -168,7 +168,7 @@ define(
             };
 
             self.onControlAgentError = function() {
-                alert('Error controlling agent.');
+                swal('Error controlling agent.');
             };
 
 
@@ -181,7 +181,7 @@ define(
                     ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
                         message = message + '\n' + applicationState.configurationPath;
                     });
-                    alert(message);
+                    swal(message);
                 }
                 else if (self.applicationHost() === '') {
                     if (confirm(self.configurationPath + ' has no Host listed, this delete is mostly artificial')) {
@@ -197,14 +197,14 @@ define(
                             'delete': self.configurationPath
                         };
 
-                        var zk_deleted = true;
+                        var zkDeleted = true;
 
                         $.post('/api/delete/', dict)
                             .fail(function(data) {
-                                zk_deleted = false;
+                                zkDeleted = false;
                             });
 
-                        if (zk_deleted) {
+                        if (zkDeleted) {
                             $.get('/api/config/' + self.applicationHost(),
                                 function(data) {
                                     if (data !== 'Node does not exist.') {
@@ -222,7 +222,7 @@ define(
                                         }
 
                                         if (found === 0) {
-                                            alert('Didn\'t find component ' + self.configurationPath + ' in' + self.applicationHost() + '\'s config');
+                                            swal('Didn\'t find component ' + self.configurationPath + ' in' + self.applicationHost() + '\'s config');
                                         }
                                         else if (found === 1) {
                                             var oSerializer = new XMLSerializer();
@@ -237,23 +237,23 @@ define(
                                                     type: 'PUT',
                                                     data: JSON.stringify(params)
                                                 }).fail(function(data) {
-                                                    alert('Failed putting Config ' + JSON.stringify(data));
+                                                    swal('Failed putting Config ' + JSON.stringify(data));
                                                 });
                                         }
                                         else {
-                                            alert('Multiple components matched ' + self.configurationPath + ' in ' + self.applicationHost() + '\'s config, not acting');
+                                            swal('Multiple components matched ' + self.configurationPath + ' in ' + self.applicationHost() + '\'s config, not acting');
                                         }
                                     }
                                     else {
-                                        alert('no data for host ' + self.applicationHost());
+                                        swal('no data for host ' + self.applicationHost());
                                     }
                                 })
                                 .fail(function(data) {
-                                    alert('Failed Get Config ' + JSON.stringify(data));
+                                    swal('Failed Get Config ' + JSON.stringify(data));
                                 });
                         }
                         else {
-                            alert('Error deleting path: ' + JSON.stringify(data.responseText));
+                            swal('Error deleting path: ' + JSON.stringify(data.responseText));
                         }
 
                     }

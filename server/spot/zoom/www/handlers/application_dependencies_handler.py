@@ -17,7 +17,8 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
-        logging.info('Retrieving Application Dependency Cache')
+        logging.info('Retrieving Application Dependency Cache for client {0}'
+                     .format(self.request.remote_ip))
         try:
             result = self.data_store.load_application_dependency_cache()
 

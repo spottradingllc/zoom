@@ -130,8 +130,8 @@ class ApplicationDependencyCache(object):
                                     {'type': pred_type,
                                      'path': "I should be up between: {0}".format(pred_path.split("gut/")[1])})
                             else:
-                                logging.warning('Invalid GUT path: {0}'
-                                                .format(pred_path))
+                                logging.debug('Invalid GUT path: {0}'
+                                              .format(pred_path))
                             prev_was_not = False
                         if pred_type == PredicateType.HOLIDAY:
                             dependencies.append(

@@ -1,20 +1,5 @@
 #!/bin/bash
-#
-# chkconfig: 35 99 1
-# description: zoom
-#
-# Author: SpotTrading
-#
-#
-### BEGIN INIT INFO
-# Provides:             zoom
-# Required-Start:       $network
-# Required-Stop:
-# Default-Start:        3 5
-# Default-Stop:         0 1 2 6
-# Short-Description:    zoom
-# Description:          Start-up script for zoom
-### END INIT INFO
+
 
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`

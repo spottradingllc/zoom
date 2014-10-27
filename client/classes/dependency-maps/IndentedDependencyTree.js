@@ -269,7 +269,12 @@ define([], function() {
                 return parent.colors.green;
             }
             else if (d.status !== 'running' && self.allChildrenUp(d)) {
-                return parent.colors.yellow;
+                if (d.timeComponent){
+                    return parent.colors.purple;
+                }
+                else {
+                    return parent.colors.yellow;
+                }
             }
             else {
                 return parent.colors.red;

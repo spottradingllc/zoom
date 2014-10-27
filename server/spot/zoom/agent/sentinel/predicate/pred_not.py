@@ -19,6 +19,10 @@ class PredicateNot(SimplePredicate):
     def met(self):
         return not self.dependency.met
 
+    @property
+    def started(self):
+        return all([self._started, self.dependency.started])
+
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))

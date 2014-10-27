@@ -12,7 +12,7 @@ define(['knockout', './loginModel'],
                 admin._enabled(true);
             }
             else {
-                alert('You must be logged in to use admin');
+                swal('You must be logged in to use admin');
             }
         };
         admin.enabled = ko.computed(function() {

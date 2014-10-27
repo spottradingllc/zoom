@@ -56,7 +56,7 @@ define(
             // control agent
             self.isHostEmpty = function() {
                 if (self.clickedApp.applicationHost === '') {
-                    alert('Cannot control an agent with an empty host.');
+                    swal('Cannot control an agent with an empty host.');
                     return true;
                 }
                 else {
@@ -77,7 +77,7 @@ define(
                         $('#groupCheckModal').modal('hide');
                     })
                         .fail(function(data) {
-                            alert('Error Posting ControlAgent ' + JSON.stringify(data));
+                            swal('Error Posting ControlAgent.', JSON.stringify(data), 'error');
                         });
                 }
                 self.passwordConfirm('');
@@ -97,11 +97,11 @@ define(
                     };
 
                     if (self.isHostEmpty()) {
-                        alert('Skipping the agent with configuration path ' + applicationState.configurationPath + ': empty host.');
+                        swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
                     }
                     else {
                         $.post('/api/agent/', dict).fail(function(data) {
-                            alert('Error Posting Group Control ' + JSON.stringify(data));
+                            swal('Error Posting Group Control.', JSON.stringify(data), 'error');
                         });
                     }
                 });
@@ -207,6 +207,7 @@ define(
                 if (alldown) {
                     interval = setInterval(self.checkDown, 5000);
                 } else {
+                    swal('Dependency Restart', 'All selected applications are now shut down. These applications will react to changes in ZooKeeper and start up organically.');
                     self.executeGroupControl({'com': 'dep_restart', 'arg': false, 'clear_group': true});
                 }
             };
@@ -405,9 +406,9 @@ define(
                     };
                     self.applicationStateArray.removeAll();
                     $.post('/api/cache/reload/', dict, function(data) {
-                        alert(data);
+                        swal(data);
                     }).fail(function(data) {
-                        alert('Error Posting Clear Cache ' + JSON.stringify(data));
+                        swal('Error Posting Clear Cache.', JSON.stringify(data), 'error');
                     });
                 }
             };
@@ -423,7 +424,7 @@ define(
             };
 
             var onApplicationStatesError = function(data) {
-                alert('An Error has occurred while loading the application states.');
+                swal('Well shoot...', 'An Error has occurred while loading the application states.', 'error');
             };
 
             self.loadApplicationStates = function() {
@@ -433,7 +434,7 @@ define(
             };
 
             var onApplicationDependenciesError = function(data) {
-                alert('An Error has occurred while loading the application dependencies.');
+                swal('Well shoot...', 'An Error has occurred while loading the application dependencies.', 'error');
             };
 
             self.loadApplicationDependencies = function() {

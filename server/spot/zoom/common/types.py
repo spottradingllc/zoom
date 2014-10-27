@@ -22,6 +22,7 @@ class ApplicationStatus():
     RUNNING = 1
     STARTING = 2
     STOPPED = 3
+    CRASHED = -99
 
 
 class CommandType():

@@ -68,7 +68,7 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
                         self.remoteCustomFilters.push(filter);
                     });
                 }).fail(function(data) {
-                    alert('Failed Get for all Filters ' + JSON.stringify(data));
+                    swal('Failed GET for all Filters.', JSON.stringify(data), 'error');
                 });
             }
         };

@@ -4,6 +4,7 @@ from spot.zoom.agent.sentinel.predicate.factory import PredicateFactory
 from spot.zoom.agent.sentinel.common.stagger_lock import StaggerLock
 from spot.zoom.agent.sentinel.common.thread_safe_object import ApplicationMode
 from spot.zoom.agent.sentinel.common.task import Task
+from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 
 
 class Action(object):
@@ -36,9 +37,12 @@ class Action(object):
         self._action_queue = action_q
         self._mode_controlled = mode_controlled
         self._mode = mode
+        self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
-            self._stag_lock = StaggerLock(staggerpath, staggertime)
+            self._stag_lock = StaggerLock(staggerpath, staggertime,
+                                          parent=self.component_name,
+                                          acquire_lock=self._acquire_lock)
             self._log.info('Using {0}'.format(self._stag_lock))
         else:
             self._stag_lock = None
@@ -64,21 +68,29 @@ class Action(object):
     def _callback(self):
         self._log.info('Callback triggered for {0}:\n{1}'
                        .format(self, self._predicate))
-        if self._action is not None and self._predicate.met:
+
+        # ensure all predicates are started
+        if not self._predicate.started:
+            self._log.warning('All predicates are not started. '
+                              'Ignoring action {0}'.format(self.name))
+            return
+        # ensure all predicates are met
+        elif not self._predicate.met:
+            self._log.debug('Not triggering action for {0}. '
+                            'Predicate not met.'.format(self))
+            return
+
+        elif self._action is not None:
             self._log.debug('There is a callback and all predicates are met.')
             if (self._mode != ApplicationMode.MANUAL or
                     not self._mode_controlled):
                 self._action_queue.append_unique(Task(self.name,
                                                       func=self._execute),
                                                  sender=str(self))
-
             else:
                 self._log.info('Run mode is set to Manual. Not triggering "{0}"'
                                ' action based on dependency change.'
                                .format(self.name))
-        else:
-            self._log.debug('Not triggering action for {0}. Predicate not met.'
-                            .format(self))
 
     def _execute(self):
         self._log.info('Attempting action "{0}"'.format(self.name))

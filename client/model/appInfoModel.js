@@ -14,7 +14,7 @@ define(['jquery', 'knockout' ], function($, ko) {
         self.save = function() {
             self.data(document.getElementsByName(configPath)[0].textContent);
             if (self.data().length > 120) {
-                alert('The maximum comment length is 120 characters. It will not be saved until it is shorter.');
+                swal('Text too long.', 'The maximum comment length is 120 characters. It will not be saved until it is shorter.', 'error');
                 return;
             }
             var dict = {
@@ -24,7 +24,7 @@ define(['jquery', 'knockout' ], function($, ko) {
             };
 
             $.post('/api/serviceinfo/', dict).fail(function(data) {
-                alert('Error Posting ServiceInfo ' + JSON.stringify(data));
+                swal('Error Posting ServiceInfo.', JSON.stringify(data), 'error');
             });
         };
 
@@ -35,7 +35,7 @@ define(['jquery', 'knockout' ], function($, ko) {
                     $.getJSON('/api/serviceinfo/', dict, function(data) {
                         self.data(data.servicedata);
                     }).fail(function(data) {
-                        alert('Failed Get for ServiceInfo ' + JSON.stringify(data));
+                        swal('Failed GET for ServiceInfo.', JSON.stringify(data), 'error');
                     });
                 }
             }

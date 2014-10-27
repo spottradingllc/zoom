@@ -22,7 +22,8 @@ from spot.zoom.agent.sentinel.common.thread_safe_object import (
 from spot.zoom.common.types import (
     PlatformType,
     AlertActionType,
-    ApplicationState
+    ApplicationState,
+    ApplicationStatus
 )
 from spot.zoom.common.decorators import (
     connected,
@@ -108,13 +109,13 @@ class Application(object):
         self.zkclient.start()
         self._check_allowed_instances()
         # make all action objects start processing predicates
-        self._check_mode()
         self._log.info('Starting to process Actions.')
         map(lambda x: x.start(), self._actions.values())  # start actions
+        self._check_mode()  # get global mode AFTER starting actions
 
         while self._running:
             sleep(5)
-            
+
         self.uninitialize()
 
     @catch_exception(NodeExistsError)
@@ -124,8 +125,9 @@ class Application(object):
         Add entry to the state tree
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if not self.zkclient.exists(self._paths['zk_state_path'],
-                                    watch=self.register):
+        if not self.zkclient.exists(self._paths['zk_state_path']
+                                    # watch=self.register
+        ):
             ready_action = self._actions.get('register', None)
             # check that predicates are all met
             if ready_action is not None and ready_action.ready:
@@ -137,6 +139,8 @@ class Application(object):
 
                 # resolve any pager duty alarms
                 self._create_alert_node(AlertActionType.RESOLVE)
+                # reset restart counters, etc
+                self._proc_client.reset_counters()
 
                 self._state.set_value(ApplicationState.OK)
                 self._update_agent_node_with_app_details()
@@ -145,8 +149,11 @@ class Application(object):
     @connected
     def unregister(self):
         """Remove entry from state tree"""
-        self._log.info('Un-registering %s from state tree.' % self.name)
-        self.zkclient.delete(self._paths['zk_state_path'])
+        ready_action = self._actions.get('unregister', None)
+        # check that predicates are all met
+        if ready_action is not None and ready_action.ready:
+            self._log.info('Un-registering %s from state tree.' % self.name)
+            self.zkclient.delete(self._paths['zk_state_path'])
 
     @catch_exception(RuntimeError)
     def uninitialize(self):
@@ -183,11 +190,13 @@ class Application(object):
             self._check_mode()
             self._run_check_mode = False
 
-        if result != 0:
+        if result == ApplicationStatus.CRASHED:
+            self._state.set_value(ApplicationState.NOTIFY)
+        elif result == 0:
+            self._state.set_value(ApplicationState.OK)
+        else:
             self._state.set_value(ApplicationState.ERROR)
             self._create_alert_node(AlertActionType.TRIGGER)
-        else:
-            self._state.set_value(ApplicationState.OK)
 
         self._update_agent_node_with_app_details()
 
@@ -217,6 +226,7 @@ class Application(object):
         else:
             self._state.set_value(ApplicationState.OK)
 
+        sleep(5)  # give everything time to catch up
         self._update_agent_node_with_app_details()
 
         return result
@@ -225,9 +235,11 @@ class Application(object):
         """
         :param kwargs: passed from spot.zoom.handlers.control_agent_handlers
         """
-        self.stop(**kwargs)
-        self.unregister()   # to ensure stopped app is unregistered
-        self.start(**kwargs)
+        self._log.info('Running Restart. Queuing stop, unregister, start.')
+        self._action_queue.clear()
+        self._action_queue.append_unique(Task('stop', kwargs=kwargs))
+        self._action_queue.append_unique(Task('unregister'))
+        self._action_queue.append_unique(Task('start', kwargs=kwargs))
 
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()

@@ -19,7 +19,8 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
         Set data on a Zookeeper path
         :type path: str
         """
-        logging.info('Changing data for path: {0}'.format(path))
+        logging.info('Client {0} changing data for path: {1}'
+                     .format(self.request.remote_ip, path))
         if self.zk.exists(path):
             self.zk.set(path, value=self.request.body)
             data, stat = self.zk.get(path)

@@ -7,6 +7,7 @@ from spot.zoom.www.cache.data_store import DataStore
 from spot.zoom.www.web_server import WebServer
 from spot.zoom.www.zoo_keeper import ZooKeeper
 from spot.zoom.www.config.configuration import Configuration
+from spot.zoom.www.entities.task_server import TaskServer
 
 
 class Session(object):
@@ -19,9 +20,11 @@ class Session(object):
         self._zoo_keeper.start()
         self._configuration = Configuration(self._zoo_keeper)
 
-        self._data_store = DataStore(self._configuration, self._zoo_keeper)
+        self._task_server = TaskServer(self._configuration, self._zoo_keeper)
+        self._data_store = DataStore(self._configuration, self._zoo_keeper,
+                                     self._task_server)
         self._web_server = WebServer(self._configuration, self._data_store,
-                                     self._zoo_keeper)
+                                     self._task_server, self._zoo_keeper)
 
     def start(self):
         self._data_store.load()
