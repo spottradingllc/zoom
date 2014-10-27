@@ -5,7 +5,6 @@ from multiprocessing import Lock
 
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
-from spot.zoom.common.decorators import synchronous
 
 
 class PredicateProcess(SimplePredicate):
@@ -33,7 +32,6 @@ class PredicateProcess(SimplePredicate):
         self._thread.daemon = True
         self._started = False
 
-    # @synchronous('process_client_lock')  # shares lock with ProcessClient
     def running(self):
         """
         With the synchronous decorator, this shares a Lock object with the

@@ -139,6 +139,8 @@ class Application(object):
 
                 # resolve any pager duty alarms
                 self._create_alert_node(AlertActionType.RESOLVE)
+                # reset restart counters, etc
+                self._proc_client.reset_counters()
 
                 self._state.set_value(ApplicationState.OK)
                 self._update_agent_node_with_app_details()
