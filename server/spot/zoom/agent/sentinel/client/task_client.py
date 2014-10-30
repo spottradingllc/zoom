@@ -37,6 +37,8 @@ class TaskClient(object):
                 self._log.info('Found work to do.')
                 data, stat = self._zkclient.get(self._path)
                 task = Task.from_json(data)
+                if task.result == ApplicationState.OK:
+                    return  # ignore tasks that are already done
 
                 if task.name in self._settings.get('ALLOWED_WORK'):
                     if task.target is not None:
