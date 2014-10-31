@@ -21,6 +21,7 @@ define(
             self.globalMode = GlobalMode;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
+            self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } }); 
             self.environment = environment; 
             self.name = 'Application State Table';
             self.passwordConfirm = ko.observable('');
@@ -29,6 +30,7 @@ define(
             self.groupMode = ko.observable(false);
             self.clickedApp = ko.observable({});
             self.customFilters = new CustomFilterModel(self);
+            self.appsToShow = ko.observableArray([]);
 
             self.headers = [
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
@@ -237,6 +239,23 @@ define(
                 });
             };
 
+            self.displaySize = ko.observable(10);
+
+            self.sliceArray = ko.computed(function () {
+                    self.appsToShow(self.applicationStateArray().slice(0, self.displaySize()));
+            });
+            
+            $(window).scroll( function() {
+                    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+                        // add a few rows
+                        alert("worked");
+                        var add_size = 3;
+                        var new_size = 0;
+                        new_size = self.displaySize() + add_size;
+                        self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
+                    }
+            });
+
             // Sorting
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
@@ -322,24 +341,17 @@ define(
             // hiding/showing all dependencies
             self.showingAllDependencies = ko.observable(false);
             self.expandAllDependencies = function() {
+                ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
+                    appState.dependencyModel.showDependencies(true);
+                });
                 self.showingAllDependencies(true);
             };
             self.collapseAllDependencies = function() {
+                ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
+                    appState.dependencyModel.showDependencies(false);
+                });
                 self.showingAllDependencies(false);
             };
-
-            self.toggleAllDependencies = ko.computed(function() {
-                if (self.showingAllDependencies()) {
-                    ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
-                        appState.dependencyModel.showDependencies(true);
-                    });
-                }
-                else {
-                    ko.utils.arrayForEach(self.applicationStateArray(), function(appState) {
-                        appState.dependencyModel.showDependencies(false);
-                    });
-                }
-            });
 
             // view toggling
             self.currentView = ko.observable(self);
