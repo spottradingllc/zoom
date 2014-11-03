@@ -16,6 +16,7 @@ from spot.zoom.www.handlers.global_mode_handler import GlobalModeHandler
 from spot.zoom.www.handlers.list_servers_handler import ListServersHandler
 from spot.zoom.www.handlers.login_handler import LoginHandler
 from spot.zoom.www.handlers.pillar_handler import PillarHandler
+from spot.zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
 from spot.zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from spot.zoom.www.handlers.server_config_handler import ServerConfigHandler
 from spot.zoom.www.handlers.service_info_handler import ServiceInfoHandler
@@ -64,6 +65,7 @@ class WebServer(tornado.web.Application):
             # timing
             (r"/api/timingestimate", TimeEstimateHandler),
             # pillar
+            (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
             # zookeeer data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),

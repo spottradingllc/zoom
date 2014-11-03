@@ -148,9 +148,10 @@ class PillarHandler(tornado.web.RequestHandler):
             data, stat = self.zk.get(path)
             data_dict = json.loads(data)
         except NoNodeError:
+            logging.info("No node for " + path)
             pass
         except ValueError:
-            logging.warning('Data at path {0} is invalid JSON.')
+            logging.warning('Data at path {0} is invalid JSON.'.format(path))
         finally:
             return data_dict
 

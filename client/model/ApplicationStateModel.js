@@ -245,16 +245,17 @@ define(
                     self.appsToShow(self.applicationStateArray().slice(0, self.displaySize()));
             });
             
-            $(window).scroll( function() {
-                    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-                        // add a few rows
-                        alert("worked");
-                        var add_size = 3;
-                        var new_size = 0;
-                        new_size = self.displaySize() + add_size;
-                        self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
-                    }
-            });
+           // Works, but somehow is used in other pages as well. Scope issue with the callback
+           // self.loadMore = $(window).scroll( function() {
+           //         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+           //             // add a few rows
+           //             alert("worked");
+           //             var add_size = 3;
+           //             var new_size = 0;
+           //             new_size = self.displaySize() + add_size;
+           //             self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
+           //         }
+           // });
 
             // Sorting
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
