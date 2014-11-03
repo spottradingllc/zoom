@@ -7,6 +7,8 @@ define(['knockout'],
             self.title = self.predType.toUpperCase();
             self.predicates = ko.observableArray();
 
+            self.isLogicalPred = true;
+
             self.addPredicate = function(type) {
                 var pred = Factory.newPredicate(self, type);
                 self.expanded(true);
