@@ -100,11 +100,12 @@ class PillarHandler(tornado.web.RequestHandler):
     def delete(self, data):
         """
         :type data: str
-
+        DELETE /{minion} > Delete minion
         DELETE /{minion}/{project} > Delete project
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
+        logging.info("delete1")
         if all([minion, project]):
             try:
                 del minion_data[project]
@@ -112,8 +113,11 @@ class PillarHandler(tornado.web.RequestHandler):
                 pass
 
             self._set_minion_data(minion, minion_data)
+            self.write(minion_data)
 
-        self.write(minion_data)
+        elif all([minion]):
+            logging.info("got to delete")
+            self._del_minion(minion)
 
     def _parse_uri(self, data):
         """
@@ -136,6 +140,18 @@ class PillarHandler(tornado.web.RequestHandler):
 
         return minion, project, data_key, data_val
         # else return 404?
+
+    def _del_minion(self, minion):
+        """
+        :type minion: str
+        :rtype: dict
+        """
+        path = self._assemble_path(minion)
+        if self.zk.exists(path):
+            self.zk.delete(path)
+            logging.info("Deleted minion {0}".format(minion))
+        else:
+            logging.info("Minion does not exist, could not delete")
 
     def _get_minion_data(self, minion):
         """

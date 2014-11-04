@@ -4,19 +4,6 @@
             <h1> Pillar Value Editor </h1>
         </div>
 
-        <!--
-        <div class="server-list"> 
-            <table class="table table-bordered">
-                <tbody data-bind="foreach: pillarModel.allInfo">
-                    <tr>
-                        <td data-bind="text: name"></td>
-                        <td data-bind="text: ko.toJSON(pillar, null, 2)"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        -->
-
 
         <div class="checkbox-list">
             <div class = "search-box">
@@ -35,11 +22,17 @@
                 <button data-bind="click: newPillar, visible: fieldOneVal()">Create</button>
             </div>
 
-            <!--<div data-bind="visible: selectedOption() == 'Delete Pillar'">
+            <div data-bind="visible: selectedOption() == 'Delete Pillar(s)'">
                 <button data-bind="click: delPillar">Delete</button>
-            </div>-->
+            </div>
 
-            <div class="pillar-data">
+            <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
+                <div>
+                    <select data-bind="options: allSeenProjects, value: selectedProject"></select>
+                </div>
+            </div>
+
+            <div>
                 <textarea data-bind="value: ko.toJSON(show_pillar, null, 2)"></textarea>
             </div>
 

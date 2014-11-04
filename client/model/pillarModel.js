@@ -7,7 +7,7 @@ define( [
         'model/adminModel',
         'model/GlobalMode',
         'model/customFilterModel',
-    ],
+    ],9
     function(ko, router, service, $,  environment, admin, GlobalMode,
              CustomFilterModel) {
         return function pillarModel() {
@@ -16,19 +16,21 @@ define( [
 
             self.servers = ko.observableArray([]);
             self.allInfo = ko.observableArray([]);
-            self.show_pillar = ko.observable("");
+            self.checked_servers = ko.observableArray([]);
             self.show_allInfo = ko.observableArray([]);
 
+            self.show_pillar = ko.observable("");
             self.searchVal = ko.observable(""); 
-
-            self.pillarOptions = ko.observableArray(["", "Create Pillar", "Delete Pillar"]);
-
             self.fieldOneVal = ko.observable("");
             self.selectedOption = ko.observable("");
 
+            self.pillarOptions = ko.observableArray(["","Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)"]);
             self.domain = ".spottrading.com";
 
-            self.checked_servers = ko.observableArray([]);
+            function _proj(subtype, version){
+                self.subtype = subtype;
+                self.version = version;
+            };
 
             function _assoc(server_name, pillar_data) {
                 var self = this;
@@ -36,6 +38,39 @@ define( [
                 self.pillar = pillar_data;
                 self.checked = ko.observable(false);
                 self.prior = false;
+                self.projects = []; //type _proj
+                // for future use
+                //self.other = [];
+            };
+
+            self.show_pillar = ko.computed(function() {
+                var get_last = [];
+                var length;
+                length = self.checked_servers().length;
+                get_last = self.checked_servers()[length-1];
+                if (get_last != undefined){
+                    console.log(get_last);
+                    return get_last;
+                }
+            }, self);
+
+            self.getJSONLevel = function(source, dest) {
+                /* 
+                :type source: array
+                :type dest: array
+                */ 
+
+                for (var elt in _assoc.pillar){
+                    dest.push(data[elt]);
+                }
+            };
+
+            self.addProjects = function(_assoc) {
+                for (var each in _assoc.projects){
+                    if (self.allProjects.indexOf(each) < 0){
+                        self.allProjects.push(each);
+                    }
+                }
             };
 
             self.diff_and_show = ko.computed(function() {
@@ -43,9 +78,11 @@ define( [
                 var compare = "";
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     if (_assoc.checked()){
+                        // want to add projects to the array either way
+                        self.getJSONLevel(_assoc.pillar, _assoc.projects);
+
                         if (!_assoc.prior){
-                            self.show_pillar(_assoc.pillar);
-                            self.checked_servers.push(_assoc.pillar);
+                            self.checked_servers.push(_assoc);
                             _assoc.prior = true;
                         } 
                         if (firstRun){
@@ -55,13 +92,21 @@ define( [
                         else {
                             if (ko.toJSON(compare) != ko.toJSON(_assoc.pillar)){
                                 console.log("not the same!");
-                                self.show_pillar("");
                             }    
                         }
                     }
                     else {
-                        if (assoc_prior){
-                            
+                        if (_assoc.prior){
+                           // remove from the array based on the server name
+                           self.checked_servers.remove(_assoc);
+                           self.allProjects([]);
+                           ko.utils.arrayForEach(self.checked_servers, function(_assoc) {
+                                self.addProjects(_assoc);
+                           });
+
+                           _assoc.prior = false;
+                        }
+                    }
                 });
             });
 
@@ -78,13 +123,22 @@ define( [
                 });
             };
 
-           // self.delPillar = function() {
-           //     var response = confirm("Delete pillar for {0} servers?".format(self.numSelected()));
-           //     if (response) {
-           //         $.blah
-           //     else
-           //         return
-           // };
+            self.delPillar = function() {
+                var response = confirm("Delete pillar for " + self.checked_servers().length + " servers?");
+                if (response) {
+                    ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                        $.get("api/pillar/delete/" + _assoc.name, function() {
+                        })
+                        .fail(function(data) { 
+                            console.log("failed to delete the server(s)");
+                        })
+                        .done(function(data) { 
+                            console.log("successful");
+                        });
+                    });
+                }
+                else return;
+            };
 
             self.show_allInfo = ko.computed(function() {
                 var query = self.searchVal().toLowerCase();
@@ -92,7 +146,6 @@ define( [
                     return self.allInfo();
                 }
                 return ko.utils.arrayFilter(self.allInfo(), function(_assoc) {
-                    console.log(_assoc.name);
                     if (_assoc.name.toLowerCase().indexOf(query) >= 0){
                         console.log("found match: " + _assoc.name.toLowerCase());
                     }
