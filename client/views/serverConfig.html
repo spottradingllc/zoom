@@ -1,4 +1,4 @@
-<section>
+<section xmlns="http://www.w3.org/1999/html">
     <div class="container-fluid">
         <div class="page-header" style="margin-top: 85px">
             <h1>Server Configuration Agent</h1>
@@ -83,13 +83,7 @@
             <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <!-- required attributes -->
-                        <span class="dropdown">
-                            <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown" data-bind="value: ID, text: ID">
-                            <ul class="dropdown-menu" role="menu" data-bind="foreach: IDOptions()">
-                                <li><a data-bind="text: $data, click: function(){ $parent.ID($data) }"></a></li>
-                            </ul>
-                        </span>
+                        <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown" data-bind="value: ID, text: ID">
                         <input type="text" class="form-control" required placeholder="type" data-bind="value: compType, text: compType">
                         <!-- TODO: figure out how to dynamically set required in the below field -->
                         <input type="text" class="form-control" placeholder="script" data-bind="value: script, text: script">
@@ -109,7 +103,7 @@
 
     <!-- Action -->
     <script type="text/html" id="action-template">
-        <div class="panel panel-default">
+        <div class="panel panel-default" data-bind="visible: actionVisible">
             <div class="panel-heading">
                     <!-- ko template: {name: 'add-predicate-template'} -->
                     <!-- /ko -->
@@ -157,11 +151,11 @@
 
     <!-- Predicate -->
     <script type="text/html" id="predicate-template">
-        <!-- ko if: predType == "and" || predType == "or" || predType == "not" -->
+        <!-- ko if: isLogicalPred -->
         <div data-bind="template: {name:'logic-predicate-template'}"></div>
         <!-- /ko -->
 
-        <!-- ko if: (predType != "and" && predType != "or" && predType != "not") -->
+        <!-- ko if: !isLogicalPred -->
         <div data-bind="template: {name:'single-predicate-template'}"></div>
         <!-- /ko -->
     </script>
@@ -182,10 +176,28 @@
             <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control" required placeholder="type" data-bind="text: predType, value:predType">
-                        <input type="number" class="form-control" placeholder="interval" data-bind="text: interval, value: interval">
-                        <input type="text" class="form-control" placeholder="command" data-bind="text: command, value: command">
-                        <input type="text" class="form-control" placeholder="path" data-bind="text: path, value: path">
+                        <!-- required attributes so that menu falls is directly under -->
+                        <span class="dropdown">
+                            <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown" data-bind="value: predType, text: predType">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){setType('ZooKeeperHasChildren')}">ZooKeeperHasChildren</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('ZooKeeperHasGrandChildren')}">ZooKeeperHasGrandChildren</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('ZooKeeperNodeExists')}">ZooKeeperNodeExists</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('ZookeeperGoodUntilTime')}">ZookeeperGoodUntilTime</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('Weekend')}">Weekend</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('Holiday')}">Holiday</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('Process'); interval(5)}">Process</a></li>
+                                </ul>
+                        </span>
+                        <input type="number" class="form-control" placeholder="interval" data-bind="text: interval, value: interval, visible: intervalVisible">
+                        <input type="text" class="form-control" placeholder="command" data-bind="text: command, value: command, visible: commandVisible">
+                        <!-- required attributes -->
+                        <span class="dropdown">
+                            <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown" data-bind="text: path, value: path, visible: pathVisible">
+                            <ul class="dropdown-menu" role="menu" data-bind="foreach: pathOptions()">
+                                <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
+                            </ul>
+                        </span>
                     </div>
                 </form>
             </div>

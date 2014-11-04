@@ -1,9 +1,24 @@
-define(['knockout', 'classes/Component', 'vkbeautify'],
-    function(ko, Component) {
+define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
+    function(ko, $, Component) {
 
         return function TreeViewModel(parent) {
             var self = this;
             self.components = ko.observableArray();
+
+            self.statePaths = (function() {
+                var paths = [];
+                $.ajax({
+                    url: '/api/application/states/',
+                    success: function(data) {
+                        ko.utils.arrayForEach(data.application_states, function(state) {
+                            paths.push(state.configuration_path);
+                        });
+                    },
+                    async: false
+                });
+                paths.sort();
+                return paths;
+            }());  // run immediately, and store as an array
 
             self.addComponent = function() {
                 self.components.push(new Component(self));

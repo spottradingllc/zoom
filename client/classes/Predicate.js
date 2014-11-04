@@ -1,12 +1,62 @@
 define(['knockout'],
     function(ko) {
-        return function Predicate(Factory) {
+        return function Predicate(parent) {
             var self = this;
-            self.expanded = ko.observable(false);
+            self.parent = parent;
+            self.expanded = ko.observable(true);
             self.predType = ko.observable(null);
             self.interval = ko.observable(null);
             self.command = ko.observable(null);
             self.path = ko.observable(null);
+
+            self.isLogicalPred = false;
+
+            self.pathVisible = ko.computed(function() {
+                if (self.predType() != null) {
+                    var predLower = self.predType().toLowerCase();
+                    return predLower.slice(0, 'zookeeper'.length) === 'zookeeper';
+                }
+                else {
+                    return true;
+                }
+            });
+            self.intervalVisible = ko.computed(function() {
+                if (self.predType() != null) {
+                    var predLower = self.predType().toLowerCase();
+                    return predLower === 'process';
+                }
+                else {
+                    return true;
+                }
+            });
+            self.commandVisible = ko.computed(function() {
+                if (self.predType() != null) {
+                    var predLower = self.predType().toLowerCase();
+                    return predLower === 'health';
+                }
+                else {
+                    return true;
+                }
+            });
+
+            self.pathOptions = ko.computed(function() {
+                if (self.parent === undefined) {return [];}
+
+                var paths = self.parent.parentComponent.TreeViewModel.statePaths;
+
+                if (self.path() === null || self.path() === '') { return paths; }
+
+                return ko.utils.arrayFilter(paths, function(path) {
+                    return path.indexOf(self.path()) !== -1;
+                });
+            });
+
+            self.setType = function(type) {
+                self.interval(null);
+                self.command(null);
+                self.path(null);
+                self.predType(type);
+            };
 
             self.title = ko.computed(function() {
                 return 'Predicate ' + self.predType() + ' ' + self.path();
