@@ -10,11 +10,18 @@
                 <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server name..." autofocus=""></input> 
             </div>
 
-            <div>
-                <span data-bind="text: checked_servers().length">Number of selected servers: </span>
+            <div data-bind="visible: checked_servers().length > 0">
+                <span> Selected servers: </span>
+                <div data-bind="foreach: checked_servers">
+                    <table>
+                        <td data-bind="text: name"></td>
+                    </table>
+                </div>
             </div>
 
             <select data-bind="options: pillarOptions, value: selectedOption"></select>
+
+            <button data-bind="click: unselectAll, visible: checked_servers().length > 0">Uncheck All</button>
 
             <div data-bind="visible: selectedOption() == 'Create Pillar'">
                 <input class="field-one" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 

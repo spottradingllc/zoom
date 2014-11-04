@@ -41,9 +41,12 @@ define( [
                 self.pillar = pillar_data;
                 self.checked = ko.observable(false);
                 self.prior = false;
-                self.projects = []; //type _proj
-                // for future use
-                //self.other = [];
+            };
+
+            self.unselectAll = function() {
+                ko.utils.arrayForEach(self.allInfo(), function(_assoc){
+                    _assoc.checked(false);
+                });
             };
 
             self.show_pillar = ko.computed(function() {
@@ -57,24 +60,15 @@ define( [
                 }
             }, self);
 
-            self.getJSONLevel = function(source, dest) {
-                /* 
-                :type source: object 
-                :type dest: array
-                */ 
-
-                for (var elt in source){
-                    dest.push(elt);
-                }
-            };
-
             self.findMissing = ko.computed(function() {
+                // destroy before since re-creating
+                self.missingProject([]);
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     var flag = false;
-                    for (var each in _assoc.projects){
+                    for (var project in _assoc.pillar){
                         if (typeof self.selectedProject() != "undefined"){
                             
-                            if (_assoc.projects[each] === self.selectedProject()) {
+                            if (project === self.selectedProject()) {
                                 flag = true;
                             }
                         }
@@ -88,13 +82,11 @@ define( [
                 });
             });
 
-
-
             self.addProjects = function(_assoc) {
-                for (var each in _assoc.projects){
-                    if (self.allProjects.indexOf(_assoc.projects[each]) < 0){
-                        console.log(_assoc.projects[each]);
-                        self.allProjects.push(_assoc.projects[each]);
+                for (var each in _assoc.pillar){
+                    if (self.allProjects.indexOf(each) < 0){
+                        console.log(each);
+                        self.allProjects.push(each);
                     }
                 }
             };
@@ -105,7 +97,6 @@ define( [
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     if (_assoc.checked()){
                         if (!_assoc.prior){
-                            self.getJSONLevel(_assoc.pillar, _assoc.projects);
                             self.addProjects(_assoc);
                             self.checked_servers.push(_assoc);
                             _assoc.prior = true;
