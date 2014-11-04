@@ -1,7 +1,8 @@
 define(['knockout'],
     function(ko) {
-        return function Predicate(Factory) {
+        return function Predicate(parent) {
             var self = this;
+            self.parent = parent;
             self.expanded = ko.observable(true);
             self.predType = ko.observable(null);
             self.interval = ko.observable(null);
@@ -36,6 +37,18 @@ define(['knockout'],
                 else {
                     return true;
                 }
+            });
+
+            self.pathOptions = ko.computed(function() {
+                if (self.parent === undefined) {return [];}
+
+                var paths = self.parent.parentComponent.TreeViewModel.statePaths;
+
+                if (self.path() === null || self.path() === '') { return paths; }
+
+                return ko.utils.arrayFilter(paths, function(path) {
+                    return path.indexOf(self.path()) !== -1;
+                });
             });
 
             self.setType = function(type) {

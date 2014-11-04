@@ -1,6 +1,6 @@
 define(['knockout'],
     function(ko) {
-        return function LogicPredicate(Factory, predType) {
+        return function LogicPredicate(Factory, predType, parent) {
             var self = this;
             self.expanded = ko.observable(false);
             self.predType = predType;
@@ -10,11 +10,10 @@ define(['knockout'],
             self.isLogicalPred = true;
 
             self.addPredicate = function(type) {
-                var pred = Factory.newPredicate(self, type);
+                var pred = Factory.newPredicate(parent, type);
                 self.expanded(true);
                 self.predicates.push(pred);
             };
-
 
             self.error = ko.computed(function() {
                 if (self.predType === 'not' && self.predicates().length !== 1) {
@@ -77,7 +76,7 @@ define(['knockout'],
                 var child = Factory.firstChild(node);
                 while (child !== null) {
                     var type = child.getAttribute('type');
-                    var predicate = Factory.newPredicate(self, type);
+                    var predicate = Factory.newPredicate(parent, type);
                     predicate.loadXML(child);
                     self.predicates.push(predicate);
                     child = Factory.nextChild(child);

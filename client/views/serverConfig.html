@@ -191,7 +191,13 @@
                         </span>
                         <input type="number" class="form-control" placeholder="interval" data-bind="text: interval, value: interval, visible: intervalVisible">
                         <input type="text" class="form-control" placeholder="command" data-bind="text: command, value: command, visible: commandVisible">
-                        <input type="text" class="form-control" placeholder="path" data-bind="text: path, value: path, visible: pathVisible">
+                        <!-- required attributes -->
+                        <span class="dropdown">
+                            <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown" data-bind="text: path, value: path, visible: pathVisible">
+                            <ul class="dropdown-menu" role="menu" data-bind="foreach: pathOptions()">
+                                <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
+                            </ul>
+                        </span>
                     </div>
                 </form>
             </div>
