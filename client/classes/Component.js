@@ -33,6 +33,7 @@ define(['knockout', './Action', './applicationStateArray'],
 
             self.remove = function() {
                 self.TreeViewModel.components.remove(self);
+                self.TreeViewModel.createXML();
             };
 
             self.expandUp = function() {
