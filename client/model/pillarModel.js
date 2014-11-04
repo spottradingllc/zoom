@@ -7,7 +7,7 @@ define( [
         'model/adminModel',
         'model/GlobalMode',
         'model/customFilterModel',
-    ],9
+    ],
     function(ko, router, service, $,  environment, admin, GlobalMode,
              CustomFilterModel) {
         return function pillarModel() {
@@ -18,11 +18,14 @@ define( [
             self.allInfo = ko.observableArray([]);
             self.checked_servers = ko.observableArray([]);
             self.show_allInfo = ko.observableArray([]);
+            self.allProjects = ko.observableArray([]);
+            self.missingProject = ko.observableArray([]);
 
             self.show_pillar = ko.observable("");
             self.searchVal = ko.observable(""); 
             self.fieldOneVal = ko.observable("");
             self.selectedOption = ko.observable("");
+            self.selectedProject = ko.observable("");
 
             self.pillarOptions = ko.observableArray(["","Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)"]);
             self.domain = ".spottrading.com";
@@ -50,25 +53,48 @@ define( [
                 get_last = self.checked_servers()[length-1];
                 if (get_last != undefined){
                     console.log(get_last);
-                    return get_last;
+                    return get_last.pillar;
                 }
             }, self);
 
             self.getJSONLevel = function(source, dest) {
                 /* 
-                :type source: array
+                :type source: object 
                 :type dest: array
                 */ 
 
-                for (var elt in _assoc.pillar){
-                    dest.push(data[elt]);
+                for (var elt in source){
+                    dest.push(elt);
                 }
             };
 
+            self.findMissing = ko.computed(function() {
+                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                    var flag = false;
+                    for (var each in _assoc.projects){
+                        if (typeof self.selectedProject() != "undefined"){
+                            
+                            if (_assoc.projects[each] === self.selectedProject()) {
+                                flag = true;
+                            }
+                        }
+                        else flag = true;
+                    }
+                    if (!flag){
+                        if (self.missingProject.indexOf(_assoc) < 0) {
+                            self.missingProject.push(_assoc);
+                        }
+                    }
+                });
+            });
+
+
+
             self.addProjects = function(_assoc) {
                 for (var each in _assoc.projects){
-                    if (self.allProjects.indexOf(each) < 0){
-                        self.allProjects.push(each);
+                    if (self.allProjects.indexOf(_assoc.projects[each]) < 0){
+                        console.log(_assoc.projects[each]);
+                        self.allProjects.push(_assoc.projects[each]);
                     }
                 }
             };
@@ -78,10 +104,9 @@ define( [
                 var compare = "";
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     if (_assoc.checked()){
-                        // want to add projects to the array either way
-                        self.getJSONLevel(_assoc.pillar, _assoc.projects);
-
                         if (!_assoc.prior){
+                            self.getJSONLevel(_assoc.pillar, _assoc.projects);
+                            self.addProjects(_assoc);
                             self.checked_servers.push(_assoc);
                             _assoc.prior = true;
                         } 
@@ -99,8 +124,10 @@ define( [
                         if (_assoc.prior){
                            // remove from the array based on the server name
                            self.checked_servers.remove(_assoc);
+                           self.missingProject([]);
+                           //TODO: remove all each time and re-calculate based on what is now selected
                            self.allProjects([]);
-                           ko.utils.arrayForEach(self.checked_servers, function(_assoc) {
+                           ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                 self.addProjects(_assoc);
                            });
 

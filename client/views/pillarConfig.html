@@ -28,12 +28,17 @@
 
             <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
                 <div>
-                    <select data-bind="options: allSeenProjects, value: selectedProject"></select>
+                    <select data-bind="options: allProjects, value: selectedProject"></select>
                 </div>
             </div>
 
             <div>
                 <textarea data-bind="value: ko.toJSON(show_pillar, null, 2)"></textarea>
+            </div>
+
+            <div data-bind="foreach: missingProject">
+                <span>The following server(s) are missing the project that you are about to modify.</span>
+                <span data-bind="text: name"></span>
             </div>
 
             <div data-bind="foreach: show_allInfo">
