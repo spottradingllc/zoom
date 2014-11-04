@@ -280,8 +280,13 @@ class Application(object):
         """
         Send notification to zookeeper that a dependency has gone down.
         """
-        self._state.set_value(ApplicationState.NOTIFY)
-        self._update_agent_node_with_app_details()
+        if not self._proc_client._restart_logic.restart_allowed:
+            self._log.info('### Should send PD alert')
+            self._state.set_value(ApplicationState.NOTIFY)
+            self._update_agent_node_with_app_details()
+        else:
+            self._log.info("### Shut down gracefully")
+
         return 0
 
     def terminate(self):
