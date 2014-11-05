@@ -41,6 +41,17 @@ define( [
                 self.pillar = pillar_data;
                 self.checked = ko.observable(false);
                 self.prior = false;
+                // _assoc object also has dynamically created 
+            };
+            self.subtype_get = function (data, field) {
+                try {
+                    return data[self.selectedProject()]()[field];
+                } catch(err) {
+                    if (err.name === 'TypeError')
+                        return "Project Does Not Exist";
+                    else
+                        return "An unexpected error occured";
+                }
             };
 
             self.unselectAll = function() {
@@ -91,6 +102,13 @@ define( [
                 }
             };
 
+            self.objProjects = function (_assoc) {
+                for (var each in _assoc.pillar){
+                    _assoc[each] = ko.observable("");
+                    _assoc[each](_assoc.pillar[each]);
+                }
+            };
+
             self.diff_and_show = ko.computed(function() {
                 var firstRun = true;
                 var compare = "";
@@ -98,6 +116,7 @@ define( [
                     if (_assoc.checked()){
                         if (!_assoc.prior){
                             self.addProjects(_assoc);
+                            self.objProjects(_assoc);
                             self.checked_servers.push(_assoc);
                             _assoc.prior = true;
                         } 
@@ -187,6 +206,8 @@ define( [
                         else {
                             //var entry = {'name': server, 'pillar': data};
                             var entry = new _assoc(server, data);
+
+                            self.objProjects(entry);  
                             self.allInfo.push(entry);
                         }
                     });

@@ -43,6 +43,29 @@
                 <textarea data-bind="value: ko.toJSON(show_pillar, null, 2)"></textarea>
             </div>
 
+            <div data-bind="visible: checked_servers().length > 0 ">
+                <table>
+
+                    <thead>
+                    <tr>
+                        <td>Server</td>
+                        <td>Subtype</td>
+                        <td>Version</td>
+                    </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach: checked_servers">
+                    <tr> 
+                        <td data-bind="text: name"></td>
+                        <td data-bind="text: $parent.subtype_get($data, 'subtype')"></td>
+                        <td data-bind="text: $parent.subtype_get($data, 'version')"></td> 
+                        <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
             <div data-bind="foreach: missingProject">
                 <span>The following server(s) are missing the project that you are about to modify.</span>
                 <span data-bind="text: name"></span>
