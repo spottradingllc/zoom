@@ -9,6 +9,16 @@ define(['knockout', 'classes/predicateFactory'],
             self.mode_controlled = ko.observable(null);
             self.predicates = ko.observableArray();
 
+            self.parentComponent = parent;
+            self.actionVisible = ko.computed(function() {
+                if (self.ID() != null) {
+                    return self.ID().toLowerCase() == 'start';
+                }
+                else {
+                    return false
+                }
+            });
+
             self.error = ko.computed(function() {
                 if (self.predicates().length < 1) {
                     // TODO Decide what actions are required
