@@ -7,6 +7,7 @@ define( [
         'model/adminModel',
         'model/GlobalMode',
         'model/customFilterModel',
+        'bindings/uppercase',
     ],
     function(ko, router, service, $,  environment, admin, GlobalMode,
              CustomFilterModel) {
@@ -62,7 +63,9 @@ define( [
                     _assoc.checked(false);
                 });
             };
-            
+           
+            self.fieldOneVal = function(){
+                
             self.api_put = function (type, data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     var uri = "api/pillar/" + _assoc.name + "/" + self.selectedProject() + "/" + type + "/" + data;
