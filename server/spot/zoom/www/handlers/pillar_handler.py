@@ -100,7 +100,7 @@ class PillarHandler(tornado.web.RequestHandler):
     def delete(self, data):
         """
         :type data: str
-        DELETE /{minion} > Delete minion
+        DELETE /{minion} > Delete minion #does not currently work!!
         DELETE /{minion}/{project} > Delete project
         """
         minion, project, data_key, data_val = self._parse_uri(data)
@@ -112,6 +112,7 @@ class PillarHandler(tornado.web.RequestHandler):
             except KeyError:
                 pass
 
+            logging.info("at project delete")
             self._set_minion_data(minion, minion_data)
             self.write(minion_data)
 
