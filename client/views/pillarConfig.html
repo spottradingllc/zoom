@@ -26,7 +26,7 @@
             <div data-bind="visible: selectedOption() == 'Create Pillar'">
                 <input class="field-one" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
                 <span> .spottrading.com </span>
-                <button data-bind="click:  function() { api_post('minion', fieldOneVal())}, visible: fieldOneVal()">Create</button>
+                <button data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
             </div>
 
             <div data-bind="visible: selectedOption() == 'Delete Pillar(s)'">
@@ -75,6 +75,7 @@
 
                     <tbody data-bind="foreach: checked_servers">
                     <tr> 
+                        <button>Edit</button>
                         <td data-bind="text: name"></td>
                         <td data-bind="text: $parent.subtype_get($data, 'subtype')"></td>
                         <td data-bind="text: $parent.subtype_get($data, 'version')"></td> 

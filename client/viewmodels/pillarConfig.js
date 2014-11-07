@@ -13,7 +13,7 @@ define(
     function(app, ko, service, $, d3, login, pillarModel, GlobalMode) {
         self.pillarModel = new pillarModel();
         self.attached = function() {
-            self.pillarModel.loadServers();
+            self.pillarModel.loadServers(true);
         };
         self.detached = function() {
             // do something here??

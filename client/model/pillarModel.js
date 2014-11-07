@@ -23,7 +23,7 @@ define( [
 
             self.show_pillar = ko.observable("");
             self.searchVal = ko.observable(""); 
-            self.fieldOneVal = ko.observable("");
+            self.fieldOneVal = ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("");
             self.selectedProject = ko.observable("").extend({notify: 'always'});
             self.new_version = ko.observable("");
@@ -64,7 +64,6 @@ define( [
                 });
             };
            
-            self.fieldOneVal = function(){
                 
             self.api_put = function (type, data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
@@ -174,7 +173,8 @@ define( [
                 })
                 .done(function(data) {
                     console.log("succeeded making new pillar");
-                    self.updateChecked();
+                    if (type === "project") self.updateChecked();
+                    else if (type === "pillar") self.loadServers(false);
                 });
             };
 
@@ -195,6 +195,11 @@ define( [
                         })
                         .done(function(data) { 
                             console.log("successful");
+                            if (level_to_delete === 'pillar')
+                                self.loadServers(false);
+                            else
+                                var delete = true;
+                                self.updateChecked(delete);
                         });
                     });
                 }
@@ -217,23 +222,24 @@ define( [
 
             
             self.updateAll = function() {
-                self.loadServers();
                 ko.utils.arrayForEach(self.servers(), function (server_name) {
                     var serverAlreadyExists = false;
+                    console.log(server_name);
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
                             self.getPillar(_assoc, false)
                             serverAlreadyExists = true;
                         }
                     });
-                    if (serverAlreadyExists === 'false'){
-                        self.getPillar(_assoc.name, true);
+                    if (serverAlreadyExists === false){
+                        self.getPillar(server_name, true);
                         //get pillar and create new _assoc object, push onto allInfo
                     }
                 });
             };
             
-            self.updateChecked = function () {
+            self.updateChecked = function (deleted) {
+                // maintain previously selected project even after updating
                 var prevSelect = self.selectedProject();
                 ko.utils.arrayForEach(self.checked_servers(), function (_alloc) {
                     $.get("api/pillar/" + _alloc.name, function () {
@@ -255,8 +261,6 @@ define( [
 
                 });
 
-                
-              
             };
 
             self.getPillar = function(objOrName, create_new) {
@@ -300,6 +304,12 @@ define( [
             var onSuccess = function (data) { 
                 console.log(data);
                 self.servers(data);
+                self.updateAll();
+            };
+
+            var onSuccessNew = function (data) { 
+                console.log(data);
+                self.servers(data);
                 ko.utils.arrayForEach(self.servers(), function(server) {
                     self.getPillar(server, true);
                 });
@@ -309,8 +319,11 @@ define( [
                 console.log('failed to get list of servers');
             };
 
-            self.loadServers = function () {
-                service.get('api/pillar/list_servers/', onSuccess, onFailure);
+            self.loadServers = function (load_new) {
+                if (load_new)
+                    service.get('api/pillar/list_servers/', onSuccessNew, onFailure);
+                else
+                    service.get('api/pillar/list_servers/', onSuccess, onFailure);
             };   
         };
     });
