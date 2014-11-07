@@ -76,6 +76,9 @@
                             class="btn btn-default" 
                             data-bind="click: function(){expanded(!expanded())}, 
                                         text: expanded() ? 'Collapse' : 'Expand'"></button>
+                    <button type="button"
+                            class="btn btn-default"
+                            data-bind="click: function(){toggleExpanded()}, text: expanded() ? 'Collapse All' : 'Expand All'"></button>
                     <button type="button" class="btn btn-primary" data-bind="click: addAction">Add Action</button>
                 </div>
                 <span class="label label-danger" data-bind="text: error"/>
@@ -83,15 +86,53 @@
             <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown" data-bind="value: ID, text: ID">
-                        <input type="text" class="form-control" required placeholder="type" data-bind="value: compType, text: compType">
+                        <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown"
+                               data-bind="value: ID, text: ID"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               title="id - Must be Unique!">
+                        <span class="dropdown">
+                            <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown"
+                                   data-bind="value: compType, text: compType"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="type">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){compType('application')}">application</a></li>
+                                    <li><a href="#" data-bind="click: function(){compType('job')}">job</a></li>
+                                </ul>
+                        </span>
                         <!-- TODO: figure out how to dynamically set required in the below field -->
-                        <input type="text" class="form-control" placeholder="script" data-bind="value: script, text: script">
-                        <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command">
-                        <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax">
-                        <input type="number" class="form-control" placeholder="allowedinstances" data-bind="value: allowedinstances, text: allowedinstances">
-                        <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath" data-bind="value: registrationpath, text: registrationpath">
-                        <input type="text" class="form-control" placeholder="restartoncrash" data-bind="value: restartoncrash, text: restartoncrash">
+                        <input type="text" class="form-control" placeholder="script" data-bind="value: script, text: script"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="script - Either the script name in /etc/init.d/ (not the full path) or the Windows Service name.">
+                        <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="command - Special command to run on the command line to start an application/job.">
+                        <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="restartmax - How many times to try to start an application/job if it fails to start.">
+                        <input type="number" class="form-control" placeholder="allowedinstances"
+                               data-bind="value: allowedinstances, text: allowedinstances">
+                        <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath"
+                                data-bind="value: registrationpath, text: registrationpath"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="registrationpath - Path in ZooKeeper used to register a service.">
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="restartoncrash" data-toggle="dropdown"
+                                   data-bind="value: restartoncrash, text: restartoncrash"
+                                   data-toggle="tooltip"
+                                   data-placement="top"
+                                   title="restartoncrash - If a service crashes after it has started, whether to try to start it again.">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){restartoncrash('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){restartoncrash('False')}">False</a></li>
+                                </ul>
+                        </span>
                     </div>
                 </form>
                 <br />
@@ -112,8 +153,21 @@
                 <form class="form-inline" role="form">
                     <div class="form-group">
                         <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
-                        <input type="text" class="form-control" placeholder="staggerpath" data-bind="value: staggerpath, text: staggerpath">
-                        <input type="text" class="form-control" placeholder="staggertime" data-bind="value: staggertime, text: staggertime">
+                        <input type="text" class="form-control" placeholder="staggerpath"
+                               data-bind="value: staggerpath, text: staggerpath" data-toggle="tooltip"
+                               data-placement="top" title="staggertime">
+                        <input type="text" class="form-control" placeholder="staggertime"
+                               data-bind="value: staggertime, text: staggertime"
+                               data-toggle="tooltip" data-placement="top" title="staggertime">
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="disabled"
+                                   data-toggle="dropdown" data-bind="value: disabled, text: disabled"
+                                   data-toggle="tooltip" data-placement="top" title="disabled">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){disabled('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){disabled('False')}">False</a></li>
+                                </ul>
+                        </span>
                     </div>
                 </form>
                 <br />
@@ -144,6 +198,8 @@
             class="btn btn-default" 
             data-bind="click: function(){expanded(!expanded())}, 
                         text: expanded() ? 'Collapse' : 'Expand'"></button>
+        <button type="button" class="btn btn-default"
+                data-bind="click: function(){toggleExpanded()}, text: expanded() ? 'Collapse All' : 'Expand All'"></button>
         <span class="label label-danger" data-bind="text: error"/>
 
     </script>
@@ -178,7 +234,9 @@
                     <div class="form-group">
                         <!-- required attributes so that menu falls is directly under -->
                         <span class="dropdown">
-                            <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown" data-bind="value: predType, text: predType">
+                            <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown"
+                                   data-bind="value: predType, text: predType"
+                                   data-toggle="tooltip" data-placement="top" title="type">
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){setType('ZooKeeperHasChildren')}">ZooKeeperHasChildren</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('ZooKeeperHasGrandChildren')}">ZooKeeperHasGrandChildren</a></li>
@@ -189,11 +247,17 @@
                                     <li><a href="#" data-bind="click: function(){setType('Process'); interval(5)}">Process</a></li>
                                 </ul>
                         </span>
-                        <input type="number" class="form-control" placeholder="interval" data-bind="text: interval, value: interval, visible: intervalVisible">
-                        <input type="text" class="form-control" placeholder="command" data-bind="text: command, value: command, visible: commandVisible">
+                        <input type="number" class="form-control" placeholder="interval"
+                               data-bind="text: interval, value: interval, visible: intervalVisible"
+                               data-toggle="tooltip" data-placement="top" title="interval">
+                        <input type="text" class="form-control" placeholder="command"
+                               data-bind="text: command, value: command, visible: commandVisible"
+                                 data-toggle="tooltip" data-placement="top" title="command">
                         <!-- required attributes -->
                         <span class="dropdown">
-                            <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown" data-bind="text: path, value: path, visible: pathVisible">
+                            <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown"
+                                   data-bind="text: path, value: path, visible: pathVisible"
+                                    data-toggle="tooltip" data-placement="top" title="path">
                             <ul class="dropdown-menu" role="menu" data-bind="foreach: pathOptions()">
                                 <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
                             </ul>

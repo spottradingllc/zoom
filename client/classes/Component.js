@@ -1,5 +1,5 @@
-define(['knockout', './Action', './applicationStateArray'],
-    function(ko, Action, ApplicationStates) {
+define(['knockout', './Action'],
+    function(ko, Action) {
         return function Component(parent) {
             var self = this;
             self.TreeViewModel = parent;
@@ -36,8 +36,11 @@ define(['knockout', './Action', './applicationStateArray'],
                 self.TreeViewModel.createXML();
             };
 
-            self.expandUp = function() {
-                self.expanded(true);
+            self.toggleExpanded = function() {
+                self.expanded(!self.expanded());
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    action.toggleExpanded(self.expanded());
+                });
             };
 
             var checkNull = function(param) {
