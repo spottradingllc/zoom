@@ -81,7 +81,6 @@ class Application(object):
         self._login_user = 'Zoom'   #Default to Zoom
         self._run_check_mode = False
 
-        self._allowed_instances = self._init_allowed_inst(self.config)
         self._paths = self._init_paths(self.config, settings, application_type)
 
         # clients
@@ -109,7 +108,6 @@ class Application(object):
         - Start main loop, periodically checking whether the process has failed.
         """
         self.zkclient.start()
-        self._check_allowed_instances()
         # make all action objects start processing predicates
         self._log.info('Starting to process Actions.')
         map(lambda x: x.start(), self._actions.values())  # start actions
@@ -365,19 +363,6 @@ class Application(object):
 
         return paths
 
-    def _init_allowed_inst(self, config):
-        """
-        :rtype: int
-        """
-        allowed_instances = verify_attribute(config, 'allowed_instances',
-                                             none_allowed=True, cast=int)
-
-        if allowed_instances is None:
-            self._log.info('Allowed instances not specified. Assuming 1')
-            allowed_instances = 1
-
-        return allowed_instances
-
     def _init_proc_client(self, config, settings, atype):
         """Create the process client."""
         command = verify_attribute(config, 'command', none_allowed=True)
@@ -431,36 +416,6 @@ class Application(object):
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
-
-    @connected
-    def _check_allowed_instances(self, event=None):
-        """
-        Check whether the allowed instances is less than current instance 
-        count. Set watch on that node to see if it changes.
-        :type event: kazoo.protocol.states.WatchedEvent or None
-        """
-        try:
-            children = self.zkclient.get_children(
-                self._paths['zk_state_base'],
-                watch=self._check_allowed_instances
-            )
-            num_of_children = len(children)
-            if not(num_of_children < self._allowed_instances):
-                self._log.info('Running instances of {0} ({1}) is >= allowed '
-                               'instances ({2}).'
-                               .format(self.name, num_of_children,
-                                       self._allowed_instances))
-                self._start_allowed.set_value(False)
- 
-            else:
-                self._log.info('Running instances of {0} ({1}) is < '
-                               'allowed instances ({2}). It should be allowed '
-                               'to start.'.format(self.name, num_of_children,
-                                                  self._allowed_instances))
-                self._start_allowed.set_value(True)
-        except NoNodeError:
-            self._log.info('ZK path {0} does not exist. Assuming no instances'
-                           ' are running.'.format(self._paths['zk_state_base']))
 
     @connected
     def _check_mode(self, event=None):
@@ -572,7 +527,6 @@ class Application(object):
             self._actions = self._init_actions(self._settings)
             map(lambda x: x.reset(), self._predicates)  # reset predicates
             map(lambda x: x.start(), self._actions.values())  # start actions
-            self._check_allowed_instances()
             self._check_mode()
             self._log.info('Application listener callback complete!')
         else:
