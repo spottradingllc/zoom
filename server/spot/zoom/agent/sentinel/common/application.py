@@ -287,12 +287,12 @@ class Application(object):
             self._update_agent_node_with_app_details()
             #send PD alert
             if self._proc_client.restart_logic.restart_allowed:
-                self._log.info('### automatic restart')
+                self._log.info('RestartOnCrash set to True. Restarting service')
                 self._action_queue.append_unique(Task('start', kwargs=kwargs))
             else:
-                self._log.info('### Restart not allowed. Staying down')
+                self._log.info('RestartOnCrash set to False. Staying down')
         else:
-            self._log.info("### Shut down gracefully")
+            self._log.debug("Service shut down gracefully")
 
 
     def terminate(self):

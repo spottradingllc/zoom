@@ -39,10 +39,10 @@ class ProcessClient(object):
         self.command = command
         self.name = name
         self.process_client_lock = Lock()  # lock for synchronous decorator
+        self.ran_stop = None
         self._script = script
         self._apptype = apptype
         self._system = system
-        self.ran_stop = None
         self._stay_down = False
         self.restart_logic = RestartLogic(restart_on_crash, restart_max)
 
@@ -100,16 +100,15 @@ class ProcessClient(object):
     def start(self):
         """Try to start process"""
         if self._stay_down:
-            self._log.info('### Not running start. Staying down')
             return 0
 
+        # Same check as applicatin.notify() but needed when start action is
+        # called after process crashes and all predicates are met
         if not self.restart_logic.restart_allowed and not self.ran_stop\
                 and self._apptype == ApplicationType.APPLICATION:
-            self._log.info('### not starting')
             return ApplicationStatus.CRASHED
         else:
-            # self._log.debug('Restarts allowed.')
-            self._log.info('### Restarts allowed.')
+            self._log.debug('Start allowed.')
 
         if self._apptype == ApplicationType.APPLICATION:
             self._stop_if_running()
@@ -140,7 +139,6 @@ class ProcessClient(object):
                 self._log.debug('Waiting 10 seconds before trying again.')
                 sleep(10)  # minor wait before we try again
 
-        # self.restart_logic.set_false()
         self.ran_stop = False
         return return_code
 
@@ -150,7 +148,6 @@ class ProcessClient(object):
         self._stay_down = False
 
         if kwargs.get('stay_down', 'false') == 'true':
-            self._log.info('### Setting stay_down to True')
             self._stay_down = True
 
         return_code = self.stop_method()
