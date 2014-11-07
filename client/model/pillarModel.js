@@ -198,8 +198,7 @@ define( [
                             if (level_to_delete === 'pillar')
                                 self.loadServers(false);
                             else
-                                var delete = true;
-                                self.updateChecked(delete);
+                                self.updateChecked();
                         });
                     });
                 }
@@ -238,7 +237,7 @@ define( [
                 });
             };
             
-            self.updateChecked = function (deleted) {
+            self.updateChecked = function () {
                 // maintain previously selected project even after updating
                 var prevSelect = self.selectedProject();
                 ko.utils.arrayForEach(self.checked_servers(), function (_alloc) {
