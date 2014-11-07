@@ -85,6 +85,10 @@ class ProcessClient(object):
     def reset_counters(self):
         return self.restart_logic.reset_count
 
+    @property
+    def restart_allowed(self):
+        return self.restart_logic.restart_allowed
+
     def running(self):
         """
         :type reset: bool
@@ -100,15 +104,8 @@ class ProcessClient(object):
     def start(self):
         """Try to start process"""
         if self._stay_down:
+            self._log.info('Graceful shutdown. Not starting back up')
             return 0
-
-        # Same check as applicatin.notify() but needed when start action is
-        # called after process crashes and all predicates are met
-        if not self.restart_logic.restart_allowed and not self.ran_stop\
-                and self._apptype == ApplicationType.APPLICATION:
-            return ApplicationStatus.CRASHED
-        else:
-            self._log.debug('Start allowed.')
 
         if self._apptype == ApplicationType.APPLICATION:
             self._stop_if_running()

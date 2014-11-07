@@ -22,6 +22,7 @@ from spot.zoom.agent.sentinel.common.thread_safe_object import (
 from spot.zoom.common.types import (
     PlatformType,
     AlertActionType,
+    ApplicationType,
     ApplicationState,
     ApplicationStatus
 )
@@ -68,6 +69,7 @@ class Application(object):
         self._prev_state = None
         self._actions = dict()  # created in _reset_watches on zk connect
         self._env = os.environ.get('EnvironmentToUse', 'Staging')
+        self._apptype = application_type
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -173,6 +175,14 @@ class Application(object):
         Start actual process
         :param kwargs: passed from spot.zoom.handlers.control_agent_handlers
         """
+        # Same check as self.notify() but needed when start action is
+        # called after process crashes and all predicates are met when on Auto
+        if not self._proc_client.restart_allowed and \
+                not self._proc_client.ran_stop \
+                and self._apptype == ApplicationType.APPLICATION:
+            return 0
+        else:
+            self._log.debug('Start allowed.')
 
         if kwargs.get('reset', True):
             self._proc_client.reset_counters()
@@ -286,7 +296,7 @@ class Application(object):
             self._state.set_value(ApplicationState.NOTIFY)
             self._update_agent_node_with_app_details()
             #send PD alert
-            if self._proc_client.restart_logic.restart_allowed:
+            if self._proc_client.restart_allowed:
                 self._log.info('RestartOnCrash set to True. Restarting service')
                 self._action_queue.append_unique(Task('start', kwargs=kwargs))
             else:
