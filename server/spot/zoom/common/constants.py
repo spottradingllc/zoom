@@ -7,6 +7,11 @@ __env_connections = {
                 'ZooStaging03:2181,'
                 'ZooStaging04:2181,'
                 'ZooStaging05:2181'),
+    "QA": ('ZooStaging01:2181,'
+           'ZooStaging02:2181,'
+           'ZooStaging03:2181,'
+           'ZooStaging04:2181,'
+           'ZooStaging05:2181'),
 #     "UAT": ('ZooUat01:2181,'
 #             'ZooUat01:2181,'
 #             'ZooUat01:2181,'

@@ -1,18 +1,20 @@
 define(['knockout'],
     function(ko) {
-        return function LogicPredicate(Factory, predType) {
+        return function LogicPredicate(Factory, predType, parent) {
             var self = this;
             self.expanded = ko.observable(false);
             self.predType = predType;
             self.title = self.predType.toUpperCase();
             self.predicates = ko.observableArray();
 
+            self.parent = parent;
+            self.isLogicalPred = true;
+
             self.addPredicate = function(type) {
                 var pred = Factory.newPredicate(self, type);
                 self.expanded(true);
                 self.predicates.push(pred);
             };
-
 
             self.error = ko.computed(function() {
                 if (self.predType === 'not' && self.predicates().length !== 1) {
@@ -33,9 +35,16 @@ define(['knockout'],
                 self.parent.predicates.remove(self);
             };
 
-            self.expandUp = function() {
-                self.expanded(true);
-                self.parent.expandUp();
+            self.toggleExpanded = function(expand) {
+                if (typeof expand !== 'undefined') {
+                    self.expanded(expand);
+                }
+                else {
+                    self.expanded(!self.expanded());
+                }
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    predicate.toggleExpanded(self.expanded());
+                });
             };
 
             self.validate = function() {

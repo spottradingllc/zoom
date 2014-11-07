@@ -1,7 +1,8 @@
-define(['knockout', './Action', './applicationStateArray'],
-    function(ko, Action, ApplicationStates) {
+define(['knockout', './Action'],
+    function(ko, Action) {
         return function Component(parent) {
             var self = this;
+            self.TreeViewModel = parent;
             self.expanded = ko.observable(true);
             self.ID = ko.observable(null);
             self.compType = ko.observable(null);
@@ -30,27 +31,15 @@ define(['knockout', './Action', './applicationStateArray'],
             };
 
             self.remove = function() {
-                parent.components.remove(self);
+                self.TreeViewModel.components.remove(self);
+                self.TreeViewModel.createXML();
             };
 
-            self.IDOptions = ko.computed(function() {
-
-                var paths = ko.utils.arrayMap(ApplicationStates(), function(state) {
-                    return state.configurationPath.replace(self.appPath, '');
+            self.toggleExpanded = function() {
+                self.expanded(!self.expanded());
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    action.toggleExpanded(self.expanded());
                 });
-
-                paths.sort();
-
-                if (self.ID() === null) { return paths; }
-
-                return ko.utils.arrayFilter(paths, function(path) {
-                    return (path.slice(0, self.ID().length) === self.ID());
-                });
-            });
-
-
-            self.expandUp = function() {
-                self.expanded(true);
             };
 
             var checkNull = function(param) {

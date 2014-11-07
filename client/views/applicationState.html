@@ -161,6 +161,11 @@
                             </span>
                             <span class="caret"></span>
                         </button>
+                        <button class="btn btn-default" type="button"
+                                data-bind="click: appStateModel.customFilters.toggleMatchIntersection,
+                                text: appStateModel.customFilters.matchIntersection() ? 'Match Union' : 'Match Intersection',
+                                visible: appStateModel.customFilters.matchTypeVisible">
+                        </button>
                         <ul class="dropdown-menu pull-right" role="menu">
                             <!-- ko foreach: appStateModel.customFilters.defaultFilters -->
                                 <li role="presentation">
@@ -265,8 +270,7 @@
                                         data-placement="top"
                                         title="Close the filter.">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                    <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
-                                                                   visible: enabled() "></span>
+                                    <span class="badge" data-bind="text: $data.matchedItems().length, visible: enabled() "></span>
                                 </button>
                                 <button class="btn btn-default"
                                         data-bind="click: toggleEnabled, visible: !enabled()"
