@@ -7,10 +7,11 @@ define(['knockout'],
             self.title = self.predType.toUpperCase();
             self.predicates = ko.observableArray();
 
+            self.parent = parent;
             self.isLogicalPred = true;
 
             self.addPredicate = function(type) {
-                var pred = Factory.newPredicate(parent, type);
+                var pred = Factory.newPredicate(self, type);
                 self.expanded(true);
                 self.predicates.push(pred);
             };
@@ -34,9 +35,16 @@ define(['knockout'],
                 self.parent.predicates.remove(self);
             };
 
-            self.expandUp = function() {
-                self.expanded(true);
-                self.parent.expandUp();
+            self.toggleExpanded = function(expand) {
+                if (typeof expand !== 'undefined') {
+                    self.expanded(expand);
+                }
+                else {
+                    self.expanded(!self.expanded());
+                }
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    predicate.toggleExpanded(self.expanded());
+                });
             };
 
             self.validate = function() {
@@ -76,7 +84,7 @@ define(['knockout'],
                 var child = Factory.firstChild(node);
                 while (child !== null) {
                     var type = child.getAttribute('type');
-                    var predicate = Factory.newPredicate(parent, type);
+                    var predicate = Factory.newPredicate(self, type);
                     predicate.loadXML(child);
                     self.predicates.push(predicate);
                     child = Factory.nextChild(child);

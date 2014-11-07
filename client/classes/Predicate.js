@@ -38,11 +38,26 @@ define(['knockout'],
                     return true;
                 }
             });
+            // recursively search for parent action
+            var getAction = function(obj) {
+                if (typeof obj === 'undefined' || typeof obj.parent === 'undefined') {
+                    return null;
+                }
+                else if (obj.parent && obj.parent.isAction) {
+                    return obj.parent;
+                }
+                else {
+                    // we haven't found it yet. Keep trying
+                    return getAction(obj.parent);
+                }
+            };
 
             self.pathOptions = ko.computed(function() {
-                if (self.parent === undefined) {return [];}
+                var action = getAction(self.parent);
 
-                var paths = self.parent.parentComponent.TreeViewModel.statePaths;
+                if (action === null) { return []; }
+
+                var paths = action.parentComponent.TreeViewModel.statePaths;
 
                 if (self.path() === null || self.path() === '') { return paths; }
 
@@ -71,10 +86,15 @@ define(['knockout'],
                 self.parent.predicates.remove(self);
             };
 
-            self.expandUp = function() {
-                self.expanded(true);
-                self.parent.expandUp();
+            self.toggleExpanded = function(expand) {
+                if (typeof expand !== 'undefined') {
+                    self.expanded(expand);
+                }
+                else {
+                    self.expanded(!self.expanded());
+                }
             };
+
             self.validate = function() {
                 var valid = true;
                 if (self.error() !== '') {
