@@ -53,6 +53,7 @@ class PredicateType():
     HEALTH = "health"
     HOLIDAY = "holiday"
     PROCESS = "process"
+    TIME = "time"
     WEEKEND = "weekend"
     ZOOKEEPERNODEEXISTS = "zookeepernodeexists"
     ZOOKEEPERHASCHILDREN = "zookeeperhaschildren"

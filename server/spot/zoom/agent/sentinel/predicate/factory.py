@@ -7,6 +7,7 @@ from spot.zoom.agent.sentinel.predicate.holiday import PredicateHoliday
 from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
 from spot.zoom.agent.sentinel.predicate.pred_not import PredicateNot
 from spot.zoom.agent.sentinel.predicate.pred_or import PredicateOr
+from spot.zoom.agent.sentinel.predicate.pred_time import PredicateTime
 from spot.zoom.agent.sentinel.predicate.process import PredicateProcess
 from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
 from spot.zoom.agent.sentinel.predicate.weekend import PredicateWeekend
@@ -132,6 +133,17 @@ class PredicateFactory(object):
                                                      self._settings,
                                                      parent=self._parent),
                                     callback=callback
+            )
+        elif ptype == PredicateType.TIME:
+            return self._ensure_new(
+                PredicateTime(self._component_name,
+                              self._settings,
+                              start=verify_attribute(root, 'start',
+                                                     none_allowed=True),
+                              stop=verify_attribute(root, 'stop',
+                                                    none_allowed=True),
+                              parent=self._parent),
+                callback=callback
             )
 
         # below, use recursion to get nested predicates
