@@ -239,6 +239,7 @@ class Application(object):
         self._action_queue.clear()
         self._action_queue.append_unique(Task('stop', kwargs=kwargs))
         self._action_queue.append_unique(Task('unregister'))
+        self._action_queue.append_unique(Task('notify'))
         self._action_queue.append_unique(Task('start', kwargs=kwargs))
 
     def dep_restart(self, **kwargs):
@@ -276,18 +277,23 @@ class Application(object):
 
     @time_this
     @connected
-    def notify(self):
+    def notify(self, **kwargs):
         """
         Send notification to zookeeper that a dependency has gone down.
         """
-        if not self._proc_client._restart_logic.restart_allowed:
-            self._log.info('### Should send PD alert')
+        if not self._proc_client.ran_stop:
+            self._log.info('### Process crashed. Should send PD alert')
             self._state.set_value(ApplicationState.NOTIFY)
             self._update_agent_node_with_app_details()
+            #send PD alert
+            if self._proc_client.restart_logic.restart_allowed:
+                self._log.info('### automatic restart')
+                self._action_queue.append_unique(Task('start', kwargs=kwargs))
+            else:
+                self._log.info('### Restart not allowed. Staying down')
         else:
             self._log.info("### Shut down gracefully")
 
-        return 0
 
     def terminate(self):
         """Terminate child thread/process"""

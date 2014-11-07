@@ -29,11 +29,7 @@ class RestartLogic(object):
         Return if restarts are allowed or not
         :rtype: bool
         """
-        self._log.debug('Restart on crash: {0}'.format(self._restart_on_crash))
-        if self._restart_on_crash is True:
-            return True
-        else:
-            return self._allowed
+        return self._restart_on_crash
 
     @property
     def restart_max_reached(self):
@@ -48,13 +44,13 @@ class RestartLogic(object):
                             .format(self._restart_max))
         return result
 
-    def set_false(self):
-        self._log.debug('Restart allowed set to False')
-        self._allowed = False
-
-    def set_true(self):
-        self._log.debug('Restart allowed set to True')
-        self._allowed = True
+    # def set_false(self):
+    #     self._log.debug('Restart allowed set to False')
+    #     self._allowed = False
+    #
+    # def set_true(self):
+    #     self._log.debug('Restart allowed set to True')
+    #     self._allowed = True
 
     def reset_count(self):
         self._log.debug('Resetting start count to 0.')

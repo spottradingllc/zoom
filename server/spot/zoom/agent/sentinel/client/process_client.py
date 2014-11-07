@@ -42,7 +42,9 @@ class ProcessClient(object):
         self._script = script
         self._apptype = apptype
         self._system = system
-        self._restart_logic = RestartLogic(restart_on_crash, restart_max)
+        self.ran_stop = None
+        self._stay_down = False
+        self.restart_logic = RestartLogic(restart_on_crash, restart_max)
 
         self.last_status = False
         self._graphite_metric_names = graphite_metric_names
@@ -81,7 +83,7 @@ class ProcessClient(object):
 
     @property
     def reset_counters(self):
-        return self._restart_logic.reset_count
+        return self.restart_logic.reset_count
 
     def running(self):
         """
@@ -97,23 +99,25 @@ class ProcessClient(object):
 
     def start(self):
         """Try to start process"""
-        if not self._restart_logic.restart_allowed \
+        if self._stay_down:
+            self._log.info('### Not running start. Staying down')
+            return 0
+
+        if not self.restart_logic.restart_allowed and not self.ran_stop\
                 and self._apptype == ApplicationType.APPLICATION:
-            self._log.warning(
-                'Process was brought down outside of Zoom, and restart_on_crash'
-                ' is False. Will not start. This will be logged as a start '
-                'failure, which will throw an alert to Zoom.')
+            self._log.info('### not starting')
             return ApplicationStatus.CRASHED
         else:
-            self._log.debug('Restarts allowed.')
+            # self._log.debug('Restarts allowed.')
+            self._log.info('### Restarts allowed.')
 
         if self._apptype == ApplicationType.APPLICATION:
             self._stop_if_running()
 
         return_code = -1
 
-        while not self._restart_logic.restart_max_reached:
-            self._restart_logic.increment_count()
+        while not self.restart_logic.restart_max_reached:
+            self.restart_logic.increment_count()
 
             start_time = time()
             return_code = self.start_method()
@@ -126,24 +130,28 @@ class ProcessClient(object):
 
             if return_code == 0:
                 self._log.info('{0} start successful in {1} tries.'
-                               .format(self.name, self._restart_logic.count))
+                               .format(self.name, self.restart_logic.count))
                 self.reset_counters()
                 break
             else:
                 self._log.info('{0} start attempt {1} failed.'
-                               .format(self.name, self._restart_logic.count))
+                               .format(self.name, self.restart_logic.count))
                 self._stop_if_running()
                 self._log.debug('Waiting 10 seconds before trying again.')
                 sleep(10)  # minor wait before we try again
 
-        self._restart_logic.set_false()
+        # self.restart_logic.set_false()
+        self.ran_stop = False
         return return_code
 
     def stop(self, **kwargs):
         """Stop process"""
-        # if argument is false, allow start
-        if kwargs.get('argument', 'false') == 'false':
-            self._restart_logic.set_true()
+        self.ran_stop = True
+        self._stay_down = False
+
+        if kwargs.get('stay_down', 'false') == 'true':
+            self._log.info('### Setting stay_down to True')
+            self._stay_down = True
 
         return_code = self.stop_method()
 

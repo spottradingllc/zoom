@@ -30,7 +30,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         """
         try:
             kwarguments = {
-                'argument': self.get_argument("argument", default=None),
+                'stay_down': self.get_argument("stay_down", default=None),
                 'login_user': self.get_argument("user", default=None),
             }
             task = Task(self.get_argument("command"),
