@@ -51,6 +51,8 @@ class ActionFactory(object):
                                            none_allowed=True, cast=int)
             mode_controlled = verify_attribute(element, 'mode_controlled',
                                                none_allowed=True)
+            disabled = verify_attribute(element, 'disabled', none_allowed=True)
+
             action = getattr(self._comp, name, None)
             actions[name] = Action(name, self._comp.name, action, element,
                                    action_q=self._action_q,
@@ -62,7 +64,8 @@ class ActionFactory(object):
                                    mode=self._mode,
                                    system=self._system,
                                    pred_list=self._pred_list,
-                                   settings=self._settings)
+                                   settings=self._settings,
+                                   disabled=bool(disabled))
             self._log.info('Registered {0}.'.format(actions[name]))
 
         return actions

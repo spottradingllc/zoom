@@ -9,9 +9,9 @@ from spot.zoom.agent.sentinel.common.thread_safe_object import ThreadSafeObject
 
 class Action(object):
     def __init__(self, name, component_name, action, xmlpart,
-                 staggerpath=None, staggertime=None, mode_controlled=None,
+                 staggerpath=None, staggertime=None, mode_controlled=False,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
-                 system=None, pred_list=None, settings=None):
+                 system=None, pred_list=None, settings=None, disabled=False):
         """
         :type name: str
         :type component_name: str
@@ -29,6 +29,7 @@ class Action(object):
         :type system: spot.zoom.common.types.PlatformType
         :type pred_list: list
         :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
+        :type disabled: bool
         """
         self.name = name
         self._log = logging.getLogger('sent.{0}.act'.format(component_name))
@@ -37,6 +38,7 @@ class Action(object):
         self._action_queue = action_q
         self._mode_controlled = mode_controlled
         self._mode = mode
+        self._disabled = disabled
         self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
@@ -69,8 +71,12 @@ class Action(object):
         self._log.info('Callback triggered for {0}:\n{1}'
                        .format(self, self._predicate))
 
+        if self._disabled:
+            self._log.info('Not running action {0}. It is disabled.'
+                           .format(self.name))
+            return
         # ensure all predicates are started
-        if not self._predicate.started:
+        elif not self._predicate.started:
             self._log.warning('All predicates are not started. '
                               'Ignoring action {0}'.format(self.name))
             return
