@@ -3,12 +3,20 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         var self = this;
         // Custom Filtering
         self.all = new ko.observableArray([]);
-
+        self.matchIntersection = ko.observable(true);
         self.enabled = ko.computed(function() {
             return ko.utils.arrayFilter(self.all(), function(customFilter) {
                 return customFilter.enabled();
             });
         });
+
+        self.matchTypeVisible = ko.computed(function() {
+            return self.all().length > 1;
+        });
+
+        self.toggleMatchIntersection = function() {
+            self.matchIntersection(!self.matchIntersection());
+        };
 
         self.allMatchedItems = ko.computed(function() {
             // first aggregate all items from all custom filters
@@ -22,20 +30,25 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
                 });
             });
 
-            // take the intersection of all the custom filtered items
-            var intersection = ko.observableArray(allCustomFilteredItems().slice());
-            ko.utils.arrayForEach(allCustomFilteredItems(), function(filteredItem) { // loop over all items
-                ko.utils.arrayForEach(self.enabled(), function(customFilter) { // loop over all filters
-                    if (customFilter.matchedItems().indexOf(filteredItem) === -1) {
-                        // remove the item if it is missing in any filter
-                        intersection(intersection.remove(function(item) {
-                            return item !== filteredItem;
-                        }));
-                    }
+            // If matching the union, return everything
+            if (!self.matchIntersection()) {
+                return allCustomFilteredItems().slice();
+            }
+            else {
+                // take the intersection of all the custom filtered items
+                var intersection = ko.observableArray(allCustomFilteredItems().slice());
+                ko.utils.arrayForEach(allCustomFilteredItems(), function(filteredItem) { // loop over all items
+                    ko.utils.arrayForEach(self.enabled(), function(customFilter) { // loop over all filters
+                        if (customFilter.matchedItems().indexOf(filteredItem) === -1) {
+                            // remove the item if it is missing in any filter
+                            intersection(intersection.remove(function(item) {
+                                return item !== filteredItem;
+                            }));
+                        }
+                    });
                 });
-            });
-
-            return intersection().slice();
+                return intersection().slice();
+            }
         });
 
         // rate-limit how often filtered items are populated
