@@ -76,7 +76,8 @@
                             data-bind="click: function(){expanded(!expanded())}, text: expanded() ? 'Collapse' : 'Expand'"></button>
                     <button type="button" class="btn btn-default"
                             data-bind="click: function(){toggleExpanded()}, text: expanded() ? 'Collapse All' : 'Expand All'"></button>
-                    <button type="button" class="btn btn-primary" data-bind="click: addAction">Add Action</button>
+                    <!-- making this button invisible, because all actions except 'start' are invisible now -->
+                    <button type="button" class="btn btn-primary" data-bind="click: addAction, visible: false">Add Action</button>
                 </div>
                 <span class="label label-danger" data-bind="text: error"/>
             </div>
@@ -227,6 +228,7 @@
                                     <li><a href="#" data-bind="click: function(){setType('ZookeeperGoodUntilTime')}">ZookeeperGoodUntilTime</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Weekend')}">Weekend</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Holiday')}">Holiday</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('Time')}">Time</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Process'); interval(5)}">Process</a></li>
                                 </ul>
                         </span>
@@ -236,6 +238,12 @@
                         <input type="text" class="form-control" placeholder="command"
                                data-bind="text: command, value: command, visible: commandVisible"
                                data-toggle="tooltip" data-placement="top" title="command">
+                        <input type="text" class="form-control" placeholder="start"
+                               data-bind="text: start, value: start, visible: startStopVisible"
+                               data-toggle="tooltip" data-placement="top" title="start">
+                        <input type="text" class="form-control" placeholder="stop"
+                               data-bind="text: stop, value: stop, visible: startStopVisible"
+                               data-toggle="tooltip" data-placement="top" title="stop">
                         <!-- required attributes -->
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown"

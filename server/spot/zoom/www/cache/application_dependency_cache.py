@@ -111,6 +111,7 @@ class ApplicationDependencyCache(object):
                                      .format(registrationpath))
                         continue
 
+                    # TODO: rename 'path' when it really isn't a path. this is a hack...
                     # prev_was_not keeps track of the outer class was 'not'
                     prev_was_not = False
                     for predicate in start_action.iter('Predicate'):
@@ -143,6 +144,18 @@ class ApplicationDependencyCache(object):
                                 {'type': pred_type,
                                  'path': "Does NOT run on weekends" if prev_was_not else "Runs on weekends"})
                             prev_was_not = False
+                        if pred_type == PredicateType.TIME:
+                            start = predicate.get('start', None)
+                            stop = predicate.get('stop', None)
+                            msg = 'I should be up '
+                            if start is not None:
+                                msg += 'after: {0} '.format(start)
+                            if stop is not None:
+                                msg = 'until: {0}'.format(stop)
+                            if not start and not stop:
+                                msg += '?'
+                            dependencies.append({'type': pred_type, 'path': msg})
+
                         if pred_type == PredicateType.NOT:
                             prev_was_not = True
 

@@ -14,6 +14,7 @@ define(['knockout'], function(ko) {
             'holiday': self.holiday,
             'weekend': self.weekend,
             'zookeepergooduntiltime': self.zookeepergooduntiltime,
+            'time': self.zookeepergooduntiltime,
             'zookeeperhaschildren': self.requires,
             'zookeeperhasgrandchildren': self.requires
         };
@@ -58,7 +59,7 @@ define(['knockout'], function(ko) {
                     }
                 }
                 // if this predicate type exists in arrayMapping
-                else if (typeof arrayMapping[predType] !== undefined) {
+                else if (typeof arrayMapping[predType] !== 'undefined') {
                     // push path to appropriate array based on predicate type
                     arrayMapping[predType].push(path);
                     neverFound = false;
