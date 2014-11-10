@@ -436,6 +436,7 @@ class Application(object):
             acceptable_work[k] = v.run
 
         acceptable_work['terminate'] = self.terminate
+        acceptable_work['restart'] = self.restart
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
