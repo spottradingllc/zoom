@@ -250,7 +250,6 @@ class Application(object):
         self._action_queue.clear()
         self._action_queue.append_unique(Task('stop', kwargs=kwargs))
         self._action_queue.append_unique(Task('unregister'))
-        self._action_queue.append_unique(Task('notify'))
         self._action_queue.append_unique(Task('start', kwargs=kwargs))
 
     def dep_restart(self, **kwargs):
