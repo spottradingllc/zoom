@@ -95,7 +95,7 @@ class SentinelDaemon(object):
         Populate self._settings dict.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        data, stat = self.zkclient.get('/justin/settings',
+        data, stat = self.zkclient.get(ZK_AGENT_CONFIG,
                                        watch=self._get_settings)
         self._settings.set_value(json.loads(data))
         self._log.info('Got settings:\n{0}'
