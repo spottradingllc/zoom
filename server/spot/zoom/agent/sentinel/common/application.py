@@ -22,6 +22,7 @@ from spot.zoom.agent.sentinel.common.thread_safe_object import (
 from spot.zoom.common.types import (
     PlatformType,
     AlertActionType,
+    AlertReason,
     ApplicationType,
     ApplicationState,
     ApplicationStatus
@@ -198,13 +199,12 @@ class Application(object):
             self._check_mode()
             self._run_check_mode = False
 
-        if result == ApplicationStatus.CRASHED:
-            self._state.set_value(ApplicationState.NOTIFY)
-        elif result == 0:
+        if result == 0:
             self._state.set_value(ApplicationState.OK)
         else:
             self._state.set_value(ApplicationState.ERROR)
-            self._create_alert_node(AlertActionType.TRIGGER)
+            self._create_alert_node(AlertActionType.TRIGGER,
+                                    AlertReason.FAILEDTOSTART)
 
         self._update_agent_node_with_app_details()
 
@@ -289,11 +289,15 @@ class Application(object):
         """
         Send notification to zookeeper that a dependency has gone down.
         """
-        if not self._proc_client.ran_stop:
-            self._log.info('### Process crashed. Should send PD alert')
+        # Application failed to start. Already sent PD alert
+        if self._state == ApplicationState.ERROR:
+            return
+
+        if not self._proc_client.ran_stop and not self._proc_client.running():
             self._state.set_value(ApplicationState.NOTIFY)
             self._update_agent_node_with_app_details()
-            #send PD alert
+            self._create_alert_node(AlertActionType.TRIGGER,
+                                    AlertReason.CRASHED)
             if self._proc_client.restart_allowed:
                 self._log.info('RestartOnCrash set to True. Restarting service')
                 self._action_queue.append_unique(Task('start', kwargs=kwargs))
@@ -468,32 +472,28 @@ class Application(object):
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def _get_alert_details(self):
+    def _get_alert_details(self, reason):
         return {
             "action": None,
             "subdomain": self._settings.get("PAGERDUTY_SUBDOMAIN"),
             "org_token": self._settings.get("PAGERDUTY_API_TOKEN"),
             "svc_token": self._settings.get("PAGERDUTY_SERVICE_TOKEN"),
             "key": self._pathjoin('sentinel', self.name, self._host),
-            "description": (
-                'Sentinel Error: Application {0} has failed to start on host '
-                '{1}.'.format(self.name, self._host)
-            ),
-            "details": (
-                'Sentinel Error: Application {0} has failed to start on host '
-                '{1}.\nReview the application log and contact the appropriate '
-                'development group.'.format(self.name, self._host)
-            )
+            "description": 'Sentinel Error: Application {0} {1} on host '
+                           '{2}.'.format(self.name, reason, self._host),
+            "details": 'Sentinel Error: Application {0} {1} on host '
+                       '{2}.\nReview the application log and contact the appropriate '
+                       'development group.'.format(self.name, reason, self._host)
         }
 
     @catch_exception(NoNodeError)
     @connected
-    def _create_alert_node(self, alert_action):
+    def _create_alert_node(self, alert_action, reason):
         """
         Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
         """
-        alert_details = self._get_alert_details()
+        alert_details = self._get_alert_details(reason)
         alert_details['action'] = alert_action
         # path example: /foo/sentinel.bar.baz.HOSTFOO
         alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),

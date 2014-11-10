@@ -142,10 +142,11 @@ class ProcessClient(object):
     def stop(self, **kwargs):
         """Stop process"""
         self.ran_stop = True
-        self._stay_down = False
 
         if kwargs.get('stay_down', 'false') == 'true':
             self._stay_down = True
+        else:
+            self._stay_down = False
 
         return_code = self.stop_method()
 
