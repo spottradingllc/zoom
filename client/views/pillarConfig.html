@@ -2,98 +2,106 @@
     <div class="container-fluid" data-bind="with: pillarModel">
         <div class="page-header" style="margin-top: 85px">
             <h1> Pillar Value Editor </h1>
+            <select data-bind="options: pillarOptions, value: selectedOption"></select>
         </div>
 
+        <div class="row">
+            <!--sidebar-->
+            <div id="searchPane" class="col-md-4">
 
-        <div class="checkbox-list">
-            <div class = "search-box">
-                <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server name..." autofocus=""></input> 
+                <div class = "search-box">
+                    <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server name..." autofocus=""></input> 
+                </div>
+                <div class="checkbox-list">
+                    <div data-bind="foreach: show_allInfo"> 
+                        <div> 
+                            <input type="checkbox" data-bind="value: name, checked: checked">
+                            <span data-bind="text: name"></span>
+                            <!--<span data-bind="text: ko.toJSON(pillar, null, 2)"></span>-->
+                        </div>
+                    </div>
+                </div>
+
             </div>
+        
+            <div id="mainPane" class="col-md-6"> 
+                <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Delete Pillar(s)'">
+                    <span> Selected servers: </span>
+                    <div data-bind="foreach: checked_servers">
+                        <table>
+                            <td data-bind="text: name"></td>
+                        </table>
+                    </div>
+                </div>
 
-            <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Delete Pillar(s)'">
-                <span> Selected servers: </span>
-                <div data-bind="foreach: checked_servers">
+                
+
+                <button data-bind="click: unselectAll, visible: checked_servers().length > 0">Uncheck All</button>
+
+                <div data-bind="visible: selectedOption() == 'Create Pillar'">
+                    <input class="field-one" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
+                    <span> .spottrading.com </span>
+                    <button data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
+                </div>
+
+                <div data-bind="visible: selectedOption() == 'Delete Pillar(s)'">
+                    <button data-bind="click: function() { api_delete('pillar') }">Delete</button>
+                </div>
+
+                <div>
+                    <textarea data-bind="value: ko.toJSON(show_pillar, null, 2)"></textarea>
+                </div>
+
+                <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
+                    <div>
+                        <select data-bind="options: allProjects, value: selectedProject"></select>
+                        <button data-bind="click: function () { api_delete('project') } ">Delete this project</button>
+                    </div>
+
+                    <div>
+                        <span>New subtype data:</span>
+                        <input data-bind="textInput: new_subtype"></input>
+                        <button data-bind="click: api_put('subtype', new_subtype())">Push new subtype</button>
+                    </div>
+
+                    <div>
+                        <span>New version data:</span>
+                        <input data-bind="textInput: new_version"></input>
+                        <button data-bind="click: api_put('version', new_version())">Push new version</button>
+                    </div>
+
+                    <div>
+                        <span>Create a new project:</span>
+                        <input data-bind="textInput: new_project"></input>
+                        <button data-bind="click: createProjectWrapper(new_project())">Create</button>
+                    </div>
+
+
+
                     <table>
-                        <td data-bind="text: name"></td>
+
+                        <thead>
+                        <tr>
+                            <td>Server</td>
+                            <td>Subtype</td>
+                            <td>Version</td>
+                        </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach: checked_servers">
+                        <tr> 
+                            <button>Edit</button>
+                            <td data-bind="text: name"></td>
+                            <td data-bind="text: $parent.subtype_get($data, 'subtype')"></td>
+                            <td data-bind="text: $parent.subtype_get($data, 'version')"></td> 
+                            <!-- Direct access, but can't handle errors if data not there -->
+                            <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
+                        </tr>
+                        </tbody>
+
                     </table>
-                </div>
             </div>
 
-            <select data-bind="options: pillarOptions, value: selectedOption"></select>
-
-            <button data-bind="click: unselectAll, visible: checked_servers().length > 0">Uncheck All</button>
-
-            <div data-bind="visible: selectedOption() == 'Create Pillar'">
-                <input class="field-one" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
-                <span> .spottrading.com </span>
-                <button data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
-            </div>
-
-            <div data-bind="visible: selectedOption() == 'Delete Pillar(s)'">
-                <button data-bind="click: function() { api_delete('pillar') }">Delete</button>
-            </div>
-
-            <div>
-                <textarea data-bind="value: ko.toJSON(show_pillar, null, 2)"></textarea>
-            </div>
-
-            <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
-                <div>
-                    <select data-bind="options: allProjects, value: selectedProject"></select>
-                    <button data-bind="click: function () { api_delete('project') } ">Delete this project</button>
-                </div>
-
-                <div>
-                    <span>New subtype data:</span>
-                    <input data-bind="textInput: new_subtype"></input>
-                    <button data-bind="click: api_put('subtype', new_subtype())">Push new subtype</button>
-                </div>
-
-                <div>
-                    <span>New version data:</span>
-                    <input data-bind="textInput: new_version"></input>
-                    <button data-bind="click: api_put('version', new_version())">Push new version</button>
-                </div>
-
-                <div>
-                    <span>Create a new project:</span>
-                    <input data-bind="textInput: new_project"></input>
-                    <button data-bind="click: createProjectWrapper(new_project())">Create</button>
-                </div>
-
-
-
-                <table>
-
-                    <thead>
-                    <tr>
-                        <td>Server</td>
-                        <td>Subtype</td>
-                        <td>Version</td>
-                    </tr>
-                    </thead>
-
-                    <tbody data-bind="foreach: checked_servers">
-                    <tr> 
-                        <button>Edit</button>
-                        <td data-bind="text: name"></td>
-                        <td data-bind="text: $parent.subtype_get($data, 'subtype')"></td>
-                        <td data-bind="text: $parent.subtype_get($data, 'version')"></td> 
-                        <!-- Direct access, but can't handle errors if data not there -->
-                        <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
-                    </tr>
-                    </tbody>
-
-                </table>
-            </div>
-
-            <div data-bind="foreach: show_allInfo">
-                <div> 
-                    <input type="checkbox" data-bind="value: name, checked: checked">
-                    <span data-bind="text: name"></span>
-                    <!--<span data-bind="text: ko.toJSON(pillar, null, 2)"></span>-->
-                </div>
-            </div>
         </div>
   
     </div>
