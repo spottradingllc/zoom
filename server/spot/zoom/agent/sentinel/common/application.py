@@ -295,8 +295,9 @@ class Application(object):
         # Application failed to start. Already sent PD alert
         if self._state == ApplicationState.ERROR:
             return
-
+        
         if not self._proc_client.ran_stop and not self._proc_client.running():
+            # the application has crashed
             self._state.set_value(ApplicationState.NOTIFY)
             self._update_agent_node_with_app_details()
             self._create_alert_node(AlertActionType.TRIGGER,
