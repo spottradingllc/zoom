@@ -67,6 +67,13 @@ class Action(object):
     def stop(self):
         self._predicate.stop()
 
+    def run(self, **kwargs):
+        """
+        Force run of action (without regard to predicates)
+        """
+        self._log.info('Action {0} has been called.'.format(self.name))
+        self._execute(**kwargs)
+
     def _callback(self):
         self._log.info('Callback triggered for {0}:\n{1}'
                        .format(self, self._predicate))
@@ -98,14 +105,14 @@ class Action(object):
                                ' action based on dependency change.'
                                .format(self.name))
 
-    def _execute(self):
+    def _execute(self, **kwargs):
         self._log.info('Attempting action "{0}"'.format(self.name))
         if self._stag_lock is not None:
             self._stag_lock.start()
-            self._action()
+            self._action(**kwargs)
             self._stag_lock.join()
         else:
-            self._action()
+            self._action(**kwargs)
 
     def __repr__(self):
         return 'Action(name={0}, component={1})'.format(self.name,

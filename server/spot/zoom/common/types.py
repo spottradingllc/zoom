@@ -16,6 +16,7 @@ class ApplicationType():
 class ApplicationState():
     OK = "ok"
     ERROR = "error"
+    CONFIG_ERROR = "config_error"
     STARTING = "starting"
     STOPPING = "stopping"
     NOTIFY = "notify"

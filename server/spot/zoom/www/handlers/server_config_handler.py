@@ -145,19 +145,51 @@ class ServerConfigHandler(tornado.web.RequestHandler):
 
                 if reg_path is not None:
                     if reg_path == app_reg_path and server != app_host:
-                        valid = False
-                        self.write('Config is not valid! Registration path '
-                                   '{0} matches existing config on  server {1}.'
-                                   .format(reg_path, app_host))
+                        if self._double_check_config(app_host,
+                                                     reg_to_find=reg_path):
+                            valid = False
+                            self.write(
+                                'Config is not valid! Registration path {0} '
+                                'matches existing config on server {1}.'
+                                 .format(reg_path, app_host))
                         break
 
                 else:
                     comp_id = component.get('id')
                     if comp_id == app_name and server != app_host:
-                        valid = False
-                        self.write('Config is not valid! Component ID {0} '
-                                   'matches existing config on server {1}.'
-                                   .format(comp_id, app_host))
+                        if self._double_check_config(app_host,
+                                                     id_to_find=comp_id):
+                            valid = False
+                            self.write('Config is not valid! Component ID {0} '
+                                       'matches existing config on server {1}.'
+                                       .format(comp_id, app_host))
                         break
 
         return valid
+
+    def _double_check_config(self, server, id_to_find=None, reg_to_find=None):
+        """
+        It is possible that the ApplicationStateCache will have a stale host
+        value. Check the actual config to make sure the component_id is REALLY
+        there.
+        :type server: str
+        :type id_to_find: str or None
+        :type reg_to_find: str or None
+        :rtype: bool
+        """
+        path = os.path.join(self.agent_configuration_path, server)
+        if self.zk.exists(path):
+            xmlstr, stat = self.zk.get(path)
+        else:
+            return False
+
+        config = ElementTree.fromstring(xmlstr)
+        for component in config.iter('Component'):
+            comp_id = component.get('id')
+            comp_reg_path = component.get('registrationpath')
+            if id_to_find and id_to_find == comp_id:
+                return True
+            elif reg_to_find and reg_to_find == comp_reg_path:
+                return True
+
+        return False

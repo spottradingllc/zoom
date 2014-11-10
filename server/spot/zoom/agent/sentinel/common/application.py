@@ -126,9 +126,7 @@ class Application(object):
         Add entry to the state tree
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if not self.zkclient.exists(self._paths['zk_state_path']
-                                    # watch=self.register
-        ):
+        if not self.zkclient.exists(self._paths['zk_state_path']):
             ready_action = self._actions.get('register', None)
             # check that predicates are all met
             if ready_action is not None and ready_action.ready:
@@ -331,23 +329,41 @@ class Application(object):
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-
         current_data = self._app_details()
 
-        if self.zkclient.exists(self._paths['zk_state_base'],
-                                watch=self._update_agent_node_with_app_details):
-            data, stat = self.zkclient.get(self._paths['zk_state_base'])
+        if not self.zkclient.exists(self._paths['zk_state_base']):
+            self.zkclient.create(self._paths['zk_state_base'])
 
-            try:
-                agent_apps = json.loads(data)
-            except ValueError:
-                agent_apps = dict()
+        data, stat = self.zkclient.get(self._paths['zk_state_base'])
 
-            # make sure data is the most recent
-            if current_data != agent_apps:
-                self.zkclient.set(self._paths['zk_state_base'],
-                                  json.dumps(current_data))
-                self._log.debug('Registering app data {0}'.format(current_data))
+        try:
+            agent_apps = json.loads(data)
+        except ValueError:
+            agent_apps = dict()
+
+        # check for config conflict
+        other_host = agent_apps.get('host')
+        if other_host is not None and self._host != other_host:
+            self._log.error('There is a config conflict with {0}. Updates '
+                            'will no longer be sent until it is resolved.'
+                            .format(other_host))
+            self._state.set_value(ApplicationState.CONFIG_ERROR)
+            current_data = self._app_details()
+
+        # make sure data is the most recent
+        if current_data != agent_apps:
+            self.zkclient.set(self._paths['zk_state_base'],
+                              json.dumps(current_data))
+            self._log.debug('Registering app data {0}'.format(current_data))
+
+        # set watch
+        if self._state != ApplicationState.CONFIG_ERROR:
+            self.zkclient.get(
+                self._paths['zk_state_base'],
+                watch=self._update_agent_node_with_app_details)
+        else:
+            self._log.error('Shutting down because of config error.')
+            self.terminate()
 
     def _init_paths(self, config, settings, atype):
         """
@@ -416,12 +432,10 @@ class Application(object):
         :rtype: spot.zoom.agent.sentinel.common.work_manager.WorkManager
         """
         acceptable_work = dict()
-        for w in self._settings.get('ALLOWED_WORK'):
-            if hasattr(self, w):
-                acceptable_work[w] = self.__getattribute__(w)
-            else:
-                self._log.error('Class has no method {0}'.format(w))
+        for k, v in self._actions.iteritems():
+            acceptable_work[k] = v.run
 
+        acceptable_work['terminate'] = self.terminate
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
