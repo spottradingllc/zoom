@@ -4,6 +4,9 @@ class AlertActionType():
     TRIGGER = 'trigger'
     RESOLVE = 'resolve'
 
+class AlertReason():
+    CRASHED = 'crashed'
+    FAILEDTOSTART = 'failed to start'
 
 class ApplicationType():
     JOB = "job"

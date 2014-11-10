@@ -8,7 +8,6 @@ define(['knockout', './Action'],
             self.compType = ko.observable(null);
             self.script = ko.observable(null);
             self.command = ko.observable(null);
-            self.allowedinstances = ko.observable(null);
             self.restartmax = ko.observable(null);
             self.restartoncrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
@@ -94,9 +93,6 @@ define(['knockout', './Action'],
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
                 }
-                if (checkNull(self.allowedinstances())) {
-                    XML = XML.concat('allowed_instances="' + self.allowedinstances() + '" ');
-                }
                 if (checkNull(self.restartoncrash())) {
                     XML = XML.concat('restartoncrash="' + self.restartoncrash() + '" ');
                 }
@@ -126,7 +122,6 @@ define(['knockout', './Action'],
                 self.restartmax(node.getAttribute('restartmax'));
                 self.restartoncrash(node.getAttribute('restartoncrash'));
                 self.registrationpath(node.getAttribute('registrationpath'));
-                self.allowedinstances(node.getAttribute('allowed_instances'));
 
                 self.actions.removeAll();
                 var actions = node.getElementsByTagName('Action');

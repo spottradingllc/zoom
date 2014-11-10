@@ -22,6 +22,8 @@ from spot.zoom.agent.sentinel.common.thread_safe_object import (
 from spot.zoom.common.types import (
     PlatformType,
     AlertActionType,
+    AlertReason,
+    ApplicationType,
     ApplicationState,
     ApplicationStatus
 )
@@ -68,6 +70,7 @@ class Application(object):
         self._prev_state = None
         self._actions = dict()  # created in _reset_watches on zk connect
         self._env = os.environ.get('EnvironmentToUse', 'Staging')
+        self._apptype = application_type
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -79,7 +82,6 @@ class Application(object):
         self._login_user = 'Zoom'   #Default to Zoom
         self._run_check_mode = False
 
-        self._allowed_instances = self._init_allowed_inst(self.config)
         self._paths = self._init_paths(self.config, settings, application_type)
 
         # clients
@@ -107,7 +109,6 @@ class Application(object):
         - Start main loop, periodically checking whether the process has failed.
         """
         self.zkclient.start()
-        self._check_allowed_instances()
         # make all action objects start processing predicates
         self._log.info('Starting to process Actions.')
         map(lambda x: x.start(), self._actions.values())  # start actions
@@ -173,6 +174,17 @@ class Application(object):
         Start actual process
         :param kwargs: passed from spot.zoom.handlers.control_agent_handlers
         """
+        # Same check as self.notify() but needed when start action is
+        # called after process crashes and all predicates are met when on Auto
+        if not self._proc_client.restart_allowed and \
+                not self._proc_client.ran_stop \
+                and self._apptype == ApplicationType.APPLICATION:
+            self._log.info('Not starting due to restartoncrash set to '
+                           'False, the stop method was not called, and is '
+                           'an application')
+            return 0
+        else:
+            self._log.debug('Start allowed.')
 
         if kwargs.get('reset', True):
             self._proc_client.reset_counters()
@@ -190,13 +202,12 @@ class Application(object):
             self._check_mode()
             self._run_check_mode = False
 
-        if result == ApplicationStatus.CRASHED:
-            self._state.set_value(ApplicationState.NOTIFY)
-        elif result == 0:
+        if result == 0:
             self._state.set_value(ApplicationState.OK)
         else:
             self._state.set_value(ApplicationState.ERROR)
-            self._create_alert_node(AlertActionType.TRIGGER)
+            self._create_alert_node(AlertActionType.TRIGGER,
+                                    AlertReason.FAILEDTOSTART)
 
         self._update_agent_node_with_app_details()
 
@@ -276,13 +287,30 @@ class Application(object):
 
     @time_this
     @connected
-    def notify(self):
+    def notify(self, **kwargs):
         """
         Send notification to zookeeper that a dependency has gone down.
         """
-        self._state.set_value(ApplicationState.NOTIFY)
-        self._update_agent_node_with_app_details()
-        return 0
+        # Application failed to start. Already sent PD alert
+        if self._state == ApplicationState.ERROR:
+            return
+        
+        if not self._proc_client.ran_stop and not self._proc_client.running():
+            # the application has crashed
+            self._state.set_value(ApplicationState.NOTIFY)
+            self._update_agent_node_with_app_details()
+            self._create_alert_node(AlertActionType.TRIGGER,
+                                    AlertReason.CRASHED)
+            if self._proc_client.restart_allowed:
+                # Need to add "start" to the queue while on manual and
+                # if restartoncrash is true
+                self._log.info('RestartOnCrash set to True. Restarting service')
+                self._action_queue.append_unique(Task('start', kwargs=kwargs))
+            else:
+                self._log.info('RestartOnCrash set to False. Staying down')
+        else:
+            self._log.debug("Service shut down gracefully")
+
 
     def terminate(self):
         """Terminate child thread/process"""
@@ -344,19 +372,6 @@ class Application(object):
 
         return paths
 
-    def _init_allowed_inst(self, config):
-        """
-        :rtype: int
-        """
-        allowed_instances = verify_attribute(config, 'allowed_instances',
-                                             none_allowed=True, cast=int)
-
-        if allowed_instances is None:
-            self._log.info('Allowed instances not specified. Assuming 1')
-            allowed_instances = 1
-
-        return allowed_instances
-
     def _init_proc_client(self, config, settings, atype):
         """Create the process client."""
         command = verify_attribute(config, 'command', none_allowed=True)
@@ -412,36 +427,6 @@ class Application(object):
         return manager
 
     @connected
-    def _check_allowed_instances(self, event=None):
-        """
-        Check whether the allowed instances is less than current instance 
-        count. Set watch on that node to see if it changes.
-        :type event: kazoo.protocol.states.WatchedEvent or None
-        """
-        try:
-            children = self.zkclient.get_children(
-                self._paths['zk_state_base'],
-                watch=self._check_allowed_instances
-            )
-            num_of_children = len(children)
-            if not(num_of_children < self._allowed_instances):
-                self._log.info('Running instances of {0} ({1}) is >= allowed '
-                               'instances ({2}).'
-                               .format(self.name, num_of_children,
-                                       self._allowed_instances))
-                self._start_allowed.set_value(False)
- 
-            else:
-                self._log.info('Running instances of {0} ({1}) is < '
-                               'allowed instances ({2}). It should be allowed '
-                               'to start.'.format(self.name, num_of_children,
-                                                  self._allowed_instances))
-                self._start_allowed.set_value(True)
-        except NoNodeError:
-            self._log.info('ZK path {0} does not exist. Assuming no instances'
-                           ' are running.'.format(self._paths['zk_state_base']))
-
-    @connected
     def _check_mode(self, event=None):
         """
         Check global run mode for the agents.
@@ -492,32 +477,28 @@ class Application(object):
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def _get_alert_details(self):
+    def _get_alert_details(self, reason):
         return {
             "action": None,
             "subdomain": self._settings.get("PAGERDUTY_SUBDOMAIN"),
             "org_token": self._settings.get("PAGERDUTY_API_TOKEN"),
             "svc_token": self._settings.get("PAGERDUTY_SERVICE_TOKEN"),
             "key": self._pathjoin('sentinel', self.name, self._host),
-            "description": (
-                'Sentinel Error: Application {0} has failed to start on host '
-                '{1}.'.format(self.name, self._host)
-            ),
-            "details": (
-                'Sentinel Error: Application {0} has failed to start on host '
-                '{1}.\nReview the application log and contact the appropriate '
-                'development group.'.format(self.name, self._host)
-            )
+            "description": 'Sentinel Error: Application {0} {1} on host '
+                           '{2}.'.format(self.name, reason, self._host),
+            "details": 'Sentinel Error: Application {0} {1} on host '
+                       '{2}.\nReview the application log and contact the appropriate '
+                       'development group.'.format(self.name, reason, self._host)
         }
 
     @catch_exception(NoNodeError)
     @connected
-    def _create_alert_node(self, alert_action):
+    def _create_alert_node(self, alert_action, reason):
         """
         Create Node in ZooKeeper that will result in a PagerDuty alarm
         :type alert_action: spot.zoom.common.types.AlertActionType
         """
-        alert_details = self._get_alert_details()
+        alert_details = self._get_alert_details(reason)
         alert_details['action'] = alert_action
         # path example: /foo/sentinel.bar.baz.HOSTFOO
         alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
@@ -551,7 +532,6 @@ class Application(object):
             self._actions = self._init_actions(self._settings)
             map(lambda x: x.reset(), self._predicates)  # reset predicates
             map(lambda x: x.start(), self._actions.values())  # start actions
-            self._check_allowed_instances()
             self._check_mode()
             self._log.info('Application listener callback complete!')
         else:
