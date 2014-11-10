@@ -179,6 +179,9 @@ class Application(object):
         if not self._proc_client.restart_allowed and \
                 not self._proc_client.ran_stop \
                 and self._apptype == ApplicationType.APPLICATION:
+            self._log.info('Not starting due to restartoncrash set to '
+                           'False, the stop method was not called, and is '
+                           'an application')
             return 0
         else:
             self._log.debug('Start allowed.')
@@ -299,6 +302,8 @@ class Application(object):
             self._create_alert_node(AlertActionType.TRIGGER,
                                     AlertReason.CRASHED)
             if self._proc_client.restart_allowed:
+                # Need to add "start" to the queue while on manual and
+                # if restartoncrash is true
                 self._log.info('RestartOnCrash set to True. Restarting service')
                 self._action_queue.append_unique(Task('start', kwargs=kwargs))
             else:
