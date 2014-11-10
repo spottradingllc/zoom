@@ -125,9 +125,7 @@ class Application(object):
         Add entry to the state tree
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if not self.zkclient.exists(self._paths['zk_state_path']
-                                    # watch=self.register
-        ):
+        if not self.zkclient.exists(self._paths['zk_state_path']):
             ready_action = self._actions.get('register', None)
             # check that predicates are all met
             if ready_action is not None and ready_action.ready:
@@ -419,12 +417,10 @@ class Application(object):
         :rtype: spot.zoom.agent.sentinel.common.work_manager.WorkManager
         """
         acceptable_work = dict()
-        for w in self._settings.get('ALLOWED_WORK'):
-            if hasattr(self, w):
-                acceptable_work[w] = self.__getattribute__(w)
-            else:
-                self._log.error('Class has no method {0}'.format(w))
+        for k, v in self._actions.iteritems():
+            acceptable_work[k] = v.run
 
+        acceptable_work['terminate'] = self.terminate
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
