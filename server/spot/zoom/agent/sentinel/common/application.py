@@ -438,6 +438,8 @@ class Application(object):
 
         acceptable_work['terminate'] = self.terminate
         acceptable_work['restart'] = self.restart
+        acceptable_work['ignore'] = self.ignore
+        acceptable_work['react'] = self.react
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
