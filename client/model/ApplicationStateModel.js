@@ -4,6 +4,7 @@ define(
         'plugins/router',
         'service',
         'jquery',
+        'jq-throttle',
         'model/ApplicationState',
         'model/environmentModel',
         'model/adminModel',
@@ -12,7 +13,7 @@ define(
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'
     ],
-    function(ko, router, service, $, ApplicationState, environment, admin, GlobalMode,
+    function(ko, router, service, $, jqthrottle, ApplicationState, environment, admin, GlobalMode,
              CustomFilterModel, ApplicationStateArray, DependencyMaps) {
         return function ApplicationStateModel(login) {
             var self = this;
@@ -239,23 +240,6 @@ define(
                 });
             };
 
-            self.displaySize = ko.observable(10);
-
-            self.sliceArray = ko.computed(function () {
-                    self.appsToShow(self.applicationStateArray().slice(0, self.displaySize()));
-            });
-            
-            $(window).scroll( function() {
-                    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-                        // add a few rows
-                        alert("worked");
-                        var add_size = 3;
-                        var new_size = 0;
-                        new_size = self.displaySize() + add_size;
-                        self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
-                    }
-            });
-
             // Sorting
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
@@ -357,6 +341,48 @@ define(
             self.currentView = ko.observable(self);
             self.views = ko.observableArray([]);
             self.views.push(self);
+            
+            self.displaySize = ko.observable("");
+            
+            self.numRows = function () {
+                // if the object in the current view has the same name as self
+                if (self.currentView().constructor.name === self.constructor.name){
+                    var totalY = $(window).height();
+                    totalY-=250;
+                    var rowY = 32; //each row is roughly 32 px high
+                    var newSize = totalY/rowY;
+
+                    // only update if new size is larger than current
+                    if (newSize > self.displaySize()){
+                        self.displaySize(newSize);
+                    }
+                }
+            };
+
+            self.numRows();
+
+            $(window).resize($.throttle(300, self.numRows));
+
+            self.showOnlyVisible = ko.computed(function () {
+                    self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
+            });
+            
+            self.autoLoad  = $(window).scroll( function() {
+                    if (self.currentView().constructor.name === self.constructor.name){
+                    var diff = $(window).scrollTop() + $(window).height() - $(document).height();
+                    // when zoomed in, the diff can sometimes drift as far as 2 pixels off
+                    // root cause is not known - but likely a Chrome bug
+                    // http://bit.ly/1szF52q
+                    if (diff > -3) {
+                            // add a few rows
+                            var add_size = 3;
+                            var new_size = 0;
+                            new_size = self.displaySize() + add_size;
+                            self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
+                        }
+                    }
+            });
+
 
             // dependency maps
             self.dependencyMaps = new DependencyMaps(self);

@@ -8,11 +8,15 @@ requirejs.config({
         'knockout':     './libs/knockout-3.2.0',
         'bootstrap':    './libs/bootstrap-3.2.0.min',
         'jquery':       './libs/jquery-2.1.1.min',
+        'jq-throttle':  './libs/jquery.ba-throttle-debounce.min',
         'd3':           './libs/d3.min',
         'vkbeautify':   './libs/vkbeautify.0.99.00.beta',
         'sweet-alert':  './libs/sweet-alert.min'
     },
     shim: {
+        'jq-throttle': {
+            deps: ['jquery']
+        },
         'bootstrap': {
             deps: ['jquery'],
             exports: 'jQuery'
