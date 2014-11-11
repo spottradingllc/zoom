@@ -7,6 +7,7 @@ class AlertActionType():
 class AlertReason():
     CRASHED = 'crashed'
     FAILEDTOSTART = 'failed to start'
+    RESOLVED = 'resolved'
 
 class ApplicationType():
     JOB = "job"
