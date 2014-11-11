@@ -21,16 +21,6 @@ define(['knockout', 'classes/predicateFactory'],
                 }
             });
 
-            self.error = ko.computed(function() {
-                if (self.predicates().length < 1) {
-                    // TODO Decide what actions are required
-                    return 'You have to have a predicate';
-                }
-                else {
-                    return '';
-                }
-            });
-
             self.title = ko.computed(function() {
                 return 'Action ' + self.ID();
             });
@@ -57,26 +47,31 @@ define(['knockout', 'classes/predicateFactory'],
                 });
             };
 
-            self.validate = function() {
-                var valid = true;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
 
-                if (self.error() !== '') {
-                    valid = false;
-                }
                 if (self.ID() === null) {
-                    self.expandUp();
-                    valid = false;
-                }
-                for (var i = 0; i < self.predicates().length; i++) {
-                    if (!self.predicates()[i].validate()) {
-                        valid = false;
-                    }
+                    errors.push('Action ID cannot be null.');
                 }
 
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+            // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    allErrors = allErrors.concat(predicate.validate());
+                });
+
+                return allErrors;
             };
 
             var checkNull = function(param) {

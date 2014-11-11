@@ -30,14 +30,15 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
 
             self.validate = function() {
                 var valid = true;
-                for (var i = 0; i < self.components().length; i++) {
-                    if (!self.components()[i].validate()) {
-                        valid = false;
-                    }
-                }
+                var errors = [];
 
-                if (!valid) {
-                    alert('Red areas indicate errors');
+                ko.utils.arrayForEach(self.components(), function(component) {
+                    errors = errors.concat(component.validate());
+                });
+
+                if (errors.length > 0) {
+                    swal('I find your lack of config validity...disturbing.', errors.join('\n'), 'error' );
+                    valid = false;
                 }
 
                 return valid;

@@ -16,15 +16,6 @@ define(['knockout', './Action'],
 
             self.actions = ko.observableArray();
 
-            self.error = ko.computed(function() {
-                if (self.actions().length < 1) {
-                    return 'You have to have an Action';
-                }
-                else {
-                    return '';
-                }
-            });
-
             self.addAction = function() {
                 self.expanded(true);
                 self.actions.push(new Action(self));
@@ -46,30 +37,40 @@ define(['knockout', './Action'],
                 return (param !== null && param !== '');
             };
 
-            self.validate = function() {
-                var valid = true;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
 
-                if (self.error() !== '') {
-                    valid = false;
+                if (self.actions().length < 1) {
+                    errors.push('You should probably add an Action.');
                 }
                 if (!checkNull(self.ID()) || !checkNull(self.compType())) {
-                    valid = false;
+                    errors.push('Component ID and type cannot be null.');
                 }
                 if (self.compType() === 'job' && !checkNull(self.command()) ) {
-                    valid = false;
+                    errors.push('Component command cannot be null for jobs.');
                 }
                 else if (self.compType() === 'application' && !checkNull(self.script())) {
-                    valid = false;
+                    errors.push('Component script is null.');
                 }
-                for (var i = 0; i < self.actions().length; i++) {
-                    if (!self.actions()[i].validate()) {
-                        valid = false;
-                    }
-                }
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    allErrors = allErrors.concat(action.validate());
+                });
+
+                return allErrors;
             };
 
             self.createComponentXML = function() {
