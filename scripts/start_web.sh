@@ -7,8 +7,8 @@ APPPATH="/opt/spot/zoom/server"
 VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
-#RUNLOG=$APPPATH/logs/stdout
-RUNLOG="/dev/null"
+RUNLOG=$APPPATH/logs/web_stdout
+#RUNLOG="/dev/null"
 
 export PATH=$PATH:/bin
 if [ -f /etc/profile.d/spotdev.sh ]; then
