@@ -11,9 +11,11 @@ class RestartLogic(object):
         :param restart_max: int or none
         """
         self._log = logging.getLogger('sent.restart')
-        self._restart_on_crash = restart_on_crash
+        if restart_on_crash is True:
+            self._restart_on_crash = True
+        else:
+            self._restart_on_crash = False
         self._restart_max = restart_max
-        self._allowed = True
         self._count = 0
 
     @property
@@ -29,11 +31,7 @@ class RestartLogic(object):
         Return if restarts are allowed or not
         :rtype: bool
         """
-        self._log.debug('Restart on crash: {0}'.format(self._restart_on_crash))
-        if self._restart_on_crash is True:
-            return True
-        else:
-            return self._allowed
+        return self._restart_on_crash
 
     @property
     def restart_max_reached(self):
@@ -47,14 +45,6 @@ class RestartLogic(object):
                             'process will no longer try to start.'
                             .format(self._restart_max))
         return result
-
-    def set_false(self):
-        self._log.debug('Restart allowed set to False')
-        self._allowed = False
-
-    def set_true(self):
-        self._log.debug('Restart allowed set to True')
-        self._allowed = True
 
     def reset_count(self):
         self._log.debug('Resetting start count to 0.')

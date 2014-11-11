@@ -161,6 +161,11 @@
                             </span>
                             <span class="caret"></span>
                         </button>
+                        <button class="btn btn-default" type="button"
+                                data-bind="click: appStateModel.customFilters.toggleMatchIntersection,
+                                text: appStateModel.customFilters.matchIntersection() ? 'Match Union' : 'Match Intersection',
+                                visible: appStateModel.customFilters.matchTypeVisible">
+                        </button>
                         <ul class="dropdown-menu pull-right" role="menu">
                             <!-- ko foreach: appStateModel.customFilters.defaultFilters -->
                                 <li role="presentation">
@@ -203,13 +208,13 @@
             <div class="col-md-6 text-right">
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent({'com':'stop', 'arg':true,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'stop', 'stay_down':true, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Stop the starred services.">
                         <span class="glyphicon glyphicon-stop"></span></button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent({'com':'restart', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'restart', 'stay_down':false, 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Restart the starred services.">
@@ -221,17 +226,17 @@
                                           title="Restart the starred services."> 
                         <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent({'com':'ignore', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'ignore', 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to ignore Zookeeper changes.">Ignore</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent({'com':'react', 'arg':false, 'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'react', 'clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Command the starred agents to react to Zookeeper changes.">React</button>
                     <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent({'com':'cancel', 'arg':false,'clear_group':true})}"
+                                          data-bind="click: function(){appStateModel.controlAgent({'com':'cancel','clear_group':true})}"
                                           data-toggle="tooltip"
                                           data-placement="top"
                                           title="Cancel pending commands for the starred agents.">Cancel</button>
@@ -265,8 +270,7 @@
                                         data-placement="top"
                                         title="Close the filter.">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                    <span class="badge" data-bind="text: appStateModel.customFilters.allMatchedItems().length,
-                                                                   visible: enabled() "></span>
+                                    <span class="badge" data-bind="text: $data.matchedItems().length, visible: enabled() "></span>
                                 </button>
                                 <button class="btn btn-default"
                                         data-bind="click: toggleEnabled, visible: !enabled()"
@@ -532,7 +536,7 @@
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
                                 <a data-bind="click: function()
-                                    {$parent.appStateModel.controlAgent({'com':'stop', 'arg':true}, {'componentId':componentId, 
+                                    {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -540,7 +544,7 @@
                                 </li>
                                 <li role="presentation">
                                 <a data-bind="click: function()
-                                    {$parent.appStateModel.controlAgent({'com':'restart', 'arg':false}, {'componentId':componentId,   
+                                    {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
@@ -548,23 +552,23 @@
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                     {$parent.appStateModel.controlAgent({'com':'cancel', 'arg':false}, {'componentId':componentId,   
-                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
+                                     {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Cancel pending commands to the agent.">Cancel</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                      {$parent.appStateModel.controlAgent({'com':'ignore', 'arg':false}, {'componentId':componentId,   
-                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
+                                      {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
+                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip"
                                        data-placement="top"
                                        title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
-                                     {$parent.appStateModel.controlAgent({'com':'react', 'arg':false}, {'componentId':componentId,   
+                                     {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
                                        data-toggle="tooltip"
                                        data-placement="top"

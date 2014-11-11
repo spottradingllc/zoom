@@ -4,16 +4,16 @@ define(['knockout', 'classes/LogicPredicate', 'classes/Predicate'],
         var Factory = {};
         Factory.newPredicate = function(parent, type) {
             if (type === 'and' || type === 'or' || type === 'not') {
-                var pred = new LogicPredicate(Factory, type);
+                return new LogicPredicate(Factory, type, parent);
             }
             else {
-                var pred = new Predicate(Factory);
+                return new Predicate(parent);
             }
-            pred.parent = parent;
-            return pred;
         };
 
         Factory.firstChild = function(node) {
+            if (typeof node === 'undefined') {return null;}
+
             var child = node.firstChild;
             // nodeType 1 == ELEMENT_NODE
             while (child !== null && child.nodeType !== 1) {

@@ -73,7 +73,7 @@ define(
                         'componentId': self.clickedApp().componentId,
                         'applicationHost': self.clickedApp().applicationHost,
                         'command': options.com,
-                        'argument': options.arg,
+                        'stay_down': options.stay_down,
                         'user': self.login.elements.username()
                     };
                     $.post('/api/agent/', dict, function() {
@@ -95,7 +95,7 @@ define(
                         'configurationPath': applicationState.configurationPath,
                         'applicationHost': applicationState.applicationHost,
                         'command': options.com,
-                        'argument': options.arg,
+                        'stay_down': options.stay_down,
                         'user': self.login.elements.username()
                     };
 
@@ -122,8 +122,8 @@ define(
             self.determineAndExecute = function() {
                 if (self.groupMode()) {
                     if (self.options.com === 'dep_restart') {
-                        self.executeGroupControl({'com': 'ignore', 'arg': false, 'clear_group': false});
-                        self.executeGroupControl({'com': 'stop', 'arg': false, 'clear_group': false});
+                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
+                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
                         self.checkDown();
                     }
                     else {
@@ -170,7 +170,7 @@ define(
 
             self.controlAgent = function(options, clickedApp) {
                 // options.com: command
-                // options.arg: command argument
+                // options.stay_down: stay_down
                 if (options === undefined) {
                     options = {'com': 'dep_restart'};
                 }

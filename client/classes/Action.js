@@ -2,20 +2,23 @@ define(['knockout', 'classes/predicateFactory'],
     function(ko, Factory) {
         return function Action(parent) {
             var self = this;
+            self.isAction = true;
             self.expanded = ko.observable(false);
             self.ID = ko.observable(null);
             self.staggerpath = ko.observable(null);
             self.staggertime = ko.observable(null);
-            self.mode_controlled = ko.observable(null);
+            self.modeControlled = ko.observable(null);
+            self.disabled = ko.observable(null);
             self.predicates = ko.observableArray();
 
-            self.error = ko.computed(function() {
-                if (self.predicates().length < 1) {
-                    // TODO Decide what actions are required
-                    return 'You have to have a predicate';
+            self.parentComponent = parent;
+            self.actionVisible = ko.computed(function() {
+                if (self.ID() != null) {
+                    var aID = self.ID().toLowerCase();
+                    return (aID === 'start' || aID === 'restart');
                 }
                 else {
-                    return '';
+                    return true;
                 }
             });
 
@@ -33,31 +36,43 @@ define(['knockout', 'classes/predicateFactory'],
                 parent.actions.remove(self);
             };
 
-            self.expandUp = function() {
-                self.expanded(true);
-                parent.expandUp();
+            self.toggleExpanded = function(expand) {
+                if (typeof expand !== 'undefined') {
+                    self.expanded(expand);
+                }
+                else {
+                    self.expanded(!self.expanded());
+                }
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    predicate.toggleExpanded(self.expanded());
+                });
             };
 
-            self.validate = function() {
-                var valid = true;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
 
-                if (self.error() !== '') {
-                    valid = false;
-                }
                 if (self.ID() === null) {
-                    self.expandUp();
-                    valid = false;
-                }
-                for (var i = 0; i < self.predicates().length; i++) {
-                    if (!self.predicates()[i].validate()) {
-                        valid = false;
-                    }
+                    errors.push('Action ID cannot be null.');
                 }
 
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+            // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    allErrors = allErrors.concat(predicate.validate());
+                });
+
+                return allErrors;
             };
 
             var checkNull = function(param) {
@@ -74,8 +89,11 @@ define(['knockout', 'classes/predicateFactory'],
                 if (checkNull(self.staggertime())) {
                     XML = XML.concat('staggertime="' + self.staggertime() + '" ');
                 }
-                if (checkNull(self.mode_controlled())) {
-                    XML = XML.concat('mode_controlled="' + self.mode_controlled() + '" ');
+                if (checkNull(self.modeControlled())) {
+                    XML = XML.concat('mode_controlled="' + self.modeControlled() + '" ');
+                }
+                if (checkNull(self.disabled())) {
+                    XML = XML.concat('disabled="' + self.disabled() + '" ');
                 }
 
                 XML = XML.concat('><Dependency>');
@@ -95,7 +113,8 @@ define(['knockout', 'classes/predicateFactory'],
                 self.ID(node.getAttribute('id'));
                 self.staggerpath(node.getAttribute('staggerpath'));
                 self.staggertime(node.getAttribute('staggertime'));
-                self.mode_controlled(node.getAttribute('mode_controlled'));
+                self.modeControlled(node.getAttribute('mode_controlled'));
+                self.disabled(node.getAttribute('disabled'));
 
                 var dependency = node.getElementsByTagName('Dependency')[0];
                 if (dependency !== null) {

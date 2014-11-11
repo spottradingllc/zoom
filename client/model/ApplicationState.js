@@ -16,7 +16,8 @@ define(
                 errorRed: '#CC574F',
                 successTrans: '',
                 unknownGray: '#F7EEDA',
-                warnOrange: '#FFAE2F'
+                warnOrange: '#FFAE2F',
+                configErrPink: '#FF64DB'
             };
 
             self.glyphs = {
@@ -31,11 +32,12 @@ define(
                 filledStar: 'glyphicon glyphicon-star',
                 emptyStar: 'glyphicon glyphicon-star-empty',
                 modeAuto: 'glyphicon glyphicon-eye-open',
-                modeManual: 'glyphicon glyphicon-eye-close'
+                modeManual: 'glyphicon glyphicon-eye-close',
+                configErr: 'glyphicon glyphicon-resize-small'
             };
 
             self.applicationStatuses = {running: 'running', stopped: 'stopped', unknown: 'unknown'};
-            self.errorStates = {ok: 'ok', starting: 'starting', stopping: 'stopping', error: 'error', notify: 'notify', unknown: 'unknown'};
+            self.errorStates = {ok: 'ok', starting: 'starting', stopping: 'stopping', error: 'error', notify: 'notify', configErr: 'config_error', unknown: 'unknown'};
 
             self.componentId = data.application_name;
             self.configurationPath = data.configuration_path;
@@ -111,6 +113,9 @@ define(
                 else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.notify) {
                     return self.glyphs.notifyExclamation;
                 }
+                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.configErr) {
+                    return self.glyphs.configErr;
+                }
                 else {
                     return self.glyphs.unknownQMark;
                 }
@@ -135,6 +140,9 @@ define(
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.notify) {
                     return self.colors.warnOrange;
+                }
+                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.configErr) {
+                    return self.colors.configErrPink;
                 }
                 else {
                     return self.colors.unknownGray;

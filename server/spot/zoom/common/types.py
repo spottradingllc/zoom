@@ -4,6 +4,10 @@ class AlertActionType():
     TRIGGER = 'trigger'
     RESOLVE = 'resolve'
 
+class AlertReason():
+    CRASHED = 'crashed'
+    FAILEDTOSTART = 'failed to start'
+    RESOLVED = 'resolved'
 
 class ApplicationType():
     JOB = "job"
@@ -13,6 +17,7 @@ class ApplicationType():
 class ApplicationState():
     OK = "ok"
     ERROR = "error"
+    CONFIG_ERROR = "config_error"
     STARTING = "starting"
     STOPPING = "stopping"
     NOTIFY = "notify"
@@ -53,6 +58,7 @@ class PredicateType():
     HEALTH = "health"
     HOLIDAY = "holiday"
     PROCESS = "process"
+    TIME = "time"
     WEEKEND = "weekend"
     ZOOKEEPERNODEEXISTS = "zookeepernodeexists"
     ZOOKEEPERHASCHILDREN = "zookeeperhaschildren"

@@ -1,13 +1,13 @@
-define(['knockout', './Action', './applicationStateArray'],
-    function(ko, Action, ApplicationStates) {
+define(['knockout', './Action'],
+    function(ko, Action) {
         return function Component(parent) {
             var self = this;
+            self.TreeViewModel = parent;
             self.expanded = ko.observable(true);
             self.ID = ko.observable(null);
             self.compType = ko.observable(null);
             self.script = ko.observable(null);
             self.command = ko.observable(null);
-            self.allowedinstances = ko.observable(null);
             self.restartmax = ko.observable(null);
             self.restartoncrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
@@ -16,72 +16,61 @@ define(['knockout', './Action', './applicationStateArray'],
 
             self.actions = ko.observableArray();
 
-            self.error = ko.computed(function() {
-                if (self.actions().length < 1) {
-                    return 'You have to have an Action';
-                }
-                else {
-                    return '';
-                }
-            });
-
             self.addAction = function() {
                 self.expanded(true);
                 self.actions.push(new Action(self));
             };
 
             self.remove = function() {
-                parent.components.remove(self);
+                self.TreeViewModel.components.remove(self);
+                self.TreeViewModel.createXML();
             };
 
-            self.IDOptions = ko.computed(function() {
-
-                var paths = ko.utils.arrayMap(ApplicationStates(), function(state) {
-                    return state.configurationPath.replace(self.appPath, '');
+            self.toggleExpanded = function() {
+                self.expanded(!self.expanded());
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    action.toggleExpanded(self.expanded());
                 });
-
-                paths.sort();
-
-                if (self.ID() === null) { return paths; }
-
-                return ko.utils.arrayFilter(paths, function(path) {
-                    return (path.slice(0, self.ID().length) === self.ID());
-                });
-            });
-
-
-            self.expandUp = function() {
-                self.expanded(true);
             };
 
             var checkNull = function(param) {
                 return (param !== null && param !== '');
             };
 
-            self.validate = function() {
-                var valid = true;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
 
-                if (self.error() !== '') {
-                    valid = false;
+                if (self.actions().length < 1) {
+                    errors.push('You should probably add an Action.');
                 }
                 if (!checkNull(self.ID()) || !checkNull(self.compType())) {
-                    valid = false;
+                    errors.push('Component ID and type cannot be null.');
                 }
                 if (self.compType() === 'job' && !checkNull(self.command()) ) {
-                    valid = false;
+                    errors.push('Component command cannot be null for jobs.');
                 }
                 else if (self.compType() === 'application' && !checkNull(self.script())) {
-                    valid = false;
+                    errors.push('Component script is null.');
                 }
-                for (var i = 0; i < self.actions().length; i++) {
-                    if (!self.actions()[i].validate()) {
-                        valid = false;
-                    }
-                }
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    allErrors = allErrors.concat(action.validate());
+                });
+
+                return allErrors;
             };
 
             self.createComponentXML = function() {
@@ -104,9 +93,6 @@ define(['knockout', './Action', './applicationStateArray'],
                 }
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
-                }
-                if (checkNull(self.allowedinstances())) {
-                    XML = XML.concat('allowed_instances="' + self.allowedinstances() + '" ');
                 }
                 if (checkNull(self.restartoncrash())) {
                     XML = XML.concat('restartoncrash="' + self.restartoncrash() + '" ');
@@ -137,7 +123,6 @@ define(['knockout', './Action', './applicationStateArray'],
                 self.restartmax(node.getAttribute('restartmax'));
                 self.restartoncrash(node.getAttribute('restartoncrash'));
                 self.registrationpath(node.getAttribute('registrationpath'));
-                self.allowedinstances(node.getAttribute('allowed_instances'));
 
                 self.actions.removeAll();
                 var actions = node.getElementsByTagName('Action');
