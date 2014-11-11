@@ -76,8 +76,7 @@
                             data-bind="click: function(){expanded(!expanded())}, text: expanded() ? 'Collapse' : 'Expand'"></button>
                     <button type="button" class="btn btn-default"
                             data-bind="click: function(){toggleExpanded()}, text: expanded() ? 'Collapse All' : 'Expand All'"></button>
-                    <!-- making this button invisible, because all actions except 'start' are invisible now -->
-                    <button type="button" class="btn btn-primary" data-bind="click: addAction, visible: false">Add Action</button>
+                    <button type="button" class="btn btn-primary" data-bind="click: addAction">Add Action</button>
                 </div>
                 <span class="label label-danger" data-bind="text: error"/>
             </div>

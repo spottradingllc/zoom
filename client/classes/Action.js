@@ -14,10 +14,11 @@ define(['knockout', 'classes/predicateFactory'],
             self.parentComponent = parent;
             self.actionVisible = ko.computed(function() {
                 if (self.ID() != null) {
-                    return self.ID().toLowerCase() === 'start';
+                    var aID = self.ID().toLowerCase();
+                    return (aID === 'start' || aID === 'restart');
                 }
                 else {
-                    return false
+                    return true;
                 }
             });
 
