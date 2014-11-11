@@ -89,11 +89,6 @@ define(['knockout'],
                 return 'Predicate ' + self.predType() + ' ' + self.path();
             });
 
-            self.error = ko.computed(function() {
-                // TODO Flag errors that aren't empty field
-                return '';
-            });
-
             self.remove = function() {
                 self.parent.predicates.remove(self);
             };
@@ -107,18 +102,24 @@ define(['knockout'],
                 }
             };
 
-            self.validate = function() {
-                var valid = true;
-                if (self.error() !== '') {
-                    valid = false;
-                }
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
+
                 if (self.predType() === null) {
-                    valid = false;
+                    errors.push('Predicate type cannot be null.');
                 }
-                if (!valid) {
-                    self.expandUp();
-                }
-                return true;
+
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                return getErrors();
             };
 
             self.createPredicateXML = function() {
