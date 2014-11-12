@@ -439,10 +439,14 @@ class Application(object):
 
         # if action is not available, add the method from Application
         for w in self._settings.get('ALLOWED_WORK'):
-            if w not in acceptable_work and hasattr(self, w):
-                acceptable_work[w] = self.__getattribute__(w)
+            if w not in acceptable_work:
+                if hasattr(self, w):
+                    acceptable_work[w] = self.__getattribute__(w)
+                else:
+                    self._log.error('Class has no method {0}'.format(w))
             else:
-                self._log.error('Class has no method {0}'.format(w))
+                self._log.debug('Method {0} already assigned to action.'
+                                .format(w))
 
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
