@@ -348,7 +348,6 @@ define(
                 // if the object in the current view has the same name as self
                 if (self.currentView().constructor.name === self.constructor.name){
                     var totalY = $(window).height();
-                    totalY-=250;
                     var rowY = 32; //each row is roughly 32 px high
                     var newSize = totalY/rowY;
 
@@ -367,7 +366,8 @@ define(
                     self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
             });
             
-            self.autoLoad  = $(window).scroll( function() {
+            self.autoLoad = $(document).bind('mousewheel', function() {
+            //self.autoLoad  = $(window).scroll( function() {
                     if (self.currentView().constructor.name === self.constructor.name){
                     var diff = $(window).scrollTop() + $(window).height() - $(document).height();
                     // when zoomed in, the diff can sometimes drift as far as 2 pixels off

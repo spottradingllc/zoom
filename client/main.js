@@ -9,11 +9,15 @@ requirejs.config({
         'bootstrap':    './libs/bootstrap-3.2.0.min',
         'jquery':       './libs/jquery-2.1.1.min',
         'jq-throttle':  './libs/jquery.ba-throttle-debounce.min',
+        'jq-mousewh':   './libs/jquery.mousewheel.min',
         'd3':           './libs/d3.min',
         'vkbeautify':   './libs/vkbeautify.0.99.00.beta',
         'sweet-alert':  './libs/sweet-alert.min'
     },
     shim: {
+        'jq-mousewh': {
+            deps: ['jquery']
+        },
         'jq-throttle': {
             deps: ['jquery']
         },
