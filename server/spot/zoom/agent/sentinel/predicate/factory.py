@@ -142,6 +142,8 @@ class PredicateFactory(object):
                                                      none_allowed=True),
                               stop=verify_attribute(root, 'stop',
                                                     none_allowed=True),
+                              weekdays=verify_attribute(root, 'weekdays',
+                                                        none_allowed=True),
                               parent=self._parent),
                 callback=callback
             )
