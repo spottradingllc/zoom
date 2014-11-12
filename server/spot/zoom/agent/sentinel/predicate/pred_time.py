@@ -202,6 +202,7 @@ class PredicateTime(SimplePredicate):
             type(self) == type(other),
             self.start_time == getattr(other, 'start_time', None),
             self.stop_time == getattr(other, 'stop_time', None),
+            self.day_range == getattr(other, 'day_range', None),
             self.interval == getattr(other, 'interval', None)
         ])
 
@@ -210,11 +211,6 @@ class PredicateTime(SimplePredicate):
             type(self) != type(other),
             self.start_time != getattr(other, 'start_time', None),
             self.stop_time != getattr(other, 'stop_time', None),
+            self.day_range != getattr(other, 'day_range', None),
             self.interval != getattr(other, 'interval', None)
         ])
-
-if __name__ == '__main__':
-    t = PredicateTime('test', {}, start='13:00', stop='13:17', weekdays='1,0,5-6')
-    t.start()
-    t.stop()
-    print t
