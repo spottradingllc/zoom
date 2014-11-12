@@ -30,7 +30,7 @@ define( [
             self.new_subtype = ko.observable("");
             self.new_project = ko.observable("");
 
-            self.pillarOptions = ko.observableArray(["","Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)"]);
+            self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)", "View Pillar(s)"]);
             self.domain = ".spottrading.com";
 
             function _proj(subtype, version){
@@ -44,12 +44,31 @@ define( [
                 self.pillar = pillar_data;
                 self.checked = ko.observable(false);
                 self.prior = false;
+                self.projects = new Object();
                 // _assoc object also has dynamically created 
             };
 
+            $(document).on('change keyup keydown paste cut', '.textarea', function() {
+                $(this).height(0).height(this.scrollHeight);
+            }).find('textarea').change();
+
+            $(document).on('click', '#allDrop', function() {
+                self.selectedProject($(this).text());
+            });
+
+            self.toggleSearch = function() {
+                $('#searchPane').toggle(200);
+            };
+
+            self.removeQuery = function () {
+                self.searchVal("");
+            };
+
             self.subtype_get = function (data, field) {
+                if (typeof self.selectedProject() === 'undefined')
+                    return "Select a project";
                 try {
-                    return data[self.selectedProject()]()[field];
+                    return data.projects[self.selectedProject()]()[field];
                 } catch(err) {
                     if (err.name === 'TypeError')
                         return "Project Does Not Exist";
@@ -58,11 +77,22 @@ define( [
                 }
             };
 
-            self.unselectAll = function() {
-                ko.utils.arrayForEach(self.allInfo(), function(_assoc){
+            self.uncheckAll = function() {
+                ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     _assoc.checked(false);
                 });
             };
+            
+            /* Does not work, performance issues
+            self.performAll = function(check) {
+                var arrayCopy = self.allInfo();
+                for(var inc = 0; inc < arrayCopy.length; inc++){
+                    if (check) arrayCopy[inc].checked = true;
+                    else arrayCopy[inc].checked = false;
+                };
+                self.allInfo(arrayCopy);
+                self.allInfo.valueHasMutated();
+            };*/
            
                 
             self.api_put = function (type, data) {
@@ -99,7 +129,7 @@ define( [
                 length = self.checked_servers().length;
                 get_last = self.checked_servers()[length-1];
                 if (get_last != undefined){
-                    console.log(get_last);
+                    //console.log(get_last);
                     return get_last.pillar;
                 }
             }, self);
@@ -115,8 +145,8 @@ define( [
 
             self.objProjects = function (_assoc) {
                 for (var each in _assoc.pillar){
-                    _assoc[each] = ko.observable("");
-                    _assoc[each](_assoc.pillar[each]);
+                    _assoc.projects[each] = ko.observable("");
+                    _assoc.projects[each](_assoc.pillar[each]);
                 }
             };
 
@@ -177,7 +207,6 @@ define( [
                     else if (type === "pillar") self.loadServers(false);
                 });
             };
-
             self.api_delete = function(level_to_delete) {
                 var response = confirm("Delete project for " + self.checked_servers().length + " servers?");
                 if (response) {
@@ -214,6 +243,26 @@ define( [
                     if (_assoc.name.toLowerCase().indexOf(query) >= 0){
                         console.log("found match: " + _assoc.name.toLowerCase());
                     }
+
+                    try {
+                        //return if the project exists
+                        for (var each in _assoc.projects){
+                            if (_assoc.name === "SPOTLX047.spottrading.com"){
+                                console.log("found it");
+                            }
+                            if (each.toLowerCase().indexOf(query) >= 0){
+                                return _assoc;
+                            }
+                        }
+                    } catch (err){
+                        if (err.type === "TypeErr"){
+                            console.log("Proj DNE");
+                        }
+                        else {
+                            console.log(err);
+                        }
+                    } 
+
                     return _assoc.name.toLowerCase().indexOf(query) >= 0;
                 });
             }, self);
