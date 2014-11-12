@@ -433,13 +433,21 @@ class Application(object):
         :rtype: spot.zoom.agent.sentinel.common.work_manager.WorkManager
         """
         acceptable_work = dict()
+        # actions have additional logic, so use those if available
         for k, v in self._actions.iteritems():
             acceptable_work[k] = v.run
 
-        acceptable_work['terminate'] = self.terminate
-        acceptable_work['restart'] = self.restart
-        acceptable_work['ignore'] = self.ignore
-        acceptable_work['react'] = self.react
+        # if action is not available, add the method from Application
+        for w in self._settings.get('ALLOWED_WORK'):
+            if w not in acceptable_work:
+                if hasattr(self, w):
+                    acceptable_work[w] = self.__getattribute__(w)
+                else:
+                    self._log.error('Class has no method {0}'.format(w))
+            else:
+                self._log.debug('Method {0} already assigned to action.'
+                                .format(w))
+
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()
         return manager
