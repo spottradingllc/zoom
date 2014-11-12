@@ -403,7 +403,7 @@
             </thead>
             <!-- END Headers -->
             <!-- Rows -->
-            <tbody data-bind="foreach: appStateModel.filteredItems">
+            <tbody data-bind="foreach: appStateModel.appsToShow">
                 <tr>
                     <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
                         <span title="Show startup time and exit code history."
@@ -593,6 +593,13 @@
             </tbody>
             <!-- END Rows -->
         </table>
+        <div data-bind="visible: appStateModel.filteredItems().length == appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+            <p class="text-center"> No more services to show </p>
+        </div>
+
+        <div class="page-body scroll-footer" data-bind="visible: appStateModel.filteredItems().length != appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+                Scroll down to load more 
+        </div>
     </div>
     <div class="splash">
         <i class="fa fa-spinner fa-spin" data-bind="visible: appStateModel.applicationStateArray().length == 0"></i>
