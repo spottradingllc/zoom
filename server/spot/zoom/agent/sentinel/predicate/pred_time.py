@@ -14,18 +14,20 @@ class PredicateTime(SimplePredicate):
     It will set the 'met' value based on start > current_time > stop.
     """
     def __init__(self, comp_name, settings,
-                 start=None, stop=None, parent=None, interval=5):
+                 start=None, stop=None, weekdays=None, parent=None, interval=5):
         """
         :type comp_name: str
         :type settings: ThreadSafeObject
         :type start: str or None
         :type stop: str or None
+        :type weekdays: str or None
         :type parent: str or None
         :type interval: int or float
         """
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.start_time = self._get_datetime_object(start)
         self.stop_time = self._get_datetime_object(stop)
+        self.day_range = self._parse_range(weekdays)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.pred.time'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
@@ -34,6 +36,14 @@ class PredicateTime(SimplePredicate):
         self._thread = Thread(target=self._run_loop, name=str(self))
         self._thread.daemon = True
         self._started = False
+
+    @property
+    def weekday(self):
+        """
+        :rtype: int
+            0=Sunday, 1=Monday, etc.
+        """
+        return datetime.date.today().weekday()
 
     def start(self):
         if self._started is False:
@@ -68,6 +78,9 @@ class PredicateTime(SimplePredicate):
         if self.stop_time is not None:
             compare_to_stop = self._get_comparison(self.stop_time)
             results.append(compare_to_stop < self.stop_time)
+
+        if self.day_range is not None:
+            results.append(self.weekday in self.day_range)
 
         if not results:
             results.append(False)
@@ -153,21 +166,46 @@ class PredicateTime(SimplePredicate):
         finally:
             return dt_object
 
+    def _parse_range(self, astr):
+        """
+        https://www.darklaunch.com/2012/11/05/python-parse-range-and-parse-group-range
+        Return a range list given a string.
+        As this is for weekdays, only return 0-6
+
+        :type astr: str or None
+        :rtype: list or None
+        """
+        if astr is None:
+            return None
+
+        try:
+            result = set()
+            for part in astr.split(','):
+                x = part.split('-')
+                result.update(range(int(x[0]), int(x[-1]) + 1))
+
+            # only accept 0-6
+            return [i for i in sorted(result) if 0 <= i <= 6]
+        except ValueError:
+            self._log.warning('Error parsing day range. Returning [].')
+            return None
+
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", '
-                'stop="{4}", met={5})'.format(self.__class__.__name__,
-                                              self._comp_name,
-                                              self._parent,
-                                              self.start_time,
-                                              self.stop_time,
-                                              self._met)
-                )
+                'stop="{4}", days={5}, met={6})'.format(self.__class__.__name__,
+                                                        self._comp_name,
+                                                        self._parent,
+                                                        self.start_time,
+                                                        self.stop_time,
+                                                        self.day_range,
+                                                        self._met))
 
     def __eq__(self, other):
         return all([
             type(self) == type(other),
             self.start_time == getattr(other, 'start_time', None),
             self.stop_time == getattr(other, 'stop_time', None),
+            self.day_range == getattr(other, 'day_range', None),
             self.interval == getattr(other, 'interval', None)
         ])
 
@@ -176,5 +214,6 @@ class PredicateTime(SimplePredicate):
             type(self) != type(other),
             self.start_time != getattr(other, 'start_time', None),
             self.stop_time != getattr(other, 'stop_time', None),
+            self.day_range != getattr(other, 'day_range', None),
             self.interval != getattr(other, 'interval', None)
         ])
