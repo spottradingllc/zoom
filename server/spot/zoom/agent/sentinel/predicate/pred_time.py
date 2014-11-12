@@ -172,9 +172,12 @@ class PredicateTime(SimplePredicate):
         Return a range list given a string.
         As this is for weekdays, only return 0-6
 
-        :type astr: str
+        :type astr: str or None
         :rtype: list or None
         """
+        if astr is None:
+            return None
+
         try:
             result = set()
             for part in astr.split(','):
