@@ -367,10 +367,9 @@ define(
             });
             
             self.autoLoad = $(document).bind('mousewheel', function() {
-            //self.autoLoad  = $(window).scroll( function() {
                     if (self.currentView().constructor.name === self.constructor.name){
                     var diff = $(window).scrollTop() + $(window).height() - $(document).height();
-                    // when zoomed in, the diff can sometimes drift as far as 2 pixels off
+                    // when zoomed, the diff can sometimes drift as far as 2 pixels off
                     // root cause is not known - but likely a Chrome bug
                     // http://bit.ly/1szF52q
                     if (diff > -3) {
