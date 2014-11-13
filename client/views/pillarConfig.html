@@ -74,24 +74,9 @@
 
 
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-2 dropdown text-left">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
-                                Select a project
-                                <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
-                                    <li role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
-                                </ul>
-                            </div>
-                            <div class="col-md-2 text-right">
-                                <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject() != '' ">Delete this project</button>
-                            </div>
-                        </div>
-                    </div>
+
                     <table>
-                        <caption data-bind="visible: selectedProject() != '', text: selectedProject()"></caption>
+                        <caption data-bind="visible: selectedProject(), text: selectedProject()"></caption>
                         <thead>
                         <tr>
                             <td>Server</td>
@@ -112,33 +97,47 @@
 
                     </table>
 
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-2 dropdown text-left">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
+                                Select a project
+                                <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
+                                    <li role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
+                            </div>
+                        </div>
+                    </div>
 
                     <div>
-                        <h3>Create project <small> Create a project without adding data </small> <h3/>
+                        <h3>Create project <small> Create a project with null values </small> <h3/>
                         <input data-bind="textInput: new_project"></input>
                         <button data-bind="click: createProjectWrapper(new_project())">Create</button>
                     </div>
 
-
-                    <div>
-                        <span>Update subtype data:</span>
+                    <h3 data-bind="visible: selectedProject(), text: 'Update ' + selectedProject()"><small> data for all selected servers </small> </h3>
+                    <div data-bind="visible: selectedProject()">
+                        <span>Subtype</span>
                         <input data-bind="textInput: new_subtype"></input>
                         <button data-bind="click: api_put('subtype', new_subtype())">Push new subtype</button>
                     </div>
 
-                    <div>
-                        <span>Update version data:</span>
+                    <div data-bind="visible: selectedProject()">
+                        <span>Version</span>
                         <input data-bind="textInput: new_version"></input>
                         <button data-bind="click: api_put('version', new_version())">Push new version</button>
                     </div>
 
                 </div>
 
-                <div data-bind="visible: selectedProject() == 'View Pillar(s)', foreach: checked_servers()" id="showJSON">
-                    <button>
-                        blah
-                    </button>
-                    <textarea data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
+                <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checked_servers()" id="showJSON">
+                    <p data-bind="text: name"></p>
+                    <textarea style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
                 </div>
             </div>
         <!-- end main pane-->

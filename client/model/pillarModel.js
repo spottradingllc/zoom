@@ -65,7 +65,7 @@ define( [
             };
 
             self.subtype_get = function (data, field) {
-                if (typeof self.selectedProject() === 'undefined')
+                if (typeof self.selectedProject() === 'undefined' || self.selectedProject() === null)
                     return "Select a project";
                 try {
                     return data.projects[self.selectedProject()]()[field];
@@ -96,6 +96,7 @@ define( [
            
                 
             self.api_put = function (type, data) {
+                var left = self.checked_servers().length;
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     var uri = "api/pillar/" + _assoc.name + "/" + self.selectedProject() + "/" + type + "/" + data;
 
@@ -107,15 +108,79 @@ define( [
                         console.log("failed to update data");
                     })
                     .done(function(data) {
-                        console.log("successfully updated data");
+                        if (left === 1) {
+                            swal("Success!", "Your data has been updated on the selected servers", 'success');
+                        }
+                        left--;
                         self.updateChecked();
                     });
                 });
             };
+            
+            // calls create minion from api
+            self.api_post = function (type, minion, project) {
+                var uri = "api/pillar/" + minion;
+                if (type === "project")
+                    uri += "/" + project;
+                else
+                    uri += self.domain;
+
+                $.post(uri, function(){
+                })
+                .fail(function(data) {
+                    console.log("failed to create new pillar for a new minion");
+                    swal("failed to create", JSON.stringify(data), 'error');
+                })
+                .done(function(data) {
+                    swal("Success!", "A new " + type + " has been added.", 'success');
+                    console.log("succeeded making new pillar");
+                    if (type === "project") self.updateChecked();
+                    else if (type === "pillar") self.loadServers();
+                });
+            };
+
+            self.api_delete = function(level_to_delete) {
+                var response = confirm("Delete project for " + self.checked_servers().length + " servers?");
+                if (response) {
+                    var num_left = self.checked_servers().length;
+                    ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                        var uri = "api/pillar/" + _assoc.name;
+                        if (level_to_delete === "project")
+                            uri += "/" + self.selectedProject();
+
+                        $.ajax({
+                            url: uri,
+                            type: "DELETE",
+                        })
+                        .fail(function(data) { 
+                            console.log("failed to delete the server(s)" + data);
+                            swal("Failed", "Delete failed", 'error'); 
+                        })
+                        .done(function(data) { 
+                            // if the last one, notify on it only
+                            if (num_left === 1) swal("Success", "Successfully deleted", 'success'); 
+                            num_left--;
+                            console.log("delete successful");
+                            //var message = "Successfully deleted ";
+
+                            if (level_to_delete === 'pillar'){
+                            //    message+=_assoc.name
+                                self.loadServers();
+                            }
+                            else { //project
+                                self.updateChecked();
+                                self.selectedProject(null);
+                            }
+                        });
+                    });
+                }
+                else return;
+            };
+
 
             self.createProjectWrapper = function(data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
-                    if (typeof _assoc[data] !== "undefined"){
+                    if (typeof _assoc.projects[data] !== "undefined"){
                         alert("project already exists on " + _assoc.name);
                     }
                     else
@@ -144,6 +209,8 @@ define( [
             };
 
             self.objProjects = function (_assoc) {
+                //delete existing!!!
+                _assoc.projects = [];
                 for (var each in _assoc.pillar){
                     _assoc.projects[each] = ko.observable("");
                     _assoc.projects[each](_assoc.pillar[each]);
@@ -156,6 +223,13 @@ define( [
                     self.objProjects(_assoc);
                 });
             };
+
+            self.resetFields = function () {
+                self.selectedProject(null);
+                self.new_project("");
+                self.new_subtype("");
+                self.new_version("");
+            } 
             
             self.checked_server_data = ko.computed(function() {
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
@@ -169,70 +243,29 @@ define( [
                             self.allProjects([]);
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                  self.addProjects(_assoc);
+                                 self.objProjects(_assoc);
                             });
                         }
                     }
                     else if (!_assoc.checked()) {
                         if (_assoc.prior){
-                           // remove from the array based on the server name
-                           self.checked_servers.remove(_assoc);
-                           //TODO: remove all each time and re-calculate based on what is now selected
-                           self.allProjects([]);
-                           ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                            // remove from the array based on the server name
+                            self.checked_servers.remove(_assoc);
+                            //TODO: remove all each time and re-calculate based on what is now selected
+                            self.allProjects([]);
+                            ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                 self.addProjects(_assoc);
-                           });
+                            });
 
-                           _assoc.prior = false;
+                            _assoc.prior = false;
+                            //if this is the last to be un-checked, reset all fields
+                            if (self.checked_servers().length == 0){
+                                self.resetFields();
+                            }
                         }
                     }
                 });
             });
-
-            // calls create minion from api
-            self.api_post = function (type, minion, project) {
-                var uri = "api/pillar/" + minion;
-                if (type === "project")
-                    uri += "/" + project;
-                else
-                    uri += self.domain;
-
-                $.post(uri, function(){
-                })
-                .fail(function(data) {
-                    console.log("failed to create new pillar for a new minion");
-                })
-                .done(function(data) {
-                    console.log("succeeded making new pillar");
-                    if (type === "project") self.updateChecked();
-                    else if (type === "pillar") self.loadServers(false);
-                });
-            };
-            self.api_delete = function(level_to_delete) {
-                var response = confirm("Delete project for " + self.checked_servers().length + " servers?");
-                if (response) {
-                    ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
-                        var uri = "api/pillar/" + _assoc.name;
-                        if (level_to_delete === "project")
-                            uri += "/" + self.selectedProject();
-
-                        $.ajax({
-                            url: uri,
-                            type: "DELETE",
-                        })
-                        .fail(function(data) { 
-                            console.log("failed to delete the server(s)");
-                        })
-                        .done(function(data) { 
-                            console.log("successful");
-                            if (level_to_delete === 'pillar')
-                                self.loadServers(false);
-                            else
-                                self.updateChecked();
-                        });
-                    });
-                }
-                else return;
-            };
 
             self.show_allInfo = ko.computed(function() {
                 var query = self.searchVal().toLowerCase();
@@ -240,16 +273,10 @@ define( [
                     return self.allInfo();
                 }
                 return ko.utils.arrayFilter(self.allInfo(), function(_assoc) {
-                    if (_assoc.name.toLowerCase().indexOf(query) >= 0){
-                        console.log("found match: " + _assoc.name.toLowerCase());
-                    }
-
+                    //TODO: is this necessary?
                     try {
                         //return if the project exists
                         for (var each in _assoc.projects){
-                            if (_assoc.name === "SPOTLX047.spottrading.com"){
-                                console.log("found it");
-                            }
                             if (each.toLowerCase().indexOf(query) >= 0){
                                 return _assoc;
                             }
@@ -269,10 +296,10 @@ define( [
 
 
             
-            self.updateAll = function() {
+            self.updateAllAdditions = function() {
                 ko.utils.arrayForEach(self.servers(), function (server_name) {
                     var serverAlreadyExists = false;
-                    console.log(server_name);
+                    //console.log(server_name);
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
                             self.getPillar(_assoc, false)
@@ -285,25 +312,56 @@ define( [
                     }
                 });
             };
+
+            self.updateAllDeletions = function() {
+                ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
+                    var serverAlreadyExists = false;
+                    //TODO: getting undefined here for some reason????
+                    if (typeof _assoc !== "undefined"){
+                        ko.utils.arrayForEach(self.servers(), function (name) {
+                            if (_assoc.name === name)
+                                serverAlreadyExists = true;
+                        });
+                        if (!serverAlreadyExists)
+                            self.allInfo.remove(_assoc);
+                    }
+                });
+            };
+                            
             
             self.updateChecked = function () {
                 // maintain previously selected project even after updating
                 var prevSelect = self.selectedProject();
                 ko.utils.arrayForEach(self.checked_servers(), function (_alloc) {
-                    $.get("api/pillar/" + _alloc.name, function () {
+                    $.ajax({
+                        url: "api/pillar/" + _alloc.name,
+                        type: "GET",
+                        //may need to be sync since _alloc is used in .done... #TODO
+                       // async: false,
                     })
                     .fail(function(data) {
-                        console.log("error getting pillar");
+                        console.log(data);
+                        swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
                     })
                     .done(function(data) {
-                        console.log("succeeded getting pillar");
-                        var index = self.allInfo.indexOf(_alloc);
-                        var index2 = self.checked_servers.indexOf(_alloc);
-                        _alloc.pillar = data;
-                        
-                        self.allInfo.replace(self.allInfo()[index], _alloc);
-                        self.checked_servers.replace(self.allInfo()[index2], _alloc);
-                        self.updateChecked2();
+                        console.log(data);
+                        if (data.DOES_NOT_EXIST){
+                            self.allInfo.remove(_alloc);
+                            self.checked_servers.remove(_alloc);
+                        }
+                        else {
+                            var index = self.allInfo.indexOf(_alloc);
+                            var index2 = self.checked_servers.indexOf(_alloc);
+                            _alloc.pillar = data;
+
+                            console.log(_alloc.name); 
+
+                            self.allInfo.replace(self.allInfo()[index], _alloc);
+                            //self.checked_servers.replace(self.allInfo()[index2], _alloc);
+                            //self.updateChecked2();
+
+                        }
+                                                
                         self.selectedProject(prevSelect);
                     });
 
@@ -320,58 +378,46 @@ define( [
                     $.get(uri, function (){
                     })
                     .fail(function(data) {
-                        console.log("failed to get server pillars");
+                        console.log(data);
+                        swal("Error", "There was an error retrieving pillar data", 'error'); 
                     })
                     .done(function(data) {
-                        /* 
-                        if ($.isEmptyObject(data)){
-                            console.log("Pillar data is empty for server: " + server);
-                            console.log(data);
+                        if (create_new){
+                            var entry = new _assoc(objOrName, data);
+                            if (entry.name === "JACK6.spottrading.com"){
+                                console.log("it");
+                            }
+                            self.objProjects(entry);  
+                            self.allInfo.push(entry);
                         }
-                        else {*/
-                            //var entry = {'name': server, 'pillar': data};
-                            if (create_new){
-                                var entry = new _assoc(objOrName, data);
-                                self.objProjects(entry);  
-                                self.allInfo.push(entry);
+                        else {
+                            var indexAll = self.allInfo.indexOf(objOrName);
+                            var indexChecked = self.checked_servers.indexOf(objOrName);
+                            objOrName.pillar = data;
+                            self.objProjects(objOrName);
+                            self.allInfo.replace(self.allInfo()[indexAll], objOrName);
+                            if (indexChecked !== -1){
+                                self.checked_servers.replace(self.checked_servers()[indexChecked], objOrName);
                             }
-                            else {
-                                var indexAll = self.allInfo.indexOf(objOrName);
-                                var indexChecked = self.checked_servers.indexOf(objOrName);
-                                objOrName.pillar = data;
-                                self.objProjects(objOrName);
-                                self.allInfo.replace(self.allInfo()[indexAll], objOrName);
-                                if (indexChecked !== -1){
-                                    self.checked_servers.replace(self.checked_servers()[indexChecked], objOrName);
-                                }
-                                //update in checked_servers as well as allInfo
-                            }
+                            //update in checked_servers as well as allInfo
+                        }
                     });
             };
 
             var onSuccess = function (data) { 
                 console.log(data);
                 self.servers(data);
-                self.updateAll();
-            };
-
-            var onSuccessNew = function (data) { 
-                console.log(data);
-                self.servers(data);
-                ko.utils.arrayForEach(self.servers(), function(server) {
-                    self.getPillar(server, true);
-                });
+                self.updateAllAdditions();
+                self.updateAllDeletions();
+                self.updateChecked();
             };
             
             var onFailure = function() {
                 console.log('failed to get list of servers');
             };
 
-            self.loadServers = function (load_new) {
-                if (load_new)
-                    service.get('api/pillar/list_servers/', onSuccessNew, onFailure);
-                else
-                    service.get('api/pillar/list_servers/', onSuccess, onFailure);
+            self.loadServers = function () {
+                service.get('api/pillar/list_servers/', onSuccess, onFailure);
             };   
         };
     });

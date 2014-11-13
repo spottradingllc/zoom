@@ -62,13 +62,21 @@ class PillarHandler(tornado.web.RequestHandler):
         Not yet implemented:
             POST /{minion}/{project} {data} > Create project with data {data}
         """
-        minion, project, data_key, data_val = self._parse_uri(data)
-        minion_data = self._get_minion_data(minion)
+        try:
+            minion, project, data_key, data_val = self._parse_uri(data)
+            minion_data = self._get_minion_data(minion)
 
-        if project is not None:
-            minion_data[project] = {"subtype": None, "version": None}
+            if project is not None:
+                minion_data[project] = {"subtype": None, "version": None}
+        except AttributeError as ae:
+            self.write({"error": "AttributeError: {0}".format(ae)});
 
-        self._set_minion_data(minion, minion_data)
+        if (minion_data != {"DOES_NOT_EXIST": "true"}):
+            self._set_minion_data(minion, minion_data)
+        else:
+            minion_data = {}
+            self._set_minion_data(minion, minion_data)
+
         self.write(minion_data)
 
     @TimeThis(__file__)
@@ -166,6 +174,7 @@ class PillarHandler(tornado.web.RequestHandler):
             data_dict = json.loads(data)
         except NoNodeError:
             logging.info("No node for " + path)
+            data_dict = {'DOES_NOT_EXIST': 'true'}
             pass
         except ValueError:
             logging.warning('Data at path {0} is invalid JSON.'.format(path))
