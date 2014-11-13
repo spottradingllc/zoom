@@ -82,12 +82,12 @@ class PredicateHoliday(SimplePredicate):
                            .format(holiday_path))
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, met={3})'
+        return ('{0}(component={1}, parent={2}, started={3}, met={4})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
-                        self._met)
-                )
+                        self.started,
+                        self._met))
 
     def __eq__(self, other):
         return type(self) == type(other)

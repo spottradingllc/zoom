@@ -104,12 +104,15 @@ class PredicateHealth(SimplePredicate):
         self._log.info('Done running {0}'.format(self))
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, cmd="{3}", interval={4})'
+        return ('{0}(component={1}, parent={2}, cmd="{3}", interval={4} '
+                'started={5}, met={6})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.rawcmd,
-                        self.interval))
+                        self.interval,
+                        self.started,
+                        self._met))
     
     def __eq__(self, other):
         return all([

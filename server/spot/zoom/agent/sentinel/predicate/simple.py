@@ -36,7 +36,7 @@ class SimplePredicate(object):
         """
         Sort callbacks based on CALLBACKS dictionary values
         """
-        priority = self._settings.get('CALLBACK_PRIORITY')
+        priority = self._settings.get('CALLBACK_PRIORITY', {})
         self._callbacks = sorted(self._callbacks,
                                  key=lambda item: [priority.get(k, 99)
                                                    for k in item.keys()])

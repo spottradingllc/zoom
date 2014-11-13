@@ -438,7 +438,7 @@ class Application(object):
             acceptable_work[k] = v.run
 
         # if action is not available, add the method from Application
-        for w in self._settings.get('ALLOWED_WORK'):
+        for w in self._settings.get('ALLOWED_WORK', []):
             if w not in acceptable_work:
                 if hasattr(self, w):
                     acceptable_work[w] = self.__getattribute__(w)

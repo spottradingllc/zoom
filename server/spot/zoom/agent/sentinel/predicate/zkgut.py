@@ -197,14 +197,15 @@ class ZookeeperGoodUntilTime(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", stop="{4}", '
-                'zkpath={5}, met={6})'.format(self.__class__.__name__,
-                                              self._comp_name,
-                                              self._parent,
-                                              self._start,
-                                              self._stop,
-                                              self.node,
-                                              self._met)
-                )
+                'zkpath={5}, started={6}, met={7})'
+                .format(self.__class__.__name__,
+                        self._comp_name,
+                        self._parent,
+                        self._start,
+                        self._stop,
+                        self.node,
+                        self.started,
+                        self._met))
     
     def __eq__(self, other):
         return all([

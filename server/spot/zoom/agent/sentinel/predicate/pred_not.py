@@ -40,13 +40,14 @@ class PredicateNot(SimplePredicate):
             self._log.debug('Already stopped {0}'.format(self))
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, met={3}, predicate={4})'
+        return ('{0}(component={1}, parent={2}, started={3}, met={4}, '
+                'predicate={5})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
+                        self.started,
                         self.met,
-                        self.dependency)
-                )
+                        self.dependency))
 
     def __eq__(self, other):
         return all([
