@@ -151,7 +151,7 @@ class ApplicationDependencyCache(object):
                             if start is not None:
                                 msg += 'after: {0} '.format(start)
                             if stop is not None:
-                                msg = 'until: {0}'.format(stop)
+                                msg += 'until: {0}'.format(stop)
                             if not start and not stop:
                                 msg += '?'
                             dependencies.append({'type': pred_type, 'path': msg})
