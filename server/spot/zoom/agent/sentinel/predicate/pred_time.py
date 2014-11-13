@@ -192,13 +192,15 @@ class PredicateTime(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", '
-                'stop="{4}", days={5}, met={6})'.format(self.__class__.__name__,
-                                                        self._comp_name,
-                                                        self._parent,
-                                                        self.start_time,
-                                                        self.stop_time,
-                                                        self.day_range,
-                                                        self._met))
+                'stop="{4}", days={5}, started={6}, met={7})'
+                .format(self.__class__.__name__,
+                        self._comp_name,
+                        self._parent,
+                        self.start_time,
+                        self.stop_time,
+                        self.day_range,
+                        self.started,
+                        self._met))
 
     def __eq__(self, other):
         return all([

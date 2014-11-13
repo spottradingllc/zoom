@@ -44,14 +44,14 @@ class PredicateOr(SimplePredicate):
             self._log.debug('Already stopped {0}'.format(self))
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, met={3}, group=[\n\t{4})]'
+        return ('{0}(component={1}, parent={2}, started={3}, met={4}, '
+                'group=[\n\t{5})]'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
+                        self.started,
                         self.met,
-                        '\n\t'.join([str(x) for x in self.dependencies])
-                        )
-                )
+                        '\n\t'.join([str(x) for x in self.dependencies])))
 
     def __eq__(self, other):
         return all([

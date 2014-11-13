@@ -36,13 +36,14 @@ class ZookeeperNodeExists(SimplePredicate):
         self.set_met(bool(exists))
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, zkpath={3}, met={4})'
+        return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
+                'met={5})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.node,
-                        self.met)
-                )
+                        self.started,
+                        self.met))
     
     def __eq__(self, other):
         return all([

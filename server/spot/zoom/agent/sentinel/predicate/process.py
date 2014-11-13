@@ -66,11 +66,13 @@ class PredicateProcess(SimplePredicate):
         self._log.info('Done watching process.')
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, interval={3}, met={4})'
+        return ('{0}(component={1}, parent={2}, interval={3}, started={4}, '
+                'met={5})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.interval,
+                        self.started,
                         self._met)
                 )
 
