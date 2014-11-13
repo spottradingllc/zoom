@@ -27,14 +27,14 @@ def setup_logging():
     logger.addHandler(handler)
 
 
-def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
+def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str, default=None):
     """
     :type xmlpart: xml.etree.ElementTree.Element
     :type attribute: str
     :type none_allowed: bool
     :type cast: types.ClassType
     """
-    a = xmlpart.get(attribute)
+    a = xmlpart.get(attribute, default)
     if a is None and none_allowed is False:
         raise ValueError('XML part is missing attribute "{0}".\n{1}'
                          .format(attribute, ElementTree.tostring(xmlpart)))

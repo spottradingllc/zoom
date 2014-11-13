@@ -36,7 +36,7 @@ from spot.zoom.common.decorators import (
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
-
+from spot.zoom.agent.sentinel.client.process_client import PagerDuty
 
 if 'Linux' in platform.platform():
     from spot.zoom.agent.sentinel.client.process_client import ProcessClient
@@ -98,6 +98,14 @@ class Application(object):
         self._proc_client = self._init_proc_client(self.config,
                                                    settings,
                                                    application_type)
+
+        self._pd_client = PagerDuty(self.config,
+                                    settings,
+                                    self.name,
+                                    self._host,
+                                    self._env,
+                                    self._system,
+                                    self.zkclient)
 
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
