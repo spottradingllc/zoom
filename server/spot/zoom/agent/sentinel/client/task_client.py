@@ -6,6 +6,9 @@ from kazoo.exceptions import NoNodeError
 
 from spot.zoom.agent.sentinel.common.task import Task
 from spot.zoom.common.types import ApplicationState
+from spot.zoom.common.decorators import (
+    connected,
+)
 
 
 class TaskClient(object):
@@ -31,6 +34,7 @@ class TaskClient(object):
 
         self.reset_watches()
 
+    @connected
     def on_exist(self, event=None):
         try:
             if self._zkclient.exists(self._path, watch=self.on_exist):
