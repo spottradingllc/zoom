@@ -49,6 +49,13 @@ class Configuration(object):
 
             self._zookeeper_host = ZK_CONN_STRING
 
+            #pagerduty
+            pagerduty_settings = config.get('pagerduty')
+            self._pagerduty_service_token = pagerduty_settings.get('agent_configuration_path')
+            self._pagerduty_api_token = pagerduty_settings.get('pagerduty_api_token')
+            self._pagerduty_subdomain = pagerduty_settings.get('pagerduty_subdomain')
+            self._pagerduty_enabled_environments = pagerduty_settings.get('pagerduty_enabled_environments')
+
             # database
             db_settings = config.get('database')
             self._db_type = db_settings.get('db_type')
@@ -130,6 +137,22 @@ class Configuration(object):
     @property
     def alert_path(self):
         return self._alert_path
+
+    @property
+    def pagerduty_service_token(self):
+        return self._pagerduty_service_token
+
+    @property
+    def pagerduty_api_token(self):
+        return self._pagerduty_api_token
+
+    @property
+    def pagerduty_subdomain(self):
+        return self._pagerduty_subdomain
+
+    @property
+    def pagerduty_enabled_environments(self):
+        return self._pagerduty_enabled_environments
 
     @property
     def db_type(self):

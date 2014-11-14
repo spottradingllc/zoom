@@ -78,8 +78,8 @@ class Application(object):
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = ThreadSafeObject(ApplicationState.OK)
         self._start_allowed = ThreadSafeObject(False)  # allowed_instances
-        self._trigger_time = ''     #Default to empty string for comparison
-        self._login_user = 'Zoom'   #Default to Zoom
+        self._trigger_time = ''     # Default to empty string for comparison
+        self._login_user = 'Zoom'   # Default to Zoom
         self._run_check_mode = False
 
         self._paths = self._init_paths(self.config, settings, application_type)
