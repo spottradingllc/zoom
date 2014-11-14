@@ -23,11 +23,9 @@
                         <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
-                        <!--
                         <button class="btn btn-default" data-bind="click: function() {performAll('true')}" type="button">
                             <span class="glyphicon glyphicon-check"></span>
                         </button>
-                        -->
                         <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button">
                             <span class="glyphicon glyphicon-unchecked"></span>
                         </button>
@@ -80,16 +78,18 @@
                         <thead>
                         <tr>
                             <td>Server</td>
-                            <td>Subtype</td>
-                            <td>Version</td>
+                            <!-- ko foreach: allKeys() -->
+                            <td data-bind="text: $data"></td>
+                            <!-- /ko -->
                         </tr>
                         </thead>
 
                         <tbody data-bind="foreach: checked_servers()">
                         <tr> 
                             <td data-bind="text: name"></td>
-                            <td data-bind="text: $parent.subtype_get($data, 'subtype')"></td>
-                            <td data-bind="text: $parent.subtype_get($data, 'version')"></td> 
+                            <!-- ko foreach: $parent.allKeys() -->
+                            <td data-bind="text: $parents[1].subtype_get($parent, $data)"></td>
+                            <!-- /ko -->
                             <!-- Direct access, but can't handle errors if data not there -->
                             <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
                         </tr>

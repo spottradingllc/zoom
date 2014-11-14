@@ -56,21 +56,29 @@ class PillarHandler(tornado.web.RequestHandler):
         """
         :type data: str
 
+             JSON-only for creating a project with arb. data
+        POST {minion: name, project: name, key_n: value_n...} BROKEN
+
         POST /{minion} > Create new minion
         POST /{minion}/{project} > Create new project
-
-        Not yet implemented:
-            POST /{minion}/{project} {data} > Create project with data {data}
         """
         try:
             minion, project, data_key, data_val = self._parse_uri(data)
-            minion_data = self._get_minion_data(minion)
+            minion_data = ""
+            if not minion:
+                jsonstring = json.loads(self.request.body)
+                minion = jsonstring["minion"]
+                minion_data = jsonstring["data"]
+                print jsonstring
+            else:
+                minion_data = self._get_minion_data(minion)
 
-            if project is not None:
-                minion_data[project] = {"subtype": None, "version": None}
+                if project is not None:
+                    minion_data[project] = {"subtype": None, "version": None}
         except AttributeError as ae:
             self.write({"error": "AttributeError: {0}".format(ae)});
 
+        # _get_minion_data will set to DOES_NOT_EXIST if minion not found
         if (minion_data != {"DOES_NOT_EXIST": "true"}):
             self._set_minion_data(minion, minion_data)
         else:
@@ -89,6 +97,7 @@ class PillarHandler(tornado.web.RequestHandler):
 
         Not yet implemented:
             PUT /{minion}/{project} {data} > update project with data {data}
+            PUT /{minion}/{project}/data_val/{[data_key]} > update/create data_val and key???
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)

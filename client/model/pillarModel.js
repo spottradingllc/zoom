@@ -16,19 +16,20 @@ define( [
             var self = this;
 
             self.servers = ko.observableArray([]);
-            self.allInfo = ko.observableArray([]);
-            self.checked_servers = ko.observableArray([]);
+            self.allInfo = ko.observableArray([]);//.extend({rateLimit: 100});
+            self.checked_servers = ko.observableArray([]).extend({rateLimit: 100});
             self.show_allInfo = ko.observableArray([]);
             self.allProjects = ko.observableArray([]);
+            self.allKeys= ko.observableArray([]);
 
-            self.show_pillar = ko.observable("");
             self.searchVal = ko.observable(""); 
             self.fieldOneVal = ko.observable("").extend({uppercase: true});
-            self.selectedOption = ko.observable("");
-            self.selectedProject = ko.observable("").extend({notify: 'always'});
+            self.selectedOption = ko.observable("").extend({rateLimit: 100});
+            self.selectedProject = ko.observable("").extend({notify: "always"});
             self.new_version = ko.observable("");
             self.new_subtype = ko.observable("");
             self.new_project = ko.observable("");
+            self.checked_missing = ko.observable("");
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)", "View Pillar(s)"]);
             self.domain = ".spottrading.com";
@@ -83,16 +84,17 @@ define( [
                 });
             };
             
-            /* Does not work, performance issues
+            // Does not work, performance issues
+            
             self.performAll = function(check) {
-                var arrayCopy = self.allInfo();
+                var arrayCopy = self.show_allInfo();
                 for(var inc = 0; inc < arrayCopy.length; inc++){
-                    if (check) arrayCopy[inc].checked = true;
-                    else arrayCopy[inc].checked = false;
+                    if (check) arrayCopy[inc].checked(true);
+                    else arrayCopy[inc].checked(false);
                 };
-                self.allInfo(arrayCopy);
-                self.allInfo.valueHasMutated();
-            };*/
+                self.show_allInfo(arrayCopy);
+                self.show_allInfo.valueHasMutated();
+            };
            
                 
             self.api_put = function (type, data) {
@@ -105,16 +107,42 @@ define( [
                         type: "PUT",
                     })
                     .fail(function(data) {
+                        self.updateChecked();
                         console.log("failed to update data");
                     })
                     .done(function(data) {
                         if (left === 1) {
+                            self.updateChecked();
                             swal("Success!", "Your data has been updated on the selected servers", 'success');
                         }
                         left--;
-                        self.updateChecked();
+                        
                     });
                 });
+            };
+
+            self.api_post_json = function (type, minion, project) {
+                
+                var _projdata = {
+                    "minion": minion,
+                    "data": {"project": {"subtype": self.new_subtype(), "version": self.new_version()}}
+                };
+                var uri = "api/pillar/"
+                console.log(JSON.stringify(_projdata));
+
+                $.ajax({
+                    type: "POST",
+                    url: uri,
+                    data: JSON.stringify(_projdata),
+                    dataType: 'json',
+                })
+                .fail(function(data) {
+                    console.log(data);
+                    console.log("pure json failed");
+                })
+                .success(function(data) {
+                    console.log("pure json success!");
+                })
             };
             
             // calls create minion from api
@@ -177,6 +205,19 @@ define( [
                 else return;
             };
 
+            /*
+            self.checkIfAllHaveProject = ko.computed(function() {
+                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                    if (_assoc.projects[self.selectedProject()] !== "undefined") {
+                        self.checked_missing(true);
+                        return;
+                    }
+                })
+                self.checked_missing(false);
+            });
+            
+            self.deleteProjectWrapper = function(data) {
+            };*/
 
             self.createProjectWrapper = function(data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
@@ -184,20 +225,33 @@ define( [
                         alert("project already exists on " + _assoc.name);
                     }
                     else
-                        self.api_post("project", _assoc.name, data);
+                        self.api_post_json("project", _assoc.name, data);
                 });
             };
 
-            self.show_pillar = ko.computed(function() {
-                var get_last = [];
-                var length;
-                length = self.checked_servers().length;
-                get_last = self.checked_servers()[length-1];
-                if (get_last != undefined){
-                    //console.log(get_last);
-                    return get_last.pillar;
+            /*  
+            self.updateProjectWrapper = function(data) {
+                var missingProject = [];
+                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                    if (typeof _assoc.projects[data] === "undefined"){
+                        missingProject.push(_assoc);
+                    }
+                });
+
+                if (missingProject.length > 0) {
+                    swal({
+                        title: "Hmm...",
+                        text: missingProject.length + " server(s) are missing this project, create the project on these servers as well?",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes"
+                    }, 
+                    function(isConfirm){
+                        for (var each in missingProject){
+                            self.api_post("project", missingProject[each].name, self.selectedProject());
+                        }
+                    });
                 }
-            }, self);
+            };*/
 
             self.addProjects = function(_assoc) {
                 for (var each in _assoc.pillar){
@@ -206,8 +260,16 @@ define( [
                         self.allProjects.push(each);
                     }
                 }
+
+                for (var each in _assoc.pillar[self.selectedProject()]){
+                    if (self.allKeys.indexOf(each) < 0){
+                        self.allKeys.push(each);
+                    }
+                };
+
             };
 
+                
             self.objProjects = function (_assoc) {
                 //delete existing!!!
                 _assoc.projects = [];
@@ -336,8 +398,6 @@ define( [
                     $.ajax({
                         url: "api/pillar/" + _alloc.name,
                         type: "GET",
-                        //may need to be sync since _alloc is used in .done... #TODO
-                       // async: false,
                     })
                     .fail(function(data) {
                         console.log(data);
