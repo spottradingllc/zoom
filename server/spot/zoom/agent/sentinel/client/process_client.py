@@ -10,24 +10,21 @@ from time import sleep, time
 from spot.zoom.common.types import (
     PlatformType,
     ApplicationType,
-    ApplicationStatus
 )
-from spot.zoom.agent.sentinel.common.restart import RestartLogic
 from spot.zoom.agent.sentinel.client.graphite_client import GraphiteClient
 
 
 class ProcessClient(object):
     def __init__(self, name=None, command=None, script=None, apptype=None,
-                 system=None, restart_max=None, restart_on_crash=None,
-                 graphite_metric_names=None, settings=None):
+                 system=None, restart_logic=None, graphite_metric_names=None,
+                 settings=None):
         """
         :type name: str or None
         :type command: str or None
         :type script: str or None
         :type apptype: spot.zoom.common.types.ApplicationType
         :type system: spot.zoom.common.types.PlatformType
-        :type restart_max: int or None
-        :type restart_on_crash: bool or None
+        :type restart_logic: spot.zoom.agent.sentinel.common.restart.RestartLogic
         :type graphite_metric_names: dict
         :type settings: dict
         """
@@ -39,12 +36,10 @@ class ProcessClient(object):
         self.command = command
         self.name = name
         self.process_client_lock = Lock()  # lock for synchronous decorator
-        self.ran_stop = None
         self._script = script
         self._apptype = apptype
         self._system = system
-        self._stay_down = False
-        self.restart_logic = RestartLogic(restart_on_crash, restart_max)
+        self.restart_logic = restart_logic
 
         self.last_status = False
         self._graphite_metric_names = graphite_metric_names
@@ -85,10 +80,6 @@ class ProcessClient(object):
     def reset_counters(self):
         return self.restart_logic.reset_count
 
-    @property
-    def restart_allowed(self):
-        return self.restart_logic.restart_allowed
-
     def running(self):
         """
         :type reset: bool
@@ -103,7 +94,7 @@ class ProcessClient(object):
 
     def start(self):
         """Try to start process"""
-        if self._stay_down:
+        if self.restart_logic.stay_down:
             self._log.info('Graceful shutdown. Not starting back up')
             return 0
 
@@ -136,17 +127,17 @@ class ProcessClient(object):
                 self._log.debug('Waiting 10 seconds before trying again.')
                 sleep(10)  # minor wait before we try again
 
-        self.ran_stop = False
+        self.restart_logic.set_ran_stop(False)
         return return_code
 
     def stop(self, **kwargs):
         """Stop process"""
-        self.ran_stop = True
+        self.restart_logic.set_ran_stop(True)
 
         if kwargs.get('stay_down', 'false') == 'true':
-            self._stay_down = True
+            self.restart_logic.set_stay_down(True)
         else:
-            self._stay_down = False
+            self.restart_logic.set_stay_down(False)
 
         return_code = self.stop_method()
 

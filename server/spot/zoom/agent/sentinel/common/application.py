@@ -24,8 +24,7 @@ from spot.zoom.common.types import (
     AlertActionType,
     AlertReason,
     ApplicationType,
-    ApplicationState,
-    ApplicationStatus
+    ApplicationState
 )
 from spot.zoom.common.decorators import (
     connected,
@@ -34,6 +33,7 @@ from spot.zoom.common.decorators import (
     run_only_one
 )
 from spot.zoom.agent.sentinel.util.helpers import verify_attribute
+from spot.zoom.agent.sentinel.common.restart import RestartLogic
 from spot.zoom.agent.sentinel.common.work_manager import WorkManager
 from spot.zoom.agent.sentinel.common.task import Task
 
@@ -127,10 +127,7 @@ class Application(object):
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
         if not self.zkclient.exists(self._paths['zk_state_path']):
-            ready_action = self._actions.get('register', None)
-            # check that predicates are all met
-            if ready_action is not None and ready_action.ready:
-
+            if self._action_is_ready('register'):
                 self._log.info('Registering %s in state tree.' % self.name)
                 self.zkclient.create(self._paths['zk_state_path'],
                                      ephemeral=True,
@@ -149,9 +146,7 @@ class Application(object):
     @connected
     def unregister(self):
         """Remove entry from state tree"""
-        ready_action = self._actions.get('unregister', None)
-        # check that predicates are all met
-        if ready_action is not None and ready_action.ready:
+        if self._action_is_ready('unregister'):
             self._log.info('Un-registering %s from state tree.' % self.name)
             self.zkclient.delete(self._paths['zk_state_path'])
 
@@ -175,12 +170,9 @@ class Application(object):
         """
         # Same check as self.notify() but needed when start action is
         # called after process crashes and all predicates are met when on Auto
-        if not self._proc_client.restart_allowed and \
-                not self._proc_client.ran_stop \
+        if not self._proc_client.restart_logic.ran_stop \
                 and self._apptype == ApplicationType.APPLICATION:
-            self._log.info('Not starting due to restartoncrash set to '
-                           'False, the stop method was not called, and is '
-                           'an application')
+            self._log.info('Not starting. App was stopped with Zoom.')
             return 0
         else:
             self._log.debug('Start allowed.')
@@ -189,6 +181,7 @@ class Application(object):
             self._proc_client.reset_counters()
         if kwargs.get('pause', False):
             self.ignore()
+        pd_enabled = kwargs.get('pd_enabled', True)
 
         self._trigger_time = self._get_current_time()
         self._login_user = kwargs.get('login_user', 'Zoom')
@@ -205,8 +198,11 @@ class Application(object):
             self._state.set_value(ApplicationState.OK)
         else:
             self._state.set_value(ApplicationState.ERROR)
-            self._create_alert_node(AlertActionType.TRIGGER,
-                                    AlertReason.FAILEDTOSTART)
+            if pd_enabled:
+                self._create_alert_node(AlertActionType.TRIGGER,
+                                        AlertReason.FAILEDTOSTART)
+            else:
+                self._log.debug('PD is disabled, not sending alert.')
 
         self._update_agent_node_with_app_details()
 
@@ -245,6 +241,10 @@ class Application(object):
         """
         :param kwargs: passed from spot.zoom.handlers.control_agent_handlers
         """
+        if not self._action_is_ready('restart', allow_undefined=True):
+            self._log.info('Restart action not ready.')
+            return
+
         self._log.info('Running Restart. Queuing stop, unregister, start.')
         self._action_queue.clear()
         self._action_queue.append_unique(Task('stop', kwargs=kwargs))
@@ -256,8 +256,7 @@ class Application(object):
         self._action_queue.append(Task('start_if_ready', pipe=False))
 
     def start_if_ready(self):
-        start_action = self._actions.get('start', None)
-        if start_action is not None and start_action.ready:
+        if self._action_is_ready('start'):
             self.start()
         else:
             self._action_queue.append(Task('react', pipe=False))
@@ -293,27 +292,42 @@ class Application(object):
         # Application failed to start. Already sent PD alert
         if self._state == ApplicationState.ERROR:
             return
-        
-        if not self._proc_client.ran_stop and not self._proc_client.running():
+
+        pd_enabled = kwargs.get('pd_enabled', True)
+
+        if not self._action_is_ready('notify'):
+            self._log.info('notify action not defined or not ready.')
+            return
+
+        if not self._proc_client.restart_logic.ran_stop:
             # the application has crashed
             self._state.set_value(ApplicationState.NOTIFY)
             self._update_agent_node_with_app_details()
-            self._create_alert_node(AlertActionType.TRIGGER,
-                                    AlertReason.CRASHED)
-            if self._proc_client.restart_allowed:
-                # Need to add "start" to the queue while on manual and
-                # if restartoncrash is true
-                self._log.info('RestartOnCrash set to True. Restarting service')
-                self._action_queue.append_unique(Task('start', kwargs=kwargs))
+            if pd_enabled:
+                self._create_alert_node(AlertActionType.TRIGGER,
+                                        AlertReason.CRASHED)
             else:
-                self._log.info('RestartOnCrash set to False. Staying down')
+                self._log.debug('PD is disabled, not sending alert.')
         else:
             self._log.debug("Service shut down gracefully")
-
 
     def terminate(self):
         """Terminate child thread/process"""
         self._running = False   
+
+    def _action_is_ready(self, action_name, allow_undefined=False):
+        """
+        Check if a configured action's predicates are met
+        :type action_name: str
+        :type allow_undefined: bool
+        :rtype: bool
+        """
+        action = self._actions.get(action_name, None)
+        if allow_undefined:
+            if action is None:
+                return True
+        else:
+            return action is not None and action.ready
 
     def _app_details(self):
         return {'name': self.name,
@@ -395,9 +409,7 @@ class Application(object):
         script = verify_attribute(config, 'script', none_allowed=True)
         restartmax = verify_attribute(config, 'restartmax', none_allowed=True,
                                       cast=int)
-        restart_on_crash = verify_attribute(config, 'restartoncrash',
-                                            none_allowed=True)
-        
+
         if restartmax is None:
             self._log.info('Restartmax not specified. Assuming 3.')
             restartmax = 3
@@ -409,8 +421,7 @@ class Application(object):
                              script=script,
                              apptype=atype,
                              system=self._system,
-                             restart_max=restartmax,
-                             restart_on_crash=restart_on_crash,
+                             restart_logic=RestartLogic(restartmax),
                              graphite_metric_names=g_names,
                              settings=settings)
 
