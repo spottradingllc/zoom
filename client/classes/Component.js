@@ -87,8 +87,13 @@ define(['knockout', './Action'],
                 }
 
                 if (checkNull(self.command())) {
-                    var command = self.command().replace(/"/g, '&quot;');
-                    self.command(command);
+                    // replace xml entities
+                    var comEdit1 = self.command().replace(/"/g, '&quot;');
+                    var comEdit2 = comEdit1.replace(/'/g, '&apos;');
+                    var comEdit3 = comEdit2.replace(/</g, '&lt;');
+                    var comEdit4 = comEdit3.replace(/>/g, '&gt;');
+                    var comEdit5 = comEdit4.replace(/&(?=[a-z_0-9]+=)/g, '&amp;');
+                    self.command(comEdit5);
                     XML = XML.concat('command="' + self.command() + '" ');
                 }
                 if (checkNull(self.restartmax())) {
