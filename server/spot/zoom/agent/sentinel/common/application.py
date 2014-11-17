@@ -326,8 +326,8 @@ class Application(object):
         if allow_undefined:
             if action is None:
                 return True
-        else:
-            return action is not None and action.ready
+
+        return action is not None and action.ready
 
     def _app_details(self):
         return {'name': self.name,
