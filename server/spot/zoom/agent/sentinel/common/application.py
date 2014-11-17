@@ -121,10 +121,9 @@ class Application(object):
 
     @catch_exception(NodeExistsError)
     @connected
-    def register(self, event=None):
+    def register(self, **kwargs):
         """
         Add entry to the state tree
-        :type event: kazoo.protocol.states.WatchedEvent or None
         """
         if not self.zkclient.exists(self._paths['zk_state_path']):
             if self._action_is_ready('register'):
@@ -144,7 +143,7 @@ class Application(object):
 
     @catch_exception(NoNodeError)
     @connected
-    def unregister(self):
+    def unregister(self, **kwargs):
         """Remove entry from state tree"""
         if self._action_is_ready('unregister'):
             self._log.info('Un-registering %s from state tree.' % self.name)

@@ -66,7 +66,7 @@ define(['knockout'],
             };
 
             self.pathOptions = ko.computed(function() {
-                var action = getAction(self.parent);
+                var action = getAction(self);
 
                 if (action === null) { return []; }
 
