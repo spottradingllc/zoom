@@ -92,8 +92,7 @@ class PillarHandler(tornado.web.RequestHandler):
         """
         :type data: str
 
-        PUT /{minion}/{project}/subtype/{subtype_value} > update subtype
-        PUT /{minion}/{project}/version/{version_value} > update version
+        PUT /{minion}/{project}/{key}/{value} > update arbitrary key-value pair
 
         Not yet implemented:
             PUT /{minion}/{project} {data} > update project with data {data}
@@ -119,11 +118,22 @@ class PillarHandler(tornado.web.RequestHandler):
         :type data: str
         DELETE /{minion} > Delete minion
         DELETE /{minion}/{project} > Delete project
+        DELETE /{minion}/{project}/{key} > Delete Key
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
         logging.info("delete1")
-        if all([minion, project]):
+        if all([data_key, minion, project]):
+            try:
+                print("data_key" + data_key)
+                del minion_data[project][data_key]
+
+            except KeyError:
+                pass
+
+            self._set_minion_data(minion, minion_data)
+
+        elif all([minion, project]):
             try:
                 del minion_data[project]
             except KeyError:

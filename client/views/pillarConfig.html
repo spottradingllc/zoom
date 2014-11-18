@@ -20,13 +20,13 @@
                 <div class="input-group">
                     <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server name..." autofocus=""></input> 
                     <span class="input-group-btn">
-                        <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button">
+                        <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button" title="Clear search">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
-                        <button class="btn btn-default" data-bind="click: function() {performAll('true')}" type="button">
+                        <button class="btn btn-default" data-bind="click: function() {checkAll()}" type="button" title="Select all visible servers, with a maximum of 8 at a time">
                             <span class="glyphicon glyphicon-check"></span>
                         </button>
-                        <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button">
+                        <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button" title="Unselect ALL selected servers, not just visible ones">
                             <span class="glyphicon glyphicon-unchecked"></span>
                         </button>
 
@@ -52,9 +52,14 @@
                             <td data-bind="text: name"></td>
                         </table>
                     </div>
+                    <button type="button" class="btn btn-danger" data-bind="click: function() { api_delete('pillar') }">Delete</button>
                 </div>
 
-                
+                <div data-bind="visible: checked_servers().length == 0 && selectedOption() != 'Create Pillar'">
+                    <h4>
+                        Please select at least one server. 
+                    </h4>
+                </div>
 
                 
                 <div data-bind="visible: selectedOption() == 'Create Pillar'">
@@ -66,12 +71,15 @@
                     <button data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
                 </div>
 
-                <div data-bind="visible: selectedOption() == 'Delete Pillar(s)'">
-                    <button type="button" class="btn btn-danger" data-bind="click: function() { api_delete('pillar') }">Delete</button>
-                </div>
-
-
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
+
+                    <div class="btn-group" data-bind="foreach: modifyOptions">
+                        <button class="btn btn-default" data-bind="radio: $parent.selectedModify">
+                            <span data-bind="text: $data"></span>
+                        </button>
+                    </div>
+
+                    <h3 data-bind="visible: selectedProject(), text: 'Update ' + selectedProject() + ' for all selected servers'"></h3>
 
                     <table>
                         <caption data-bind="visible: selectedProject(), text: selectedProject()"></caption>
@@ -97,7 +105,7 @@
 
                     </table>
 
-                    <div class="container">
+                    <div class="container" data-bind="visible: selectedModify() == 'Existing project'">
                         <div class="row">
                             <div class="col-md-2 dropdown text-left">
                                 <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
@@ -112,25 +120,48 @@
                                 <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
                             </div>
                         </div>
+
+
+
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="allKeyDropdown" data-toggle="dropdown">
+                                Select a key
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="allKeyDropdown" data-bind="foreach: allKeys()">
+                                <li role="presentation" id="allKey"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
+                            </ul>
+                        </div>
+
+
+                        <div class="row" data-bind="visible: selectedKey()">
+                            <span data-bind="text: selectedKey"></span>
+                            <input data-bind="textInput: edit_value"></input>
+                            <button data-bind="click: function() {api_put(selectedKey(), edit_value())}">Push update</button>
+                            <button class="btn btn-danger" data-bind="click: function() {api_delete('key')}">Delete Key</button>
+                        </div>
+
+                        <div class="row" data-bind="visible: selectedProject()">
+                            <h4 data-bind="text: 'New key-value pair for ' + selectedProject()"></h4>
+                            <input data-bind="textInput: new_key"></input>
+                            <input data-bind="textInput: new_value"></input>
+                            <button data-bind="click: function() {newPairWrapper($data)}"> Push new pair </button>
+                        </div>
+
                     </div>
 
-                    <div>
-                        <h3>Create project <small> Create a project with null values </small> <h3/>
+                    <div data-bind="visible: selectedModify() == 'New project'">
+                        <h3>Create project <small> Blank values will be null </small> <h3/>
+                        <span> Project name: </span>
                         <input data-bind="textInput: new_project"></input>
+                        <!-- ko foreach: new_pairs() -->
+                        <div class="row">
+                            <input data-bind="textInput: key"></input>
+                            <input data-bind="textInput: value"></input>
+                        </div>
+                        <!-- /ko-->
+                        <button data-bind="click: function() {addPair()}">Add new key-value pair</button>
                         <button data-bind="click: createProjectWrapper(new_project())">Create</button>
-                    </div>
-
-                    <h3 data-bind="visible: selectedProject(), text: 'Update ' + selectedProject()"><small> data for all selected servers </small> </h3>
-                    <div data-bind="visible: selectedProject()">
-                        <span>Subtype</span>
-                        <input data-bind="textInput: new_subtype"></input>
-                        <button data-bind="click: api_put('subtype', new_subtype())">Push new subtype</button>
-                    </div>
-
-                    <div data-bind="visible: selectedProject()">
-                        <span>Version</span>
-                        <input data-bind="textInput: new_version"></input>
-                        <button data-bind="click: api_put('version', new_version())">Push new version</button>
                     </div>
 
                 </div>

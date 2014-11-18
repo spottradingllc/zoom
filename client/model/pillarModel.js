@@ -24,14 +24,19 @@ define( [
 
             self.searchVal = ko.observable(""); 
             self.fieldOneVal = ko.observable("").extend({uppercase: true});
-            self.selectedOption = ko.observable("").extend({rateLimit: 100});
+            self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.selectedProject = ko.observable("").extend({notify: "always"});
-            self.new_version = ko.observable("");
-            self.new_subtype = ko.observable("");
+            self.selectedKey = ko.observable("").extend({notify: "always"});
+            self.new_key = ko.observable("");
+            self.new_value = ko.observable("");
             self.new_project = ko.observable("");
+            self.edit_value = ko.observable("");
             self.checked_missing = ko.observable("");
+            self.selectedModify = ko.observable("Existing project");
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)", "View Pillar(s)"]);
+            self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
+            self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
             self.domain = ".spottrading.com";
 
             function _proj(subtype, version){
@@ -55,6 +60,12 @@ define( [
 
             $(document).on('click', '#allDrop', function() {
                 self.selectedProject($(this).text());
+                // reset so it can be calculated for the new project
+                self.allKeys([]);
+            });
+
+            $(document).on('click', '#allKey', function() {
+                self.selectedKey($(this).text());
             });
 
             self.toggleSearch = function() {
@@ -63,6 +74,10 @@ define( [
 
             self.removeQuery = function () {
                 self.searchVal("");
+            };
+
+            self.addPair = function() {
+                self.new_pairs.push({"key": "", "value": ""});
             };
 
             self.subtype_get = function (data, field) {
@@ -78,6 +93,26 @@ define( [
                 }
             };
 
+            self.refreshTable = function(_assoc) {
+                self.allKeys([]);
+                self.allProjects([]);
+                self.addProjects(_assoc);
+            };
+
+            self.JSONcreateProject = function (_assoc) {
+                var proj_name = self.new_project();
+                var pairs = {};
+                ko.utils.arrayForEach(self.new_pairs(), function(pair) {
+                    pairs[pair.key] = pair.value;
+                });
+
+                _assoc.pillar[self.new_project()] = pairs;
+            };
+
+            self.JSONupdateProject = function (_assoc) {
+                _assoc.pillar[self.selectedProject()][self.new_key()] = self.new_value();
+            };
+
             self.uncheckAll = function() {
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     _assoc.checked(false);
@@ -86,14 +121,42 @@ define( [
             
             // Does not work, performance issues
             
-            self.performAll = function(check) {
+            self.checkAll= function(check) {
+                if (self.show_allInfo().length > 8){
+                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'Error');
+                    return;
+                }
                 var arrayCopy = self.show_allInfo();
                 for(var inc = 0; inc < arrayCopy.length; inc++){
-                    if (check) arrayCopy[inc].checked(true);
-                    else arrayCopy[inc].checked(false);
+                    arrayCopy[inc].checked(true);
                 };
                 self.show_allInfo(arrayCopy);
                 self.show_allInfo.valueHasMutated();
+            };
+
+            self.salt_minion_update = function () {
+                var cmds = {
+                    'client': 'local',
+                    'tgt': '*',
+                    //'fun': 'test.ping',
+                    'fun': 'saltutil.refresh_pillar',
+                    'username': 'salt',
+                    'password': 'salt',
+                    'eauth': 'pam'
+                }
+                $.ajax({
+                    url: "http://saltStaging:8000/run",
+                    type: 'POST',
+                    data: cmds,
+                    //headers: {'Accept': 'Application/json'}
+                })
+                .fail(function(data) {
+                    console.log("Failed to login to salt master");
+                })
+                .success(function(data) {
+                    console.log("Success " + data.return[0]);
+                });
+
             };
            
                 
@@ -121,12 +184,13 @@ define( [
                 });
             };
 
-            self.api_post_json = function (type, minion, project) {
+            self.api_post_json = function (type, _assoc, project) {
                 
                 var _projdata = {
-                    "minion": minion,
-                    "data": {"project": {"subtype": self.new_subtype(), "version": self.new_version()}}
+                    "minion": _assoc.name, 
+                    "data": _assoc.pillar
                 };
+
                 var uri = "api/pillar/"
                 console.log(JSON.stringify(_projdata));
 
@@ -142,6 +206,8 @@ define( [
                 })
                 .success(function(data) {
                     console.log("pure json success!");
+                    self.updateChecked();
+                    self.salt_minion_update();
                 })
             };
             
@@ -173,9 +239,11 @@ define( [
                     var num_left = self.checked_servers().length;
                     ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                         var uri = "api/pillar/" + _assoc.name;
-                        if (level_to_delete === "project")
+                        if (level_to_delete === "project" || level_to_delete === "key")
                             uri += "/" + self.selectedProject();
-
+                        if (level_to_delete === "key")
+                            uri += "/" + self.selectedKey();
+                        console.log("URI sent to server: " + uri);
                         $.ajax({
                             url: uri,
                             type: "DELETE",
@@ -194,6 +262,10 @@ define( [
                             if (level_to_delete === 'pillar'){
                             //    message+=_assoc.name
                                 self.loadServers();
+                            }
+                            else if (level_to_delete === 'key'){
+                                self.updateChecked();
+                                self.selectedKey(null);
                             }
                             else { //project
                                 self.updateChecked();
@@ -219,13 +291,31 @@ define( [
             self.deleteProjectWrapper = function(data) {
             };*/
 
+            self.switchViewToProject = function (project_name) {
+                if (typeof project_name === 'undefined')
+                    console.log("no project");
+                else { 
+                    self.selectedProject(project_name);
+                    self.selectedModify("Existing project");
+                }
+            };
+
             self.createProjectWrapper = function(data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     if (typeof _assoc.projects[data] !== "undefined"){
                         alert("project already exists on " + _assoc.name);
                     }
                     else
-                        self.api_post_json("project", _assoc.name, data);
+                        self.JSONcreateProject(_assoc);
+                        self.api_post_json("project", _assoc, data);
+                        self.switchViewToProject(data);
+                });
+            };
+
+            self.newPairWrapper = function(data) {
+                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                    self.JSONupdateProject(_assoc);
+                    self.api_post_json("project", _assoc, data);
                 });
             };
 
@@ -260,12 +350,17 @@ define( [
                         self.allProjects.push(each);
                     }
                 }
-
-                for (var each in _assoc.pillar[self.selectedProject()]){
-                    if (self.allKeys.indexOf(each) < 0){
-                        self.allKeys.push(each);
+                try { 
+                    for (var each in _assoc.pillar[self.selectedProject()]){
+                        if (self.allKeys.indexOf(each) < 0){
+                            self.allKeys.push(each);
+                        }
                     }
-                };
+                } catch(err) {
+                    if (err.name === "TypeError")
+                        console.log("Race condition, not an issue");
+               
+                }
 
             };
 
@@ -289,10 +384,11 @@ define( [
             self.resetFields = function () {
                 self.selectedProject(null);
                 self.new_project("");
-                self.new_subtype("");
-                self.new_version("");
+                self.new_key("");
+                self.new_value("");
+                self.allKeys([]);
             } 
-            
+
             self.checked_server_data = ko.computed(function() {
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
                     if (_assoc.checked()){
@@ -405,6 +501,7 @@ define( [
                     })
                     .done(function(data) {
                         console.log(data);
+                        // set in API, makes sure that we delete when a minion no longer exists.
                         if (data.DOES_NOT_EXIST){
                             self.allInfo.remove(_alloc);
                             self.checked_servers.remove(_alloc);
@@ -417,6 +514,7 @@ define( [
                             console.log(_alloc.name); 
 
                             self.allInfo.replace(self.allInfo()[index], _alloc);
+                            self.refreshTable(_assoc);
                             //self.checked_servers.replace(self.allInfo()[index2], _alloc);
                             //self.updateChecked2();
 
