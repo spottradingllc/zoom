@@ -44,8 +44,8 @@ class WebServer(tornado.web.Application):
             # global mode
             (r'/api/mode/', GlobalModeHandler),
             # application
-            (r'/api/application/states/', ApplicationStateHandler),
-            (r'/api/application/dependencies/', ApplicationDependenciesHandler),
+            (r'/api/application/states(?P<path>.*)?', ApplicationStateHandler),
+            (r'/api/application/dependencies(?P<path>.*)?', ApplicationDependenciesHandler),
             # agent
             (r'/api/agent/', ControlAgentHandler),
             # cache
@@ -91,6 +91,7 @@ class WebServer(tornado.web.Application):
                      .format(self._configuration.port))
         self.listen(self._configuration.port)
         logging.info("Web server initialized")
+        print "Web server initialized"
         tornado.ioloop.IOLoop.instance().start()  # blocks/holds main thread
 
     def stop(self):

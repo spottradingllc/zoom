@@ -8,7 +8,7 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
             self.statePaths = (function() {
                 var paths = [];
                 $.ajax({
-                    url: '/api/application/states/',
+                    url: '/api/application/states',
                     success: function(data) {
                         ko.utils.arrayForEach(data.application_states, function(state) {
                             paths.push(state.configuration_path);

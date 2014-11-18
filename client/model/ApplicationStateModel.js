@@ -465,7 +465,7 @@ define(
             };
 
             self.loadApplicationStates = function() {
-                return service.synchronousGet('api/application/states/',
+                return service.synchronousGet('api/application/states',
                     onApplicationStatesSuccess,
                     onApplicationStatesError);
             };
@@ -475,7 +475,7 @@ define(
             };
 
             self.loadApplicationDependencies = function() {
-                return service.synchronousGet('api/application/dependencies/',
+                return service.synchronousGet('api/application/dependencies',
                     self.handleApplicationDependencyUpdate,
                     onApplicationDependenciesError);
             };
