@@ -51,7 +51,7 @@ class Configuration(object):
 
             #pagerduty
             pagerduty_settings = config.get('pagerduty')
-            self._pagerduty_service_token = pagerduty_settings.get('agent_configuration_path')
+            self._pagerduty_default_service_token = pagerduty_settings.get('pagerduty_default_service_token')
             self._pagerduty_api_token = pagerduty_settings.get('pagerduty_api_token')
             self._pagerduty_subdomain = pagerduty_settings.get('pagerduty_subdomain')
             self._pagerduty_enabled_environments = pagerduty_settings.get('pagerduty_enabled_environments')
@@ -139,8 +139,8 @@ class Configuration(object):
         return self._alert_path
 
     @property
-    def pagerduty_service_token(self):
-        return self._pagerduty_service_token
+    def pagerduty_default_service_token(self):
+        return self._pagerduty_default_service_token
 
     @property
     def pagerduty_api_token(self):
