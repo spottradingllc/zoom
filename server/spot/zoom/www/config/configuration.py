@@ -34,6 +34,7 @@ class Configuration(object):
             self._application_path = os.getcwd()
             self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
             self._html_path = os.path.join(self._client_path, "views")
+            self._images_path = os.path.join(self._client_path, "images")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 
@@ -86,6 +87,10 @@ class Configuration(object):
     @property
     def html_path(self):
         return self._html_path
+
+    @property
+    def images_path(self):
+        return self._images_path
 
     @property
     def environment(self):

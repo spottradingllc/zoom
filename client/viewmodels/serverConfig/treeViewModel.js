@@ -37,7 +37,11 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
                 });
 
                 if (errors.length > 0) {
-                    swal('I find your lack of config validity...disturbing.', errors.join('\n'), 'error' );
+                    swal({
+                        title: 'I find your lack of config validity...disturbing.',
+                        text: errors.join('\n'),
+                        imageUrl: 'images/vadar.jpg'
+                    });
                     valid = false;
                 }
 
