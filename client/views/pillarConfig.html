@@ -1,4 +1,4 @@
-<section>
+<sectionlabel>
     <div class="container" data-bind="with: pillarModel">
         <div class="page-header" style="margin-top: 85px">
             <h1> Pillar Value Editor </h1>
@@ -18,7 +18,7 @@
             <div id="searchPane" class="col-md-4 hidden-desktop" data-bind="visible: selectedOption() != 'Create Pillar'">
                 
                 <div class="input-group">
-                    <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server name..." autofocus=""></input> 
+                    <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus=""></input> 
                     <span class="input-group-btn">
                         <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button" title="Clear search">
                             <span class="glyphicon glyphicon-remove"></span>
@@ -35,16 +35,18 @@
 
                 <div class="checkbox-list">
                     <div data-bind="foreach: show_allInfo"> 
-                        <div> 
-                            <input type="checkbox" data-bind="value: name, checked: checked">
-                            <span data-bind="text: name"></span>
-                            <!--<span data-bind="text: ko.toJSON(pillar, null, 2)"></span>-->
+                        <div class="row">
+                            <label> 
+                                <input type="checkbox" data-bind="value: name, checked: checked">
+                                <span data-bind="text: name"/>
+                                <!--<span data-bind="text: ko.toJSON(pillar, null, 2)"></span>-->
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
         
-            <div id="mainPane" class="col-md-6"> 
+            <div id="mainPane" class="col-md-8"> 
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Delete Pillar(s)'">
                     <span> Selected servers: </span>
                     <div data-bind="foreach: checked_servers">
@@ -68,7 +70,7 @@
                         <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
                     </div>
                     <span> .spottrading.com </span>
-                    <button data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
+                    <button class="btn btn-default" data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
                 </div>
 
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
@@ -81,8 +83,23 @@
 
                     <h3 data-bind="visible: selectedProject(), text: 'Update ' + selectedProject() + ' for all selected servers'"></h3>
 
-                    <table>
-                        <caption data-bind="visible: selectedProject(), text: selectedProject()"></caption>
+                    <div class="row" data-bind="visible: selectedModify() == 'Existing project'">
+                        <div class="dropdown" style="margin-left: 15px;">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
+                            Select a project
+                            <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
+                                <li style="cursor:pointer" role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
+                            </ul>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
+                        </div>
+                    </div>
+
+                    <table style="margin-bottom: 20px; margin-top: 20px;">
+                        <caption data-bind="visible: selectedProject(), text: 'All data for ' + selectedProject() + ':'"></caption>
                         <thead>
                         <tr>
                             <td>Server</td>
@@ -96,7 +113,7 @@
                         <tr> 
                             <td data-bind="text: name"></td>
                             <!-- ko foreach: $parent.allKeys() -->
-                            <td data-bind="text: $parents[1].subtype_get($parent, $data)"></td>
+                            <td data-bind="text: $parents[1].get_values($parent, $data)"></td>
                             <!-- /ko -->
                             <!-- Direct access, but can't handle errors if data not there -->
                             <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
@@ -106,46 +123,40 @@
                     </table>
 
                     <div class="container" data-bind="visible: selectedModify() == 'Existing project'">
-                        <div class="row">
-                            <div class="col-md-2 dropdown text-left">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
-                                Select a project
-                                <span class="caret"></span>
+                        
+
+
+
+                        <div class="dropdown" data-bind="visible: allKeys().length > 0">
+                            <div class="row">
+                                <h4> Update Existing Key-Value Pair </h4>
+                                <button style="margin-bottom: 15px; margin-left: 15px" class="btn btn-default dropdown-toggle" type="button" id="allKeyDropdown" data-toggle="dropdown">
+                                    Select a key
+                                    <span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
-                                    <li role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="allKeyDropdown" data-bind="foreach: allKeys()">
+                                    <li style="cursor:pointer" role="presentation" id="allKey"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
                                 </ul>
                             </div>
-                            <div class="col-md-2 text-right">
-                                <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
+                        </div>
+
+
+                        <div class="row" data-bind="visible: selectedKey() && allKeys().length > 0">
+                            <div class="col-md-2"> 
+                                <span data-bind="text: selectedKey() + ':'"></span>
+                                <input type="text" class="form-control" placeholder="Updated Value" data-bind="textInput: edit_value"></input>
                             </div>
-                        </div>
-
-
-
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="allKeyDropdown" data-toggle="dropdown">
-                                Select a key
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="allKeyDropdown" data-bind="foreach: allKeys()">
-                                <li role="presentation" id="allKey"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
-                            </ul>
-                        </div>
-
-
-                        <div class="row" data-bind="visible: selectedKey()">
-                            <span data-bind="text: selectedKey"></span>
-                            <input data-bind="textInput: edit_value"></input>
-                            <button data-bind="click: function() {api_put(selectedKey(), edit_value())}">Push update</button>
-                            <button class="btn btn-danger" data-bind="click: function() {api_delete('key')}">Delete Key</button>
+                            <button class="btn btn-default" data-bind="click: function() {updateProjectWrapper('value')}">Push update</button>
+                            <button style="margin-left: 40px" class="btn btn-danger" data-bind="click: function() {api_delete('key')}">Delete Key</button>
                         </div>
 
                         <div class="row" data-bind="visible: selectedProject()">
                             <h4 data-bind="text: 'New key-value pair for ' + selectedProject()"></h4>
-                            <input data-bind="textInput: new_key"></input>
-                            <input data-bind="textInput: new_value"></input>
-                            <button data-bind="click: function() {newPairWrapper($data)}"> Push new pair </button>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control" placeholder="New Key" data-bind="textInput: new_key"></input>
+                                <input type="text" class="form-control" placeholder="New Value" data-bind="textInput: new_value"></input>
+                            </div>
+                            <button class="btn btn-default" data-bind="click: function() {newPairWrapper($data)}"> Push new pair </button>
                         </div>
 
                     </div>
@@ -153,14 +164,14 @@
                     <div data-bind="visible: selectedModify() == 'New project'">
                         <h3>Create project <small> Blank values will be null </small> <h3/>
                         <span> Project name: </span>
-                        <input data-bind="textInput: new_project"></input>
+                        <input placeholder="Project Name" data-bind="textInput: new_project"></input>
                         <!-- ko foreach: new_pairs() -->
                         <div class="row">
-                            <input data-bind="textInput: key"></input>
-                            <input data-bind="textInput: value"></input>
+                            <input placeholder="Key" data-bind="textInput: key"></input>
+                            <input placeholder="Value" data-bind="textInput: value"></input>
                         </div>
                         <!-- /ko-->
-                        <button data-bind="click: function() {addPair()}">Add new key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add new key-value pair</button>
                         <button data-bind="click: createProjectWrapper(new_project())">Create</button>
                     </div>
 
@@ -168,7 +179,7 @@
 
                 <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checked_servers()" id="showJSON">
                     <p data-bind="text: name"></p>
-                    <textarea style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
+                    <textarea readonly style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
                 </div>
             </div>
         <!-- end main pane-->

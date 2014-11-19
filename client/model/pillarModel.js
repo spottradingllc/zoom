@@ -21,6 +21,8 @@ define( [
             self.show_allInfo = ko.observableArray([]);
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
+            self.missingProject = ko.observableArray([]);
+            self.hasProject = ko.observableArray([]);
 
             self.searchVal = ko.observable(""); 
             self.fieldOneVal = ko.observable("").extend({uppercase: true});
@@ -31,18 +33,13 @@ define( [
             self.new_value = ko.observable("");
             self.new_project = ko.observable("");
             self.edit_value = ko.observable("");
-            self.checked_missing = ko.observable("");
             self.selectedModify = ko.observable("Existing project");
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)", "View Pillar(s)"]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
             self.domain = ".spottrading.com";
-
-            function _proj(subtype, version){
-                self.subtype = subtype;
-                self.version = version;
-            };
+            self.alphaNum = /^[a-zA-Z0-9]+$/;
 
             function _assoc(server_name, pillar_data) {
                 var self = this;
@@ -54,6 +51,24 @@ define( [
                 // _assoc object also has dynamically created 
             };
 
+            self.resetFields = function () {
+                self.selectedProject(null);
+                self.selectedKey(null);
+                self.new_key("");
+                self.new_value("");
+                self.new_project("");
+                self.edit_value("");
+                self.allKeys([]);
+            } 
+
+            self.refreshTable = function(_assoc) {
+                self.allKeys([]);
+                self.allProjects([]);
+                self.addProjects(_assoc);
+                self.missingProject([]);
+                self.hasProject([]);
+            };
+
             $(document).on('change keyup keydown paste cut', '.textarea', function() {
                 $(this).height(0).height(this.scrollHeight);
             }).find('textarea').change();
@@ -62,6 +77,8 @@ define( [
                 self.selectedProject($(this).text());
                 // reset so it can be calculated for the new project
                 self.allKeys([]);
+                self.missingProject([]);
+                self.hasProject([]);
             });
 
             $(document).on('click', '#allKey', function() {
@@ -72,7 +89,7 @@ define( [
                 $('#searchPane').toggle(200);
             };
 
-            self.removeQuery = function () {
+            self.removeQuery = function() {
                 self.searchVal("");
             };
 
@@ -80,23 +97,76 @@ define( [
                 self.new_pairs.push({"key": "", "value": ""});
             };
 
-            self.subtype_get = function (data, field) {
+            self.validateNewPair = ko.computed(function() {
+                if (self.new_key() !== "" && !self.alphaNum.test(self.new_key())) {
+                    swal("Error", "Your key cannot contain non-alphanumerics", 'error');
+                    self.new_key("");
+                    return false;
+                }
+
+                return true;
+            });
+
+            self.validateNewProject = function() {
+                if (self.new_project() === ""){
+                    swal("Error", "Please enter a project name", 'error');
+                    return false;
+                }
+                ko.utils.arrayForEach(self.new_pairs(), function(pair){
+                    if (pair.key !== "" && !self.alphaNum.test(pair.key)){
+                        swal("Error", "Your key cannot contain non-alphanumerics", 'error');
+                        pair.key = "";
+                        return false;
+                    }
+                });               
+                return true;
+            };
+
+            /* 
+            self.handleDrop = function(type) {
+                if (type === 'project'){
+                    if (self.selectedProject === null)
+                        return "Select a project";
+                    else return self.selectedProject();
+                }
+                else if (type === 'key') {
+                    if (self.selectedKey === null)
+                        return "Select a key";
+                    else return self.selectedKey();
+                }
+            };*/
+
+            self.get_values = function (_assoc, field) {
+                var ret = "";
                 if (typeof self.selectedProject() === 'undefined' || self.selectedProject() === null)
                     return "Select a project";
                 try {
-                    return data.projects[self.selectedProject()]()[field];
+                    ret = _assoc.projects[self.selectedProject()]()[field];
+                    if (self.hasProject().indexOf(_assoc) === -1)
+                        self.hasProject().push(_assoc);
                 } catch(err) {
-                    if (err.name === 'TypeError')
-                        return "Project Does Not Exist";
+                    if (err.name === 'TypeError') {
+                        ret = "Project Does Not Exist";
+                        if (self.missingProject().indexOf(_assoc) === -1)
+                            self.missingProject().push(_assoc);
+                    }
                     else
-                        return "An unexpected error occured";
+                        ret = "An unexpected error occured";
                 }
-            };
 
-            self.refreshTable = function(_assoc) {
-                self.allKeys([]);
-                self.allProjects([]);
-                self.addProjects(_assoc);
+                /*
+                try {
+                    _assoc.projects[self.selectedProject()]();
+                    self.missingKey().push(_assoc);
+                } catch(err) {
+                    if (err.name === 'TypeError'){
+                        ret = "Project Does Not Exist"
+                        self.missingProject().push(_assoc);
+                    }
+                    //else covered in first try 
+                }*/
+
+                return ret;
             };
 
             self.JSONcreateProject = function (_assoc) {
@@ -109,9 +179,14 @@ define( [
                 _assoc.pillar[self.new_project()] = pairs;
             };
 
-            self.JSONupdateProject = function (_assoc) {
-                _assoc.pillar[self.selectedProject()][self.new_key()] = self.new_value();
+            self.JSONupdateKey = function (_assoc) {
+                _assoc.pillar[self.selectedProject()][self.selectedKey()] = self.edit_value();
             };
+
+            self.JSONnewKey = function() {
+                _assoc.pillar[self.selectedProject()][self.new_key()] = self.new_value();
+            }
+
 
             self.uncheckAll = function() {
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
@@ -119,8 +194,7 @@ define( [
                 });
             };
             
-            // Does not work, performance issues
-            
+            // Performance issues, currently limited to 8 selected
             self.checkAll= function(check) {
                 if (self.show_allInfo().length > 8){
                     swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'Error');
@@ -133,6 +207,8 @@ define( [
                 self.show_allInfo(arrayCopy);
                 self.show_allInfo.valueHasMutated();
             };
+
+            /*
 
             self.salt_minion_update = function () {
                 var cmds = {
@@ -157,7 +233,7 @@ define( [
                     console.log("Success " + data.return[0]);
                 });
 
-            };
+            };*/
            
                 
             self.api_put = function (type, data) {
@@ -165,13 +241,15 @@ define( [
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     var uri = "api/pillar/" + _assoc.name + "/" + self.selectedProject() + "/" + type + "/" + data;
 
+                    console.log("URI sent for update: " + uri);
                     $.ajax({
                         url: uri,
                         type: "PUT",
                     })
                     .fail(function(data) {
                         self.updateChecked();
-                        console.log("failed to update data");
+                        swal("Error.", "The data failed to update. Error message: " + data, 'error');
+                        console.log(data);
                     })
                     .done(function(data) {
                         if (left === 1) {
@@ -184,7 +262,8 @@ define( [
                 });
             };
 
-            self.api_post_json = function (type, _assoc, project) {
+            
+            self.api_post_json = function (_assoc) {
                 
                 var _projdata = {
                     "minion": _assoc.name, 
@@ -202,22 +281,18 @@ define( [
                 })
                 .fail(function(data) {
                     console.log(data);
-                    console.log("pure json failed");
+                    swal("Error", "The data failed to update. Error message: " + data, 'error');
                 })
                 .success(function(data) {
                     console.log("pure json success!");
                     self.updateChecked();
-                    self.salt_minion_update();
+                    //self.salt_minion_update();
                 })
             };
-            
-            // calls create minion from api
+           
+            // only used for pillar creation 
             self.api_post = function (type, minion, project) {
-                var uri = "api/pillar/" + minion;
-                if (type === "project")
-                    uri += "/" + project;
-                else
-                    uri += self.domain;
+                var uri = "api/pillar/" + minion + self.domain;
 
                 $.post(uri, function(){
                 })
@@ -227,9 +302,7 @@ define( [
                 })
                 .done(function(data) {
                     swal("Success!", "A new " + type + " has been added.", 'success');
-                    console.log("succeeded making new pillar");
-                    if (type === "project") self.updateChecked();
-                    else if (type === "pillar") self.loadServers();
+                    self.loadServers();
                 });
             };
 
@@ -270,26 +343,13 @@ define( [
                             else { //project
                                 self.updateChecked();
                                 self.selectedProject(null);
+                                self.resetFields();
                             }
                         });
                     });
                 }
                 else return;
             };
-
-            /*
-            self.checkIfAllHaveProject = ko.computed(function() {
-                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
-                    if (_assoc.projects[self.selectedProject()] !== "undefined") {
-                        self.checked_missing(true);
-                        return;
-                    }
-                })
-                self.checked_missing(false);
-            });
-            
-            self.deleteProjectWrapper = function(data) {
-            };*/
 
             self.switchViewToProject = function (project_name) {
                 if (typeof project_name === 'undefined')
@@ -303,45 +363,63 @@ define( [
             self.createProjectWrapper = function(data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     if (typeof _assoc.projects[data] !== "undefined"){
-                        alert("project already exists on " + _assoc.name);
+                        swal("Warning", "Project already exists on " + _assoc.name, 'error');
                     }
-                    else
+                    else if (self.validateNewProject()){
                         self.JSONcreateProject(_assoc);
-                        self.api_post_json("project", _assoc, data);
+                        self.api_post_json(_assoc);
                         self.switchViewToProject(data);
+                    }
                 });
             };
 
             self.newPairWrapper = function(data) {
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
-                    self.JSONupdateProject(_assoc);
-                    self.api_post_json("project", _assoc, data);
+                    self.JSONnewKey(_assoc);
+                    self.api_post_json(_assoc);
                 });
             };
 
-            /*  
-            self.updateProjectWrapper = function(data) {
-                var missingProject = [];
+              
+            self.updateProjectWrapper = function(update_type) {
+                /*
+                var missingData = [];
+                var hasData = [];
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
-                    if (typeof _assoc.projects[data] === "undefined"){
-                        missingProject.push(_assoc);
+                    if (update_type === 'pair'){
+                        if (typeof _assoc.projects[self.selectedProject()]() === "undefined"){
+                            missingData.push(_assoc);
+                        }
+                        else hasData.push(_assoc);
                     }
-                });
+                    else if (update_type === 'value') {
+                        if (typeof _assoc.projects[self.selectedProject()]() !== "undefined"){
+                            if (typeof _assoc.projects[self.selectedProject()]()[self.selectedKey()] === "undefined"){
+                                missingData.push(_assoc);
+                            } 
+                            else hasData.push(_assoc);
+                        }
+                        else hasData.push(_assoc);
+                    }
 
-                if (missingProject.length > 0) {
+                });
+                */
+
+                if (self.missingProject().length > 0) {
                     swal({
                         title: "Hmm...",
-                        text: missingProject.length + " server(s) are missing this project, create the project on these servers as well?",
+                        text: self.missingProject().length + " server(s) are missing this " + update_type + ", proceed to update servers that do have the " + update_type + "?",
                         showCancelButton: true,
                         confirmButtonText: "Yes"
                     }, 
                     function(isConfirm){
-                        for (var each in missingProject){
-                            self.api_post("project", missingProject[each].name, self.selectedProject());
+                        for (var each in self.hasProject()){
+                            self.JSONupdateKey(self.hasProject()[each]);
+                            self.api_post_json(self.hasProject()[each]); 
                         }
                     });
                 }
-            };*/
+            };
 
             self.addProjects = function(_assoc) {
                 for (var each in _assoc.pillar){
@@ -380,14 +458,6 @@ define( [
                     self.objProjects(_assoc);
                 });
             };
-
-            self.resetFields = function () {
-                self.selectedProject(null);
-                self.new_project("");
-                self.new_key("");
-                self.new_value("");
-                self.allKeys([]);
-            } 
 
             self.checked_server_data = ko.computed(function() {
                 ko.utils.arrayForEach(self.allInfo(), function(_assoc) {
