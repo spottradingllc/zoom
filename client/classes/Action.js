@@ -13,13 +13,17 @@ define(['knockout', 'classes/predicateFactory'],
 
             self.parentComponent = parent;
             self.actionVisible = ko.computed(function() {
-                if (self.ID() != null) {
+                if (self.parentComponent.TreeViewModel.adminModel.enabled()) {
+                    return true;
+                }
+                else if (self.ID() != null) {
                     var aID = self.ID().toLowerCase();
                     return (aID === 'start' || aID === 'restart');
                 }
                 else {
                     return true;
                 }
+
             });
 
             self.title = ko.computed(function() {
