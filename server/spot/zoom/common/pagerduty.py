@@ -27,7 +27,6 @@ class PagerDuty(object):
         try:
             self._log.info('Creating incident for key: {0}'.format(key))
             api_key = self.look_up_api_key(svc_token)
-            logging.info('### Found api key: {0}'.format(api_key))
             # self._pager.trigger_incident(service_key=api_key,
             #                              incident_key=key,
             #                              description=description,
@@ -42,7 +41,6 @@ class PagerDuty(object):
         """
         self._log.info('Resolving incident for key: {0}'.format(key))
         api_key = self.look_up_api_key(svc_token)
-        logging.info('### FFound api key: {0}'.format(api_key))
         if key in self.get_open_incidents():
             try:
                 self._pager.resolve_incident(service_key=api_key,
@@ -68,9 +66,8 @@ class PagerDuty(object):
 
     def look_up_api_key(self, svc_token):
         pd_service_dict = {}
-        self._pager.services.show('ATE')
         pd_services = self._pager.services.list()
         for pd_service in pd_services:
             pd_service_dict[pd_service.name] = pd_service.service_key
 
-        return pd_service_dict(svc_token, self._default_svc_token)
+        return pd_service_dict.get(svc_token, self._default_svc_token)

@@ -44,14 +44,14 @@ class AlertManager(object):
                 alert_data = json.loads(data)
 
                 action = alert_data.get('action')
-
                 if action == AlertActionType.TRIGGER:
                     self._pd.trigger(alert_data.get('svc_token'),
                               alert_data.get('key'),
                               alert_data.get('description'),
                               alert_data.get('details'))
                 elif action == AlertActionType.RESOLVE:
-                    self._pd.resolve(alert_data.get('key'))
+                    self._pd.resolve(alert_data.get('svc_token'),
+                                     alert_data.get('key'))
                 else:
                     logging.warning('Unknown action type: {0}'.format(action))
                     continue

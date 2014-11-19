@@ -86,7 +86,6 @@ class WebServer(tornado.web.Application):
         logging.info("Web server initialized")
 
     def start(self):
-        logging.info('### Does it get here')
         self._data_store.start()
         logging.info("Web server started on port <{0}>"
                      .format(self._configuration.port))

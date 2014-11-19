@@ -11,6 +11,7 @@ define(['knockout', './Action'],
             self.restartmax = ko.observable(null);
             self.restartoncrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
+            self.pagerduty = ko.observable(null);
             // TODO: Pull this from some central location
             self.appPath = '/spot/software/state/application/';
 
@@ -97,6 +98,9 @@ define(['knockout', './Action'],
                 if (checkNull(self.restartoncrash())) {
                     XML = XML.concat('restartoncrash="' + self.restartoncrash() + '" ');
                 }
+                if (checkNull(self.pagerduty())) {
+                    XML = XML.concat('pagerduty="' + self.pagerduty() + '" ');
+                }
                 XML = XML.concat('>');
 
                 // create XML for actions
@@ -123,6 +127,7 @@ define(['knockout', './Action'],
                 self.restartmax(node.getAttribute('restartmax'));
                 self.restartoncrash(node.getAttribute('restartoncrash'));
                 self.registrationpath(node.getAttribute('registrationpath'));
+                self.pagerduty(node.getAttribute('pagerduty'));
 
                 self.actions.removeAll();
                 var actions = node.getElementsByTagName('Action');
