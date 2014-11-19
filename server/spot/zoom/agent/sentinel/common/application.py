@@ -99,14 +99,6 @@ class Application(object):
                                                    settings,
                                                    application_type)
 
-        # self._pd_client = PagerDuty(self.config,
-        #                             settings,
-        #                             self.name,
-        #                             self._host,
-        #                             self._env,
-        #                             self._system,
-        #                             self.zkclient)
-
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
 
