@@ -80,7 +80,7 @@ class Application(object):
         self._trigger_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
         self._run_check_mode = False
-        self._pd_svc_token = verify_attribute(config, 'pagerduty', none_allowed=True)
+        self._pd_api_key = verify_attribute(config, 'pagerduty', none_allowed=True)
 
         self._paths = self._init_paths(self.config, settings, application_type)
 
@@ -514,8 +514,8 @@ class Application(object):
     def _get_alert_details(self, alert_action, reason):
         return {
             "action": alert_action,
-            "svc_token": self._pd_svc_token,
-            "key": self._pathjoin('sentinel', self.name, self._host),
+            "api_key": self._pd_api_key,
+            "incident_key": self._pathjoin('sentinel', self.name, self._host),
             "description": 'Sentinel Error: Application {0} {1} on host '
                            '{2}.'.format(self.name, reason, self._host),
             "details": 'Sentinel Error: Application {0} {1} on host '
@@ -532,11 +532,11 @@ class Application(object):
         """
         alert_details = self._get_alert_details(alert_action, reason)
         # path example: /foo/sentinel.bar.baz.HOSTFOO
-        # alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
+        # '###alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
         alert_path = self._pathjoin('/justin/pd',
                                     re.sub('/', '.', alert_details['key']))
 
-        # if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
+        # '###if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
         if self._env in ['Staging']:
             self._log.info('Creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))

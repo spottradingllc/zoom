@@ -9,17 +9,15 @@ from spot.zoom.common.types import AlertActionType
 
 
 class AlertManager(object):
-    def __init__(self, configuration, zk):
+    def __init__(self, configuration, zk, pd):
         """
         :type path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
-        # self._path = configuration.alert_path
+        # '###self._path = configuration.alert_path
         self._path = '/justin/pd'
         self._zk = zk
-        self._pd = PagerDuty(configuration.pagerduty_subdomain,
-                             configuration.pagerduty_api_token,
-                             configuration.pagerduty_default_service_token)
+        self._pd = pd
 
     def start(self):
         logging.info('Starting to watch for alerts at path: {0}'
@@ -45,8 +43,8 @@ class AlertManager(object):
 
                 action = alert_data.get('action')
                 if action == AlertActionType.TRIGGER:
-                    self._pd.trigger(alert_data.get('svc_token'),
-                              alert_data.get('key'),
+                    self._pd.trigger(alert_data.get('api_key'),
+                              alert_data.get('incident_key'),
                               alert_data.get('description'),
                               alert_data.get('details'))
                 elif action == AlertActionType.RESOLVE:

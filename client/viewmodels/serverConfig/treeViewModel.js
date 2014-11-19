@@ -20,6 +20,18 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
                 return paths;
             }());  // run immediately, and store as an array
 
+            self.pagerDutyServices = function() {
+                var pd_dict
+                $.ajax({
+                    url: '/api/pagerduty/services/',
+                    success: function(data) {
+                        pd_dict = JSON.parse(data);
+                    },
+                    async: false
+                });
+                return pd_dict
+            }();
+
             self.addComponent = function() {
                 self.components.push(new Component(self));
             };
