@@ -36,9 +36,13 @@ class MessageThrottle(object):
                     logging.debug('Sending message: {0}'
                                   .format(self._message.to_json()))
                     for client in self._clients:
-                        client.write_message(self._message.to_json())
+                        try:
+                            client.write_message(self._message.to_json())
+                        except IndexError:
+                            logging.debug('Client closed when trying to send '
+                                          'update.')
+                            continue
                     self._message = None
-            
             finally:
                 self._lock.release()
             

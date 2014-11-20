@@ -50,6 +50,11 @@ define([], function () {
             Holiday: 'holiday',
             Time: 'time',
             Process: 'process'
+        },
+
+        zkPaths: {
+            statePath: '/spot/software/state/',
+            appStatePath: '/spot/software/state/application/'
         }
     };
 });

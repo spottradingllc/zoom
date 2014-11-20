@@ -1,5 +1,5 @@
-define(['knockout', './Action'],
-    function(ko, Action) {
+define(['knockout', './Action', 'model/constants'],
+    function(ko, Action, constants) {
         return function Component(parent) {
             var self = this;
             self.TreeViewModel = parent;
@@ -10,10 +10,7 @@ define(['knockout', './Action'],
             self.command = ko.observable(null);
             self.restartmax = ko.observable(null);
             self.registrationpath = ko.observable(null);
-            self.pagerduty = ko.observable(null);
-            // TODO: Pull this from some central location
-            self.appPath = '/spot/software/state/application/';
-
+            self.pagerdutyService = ko.observable(null);
             self.actions = ko.observableArray();
 
             self.addAction = function() {
@@ -99,8 +96,8 @@ define(['knockout', './Action'],
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
                 }
-                if (checkNull(self.pagerduty())) {
-                    XML = XML.concat('pagerduty="' + self.pagerduty() + '" ');
+                if (checkNull(self.pagerdutyService())) {
+                    XML = XML.concat('pagerduty_service="' + self.pagerdutyService() + '" ');
                 }
                 XML = XML.concat('>');
 
@@ -127,7 +124,7 @@ define(['knockout', './Action'],
                 self.command(node.getAttribute('command'));
                 self.restartmax(node.getAttribute('restartmax'));
                 self.registrationpath(node.getAttribute('registrationpath'));
-                self.pagerduty(node.getAttribute('pagerduty'));
+                self.pagerdutyService(node.getAttribute('pagerduty_service'));
 
                 self.actions.removeAll();
                 var actions = node.getElementsByTagName('Action');

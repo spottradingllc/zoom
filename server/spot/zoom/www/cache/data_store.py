@@ -6,6 +6,7 @@ from spot.zoom.www.cache.application_dependency_cache \
 from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from spot.zoom.www.cache.global_cache import GlobalCache
 from spot.zoom.common.decorators import connected_with_return
+from spot.zoom.common.pagerduty import PagerDuty
 from spot.zoom.www.entities.alert_manager import AlertManager
 
 from spot.zoom.www.messages.application_states import ApplicationStatesMessage
@@ -15,7 +16,7 @@ from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 
 
 class DataStore(object):
-    def __init__(self, configuration, zoo_keeper, task_server, pd):
+    def __init__(self, configuration, zoo_keeper, task_server):
         """
         :type configuration: spot.zoom.config.configuration.Configuration
         :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
@@ -24,7 +25,13 @@ class DataStore(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._task_server = task_server
-        self._alert_manager = AlertManager(configuration, zoo_keeper, pd)
+
+        self._pd = PagerDuty(self._configuration.pagerduty_subdomain,
+                             self._configuration.pagerduty_api_token,
+                             self._configuration.pagerduty_default_svc_key)
+
+        self._alert_manager = AlertManager(configuration.alert_path,
+                                           zoo_keeper, self._pd)
 
         self._web_socket_clients = list()
 
@@ -119,6 +126,13 @@ class DataStore(object):
         self._application_dependency_cache.load()
         self._time_estimate_cache.load()
         return {'cache_load': 'okay'}
+
+    @property
+    def pd_client(self):
+        """
+        :rtype: spot.zoom.common.pagerduty.PagerDuty
+        """
+        return self._pd
 
     @property
     def web_socket_clients(self):

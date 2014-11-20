@@ -2,19 +2,19 @@ import logging
 import json
 import os.path
 
-from kazoo.exceptions import NoNodeError
+from kazoo.exceptions import NoNodeError, SessionExpiredError
 
-from spot.zoom.common.pagerduty import PagerDuty
 from spot.zoom.common.types import AlertActionType
 
 
 class AlertManager(object):
-    def __init__(self, configuration, zk, pd):
+    def __init__(self, alert_path, zk, pd):
         """
-        :type path: str
+        :type alert_path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
+        :type pd: from spot.zoom.common.pagerduty.PagerDuty
         """
-        self._path = configuration.alert_path
+        self._path = alert_path
         self._zk = zk
         self._pd = pd
 
@@ -42,7 +42,7 @@ class AlertManager(object):
 
                 action = alert_data.get('action')
                 if action == AlertActionType.TRIGGER:
-                    self._pd.trigger(alert_data.get('api_key'),
+                    self._pd.trigger(alert_data.get('service_key'),
                                      alert_data.get('incident_key'),
                                      alert_data.get('description'),
                                      alert_data.get('details'))
@@ -58,7 +58,9 @@ class AlertManager(object):
             except NoNodeError:
                 logging.info('No node at {0}. Skipping alert.'.format(path))
                 continue
+            except SessionExpiredError:
+                logging.info('Session with ZK has expired. Will not process '
+                             'alerts until reconnect.')
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
-
