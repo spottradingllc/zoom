@@ -5,16 +5,16 @@ define(
         'service',
         'jquery',
         'jq-throttle',
-        'model/ApplicationState',
         'model/environmentModel',
         'model/adminModel',
         'model/GlobalMode',
         'model/customFilterModel',
+        'classes/ApplicationState',
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'
     ],
-    function(ko, router, service, $, jqthrottle, ApplicationState, environment, admin, GlobalMode,
-             CustomFilterModel, ApplicationStateArray, DependencyMaps) {
+    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
+             CustomFilterModel, ApplicationState, ApplicationStateArray, DependencyMaps) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
@@ -22,7 +22,7 @@ define(
             self.globalMode = GlobalMode;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
-            self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } }); 
+            self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } });
             self.environment = environment; 
             self.name = 'Application State Table';
             self.passwordConfirm = ko.observable('');
