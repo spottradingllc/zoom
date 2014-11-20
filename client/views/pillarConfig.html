@@ -1,5 +1,20 @@
 <sectionlabel>
-    <div class="container" data-bind="with: pillarModel">
+    <div id="loadVisual" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"> Refreshing pillars on salt master... </h4>
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
+        <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
+    </div>
+
+    <div class="container" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
             <h1> Pillar Value Editor </h1>
             <div class="btn-group" data-bind="foreach: pillarOptions">
@@ -10,7 +25,12 @@
             <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
                 <span class="glyphicon glyphicon-align-justify"></span> 
             </button>
-
+    <!--
+            <div id="loadVisual" class="hidden">
+                <span> Refreshing salt... </span>
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+    -->
         </div>
 
         <div class="row">
@@ -54,7 +74,7 @@
                             <td data-bind="text: name"></td>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-danger" data-bind="click: function() { api_delete('pillar') }">Delete</button>
+                    <button type="button" class="btn btn-danger" data-bind="click: function() { delPillar() }">Delete</button>
                 </div>
 
                 <div data-bind="visible: checked_servers().length == 0 && selectedOption() != 'Create Pillar'">
@@ -84,17 +104,26 @@
                     <h3 data-bind="visible: selectedProject(), text: 'Update ' + selectedProject() + ' for all selected servers'"></h3>
 
                     <div class="row" data-bind="visible: selectedModify() == 'Existing project'">
-                        <div class="dropdown" style="margin-left: 15px;">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
-                            Select a project
-                            <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
-                                <li style="cursor:pointer" role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
-                            </ul>
+                        <div class="col-md-4 text-left">
+                            <div data-bind="visible: allProjects().length == 0"> 
+                                <h4> No projects exist on the selected server(s)</h4>
+                            </div>
+                    
+                            <div class="dropdown" style="margin-left: 15px;" data-bind="visible: allProjects().length > 0" >
+                                <button class="btn btn-default dropdown-toggle" type="button" id="allProjDropdown" data-toggle="dropdown" aria-expanded="true"> 
+                                Select a project
+                                <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="allProjDropdown" data-bind="foreach: allProjects()">
+                                    <li style="cursor:pointer" role="presentation" id="allDrop"><a role="menuitem" tabindex="-1" data-bind="text: $data"></a></li>
+                                </ul>
+                            </div>
+
                         </div>
-                        <div style="margin-left: 20px;">
-                            <button type="button" class="btn btn-danger" data-bind="click: function () { api_delete('project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
+                        <div class="col-md-4 text-right">
+                            <div style="margin-left: 20px;">
+                                <button type="button" class="btn btn-danger" data-bind="click: function () { updateProjectWrapper('delete', 'project') }, text: 'Delete '+selectedProject() + ' from selected servers', visible: selectedProject()"></button>
+                            </div>
                         </div>
                     </div>
 
@@ -127,7 +156,7 @@
 
 
 
-                        <div class="dropdown" data-bind="visible: allKeys().length > 0">
+                        <div class="dropdown" data-bind="visible: allKeys().length > 0 && allProjects().length > 0 && selectedProject()">
                             <div class="row">
                                 <h4> Update Existing Key-Value Pair </h4>
                                 <button style="margin-bottom: 15px; margin-left: 15px" class="btn btn-default dropdown-toggle" type="button" id="allKeyDropdown" data-toggle="dropdown">
@@ -142,12 +171,14 @@
 
 
                         <div class="row" data-bind="visible: selectedKey() && allKeys().length > 0">
-                            <div class="col-md-2"> 
+                            <div class="col-md-1"> 
                                 <span data-bind="text: selectedKey() + ':'"></span>
+                            </div>
+                            <div class="col-md-2">
                                 <input type="text" class="form-control" placeholder="Updated Value" data-bind="textInput: edit_value"></input>
                             </div>
-                            <button class="btn btn-default" data-bind="click: function() {updateProjectWrapper('value')}">Push update</button>
-                            <button style="margin-left: 40px" class="btn btn-danger" data-bind="click: function() {api_delete('key')}">Delete Key</button>
+                            <button class="btn btn-default" data-bind="click: function() {updateProjectWrapper('update', 'value')}">Push update</button>
+                            <button style="margin-left: 40px" class="btn btn-danger" data-bind="click: function() {updateProjectWrapper('delete', 'key')}">Delete Key</button>
                         </div>
 
                         <div class="row" data-bind="visible: selectedProject()">
@@ -156,7 +187,7 @@
                                 <input type="text" class="form-control" placeholder="New Key" data-bind="textInput: new_key"></input>
                                 <input type="text" class="form-control" placeholder="New Value" data-bind="textInput: new_value"></input>
                             </div>
-                            <button class="btn btn-default" data-bind="click: function() {newPairWrapper($data)}"> Push new pair </button>
+                            <button class="btn btn-default" data-bind="click: function() {updateProjectWrapper('update', 'key')}"> Push new pair </button>
                         </div>
 
                     </div>
@@ -164,15 +195,15 @@
                     <div data-bind="visible: selectedModify() == 'New project'">
                         <h3>Create project <small> Blank values will be null </small> <h3/>
                         <span> Project name: </span>
-                        <input placeholder="Project Name" data-bind="textInput: new_project"></input>
+                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project"></input>
                         <!-- ko foreach: new_pairs() -->
                         <div class="row">
-                            <input placeholder="Key" data-bind="textInput: key"></input>
-                            <input placeholder="Value" data-bind="textInput: value"></input>
+                            <input type="text" placeholder="Key" data-bind="textInput: key"></input>
+                            <input type="text" placeholder="Value" data-bind="textInput: value"></input>
                         </div>
                         <!-- /ko-->
                         <button class="btn btn-default" data-bind="click: function() {addPair()}">Add new key-value pair</button>
-                        <button data-bind="click: createProjectWrapper(new_project())">Create</button>
+                        <button class="btn btn-default" data-bind="click: function() {createProjectWrapper(new_project())}">Create</button>
                     </div>
 
                 </div>

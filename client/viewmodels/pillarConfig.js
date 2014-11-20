@@ -11,7 +11,8 @@ define(
         'bindings/radio'
     ],
     function(app, ko, service, $, d3, login, pillarModel, GlobalMode) {
-        self.pillarModel = new pillarModel();
+        self.login = login;
+        self.pillarModel = new pillarModel(self.login);
         self.attached = function() {
             self.pillarModel.loadServers(true);
         };
