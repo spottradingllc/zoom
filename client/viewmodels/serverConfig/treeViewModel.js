@@ -9,7 +9,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
             self.statePaths = (function() {
                 var paths = [];
                 $.ajax({
-                    url: '/api/application/states/',
+                    url: '/api/application/states',
                     success: function(data) {
                         ko.utils.arrayForEach(data.application_states, function(state) {
                             paths.push(state.configuration_path);
@@ -50,7 +50,11 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
                 });
 
                 if (errors.length > 0) {
-                    swal('I find your lack of config validity...disturbing.', errors.join('\n'), 'error' );
+                    swal({
+                        title: 'I find your lack of config validity...disturbing.',
+                        text: errors.join('\n'),
+                        imageUrl: 'images/vadar.jpg'
+                    });
                     valid = false;
                 }
 

@@ -29,8 +29,8 @@ from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 class WebServer(tornado.web.Application):
     def __init__(self, configuration, data_store, task_server, zk, pd):
         """
-        :type configuration: spot.zoom.config.configuration.Configuration
-        :type data_store: spot.zoom.cache.data_store.DataStore
+        :type configuration: spot.zoom.www.config.configuration.Configuration
+        :type data_store: spot.zoom.www.cache.data_store.DataStore
         :type task_server: spot.zoom.www.entities.task_server.TaskServer
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
@@ -47,8 +47,8 @@ class WebServer(tornado.web.Application):
             # global mode
             (r'/api/mode/', GlobalModeHandler),
             # application
-            (r'/api/application/states/', ApplicationStateHandler),
-            (r'/api/application/dependencies/', ApplicationDependenciesHandler),
+            (r'/api/application/states(?P<path>.*)?', ApplicationStateHandler),
+            (r'/api/application/dependencies(?P<path>.*)?', ApplicationDependenciesHandler),
             # agent
             (r'/api/agent/', ControlAgentHandler),
             # cache
@@ -76,6 +76,7 @@ class WebServer(tornado.web.Application):
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": ""}),
             (r'/front-end/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.client_path}),
             (r'/(.*\.html)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
+            (r'/images/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.images_path}),
             (r'/(.*\.json)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
             (r'/', tornado.web.RedirectHandler, {"url": "/index.html"})
         ]
@@ -96,6 +97,7 @@ class WebServer(tornado.web.Application):
                      .format(self._configuration.port))
         self.listen(self._configuration.port)
         logging.info("Web server initialized")
+        print "Web server initialized"
         tornado.ioloop.IOLoop.instance().start()  # blocks/holds main thread
 
     def stop(self):

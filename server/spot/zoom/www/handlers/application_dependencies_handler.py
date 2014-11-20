@@ -16,13 +16,16 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
         return self.application.data_store
 
     @TimeThis(__file__)
-    def get(self):
+    def get(self, path):
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))
         try:
             result = self.data_store.load_application_dependency_cache()
-
-            self.write(result.to_json())
+            if path:
+                item = result.application_dependencies.get(path, {})
+                self.write(item)
+            else:
+                self.write(result.to_json())
 
         except Exception as e:
             logging.exception(e)
