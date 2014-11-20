@@ -27,11 +27,13 @@ class PagerDuty(object):
         try:
             if api_key is None:
                 api_key = self._default_api_key
-            self._log.info('Creating incident for key: {0}'.format(incident_key))
-            # self._pager.trigger_incident(service_key=api_key,
-            #                              incident_key=incident_key,
-            #                              description=description,
-            #                              details=details)
+            self._log.info('Creating incident for api key: {0}'
+                           ' and incident key: {1}'
+                           .format(api_key, incident_key))
+            self._pager.trigger_incident(service_key=api_key,
+                                         incident_key=incident_key,
+                                         description=description,
+                                         details=details)
         except Exception as ex:
             self._log.error('An Exception occurred trying to trigger '
                             'incident with key {0}: {1}'.format(incident_key, ex))
@@ -42,7 +44,8 @@ class PagerDuty(object):
         """
         if api_key is None:
             api_key = self._default_api_key
-        self._log.info('Resolving incident for key: {0}'.format(incident_key))
+        self._log.info('Resolving incident for api key: {0}'
+                       ' and incident key: {1}'.format(api_key, incident_key))
         if incident_key in self.get_open_incidents():
             try:
                 self._pager.resolve_incident(service_key=api_key,

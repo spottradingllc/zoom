@@ -14,8 +14,7 @@ class AlertManager(object):
         :type path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
-        # '###self._path = configuration.alert_path
-        self._path = '/justin/pd'
+        self._path = configuration.alert_path
         self._zk = zk
         self._pd = pd
 
@@ -44,12 +43,12 @@ class AlertManager(object):
                 action = alert_data.get('action')
                 if action == AlertActionType.TRIGGER:
                     self._pd.trigger(alert_data.get('api_key'),
-                              alert_data.get('incident_key'),
-                              alert_data.get('description'),
-                              alert_data.get('details'))
+                                     alert_data.get('incident_key'),
+                                     alert_data.get('description'),
+                                     alert_data.get('details'))
                 elif action == AlertActionType.RESOLVE:
-                    self._pd.resolve(alert_data.get('svc_token'),
-                                     alert_data.get('key'))
+                    self._pd.resolve(alert_data.get('api_key'),
+                                     alert_data.get('incident_key'))
                 else:
                     logging.warning('Unknown action type: {0}'.format(action))
                     continue
@@ -62,3 +61,4 @@ class AlertManager(object):
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
+

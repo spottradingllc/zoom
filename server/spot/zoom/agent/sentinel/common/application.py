@@ -534,12 +534,10 @@ class Application(object):
         """
         alert_details = self._get_alert_details(alert_action, reason)
         # path example: /foo/sentinel.bar.baz.HOSTFOO
-        # '###alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
-        alert_path = self._pathjoin('/justin/pd',
-                                    re.sub('/', '.', alert_details['key']))
+        alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
+                                    re.sub('/', '.', alert_details['incident_key']))
 
-        # '###if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
-        if self._env in ['Staging']:
+        if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
             self._log.info('Creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
 
