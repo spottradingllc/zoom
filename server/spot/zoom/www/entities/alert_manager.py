@@ -4,7 +4,6 @@ import os.path
 
 from kazoo.exceptions import NoNodeError
 
-from spot.zoom.common.pagerduty import PagerDuty
 from spot.zoom.common.types import AlertActionType
 
 
@@ -13,6 +12,7 @@ class AlertManager(object):
         """
         :type path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
+        :type pd: from spot.zoom.common.pagerduty.PagerDuty
         """
         self._path = configuration.alert_path
         self._zk = zk
@@ -42,7 +42,7 @@ class AlertManager(object):
 
                 action = alert_data.get('action')
                 if action == AlertActionType.TRIGGER:
-                    self._pd.trigger(alert_data.get('api_key'),
+                    self._pd.trigger(alert_data.get('service_key'),
                                      alert_data.get('incident_key'),
                                      alert_data.get('description'),
                                      alert_data.get('details'))
@@ -61,4 +61,3 @@ class AlertManager(object):
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
-

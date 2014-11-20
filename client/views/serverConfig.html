@@ -110,11 +110,11 @@
                                title="registrationpath - Path in ZooKeeper used to register a service.">
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="pagerduty api key" data-toggle="dropdown"
-                                   data-bind="value: pagerduty, text: pagerduty"
+                                   data-bind="value: pagerduty_service, text: pagerduty_service"
                                    data-toggle="tooltip" data-placement="top"
-                                   title="pagerduty - The PagerDuty service key to send the alerts to.">
+                                   title="pagerduty_service - The PagerDuty service key to send the alerts to.">
                                 <ul class="dropdown-menu" role="menu" data-bind="foreach: Object.keys(TreeViewModel.pagerDutyServices).sort()">
-                                    <li><a data-bind="text: $data, click: function(){$parent.pagerduty($parent.TreeViewModel.pagerDutyServices[$data])}"></a></li>
+                                    <li><a data-bind="text: $data, click: function(){$parent.pagerduty_service($parent.TreeViewModel.pagerDutyServices[$data])}"></a></li>
                                 </ul>
                         </span>
                     </div>

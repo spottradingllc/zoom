@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+define(['jquery', 'model/constants'], function($, constants) {
     return function GraphiteModel(environment, host, configPath) {
         var self = this;
 
@@ -22,7 +22,7 @@ define(['jquery'], function($) {
 
         self.applicationURL = function() {
             var url = 'http://graphite' + environment + '/render?';
-            var appName = configPath.replace('/spot/software/state/', '');
+            var appName = configPath.replace(constants.zkPaths.statePath, '');
             var dotname = appName.replace(/\//g, '.');
             url = url + 'target=alias(secondYAxis(Infrastructure.startup.' + dotname + '.result), "Last Exit Code")';
             url = url + '&target=alias(Infrastructure.startup.' + dotname + '.runtime, "Startup Time")';

@@ -80,7 +80,8 @@ class Application(object):
         self._trigger_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
         self._run_check_mode = False
-        self._pd_api_key = verify_attribute(config, 'pagerduty', none_allowed=True)
+        self._pd_svc_key = verify_attribute(config, 'pagerduty_service',
+                                            none_allowed=True)
 
         self._paths = self._init_paths(self.config, settings, application_type)
 
@@ -516,13 +517,14 @@ class Application(object):
     def _get_alert_details(self, alert_action, reason):
         return {
             "action": alert_action,
-            "api_key": self._pd_api_key,
+            "service_key": self._pd_svc_key,
             "incident_key": self._pathjoin('sentinel', self.name, self._host),
-            "description": 'Sentinel Error: Application {0} {1} on host '
-                           '{2}.'.format(self.name, reason, self._host),
-            "details": 'Sentinel Error: Application {0} {1} on host '
-                       '{2}.\nReview the application log and contact the appropriate '
-                       'development group.'.format(self.name, reason, self._host)
+            "description": ('Sentinel Error: Application {0} {1} on host {2}.'
+                            .format(self.name, reason, self._host)),
+            "details": ('Sentinel Error: Application {0} {1} on host {2}.\n'
+                        'Review the application log and contact the appropriate'
+                        ' development group.'
+                        .format(self.name, reason, self._host))
         }
 
     @catch_exception(NoNodeError)
@@ -534,8 +536,10 @@ class Application(object):
         """
         alert_details = self._get_alert_details(alert_action, reason)
         # path example: /foo/sentinel.bar.baz.HOSTFOO
-        alert_path = self._pathjoin(self._settings.get('ZK_ALERT_PATH'),
-                                    re.sub('/', '.', alert_details['incident_key']))
+        alert_path = self._pathjoin(
+            self._settings.get('ZK_ALERT_PATH'),
+            re.sub('/', '.', alert_details['incident_key'])
+        )
 
         if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
             self._log.info('Creating alert "{0}" node for env: {1}'

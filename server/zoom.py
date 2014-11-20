@@ -22,7 +22,7 @@ class Session(object):
         self._configuration = Configuration(self._zoo_keeper)
         self._pd = PagerDuty(self._configuration.pagerduty_subdomain,
                              self._configuration.pagerduty_api_token,
-                             self._configuration.pagerduty_default_api_key)
+                             self._configuration.pagerduty_default_svc_key)
 
         self._task_server = TaskServer(self._configuration, self._zoo_keeper)
         self._data_store = DataStore(self._configuration, self._zoo_keeper,
