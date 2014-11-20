@@ -5,39 +5,12 @@ define(
         'classes/applicationStateArray',
         'model/graphiteModel',
         'model/appInfoModel',
-        'model/dependencyModel'
+        'model/dependencyModel',
+        'model/constants'
     ],
-    function($, ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel) {
+    function($, ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel, constants) {
         return function ApplicationState(data, parent) {
             var self = this;
-
-            self.colors = {
-                actionBlue: '#057D9F',
-                errorRed: '#CC574F',
-                successTrans: '',
-                unknownGray: '#F7EEDA',
-                warnOrange: '#FFAE2F',
-                configErrPink: '#FF64DB'
-            };
-
-            self.glyphs = {
-                runningCheck: 'glyphicon glyphicon-ok-circle',
-                stoppedX: 'glyphicon glyphicon-remove-circle',
-                unknownQMark: 'glyphicon glyphicon-question-sign',
-                thumpsUp: 'glyphicon glyphicon-thumbs-up',
-                startingRetweet: 'glyphicon glyphicon-retweet',
-                stoppingDown: 'glyphicon glyphicon-arrow-down',
-                errorWarning: 'glyphicon glyphicon-warning-sign',
-                notifyExclamation: 'glyphicon glyphicon-exclamation-sign',
-                filledStar: 'glyphicon glyphicon-star',
-                emptyStar: 'glyphicon glyphicon-star-empty',
-                modeAuto: 'glyphicon glyphicon-eye-open',
-                modeManual: 'glyphicon glyphicon-eye-close',
-                configErr: 'glyphicon glyphicon-resize-small'
-            };
-
-            self.applicationStatuses = {running: 'running', stopped: 'stopped', unknown: 'unknown'};
-            self.errorStates = {ok: 'ok', starting: 'starting', stopping: 'stopping', error: 'error', notify: 'notify', configErr: 'config_error', unknown: 'unknown'};
 
             self.componentId = data.application_name;
             self.configurationPath = data.configuration_path;
@@ -56,28 +29,28 @@ define(
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
-                if (self.applicationStatus().toLowerCase() === self.applicationStatuses.running) {
-                    ret = self.glyphs.runningCheck;
+                if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
+                    ret = constants.glyphs.runningCheck;
                 }
-                else if (self.applicationStatus().toLowerCase() === self.applicationStatuses.stopped) {
-                    ret = self.glyphs.stoppedX;
+                else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
+                    ret = constants.glyphs.stoppedX;
                 }
                 else {
-                    ret = self.glyphs.unknownQMark;
+                    ret = constants.glyphs.unknownQMark;
                 }
                 // add the cursor-pointer css class so it appears as clickable
                 return ret + ' cursor-pointer';
             }, self);
 
             self.applicationStatusBg = ko.computed(function() {
-                if (self.applicationStatus().toLowerCase() === self.applicationStatuses.running) {
-                    return self.colors.successTrans;
+                if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
+                    return constants.colors.successTrans;
                 }
-                else if (self.applicationStatus().toLowerCase() === self.applicationStatuses.stopped) {
-                    return self.colors.errorRed;
+                else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
+                    return constants.colors.errorRed;
                 }
                 else {
-                    return self.colors.unknownGray;
+                    return constants.colors.unknownGray;
                 }
             }, self);
 
@@ -86,66 +59,66 @@ define(
                     return '';
                 }
                 else if (self.mode() === 'auto') {
-                    return self.glyphs.modeAuto;
+                    return constants.glyphs.modeAuto;
                 }
                 else if (self.mode() === 'manual') {
-                    return self.glyphs.modeManual;
+                    return constants.glyphs.modeManual;
                 }
                 else {
-                    return self.glyphs.runningCheck;
+                    return constants.glyphs.runningCheck;
                 }
 
             });
 
             self.errorStateClass = ko.computed(function() {
-                if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.ok) {
-                    return self.glyphs.thumpsUp;
+                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
+                    return constants.glyphs.thumpsUp;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.starting) {
-                    return self.glyphs.startingRetweet;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
+                    return constants.glyphs.startingRetweet;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.stopping) {
-                    return self.glyphs.stoppingDown;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopping) {
+                    return constants.glyphs.stoppingDown;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.error) {
-                    return self.glyphs.errorWarning;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.error) {
+                    return constants.glyphs.errorWarning;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.notify) {
-                    return self.glyphs.notifyExclamation;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.notify) {
+                    return constants.glyphs.notifyExclamation;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.configErr) {
-                    return self.glyphs.configErr;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.configErr) {
+                    return constants.glyphs.configErr;
                 }
                 else {
-                    return self.glyphs.unknownQMark;
+                    return constants.glyphs.unknownQMark;
                 }
             }, self);
 
             self.errorStateBg = ko.computed(function() {
-                if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.ok) {
+                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
                     if (self.mode() !== parent.globalMode.current()) {
-                        return self.colors.warnOrange;
+                        return constants.colors.warnOrange;
                     }
 
-                    return self.colors.successTrans;
+                    return constants.colors.successTrans;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.starting) {
-                    return self.colors.actionBlue;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
+                    return constants.colors.actionBlue;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.stopping) {
-                    return self.colors.actionBlue;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopping) {
+                    return constants.colors.actionBlue;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.error) {
-                    return self.colors.errorRed;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.error) {
+                    return constants.colors.errorRed;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.notify) {
-                    return self.colors.warnOrange;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.notify) {
+                    return constants.colors.warnOrange;
                 }
-                else if (self.errorState() && self.errorState().toLowerCase() === self.errorStates.configErr) {
-                    return self.colors.configErrPink;
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.configErr) {
+                    return constants.colors.configErrPink;
                 }
                 else {
-                    return self.colors.unknownGray;
+                    return constants.colors.unknownGray;
                 }
             }, self);
 
@@ -156,10 +129,10 @@ define(
             // Creates group for sending commands
             self.groupControlStar = ko.computed(function() {
                 if (parent.groupControl.indexOf(self) === -1) {
-                    return self.glyphs.emptyStar;
+                    return constants.glyphs.emptyStar;
                 }
                 else {
-                    return self.glyphs.filledStar;
+                    return constants.glyphs.filledStar;
                 }
             });
 
