@@ -52,6 +52,12 @@ class ActionFactory(object):
             mode_controlled = verify_attribute(element, 'mode_controlled',
                                                none_allowed=True)
             disabled = verify_attribute(element, 'disabled', none_allowed=True)
+            pd_enabled = verify_attribute(element, 'pd_enabled',
+                                          none_allowed=True)
+            if pd_enabled is None:
+                pagerduty_enabled = True
+            else:
+                pagerduty_enabled = pd_enabled
 
             action = getattr(self._comp, name, None)
             actions[name] = Action(name, self._comp.name, action, element,
@@ -65,7 +71,8 @@ class ActionFactory(object):
                                    system=self._system,
                                    pred_list=self._pred_list,
                                    settings=self._settings,
-                                   disabled=bool(disabled))
+                                   disabled=bool(disabled),
+                                   pd_enabled=pagerduty_enabled)
             self._log.info('Registered {0}.'.format(actions[name]))
 
         return actions

@@ -108,16 +108,6 @@
                                data-bind="value: registrationpath, text: registrationpath"
                                data-toggle="tooltip" data-placement="top"
                                title="registrationpath - Path in ZooKeeper used to register a service.">
-                        <span class="dropdown">
-                            <input type="text" class="form-control" placeholder="restartoncrash" data-toggle="dropdown"
-                                   data-bind="value: restartoncrash, text: restartoncrash"
-                                   data-toggle="tooltip" data-placement="top"
-                                   title="restartoncrash - If a service crashes after it has started, whether to try to start it again.">
-                                <ul class="dropdown-menu" role="menu" >
-                                    <li><a href="#" data-bind="click: function(){restartoncrash('True')}">True</a></li>
-                                    <li><a href="#" data-bind="click: function(){restartoncrash('False')}">False</a></li>
-                                </ul>
-                        </span>
                     </div>
                 </form>
                 <br />
@@ -151,6 +141,15 @@
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){disabled('True')}">True</a></li>
                                     <li><a href="#" data-bind="click: function(){disabled('False')}">False</a></li>
+                                </ul>
+                        </span>
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="pagerduty enabled"
+                                   data-toggle="dropdown" data-bind="value: pdEnabled, text: pdEnabled"
+                                   data-toggle="tooltip" data-placement="top" title="pagerduty enabled">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){pdEnabled('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){pdEnabled('False')}">False</a></li>
                                 </ul>
                         </span>
                     </div>

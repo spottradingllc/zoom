@@ -9,6 +9,7 @@ define(['knockout', 'classes/predicateFactory'],
             self.staggertime = ko.observable(null);
             self.modeControlled = ko.observable(null);
             self.disabled = ko.observable(null);
+            self.pdEnabled = ko.observable(null);
             self.predicates = ko.observableArray();
 
             self.parentComponent = parent;
@@ -99,6 +100,9 @@ define(['knockout', 'classes/predicateFactory'],
                 if (checkNull(self.disabled())) {
                     XML = XML.concat('disabled="' + self.disabled() + '" ');
                 }
+                if (checkNull(self.pdEnabled())) {
+                    XML = XML.concat('pd_enabled="' + self.pdEnabled() + '" ');
+                }
 
                 XML = XML.concat('><Dependency>');
 
@@ -119,6 +123,7 @@ define(['knockout', 'classes/predicateFactory'],
                 self.staggertime(node.getAttribute('staggertime'));
                 self.modeControlled(node.getAttribute('mode_controlled'));
                 self.disabled(node.getAttribute('disabled'));
+                self.pdEnabled(node.getAttribute('pd_enabled'));
 
                 var dependency = node.getElementsByTagName('Dependency')[0];
                 if (dependency !== null) {
