@@ -1,6 +1,7 @@
 import logging
 import platform
 import signal
+import traceback
 
 from kazoo.client import KazooState
 
@@ -95,4 +96,5 @@ if __name__ == "__main__":
         session.stop()
 
     except Exception as e:
+        print traceback.format_exc()
         print str(e)

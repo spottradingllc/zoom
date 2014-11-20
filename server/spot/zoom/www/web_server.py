@@ -47,8 +47,8 @@ class WebServer(tornado.web.Application):
             # global mode
             (r'/api/mode/', GlobalModeHandler),
             # application
-            (r'/api/application/states(?P<path>.*)?', ApplicationStateHandler),
-            (r'/api/application/dependencies(?P<path>.*)?', ApplicationDependenciesHandler),
+            (r'/api/application/states(?P<path>.*)', ApplicationStateHandler),
+            (r'/api/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
             # agent
             (r'/api/agent/', ControlAgentHandler),
             # cache
