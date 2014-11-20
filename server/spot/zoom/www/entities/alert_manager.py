@@ -2,7 +2,7 @@ import logging
 import json
 import os.path
 
-from kazoo.exceptions import NoNodeError
+from kazoo.exceptions import NoNodeError, SessionExpiredError
 
 from spot.zoom.common.types import AlertActionType
 
@@ -58,6 +58,9 @@ class AlertManager(object):
             except NoNodeError:
                 logging.info('No node at {0}. Skipping alert.'.format(path))
                 continue
+            except SessionExpiredError:
+                logging.info('Session with ZK has expired. Will not process '
+                             'alerts until reconnect.')
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
