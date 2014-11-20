@@ -28,10 +28,10 @@ class PagerDuty(object):
             if api_key is None:
                 api_key = self._default_api_key
             self._log.info('Creating incident for key: {0}'.format(incident_key))
-            self._pager.trigger_incident(service_key=api_key,
-                                         incident_key=incident_key,
-                                         description=description,
-                                         details=details)
+            # self._pager.trigger_incident(service_key=api_key,
+            #                              incident_key=incident_key,
+            #                              description=description,
+            #                              details=details)
         except Exception as ex:
             self._log.error('An Exception occurred trying to trigger '
                             'incident with key {0}: {1}'.format(incident_key, ex))
@@ -66,7 +66,7 @@ class PagerDuty(object):
                             'incidents: {0}'.format(ex))
             return list()
 
-    def get_service_list(self):
+    def get_service_dict(self):
         pd_service_dict = {}
         pd_services = self._pager.services.list(limit=100)
         for pd_service in pd_services:

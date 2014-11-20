@@ -11,7 +11,7 @@ class PagerDutyServicesHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         try:
-            self.write(json.dumps(self.application.pd.get_service_list()))
+            self.write(json.dumps(self.application.pd.get_service_dict()))
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
