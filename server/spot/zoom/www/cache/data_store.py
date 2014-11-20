@@ -15,7 +15,7 @@ from spot.zoom.www.messages.timing_estimate import TimeEstimateMessage
 
 
 class DataStore(object):
-    def __init__(self, configuration, zoo_keeper, task_server):
+    def __init__(self, configuration, zoo_keeper, task_server, pd):
         """
         :type configuration: spot.zoom.config.configuration.Configuration
         :type zoo_keeper: spot.zoom.www.zoo_keeper.ZooKeeper
@@ -24,7 +24,7 @@ class DataStore(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._task_server = task_server
-        self._alert_manager = AlertManager(configuration.alert_path, zoo_keeper)
+        self._alert_manager = AlertManager(configuration, zoo_keeper, pd)
 
         self._web_socket_clients = list()
 

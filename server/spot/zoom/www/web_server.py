@@ -15,6 +15,7 @@ from spot.zoom.www.handlers.filters_handler import FiltersHandler
 from spot.zoom.www.handlers.global_mode_handler import GlobalModeHandler
 from spot.zoom.www.handlers.list_servers_handler import ListServersHandler
 from spot.zoom.www.handlers.login_handler import LoginHandler
+from spot.zoom.www.handlers.pagerduty_services_handler import PagerDutyServicesHandler
 from spot.zoom.www.handlers.pillar_handler import PillarHandler
 from spot.zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from spot.zoom.www.handlers.server_config_handler import ServerConfigHandler
@@ -24,8 +25,9 @@ from spot.zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
 
+
 class WebServer(tornado.web.Application):
-    def __init__(self, configuration, data_store, task_server, zk):
+    def __init__(self, configuration, data_store, task_server, zk, pd):
         """
         :type configuration: spot.zoom.config.configuration.Configuration
         :type data_store: spot.zoom.cache.data_store.DataStore
@@ -36,6 +38,7 @@ class WebServer(tornado.web.Application):
         self._data_store = data_store
         self._task_server = task_server
         self.zk = zk
+        self.pd = pd
 
         # initialize Tornado
         handlers = [
@@ -61,6 +64,8 @@ class WebServer(tornado.web.Application):
             (r"/api/filters/", FiltersHandler),
             # service info
             (r"/api/serviceinfo/", ServiceInfoHandler),
+            # pagerduty
+            (r"/api/pagerduty/services/", PagerDutyServicesHandler),
             # timing
             (r"/api/timingestimate", TimeEstimateHandler),
             # pillar

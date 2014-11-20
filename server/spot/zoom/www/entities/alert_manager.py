@@ -9,13 +9,14 @@ from spot.zoom.common.types import AlertActionType
 
 
 class AlertManager(object):
-    def __init__(self, path, zk):
+    def __init__(self, configuration, zk, pd):
         """
         :type path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         """
-        self._path = path
+        self._path = configuration.alert_path
         self._zk = zk
+        self._pd = pd
 
     def start(self):
         logging.info('Starting to watch for alerts at path: {0}'
@@ -39,18 +40,15 @@ class AlertManager(object):
                 data, stat = self._zk.get(path)
                 alert_data = json.loads(data)
 
-                p = PagerDuty(alert_data.get('subdomain'),
-                              alert_data.get('org_token'),
-                              alert_data.get('svc_token'))
-
                 action = alert_data.get('action')
-
                 if action == AlertActionType.TRIGGER:
-                    p.trigger(alert_data.get('key'),
-                              alert_data.get('description'),
-                              alert_data.get('details'))
+                    self._pd.trigger(alert_data.get('api_key'),
+                                     alert_data.get('incident_key'),
+                                     alert_data.get('description'),
+                                     alert_data.get('details'))
                 elif action == AlertActionType.RESOLVE:
-                    p.resolve(alert_data.get('key'))
+                    self._pd.resolve(alert_data.get('api_key'),
+                                     alert_data.get('incident_key'))
                 else:
                     logging.warning('Unknown action type: {0}'.format(action))
                     continue
@@ -63,3 +61,4 @@ class AlertManager(object):
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
+
