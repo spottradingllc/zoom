@@ -3,7 +3,7 @@ import platform
 import signal
 
 from kazoo.client import KazooState
-from spot.zoom.common.pagerduty import PagerDuty
+
 from spot.zoom.www.cache.data_store import DataStore
 from spot.zoom.www.web_server import WebServer
 from spot.zoom.www.zoo_keeper import ZooKeeper
@@ -20,16 +20,12 @@ class Session(object):
         self._zoo_keeper = ZooKeeper(self._zk_listener)
         self._zoo_keeper.start()
         self._configuration = Configuration(self._zoo_keeper)
-        self._pd = PagerDuty(self._configuration.pagerduty_subdomain,
-                             self._configuration.pagerduty_api_token,
-                             self._configuration.pagerduty_default_svc_key)
 
         self._task_server = TaskServer(self._configuration, self._zoo_keeper)
         self._data_store = DataStore(self._configuration, self._zoo_keeper,
-                                     self._task_server, self._pd)
+                                     self._task_server)
         self._web_server = WebServer(self._configuration, self._data_store,
-                                     self._task_server, self._zoo_keeper,
-                                     self._pd)
+                                     self._task_server, self._zoo_keeper)
 
     def start(self):
         self._data_store.load()

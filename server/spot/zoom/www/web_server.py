@@ -4,6 +4,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
+
 from spot.zoom.www.handlers.application_dependencies_handler \
     import ApplicationDependenciesHandler
 from spot.zoom.www.handlers.application_state_handler \
@@ -27,7 +28,7 @@ from spot.zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
 
 class WebServer(tornado.web.Application):
-    def __init__(self, configuration, data_store, task_server, zk, pd):
+    def __init__(self, configuration, data_store, task_server, zk):
         """
         :type configuration: spot.zoom.www.config.configuration.Configuration
         :type data_store: spot.zoom.www.cache.data_store.DataStore
@@ -38,7 +39,6 @@ class WebServer(tornado.web.Application):
         self._data_store = data_store
         self._task_server = task_server
         self.zk = zk
-        self.pd = pd
 
         # initialize Tornado
         handlers = [

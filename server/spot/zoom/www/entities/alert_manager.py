@@ -8,13 +8,13 @@ from spot.zoom.common.types import AlertActionType
 
 
 class AlertManager(object):
-    def __init__(self, configuration, zk, pd):
+    def __init__(self, alert_path, zk, pd):
         """
-        :type path: str
+        :type alert_path: str
         :type zk: spot.zoom.www.zoo_keeper.ZooKeeper
         :type pd: from spot.zoom.common.pagerduty.PagerDuty
         """
-        self._path = configuration.alert_path
+        self._path = alert_path
         self._zk = zk
         self._pd = pd
 
