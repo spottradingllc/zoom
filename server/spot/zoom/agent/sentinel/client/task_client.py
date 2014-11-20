@@ -6,6 +6,9 @@ from kazoo.exceptions import NoNodeError
 
 from spot.zoom.agent.sentinel.common.task import Task
 from spot.zoom.common.types import ApplicationState
+from spot.zoom.common.decorators import (
+    connected,
+)
 
 
 class TaskClient(object):
@@ -17,7 +20,7 @@ class TaskClient(object):
         """
         self._log = logging.getLogger('sent.task_client')
         self._children = children
-        self._zkclient = zkclient
+        self.zkclient = zkclient
         self._settings = settings
         self._host = platform.node()
 
@@ -31,11 +34,12 @@ class TaskClient(object):
 
         self.reset_watches()
 
+    @connected
     def on_exist(self, event=None):
         try:
-            if self._zkclient.exists(self._path, watch=self.on_exist):
+            if self.zkclient.exists(self._path, watch=self.on_exist):
                 self._log.info('Found work to do.')
-                data, stat = self._zkclient.get(self._path)
+                data, stat = self.zkclient.get(self._path)
                 task = Task.from_json(data)
                 if task.result == ApplicationState.OK:
                     return  # ignore tasks that are already done
@@ -52,7 +56,7 @@ class TaskClient(object):
 
                 task.result = ApplicationState.OK
                 self._log.info(task.to_json())
-                self._zkclient.set(self._path, task.to_json())
+                self.zkclient.set(self._path, task.to_json())
 
         except NoNodeError:
             self._log.debug('No Node at {0}'.format(self._path))

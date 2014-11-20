@@ -1,9 +1,10 @@
-define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
-    function(ko, $, Component) {
+define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeautify'],
+    function(ko, $, Component, admin) {
 
         return function TreeViewModel(parent) {
             var self = this;
             self.components = ko.observableArray();
+            self.adminModel = admin;
 
             self.statePaths = (function() {
                 var paths = [];

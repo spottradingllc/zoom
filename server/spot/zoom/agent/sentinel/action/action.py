@@ -11,7 +11,8 @@ class Action(object):
     def __init__(self, name, component_name, action, xmlpart,
                  staggerpath=None, staggertime=None, mode_controlled=False,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
-                 system=None, pred_list=None, settings=None, disabled=False):
+                 system=None, pred_list=None, settings=None, disabled=False,
+                 pd_enabled=True):
         """
         :type name: str
         :type component_name: str
@@ -30,6 +31,7 @@ class Action(object):
         :type pred_list: list
         :type settings: spot.zoom.agent.sentinel.common.thread_safe_object.ThreadSafeObject
         :type disabled: bool
+        :type pd_enabled: bool
         """
         self.name = name
         self._log = logging.getLogger('sent.{0}.act'.format(component_name))
@@ -39,6 +41,7 @@ class Action(object):
         self._mode_controlled = mode_controlled
         self._mode = mode
         self._disabled = disabled
+        self._pd_enabled = pd_enabled
         self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
@@ -71,6 +74,7 @@ class Action(object):
         """
         Force run of action (without regard to predicates)
         """
+        kwargs.update({'pd_enabled': self._pd_enabled})
         self._log.info('Action {0} has been called.'.format(self.name))
         self._execute(**kwargs)
 

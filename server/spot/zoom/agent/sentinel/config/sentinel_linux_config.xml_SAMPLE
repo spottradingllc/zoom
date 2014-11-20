@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Application>
    <Automation>
-      <Component id="SAMPLE" type="application" script="SampleService" restartmax="3" restartoncrash="False" registrationpath="/spot/software/state/application/SampleService">
+      <Component id="SAMPLE" type="application" script="SampleService" restartmax="3" registrationpath="/spot/software/state/application/SampleService">
          <Actions>
             <Action id="start" staggerpath="/spot/software/temp/example" staggertime="60" mode_controlled="True">
                <Dependency>
@@ -58,7 +58,6 @@
         command
         restartmax
         registrationpath
-        restartoncrash
 
     Supported Action attributes (* = Required):
         id * => Note: id's, by convention, map to public methods of the Application class
