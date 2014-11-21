@@ -36,7 +36,7 @@ define( [
             self.edit_value = ko.observable("");
             self.selectedModify = ko.observable("Existing project");
 
-            self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "Delete Pillar(s)", "View Pillar(s)"]);
+            self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
             self.domain = ".spottrading.com";
@@ -97,6 +97,21 @@ define( [
             self.addPair = function() {
                 self.new_pairs.push({"key": "", "value": ""});
             };
+
+            self.removePair = function() {
+                if (self.new_pairs().length > 2) {
+                    var remove = self.new_pairs.pop();
+                    self.new_pairs.remove(remove);
+                }
+            };
+
+            // ensure that no project is selected when moving to the New project tab
+            self.properNewView = ko.computed(function() {
+                if (self.selectedModify() === 'New project') { 
+                    self.selectedProject(null);
+                    self.selectedKey(null);
+                }
+            });
 
             self.validateNewPair = ko.computed(function() {
                 if (self.new_key() !== "" && !self.alphaNum.test(self.new_key())) {
@@ -182,18 +197,23 @@ define( [
                 self.show_allInfo.valueHasMutated();
             };
 
-            self.salt_minion_update = function (ko_array_to_update) {
+            self.salt_minion_update = function (ko_array_to_update, single_update) {
                 var all = "";
                 // create comma-delimited 'list' to send
                 var first = true;
-                ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {
-                    if (!first)
-                        all += "," + _assoc.name;
-                    else {
-                        all += _assoc.name;
-                        first = false;
-                    }
-                });
+
+                if (single_update)
+                    all = ko_array_to_update;
+                else {
+                    ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {
+                        if (!first)
+                            all += "," + _assoc.name;
+                        else {
+                            all += _assoc.name;
+                            first = false;
+                        }
+                    });
+                }
                 console.log("List sent to salt: " + all);
 
 
@@ -216,20 +236,29 @@ define( [
                 })
                 .fail(function(data) {
                     $('#loadVisual').modal('hide');
-                    console.log("Failed to login to salt master");
+                    swal("Critical", "Salt was not able to update - pillar will not be applied", 'error');
                 })
                 .done(function(data) {
                     $('#loadVisual').modal('hide');
-                    console.log("Success " + data.return[0]);
                 });
 
             };
            
-            self.api_post_json = function (_assoc, update_salt, ko_array_to_update) {
+            self.api_post_json = function (_assoc, update_salt, ko_array_to_update, data_type) {
+                var update_phrase =  "";
+                if (data_type === 'project')
+                    update_phrase = "Created project " + self.new_project(); 
+                else if (data_type === 'key')
+                    update_phrase = "Created key: " + self.new_key() + " with value: " + self.new_value();
+                else if (data_type === 'value') 
+                    update_phrase = "Updated key: " + self.selectedKey() + " with value: " + self.edit_value();
+
                 
                 var _projdata = {
                     "minion": _assoc.name, 
-                    "data": _assoc.pillar
+                    "data": _assoc.pillar,
+                    "username": self.login.elements.username(),
+                    "update_phrase": update_phrase
                 };
 
                 var uri = "api/pillar/"
@@ -247,15 +276,22 @@ define( [
                 .success(function(data) {
                     self.updateChecked('post');
 
-                    if(update_salt) self.salt_minion_update(self.hasProject, ko_array_to_update);
+                    if(update_salt) setTimeout(function() {self.salt_minion_update(ko_array_to_update)}, 10000);
                 })
             };
            
             // only used for pillar creation 
             self.api_post = function (type, minion, project) {
                 var uri = "api/pillar/" + minion + self.domain;
+                var _postdata = {
+                    "username": self.login.elements.username()
+                };
 
-                $.post(uri, function(){
+                $.ajax({
+                    url: uri,
+                    data: JSON.stringify(_postdata),
+                    type: "POST",
+                    dataType: 'json'
                 })
                 .fail(function(data) {
                     console.log("failed to create new pillar for a new minion");
@@ -263,42 +299,48 @@ define( [
                 })
                 .done(function(data) {
                     swal("Success!", "A new " + type + " has been added.", 'success');
+                    setTimeout(function() {self.salt_minion_update(minion + self.domain, true)}, 10000);
                     self.loadServers();
                 });
             };
 
             self.api_delete = function(level_to_delete) {
                 var num_left = self.hasProject().length;
+                var del_phrase = "";
                 ko.utils.arrayForEach(self.hasProject(), function(_assoc) {
                     var uri = "api/pillar/" + _assoc.name;
-                    if (level_to_delete === "project" || level_to_delete === "key")
+                    if (level_to_delete === "project") {
                         uri += "/" + self.selectedProject();
-                    if (level_to_delete === "key")
+                        del_phrase = "Deleted project: " + self.selectedProject();
+                    }
+                    else if (level_to_delete === "key") {
+                        uri += "/" + self.selectedProject();
                         uri += "/" + self.selectedKey();
+                        del_phrase = "Deleted key: " + self.selectedKey();
+                    }
                     console.log("URI sent to server: " + uri);
+
+                    var _deldata = {
+                        "username": self.login.elements.username(),
+                        "del_phrase": del_phrase 
+                    };
                     $.ajax({
                         url: uri,
                         type: "DELETE",
+                        data: JSON.stringify(_deldata)
                     })
                     .fail(function(data) { 
-                        console.log("failed to delete the server(s)" + data);
                         swal("Failed", "Delete failed", 'error'); 
                     })
                     .done(function(data) { 
                         // if the last one, notify on it only
                         if (num_left === 1){
                             swal("Success", "Successfully deleted", 'success'); 
-                            self.salt_minion_update(self.hasProject);
+                            setTimeout(function() {self.salt_minion_update(self.hasProject)}, 10000);
                         }
                         num_left--;
-                        console.log("delete successful");
-                        //var message = "Successfully deleted ";
 
-                        if (level_to_delete === 'pillar'){
-                        //    message+=_assoc.name
-                            self.loadServers();
-                        }
-                        else if (level_to_delete === 'key'){
+                        if (level_to_delete === 'key'){
                             self.updateChecked(level_to_delete);
                             self.selectedKey(null);
                         }
@@ -332,9 +374,16 @@ define( [
                         ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                             var uri = "api/pillar/" + _assoc.name;
 
+                            _deldata = {
+                                "username": self.login.elements.username(),
+                                "del_phrase": "Deleted server node: "
+                            };
+
                             $.ajax({
                                 url: uri,
                                 type: "DELETE",
+                                data: JSON.stringify(_deldata),
+                               // dataType: 'json' 
                             })
                             .fail(function(data) {
                                 swal("Delete Failed", "Failed to delete pillar(s)", 'error');
@@ -343,7 +392,7 @@ define( [
                                 if (left === 1) {
                                     swal("Delete successful", "Pillar(s) deleted", 'success');
                                     self.loadServers();
-                                    self.salt_minion_update(self.checked_servers);
+                                    setTimeout(function() {self.salt_minion_update(self.checked_servers)}, 10000);
                                 }
                                 left--; 
                             })
@@ -353,13 +402,19 @@ define( [
             };
                 
             self.createProjectWrapper = function(data) {
+                var left = self.checked_servers().length;
+                var refresh_salt = false;
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     if (typeof _assoc.projects[data] !== "undefined"){
                         swal("Warning", "Project already exists on " + _assoc.name, 'error');
+                        left--;
                     }
                     else if (self.validateNewProject()){
+                        // only refresh salt after the last one is updated 
+                        if (left == 1) refresh_salt = true; 
+                        left--;
                         self.JSONcreateProject(_assoc);
-                        self.api_post_json(_assoc, true, self.checked_servers);
+                        self.api_post_json(_assoc, refresh_salt, self.checked_servers, 'project');
                         self.switchViewToProject(data);
                     }
                 });
@@ -393,7 +448,7 @@ define( [
                                     refresh_salt = true;
                                 }
                                 self.JSONupdate(self.hasProject()[each], data_type);
-                                self.api_post_json(self.hasProject()[each], refresh_salt, self.hasProject); 
+                                self.api_post_json(self.hasProject()[each], refresh_salt, self.hasProject, data_type); 
                             }
                         }
                     }

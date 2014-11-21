@@ -52,6 +52,25 @@ class PillarHandler(tornado.web.RequestHandler):
         self.write(data_val)
 
     @TimeThis(__file__)
+    def actionLog(self, username, action, affected, data="", etc=""):
+        """
+        :type username: str
+        :type action: str
+        :type affected: str
+        :type data: str
+        """
+
+        logString = "!!PILLAR EDITOR:"
+        logString += " " + username
+        logString += " " + action
+        logString += " for server " + affected
+        if data:
+            logString += ". Entire pillar: " + data
+        if etc:
+            logString += " changed: " + etc
+        logging.info(logString)
+
+    @TimeThis(__file__)
     def post(self, data):
         """
         :type data: str
@@ -65,25 +84,32 @@ class PillarHandler(tornado.web.RequestHandler):
         try:
             minion, project, data_key, data_val = self._parse_uri(data)
             minion_data = ""
+            update_phrase = ""
+            jsondict = json.loads(self.request.body)
+            username = jsondict["username"]
             if not minion:
-                jsonstring = json.loads(self.request.body)
-                minion = jsonstring["minion"]
-                minion_data = jsonstring["data"]
-                print jsonstring
+                minion = jsondict["minion"]
+                minion_data = jsondict["data"]
+                update_phrase = jsondict["update_phrase"]
+
+            # get_minion to create a minion - should not exist
             else:
                 minion_data = self._get_minion_data(minion)
 
-                if project is not None:
-                    minion_data[project] = {"subtype": None, "version": None}
         except AttributeError as ae:
             self.write({"error": "AttributeError: {0}".format(ae)});
 
         # _get_minion_data will set to DOES_NOT_EXIST if minion not found
+
+        # update existing minion
         if (minion_data != {"DOES_NOT_EXIST": "true"}):
             self._set_minion_data(minion, minion_data)
+            self.actionLog(username, update_phrase, minion, json.dumps(minion_data))
+        # create a new minion
         else:
             minion_data = {}
             self._set_minion_data(minion, minion_data)
+            self.actionLog(username, "Created new server node", minion)
 
         self.write(minion_data)
 
@@ -123,7 +149,10 @@ class PillarHandler(tornado.web.RequestHandler):
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
-        logging.info("delete1")
+        jsondict = json.loads(self.request.body)
+        username = jsondict["username"]
+        del_phrase = jsondict["del_phrase"]
+
         if all([data_key, minion, project]):
             try:
                 print("data_key" + data_key)
@@ -133,6 +162,7 @@ class PillarHandler(tornado.web.RequestHandler):
                 pass
 
             self._set_minion_data(minion, minion_data)
+            self.actionLog(username, del_phrase, minion, json.dumps(minion_data))
 
         elif all([minion, project]):
             try:
@@ -140,13 +170,13 @@ class PillarHandler(tornado.web.RequestHandler):
             except KeyError:
                 pass
 
-            logging.info("at project delete")
             self._set_minion_data(minion, minion_data)
             self.write(minion_data)
+            self.actionLog(username, del_phrase, minion, json.dumps(minion_data))
 
         elif all([minion]):
-            logging.info("got to delete")
             self._del_minion(minion)
+            self.actionLog(username, del_phrase, minion)
 
     def _parse_uri(self, data):
         """

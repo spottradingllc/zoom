@@ -16,14 +16,14 @@
 
     <div class="container" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
-            <h1> Pillar Value Editor </h1>
+            <h1> Pillar Value Editor<small> alpha </small></h1>
             <div class="btn-group" data-bind="foreach: pillarOptions">
                 <button class="btn btn-default" data-bind="radio: $parent.selectedOption">
                     <span data-bind="text: $data"></span>
                 </button>
             </div>
             <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
-                <span class="glyphicon glyphicon-align-justify"></span> 
+                Toggle list 
             </button>
     <!--
             <div id="loadVisual" class="hidden">
@@ -202,7 +202,8 @@
                             <input type="text" placeholder="Value" data-bind="textInput: value"></input>
                         </div>
                         <!-- /ko-->
-                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add new key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
                         <button class="btn btn-default" data-bind="click: function() {createProjectWrapper(new_project())}">Create</button>
                     </div>
 
