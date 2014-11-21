@@ -347,7 +347,8 @@ class Application(object):
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        if not self.zkclient.exists(self._paths['zk_state_base']):
+        if self._running and \
+                not self.zkclient.exists(self._paths['zk_state_base']):
             self.zkclient.create(self._paths['zk_state_base'])
 
         data, stat = self.zkclient.get(self._paths['zk_state_base'])
