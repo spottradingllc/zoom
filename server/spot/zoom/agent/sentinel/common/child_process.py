@@ -51,11 +51,16 @@ class ChildProcess(object):
             self._log.info('Terminating {0} child process'.format(self.name))
 
             self.add_work(Task('terminate', block=True), immediate=True)
-            self._process.join()
-            self._log.info('{0} stopped.'.format(self))
         except Exception as e:
             self._log.warning('Exception with stopping {0} child process: {1}'
                               .format(self.name, e))
+
+    def join(self):
+        """
+        Block until underlying process completes.
+        """
+        self._process.join()
+        self._log.info('{0} stopped.'.format(self))
 
     def _create_process(self):
         """

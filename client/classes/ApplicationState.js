@@ -152,6 +152,76 @@ define(
                 swal('Error controlling agent.');
             };
 
+            var deleteFromZK = function() {
+                // delete path from Zookeeper
+                var dict = {
+                    'loginName': parent.login.elements.username(),
+                    'delete': self.configurationPath
+                };
+
+                $.ajax({
+                    url: '/api/delete/',
+                    async: false,
+                    data: dict,
+                    type: 'POST',
+                    error: function(data) {
+                        swal('Error deleting path.', JSON.stringify(data.responseText), 'error');
+                    }
+                });
+            };
+
+            var deleteFromConfig = function() {
+                // try to remove component from server config
+                $.get('/api/config/' + self.applicationHost(), function(data) {
+                    if (data !== 'Node does not exist.') {
+                        var parser = new DOMParser();
+                        var xmlDoc = parser.parseFromString(data, 'text/xml');
+                        var found = 0;
+                        var x = xmlDoc.getElementsByTagName('Component');
+                        for (var i = 0; i < x.length; i++) {
+                            var id = x[i].getAttribute('id');
+                            if (self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1) {
+                                x[i].parentNode.removeChild(x[i]);
+                                found = found + 1;
+                                i = i - 1;
+                            }
+                        }
+
+                        if (found === 0) {
+                            swal('Missing component', 'Didn\'t find component ' + self.configurationPath + ' in ' +
+                                self.applicationHost() + '\'s config. Simply deleted the row.');
+                        }
+                        else if (found === 1) {
+                            var oSerializer = new XMLSerializer();
+                            var sXML = oSerializer.serializeToString(xmlDoc);
+                            var params = {
+                                'XML': sXML,
+                                'serverName': self.applicationHost()
+                            };
+                            $.ajax(
+                                {
+                                    url: '/api/config/' + self.applicationHost(),
+                                    async: false,
+                                    type: 'PUT',
+                                    data: JSON.stringify(params),
+                                    error: function(data) {
+                                        swal('Failed putting Config ' + JSON.stringify(data));
+                                    }
+                                });
+                        }
+                        else {
+                            swal('Multiple matches', 'Multiple components matched ' + self.configurationPath +
+                                ' in ' + self.applicationHost() + '\'s config. Not deleting.');
+                        }
+                    }
+                    else {
+                        // host config did not exist. No Component to remove
+                        swal('No data', 'No data for host ' + self.applicationHost());
+                    }
+                }).fail(function(data) {
+                    swal('Failed Get Config', JSON.stringify(data));
+                });
+            };
 
             self.deleteRow = function() {
                 // delete an application row on the web page
@@ -165,81 +235,46 @@ define(
                     swal(message);
                 }
                 else if (self.applicationHost() === '') {
-                    if (confirm(self.configurationPath + ' has no Host listed, this delete is mostly artificial')) {
-                        ApplicationStateArray.remove(self);
-                    }
-                }
-                else {
-
-                    if (confirm(self.configurationPath + ' will be deleted, and its dependency configuration lost, continue?')) {
-
-                        var dict = {
-                            'loginName': parent.login.elements.username(),
-                            'delete': self.configurationPath
-                        };
-
-                        var zkDeleted = true;
-
-                        $.post('/api/delete/', dict)
-                            .fail(function(data) {
-                                zkDeleted = false;
-                            });
-
-                        if (zkDeleted) {
-                            $.get('/api/config/' + self.applicationHost(),
-                                function(data) {
-                                    if (data !== 'Node does not exist.') {
-                                        var parser = new DOMParser();
-                                        var xmlDoc = parser.parseFromString(data, 'text/xml');
-                                        var found = 0;
-                                        var x = xmlDoc.getElementsByTagName('Component');
-                                        for (var i = 0; i < x.length; i++) {
-                                            var id = x[i].getAttribute('id');
-                                            if (self.configurationPath.indexOf(id, self.configurationPath.length - id.length) !== -1) {
-                                                x[i].parentNode.removeChild(x[i]);
-                                                found = found + 1;
-                                                i = i - 1;
-                                            }
-                                        }
-
-                                        if (found === 0) {
-                                            swal('Didn\'t find component ' + self.configurationPath + ' in' + self.applicationHost() + '\'s config');
-                                        }
-                                        else if (found === 1) {
-                                            var oSerializer = new XMLSerializer();
-                                            var sXML = oSerializer.serializeToString(xmlDoc);
-                                            var params = {
-                                                'XML': sXML,
-                                                'serverName': self.applicationHost()
-                                            };
-                                            $.ajax(
-                                                {
-                                                    url: '/api/config/' + self.applicationHost(),
-                                                    type: 'PUT',
-                                                    data: JSON.stringify(params)
-                                                }).fail(function(data) {
-                                                    swal('Failed putting Config ' + JSON.stringify(data));
-                                                });
-                                        }
-                                        else {
-                                            swal('Multiple components matched ' + self.configurationPath + ' in ' + self.applicationHost() + '\'s config, not acting');
-                                        }
-                                    }
-                                    else {
-                                        swal('no data for host ' + self.applicationHost());
-                                    }
-                                })
-                                .fail(function(data) {
-                                    swal('Failed Get Config ' + JSON.stringify(data));
-                                });
+                    swal({
+                        title: 'Are you sure?',
+                        text: self.configurationPath + ' has no Host listed, this delete is mostly aesthetic. Continue?',
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'It\'s a trap, abort!',
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            ApplicationStateArray.remove(self);
                         }
                         else {
-                            swal('Error deleting path: ' + JSON.stringify(data.responseText));
+                            swal('Cancelled', 'Nothing was deleted.');
                         }
-
-                    }
+                    });
                 }
-
+                else {
+                    swal({
+                        title: 'Are you sure?',
+                        text: self.configurationPath + ' will be deleted, and its dependency configuration lost. Continue?',
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'It\'s a trap, abort!',
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            deleteFromConfig();
+                            // give the agent time to clean up the old config
+                            setTimeout(function() { deleteFromZK(); }, 2000);
+                            swal('Deleting', 'Give us a few seconds to clean up.');
+                        }
+                        else {
+                            swal('Cancelled', 'Nothing was deleted.');
+                        }
+                    });
+                }
             };
         };
     });

@@ -175,6 +175,9 @@ class SentinelDaemon(object):
             process = child['process']
             self._log.info('Terminating child -- {0}'.format(process))
             process.stop()
+
+        # sent stop to all, now wait for all to complete
+        map(lambda i: i.join(), [x['process'] for x in self.children.values()])
         self.children.clear()
 
     @catch_exception(Exception, traceback=True)
