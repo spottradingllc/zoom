@@ -3,6 +3,7 @@ import json
 import os.path
 import platform
 import re
+import socket
 from datetime import datetime
 from multiprocessing import Lock
 from time import sleep
@@ -63,6 +64,7 @@ class Application(object):
         self._log = logging.getLogger('sent.{0}.app'.format(self.name))
         # informational attributes
         self._host = platform.node().upper()
+        self._fqdn = socket.getfqdn()
         self._system = system
         self._predicates = list()
         self._running = True  # used to manually stop the run loop
@@ -76,7 +78,6 @@ class Application(object):
         self._action_queue = queue
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = ThreadSafeObject(ApplicationState.OK)
-        self._start_allowed = ThreadSafeObject(False)  # allowed_instances
         self._trigger_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
         self._run_check_mode = False
@@ -102,6 +103,17 @@ class Application(object):
 
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
+
+    @property
+    def app_details(self):
+        return {'name': self.name,
+                'host': self._host,
+                'fqdn': self._fqdn,
+                'platform': self._system,
+                'mode': self._mode.value,
+                'state': self._state.value,
+                'trigger_time': self._trigger_time,
+                'login_user': self._login_user}
 
     def run(self):
         """
@@ -329,23 +341,12 @@ class Application(object):
 
         return action is not None and action.ready
 
-    def _app_details(self):
-        return {'name': self.name,
-                'host': self._host,
-                'platform': self._system,
-                'mode': self._mode.value,
-                'state': self._state.value,
-                'trigger_time': self._trigger_time,
-                'login_user': self._login_user}
-
     @connected
     def _update_agent_node_with_app_details(self, event=None):
         """
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        current_data = self._app_details()
-
         if not self.zkclient.exists(self._paths['zk_state_base']):
             self.zkclient.create(self._paths['zk_state_base'])
 
@@ -363,13 +364,12 @@ class Application(object):
                             'will no longer be sent until it is resolved.'
                             .format(other_host))
             self._state.set_value(ApplicationState.CONFIG_ERROR)
-            current_data = self._app_details()
 
         # make sure data is the most recent
-        if current_data != agent_apps:
+        if self.app_details != agent_apps:
             self.zkclient.set(self._paths['zk_state_base'],
-                              json.dumps(current_data))
-            self._log.debug('Registering app data {0}'.format(current_data))
+                              json.dumps(self.app_details))
+            self._log.debug('Registering app data {0}'.format(self.app_details))
 
         # set watch
         if self._state != ApplicationState.CONFIG_ERROR:
