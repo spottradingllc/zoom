@@ -6,8 +6,9 @@ from spot.zoom.common.types import ApplicationStatus
 class ApplicationState(object):
     def __init__(self, application_name=None, configuration_path=None,
                  application_status=None, application_host=None,
-                 completion_time=None, trigger_time=None, error_state=None, local_mode=None,
-                 delete=False, login_user=None, last_command=None):
+                 completion_time=None, trigger_time=None, error_state=None,
+                 local_mode=None, delete=False, login_user=None,
+                 last_command=None, fqdn=None):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -18,6 +19,7 @@ class ApplicationState(object):
         self._local_mode = local_mode
         self._delete = delete
         self._login_user = login_user
+        self._fqdn = fqdn
         self._last_command = last_command
 
     def __del__(self):
@@ -36,23 +38,7 @@ class ApplicationState(object):
         return self._configuration_path != other.configuration_path
 
     def __repr__(self):
-        return (
-            "{0}(application_name={0}, configuration_path={1}, "
-            "application_status={2}, application_host={3}, completion_time={4}, "
-            "trigger_time-{5}, error_state={6}, local_mode={7}, login_user={8}, "
-            "last_command={9}"
-            .format(self.__class__.__name__,
-                    self._application_name,
-                    self._configuration_path,
-                    self._application_status,
-                    self._application_host,
-                    self._completion_time,
-                    self._trigger_time,
-                    self._error_state,
-                    self._local_mode,
-                    self._login_user,
-                    self._last_command)
-        )
+        return str(self.to_dictionary())
 
     @property
     def application_name(self):
@@ -90,7 +76,7 @@ class ApplicationState(object):
         return ""
 
     def to_dictionary(self):
-        result = {
+        return {
             'application_name': self.application_name,
             'configuration_path': self.configuration_path,
             'application_status': self.application_status,
@@ -101,7 +87,6 @@ class ApplicationState(object):
             'delete': self._delete,
             'local_mode': self._local_mode,
             'login_user': self._login_user,
+            'fqdn': self._fqdn,
             'last_command': self._last_command
         }
-
-        return result
