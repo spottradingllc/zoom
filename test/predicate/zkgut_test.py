@@ -1,7 +1,7 @@
 import mox
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.zkgut import ZookeeperGoodUntilTime
+from zoom.agent.predicate.zkgut import ZookeeperGoodUntilTime
 
 
 class ZookeeperGoodUntilTimeTest(unittest.TestCase):

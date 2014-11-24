@@ -1,5 +1,5 @@
 from unittest import TestCase
-from spot.zoom.www.entities.application_state import ApplicationState
+from zoom.www.entities.application_state import ApplicationState
 
 
 class TestApplicationState(TestCase):

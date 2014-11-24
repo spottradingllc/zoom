@@ -5,11 +5,11 @@ import traceback
 
 from kazoo.client import KazooState
 
-from spot.zoom.www.cache.data_store import DataStore
-from spot.zoom.www.web_server import WebServer
-from spot.zoom.www.zoo_keeper import ZooKeeper
-from spot.zoom.www.config.configuration import Configuration
-from spot.zoom.www.entities.task_server import TaskServer
+from zoom.www.cache.data_store import DataStore
+from zoom.www.web_server import WebServer
+from zoom.www.entities.zoo_keeper import ZooKeeper
+from zoom.www.config.configuration import Configuration
+from zoom.www.entities.task_server import TaskServer
 
 
 class Session(object):

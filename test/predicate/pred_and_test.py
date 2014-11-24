@@ -1,8 +1,8 @@
 import mox
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.agent.sentinel.predicate.pred_and import PredicateAnd
+from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.pred_and import PredicateAnd
 
 
 class PredicateAndTest(unittest.TestCase):

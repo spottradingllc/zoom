@@ -1,10 +1,10 @@
 import mox
 
 from unittest import TestCase
-from spot.zoom.www.zoo_keeper import ZooKeeper
-from spot.zoom.www.cache.data_store import DataStore
-from spot.zoom.www.cache.global_cache import GlobalCache
-from spot.zoom.www.cache.application_state_cache \
+from zoom.www.zoo_keeper import ZooKeeper
+from zoom.www.cache.data_store import DataStore
+from zoom.www.cache.global_cache import GlobalCache
+from zoom.www.cache.application_state_cache \
     import ApplicationStateCache
 from test.test_utils import ConfigurationMock
 
