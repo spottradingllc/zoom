@@ -1,8 +1,8 @@
 import mox
 
 from unittest import TestCase
-from spot.zoom.www.cache.global_cache import GlobalCache
-from spot.zoom.www.zoo_keeper import ZooKeeper
+from zoom.www.cache.global_cache import GlobalCache
+from zoom.www.zoo_keeper import ZooKeeper
 from test.test_utils import ConfigurationMock, EventMock, FakeMessage
 
 

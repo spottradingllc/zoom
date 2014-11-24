@@ -1,9 +1,9 @@
 import mox
 
 from unittest import TestCase
-from spot.zoom.www.cache.time_estimate_cache import TimeEstimateCache
-from spot.zoom.www.cache.application_state_cache import ApplicationStateCache
-from spot.zoom.www.zoo_keeper import ZooKeeper
+from zoom.www.cache.time_estimate_cache import TimeEstimateCache
+from zoom.www.cache.application_state_cache import ApplicationStateCache
+from zoom.www.zoo_keeper import ZooKeeper
 from test.test_utils import (
     StatMock,
     EventMock,

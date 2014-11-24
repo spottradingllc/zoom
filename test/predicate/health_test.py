@@ -2,7 +2,7 @@ import mox
 import time
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.health import PredicateHealth
+from zoom.agent.predicate.health import PredicateHealth
 
 
 class PredicateHealthTest(unittest.TestCase):

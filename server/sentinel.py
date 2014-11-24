@@ -4,8 +4,8 @@ import logging
 import platform
 
 import tornado.ioloop
-from spot.zoom.agent.sentinel.util.helpers import setup_logging
-from spot.zoom.agent.sentinel.common.daemon import SentinelDaemon
+from zoom.agent.util.helpers import setup_logging
+from zoom.agent.entities.daemon import SentinelDaemon
 
 
 if __name__ == '__main__':
