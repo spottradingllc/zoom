@@ -197,7 +197,76 @@ define( [
                 self.show_allInfo.valueHasMutated();
             };
 
-            self.salt_minion_update = function (ko_array_to_update, single_update) {
+            self.validate_salt = function (update_list, update_type, data_type, data_delta, value, project) {
+                var target = update_list;
+                var run_func = "";
+                var run_arg = "zookeeper_pillar:" + project;
+
+                if (data_type === 'node') { 
+                    run_func = "test.ping";
+                }
+                else { //create/update/delete key/value/project 
+                    if (update_type === 'delete' && data_type === 'key') {
+                        //nothing necessary
+                    }
+                    else if (data_type === 'key' || data_type === 'value') {
+                        run_func = "pillar.get";
+                        run_arg += ":" + data_delta; 
+                    }
+                }
+
+                console.log("Sending " + run_arg);
+                $('#validateVisual').modal('show');
+                var cmds = {
+                    'fun': run_func,
+                    //'expr_form': 'list',
+                    'tgt': target,
+                    'arg': run_arg,
+                    'username': 'salt',
+                    'password': 'salt',
+                    'eauth': 'pam',
+                    'client': 'local'
+                }
+
+                $.ajax({
+                    url: "http://saltStaging:8000/run",
+                    type: 'POST',
+                    data: cmds,
+                    headers: {'Accept': 'application/json'}
+                })
+                .fail(function(data) {
+                    console.log("Issue validating");
+                    swal("Error", "Failed to get data used to validate changes", 'error');
+                    $('#validateVisual').modal('hide');
+                })
+                .done(function(data) {
+                    console.log(data);
+                    // check if the data returned is correct
+                    var validate_fail = false;
+                    if (update_type === 'update') {
+                        for (var each in data.return[0]) {
+                            if (!data.return[0][each])
+                                validate_fail = true;
+                            if (value && data.return[0][each] !== value)
+                                validate_fail = true; 
+                        }
+                    }
+                    if (update_type === 'delete') {
+                        for (var each in data.return[0]) {
+                            if (data.return[0][each])
+                                validate_fail = true;
+                        }
+                    }
+                    
+
+                    $('#validateVisual').modal('hide');
+                    if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
+                });
+
+            };
+                
+
+            self.salt_minion_update = function (ko_array_to_update, single_update, update_type, data_type, data_delta, value, project) {
                 var all = "";
                 // create comma-delimited 'list' to send
                 var first = true;
@@ -240,18 +309,29 @@ define( [
                 })
                 .done(function(data) {
                     $('#loadVisual').modal('hide');
+                    self.validate_salt(all, update_type, data_type, data_delta, value, project);
                 });
 
             };
            
             self.api_post_json = function (_assoc, update_salt, ko_array_to_update, data_type) {
                 var update_phrase =  "";
-                if (data_type === 'project')
+                var key = "";
+                var val = "";
+                if (data_type === 'project') {
                     update_phrase = "Created project " + self.new_project(); 
-                else if (data_type === 'key')
+                    key = self.new_project();
+                }
+                else if (data_type === 'key') {
                     update_phrase = "Created key: " + self.new_key() + " with value: " + self.new_value();
-                else if (data_type === 'value') 
+                    key = self.new_key();
+                    val = self.new_value();
+                }
+                else if (data_type === 'value') {
                     update_phrase = "Updated key: " + self.selectedKey() + " with value: " + self.edit_value();
+                    key = self.selectedKey();
+                    val = self.edit_value();
+                }
 
                 
                 var _projdata = {
@@ -276,12 +356,13 @@ define( [
                 .success(function(data) {
                     self.updateChecked('post');
 
-                    if(update_salt) setTimeout(function() {self.salt_minion_update(ko_array_to_update)}, 10000);
+                    if(update_salt) self.salt_minion_update(ko_array_to_update, false, 'update', data_type, key, val, self.selectedProject());
                 })
             };
            
-            // only used for pillar creation 
+            // only used for node creation 
             self.api_post = function (type, minion, project) {
+                var node = minion + self.domain;
                 var uri = "api/pillar/" + minion + self.domain;
                 var _postdata = {
                     "username": self.login.elements.username()
@@ -299,7 +380,7 @@ define( [
                 })
                 .done(function(data) {
                     swal("Success!", "A new " + type + " has been added.", 'success');
-                    setTimeout(function() {self.salt_minion_update(minion + self.domain, true)}, 10000);
+                    self.salt_minion_update(minion + self.domain, true, 'create', 'node', node, null, null);
                     self.loadServers();
                 });
             };
@@ -336,7 +417,7 @@ define( [
                         // if the last one, notify on it only
                         if (num_left === 1){
                             swal("Success", "Successfully deleted", 'success'); 
-                            setTimeout(function() {self.salt_minion_update(self.hasProject)}, 10000);
+                            self.salt_minion_update(self.hasProject, false, 'delete', level_to_delete, null, null, self.selectedProject());
                         }
                         num_left--;
 
@@ -364,7 +445,7 @@ define( [
             self.delPillar= function() {
                 swal({
                     title: "Confirm",
-                    text: "Are you sure you want to delete " + self.checked_servers().length + " servers and ALL of their pillar data?",
+                    text: "Are you sure you want to delete " + self.checked_servers().length + " servers and ALL of their zookeeper pillar data?",
                     showCancelButton: true,
                     confirmButtonText: "Yes"
                 }, 
@@ -392,7 +473,7 @@ define( [
                                 if (left === 1) {
                                     swal("Delete successful", "Pillar(s) deleted", 'success');
                                     self.loadServers();
-                                    setTimeout(function() {self.salt_minion_update(self.checked_servers)}, 10000);
+                                    self.salt_minion_update(self.checked_servers, false, 'delete', 'node', null, null, null);
                                 }
                                 left--; 
                             })

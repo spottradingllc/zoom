@@ -9,6 +9,16 @@
             </div>
         </div>
     </div>
+   <div id="validateVisual" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"> Validating changes on salt master... </h4>
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
         <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
@@ -25,12 +35,6 @@
             <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
                 Toggle list 
             </button>
-    <!--
-            <div id="loadVisual" class="hidden">
-                <span> Refreshing salt... </span>
-                <i class="fa fa-refresh fa-spin"></i>
-            </div>
-    -->
         </div>
 
         <div class="row">
