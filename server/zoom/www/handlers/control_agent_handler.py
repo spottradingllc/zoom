@@ -5,7 +5,7 @@ import tornado.web
 from httplib import INTERNAL_SERVER_ERROR
 
 from zoom.common.decorators import TimeThis
-from zoom.agent.common.task import Task
+from zoom.agent.entities.task import Task
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):

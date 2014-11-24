@@ -5,14 +5,14 @@ from threading import Thread
 
 from zoom.common.types import Weekdays
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateWeekend(SimplePredicate):
     def __init__(self, comp_name, settings, parent=None, interval=10):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type parent: str or None
         :type interval: int or float
         """

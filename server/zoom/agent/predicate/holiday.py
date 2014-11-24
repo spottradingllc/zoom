@@ -4,7 +4,7 @@ from time import sleep
 from threading import Thread
 
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.common.decorators import connected
 
 
@@ -12,7 +12,7 @@ class PredicateHoliday(SimplePredicate):
     def __init__(self, comp_name, settings, zkclient, parent=None, interval=10):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type parent: str or None
         :type interval: int or float

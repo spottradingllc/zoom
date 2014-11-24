@@ -29,7 +29,7 @@ class PredicateFactory(object):
         :type proc_client: zoom.agent.client.process_client.ProcessClient
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.zkclient = zkclient
         self._proc_client = proc_client
@@ -177,9 +177,9 @@ class PredicateFactory(object):
         """
         Make sure we are not needlessly creating a second predicate with the
         same attributes.
-        :type new: one of zoom.agent.common.predicate.*
+        :type new: one of zoom.agent.entities.predicate.*
         :type callback: types.FunctionType or None
-        :return: one of zoom.agent.common.predicate.*
+        :return: one of zoom.agent.entities.predicate.*
         """
         for predicate in self._pred_list:
             if predicate == new:

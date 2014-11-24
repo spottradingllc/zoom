@@ -3,10 +3,10 @@ from multiprocessing import Pipe
 from threading import Thread
 
 from zoom.common.types import ApplicationType
-from zoom.agent.common.application import Application
-from zoom.agent.common.job import Job
-from zoom.agent.common.task import Task
-from zoom.agent.common.unique_queue import UniqueQueue
+from zoom.agent.entities.application import Application
+from zoom.agent.entities.job import Job
+from zoom.agent.entities.task import Task
+from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.agent.util.helpers import verify_attribute
 
 
@@ -33,7 +33,7 @@ class ChildProcess(object):
 
     def add_work(self, work, immediate=False):
         """
-        :type work: zoom.agent.common.task.Task
+        :type work: zoom.agent.entities.task.Task
         """
         added = self._action_queue.append_unique(work, sender=str(self),
                                                  first=immediate)

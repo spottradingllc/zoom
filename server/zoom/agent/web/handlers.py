@@ -1,7 +1,7 @@
 import json
 import tornado.web
 
-from zoom.agent.common.task import Task
+from zoom.agent.entities.task import Task
 
 
 class BaseHandler(tornado.web.RequestHandler):

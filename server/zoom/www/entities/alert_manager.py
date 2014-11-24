@@ -12,7 +12,7 @@ class AlertManager(object):
         """
         :type alert_path: str
         :type zk: zoom.www.zoo_keeper.ZooKeeper
-        :type pd: from zoom.common.pagerduty.PagerDuty
+        :type pd: from zoom.entities.pagerduty.PagerDuty
         """
         self._path = alert_path
         self._zk = zk

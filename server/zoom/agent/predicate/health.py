@@ -6,7 +6,7 @@ from threading import Thread
 from time import sleep
 
 from zoom.common.types import PlatformType
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.agent.predicate.simple import SimplePredicate
 
 
@@ -14,7 +14,7 @@ class PredicateHealth(SimplePredicate):
     def __init__(self, comp_name, settings, command, interval, system, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type command: str
         :type interval: int or float
         :type system: zoom.common.types.PlatformType

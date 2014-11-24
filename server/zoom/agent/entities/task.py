@@ -37,7 +37,7 @@ class Task(object):
     def from_json(json_data):
         """
         :type json_data: str or dict
-        :rtype: zoom.agent.common.task.Task
+        :rtype: zoom.agent.entities.task.Task
         """
         if isinstance(json_data, str):
             try:

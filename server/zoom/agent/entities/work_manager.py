@@ -3,7 +3,7 @@ import pprint
 import time
 from threading import Thread
 
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class WorkManager(object):
@@ -11,7 +11,7 @@ class WorkManager(object):
         """
         :type comp_name: str
         :type pipe: multiprocessing.Connection
-        :type queue: zoom.agent.common.unique_queue.UniqueQueue
+        :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type work_dict: dict
         """
         self._operate = ThreadSafeObject(True)

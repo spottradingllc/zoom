@@ -9,7 +9,7 @@ class RestServer(tornado.web.Application):
     def __init__(self, children, settings):
         """
         :type children: dict
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children

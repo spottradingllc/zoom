@@ -6,8 +6,8 @@ class PredicateAnd(SimplePredicate):
     def __init__(self, comp_name, settings, predicates, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
-        :type predicates: list of zoom.agent.common.predicate objects
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type predicates: list of zoom.agent.entities.predicate objects
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)

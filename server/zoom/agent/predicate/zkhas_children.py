@@ -9,7 +9,7 @@ class ZookeeperHasChildren(SimplePredicate):
                  parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type met_on_delete: bool

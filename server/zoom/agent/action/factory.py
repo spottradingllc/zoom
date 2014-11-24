@@ -11,14 +11,14 @@ class ActionFactory(object):
                  action_queue=None, mode=None, system=None, pred_list=None,
                  settings=None):
         """
-        :type component: zoom.agent.common.application.Application
+        :type component: zoom.agent.entities.application.Application
         :type zkclient: kazoo.client.KazooClient or None
         :type proc_client: zoom.agent.client.process_client.ProcessClient
-        :type action_queue: zoom.agent.common.unique_queue.UniqueQueue
-        :type mode: zoom.agent.common.thread_safe_object.ApplicationMode
+        :type action_queue: zoom.agent.entities.unique_queue.UniqueQueue
+        :type mode: zoom.agent.entities.thread_safe_object.ApplicationMode
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self._zk = zkclient
         self._proc = proc_client

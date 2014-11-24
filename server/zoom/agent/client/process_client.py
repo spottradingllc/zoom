@@ -24,7 +24,7 @@ class ProcessClient(object):
         :type script: str or None
         :type apptype: zoom.common.types.ApplicationType
         :type system: zoom.common.types.PlatformType
-        :type restart_logic: zoom.agent.common.restart.RestartLogic
+        :type restart_logic: zoom.agent.entities.restart.RestartLogic
         :type graphite_metric_names: dict
         :type settings: dict
         """

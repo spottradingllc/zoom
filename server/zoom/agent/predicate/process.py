@@ -4,14 +4,14 @@ from time import sleep
 from multiprocessing import Lock
 
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateProcess(SimplePredicate):
     def __init__(self, comp_name, settings, proc_client, interval, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type proc_client: zoom.agent.client.process_client.ProcessClient
         :type interval: int or float
         :type parent: str or None

@@ -6,7 +6,7 @@ import json
 import re
 
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.common.decorators import connected
 
 
@@ -14,7 +14,7 @@ class ZookeeperGoodUntilTime(SimplePredicate):
     def __init__(self, comp_name, settings, zkclient, nodepath, parent=None, interval=5):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None

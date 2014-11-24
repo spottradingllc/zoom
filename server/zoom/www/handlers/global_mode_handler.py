@@ -6,7 +6,7 @@ import tornado.httpclient
 
 from kazoo.exceptions import NoNodeError
 
-from zoom.agent.common.thread_safe_object import ApplicationMode
+from zoom.agent.entities.thread_safe_object import ApplicationMode
 from zoom.common.decorators import TimeThis
 
 

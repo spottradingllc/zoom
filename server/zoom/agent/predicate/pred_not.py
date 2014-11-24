@@ -6,8 +6,8 @@ class PredicateNot(SimplePredicate):
     def __init__(self, comp_name, settings, pred, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
-        :type pred: zoom.agent.common.dependency object
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type pred: zoom.agent.entities.dependency object
         :type parent: str or None
         """
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)

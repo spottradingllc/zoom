@@ -4,7 +4,7 @@ import time
 
 from kazoo.exceptions import NoNodeError
 
-from zoom.agent.common.task import Task
+from zoom.agent.entities.task import Task
 from zoom.common.types import ApplicationState
 from zoom.common.decorators import (
     connected,
@@ -67,7 +67,7 @@ class TaskClient(object):
     def _send_work_all(self, task):
         """
         Send work to all children.
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         :rtype: list
         """
         result = list()
@@ -79,7 +79,7 @@ class TaskClient(object):
     def _send_work_single(self, task):
         """
         Send work to targeted child.
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         """
         child = self._children.get(task.target, None)
         if child is None:

@@ -14,7 +14,7 @@ from kazoo.handlers.threading import SequentialThreadingHandler
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import ZK_CONN_STRING
-from zoom.agent.common.thread_safe_object import (
+from zoom.agent.entities.thread_safe_object import (
     ApplicationMode,
     ThreadSafeObject
 )
@@ -32,9 +32,9 @@ from zoom.common.decorators import (
     run_only_one
 )
 from zoom.agent.util.helpers import verify_attribute
-from zoom.agent.common.restart import RestartLogic
-from zoom.agent.common.work_manager import WorkManager
-from zoom.agent.common.task import Task
+from zoom.agent.entities.restart import RestartLogic
+from zoom.agent.entities.work_manager import WorkManager
+from zoom.agent.entities.task import Task
 
 if 'Linux' in platform.platform():
     from zoom.agent.client.process_client import ProcessClient
@@ -50,9 +50,9 @@ class Application(object):
     def __init__(self, config, settings, conn, queue, system, application_type):
         """
         :type config: dict (xml)
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type conn: multiprocessing.Connection
-        :type queue: zoom.agent.common.unique_queue.UniqueQueue
+        :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type system: zoom.common.types.PlatformType
         :type application_type: zoom.common.types.ApplicationType
         """
@@ -440,7 +440,7 @@ class Application(object):
 
     def _init_work_manager(self, queue, pipe):
         """
-        :rtype: zoom.agent.common.work_manager.WorkManager
+        :rtype: zoom.agent.entities.work_manager.WorkManager
         """
         acceptable_work = dict()
         # actions have additional logic, so use those if available

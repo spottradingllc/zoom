@@ -5,7 +5,7 @@ import platform
 
 import tornado.ioloop
 from zoom.agent.util.helpers import setup_logging
-from zoom.agent.common.daemon import SentinelDaemon
+from zoom.agent.entities.daemon import SentinelDaemon
 
 
 if __name__ == '__main__':

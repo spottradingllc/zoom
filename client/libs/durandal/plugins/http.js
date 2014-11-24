@@ -4,7 +4,7 @@
  * see: http://durandaljs.com or https://github.com/BlueSpire/Durandal for details.
  */
 /**
- * Enables common http request scenarios.
+ * Enables entities http request scenarios.
  * @module http
  * @requires jquery
  * @requires knockout

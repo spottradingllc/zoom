@@ -5,7 +5,7 @@ from threading import Thread
 import re
 
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateTime(SimplePredicate):

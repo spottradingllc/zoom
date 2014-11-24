@@ -1,8 +1,8 @@
 import os.path
 import logging
 
-from zoom.agent.common.task import Task
-from zoom.agent.common.unique_queue import UniqueQueue
+from zoom.agent.entities.task import Task
+from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.common.types import ApplicationState
 from kazoo.exceptions import NoNodeError
 from zoom.common.types import CommandType
@@ -24,7 +24,7 @@ class TaskServer(object):
     def add_task(self, task):
         """
         Add Task to UniqueQueue. Submit task node to ZooKeeper.
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         """
         if task.host not in self._task_queue:
             self._task_queue[task.host] = UniqueQueue()
@@ -44,7 +44,7 @@ class TaskServer(object):
     def _submit_task(self, task):
         """
         If node does not exist in ZK, create node. Set data watch on that node.
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         """
         try:
             task_path = os.path.join(self._configuration.task_path, task.host)
@@ -89,7 +89,7 @@ class TaskServer(object):
     def _remove(self, task, path, clear_queue=False):
         """
         Remove from self._task_queue. Delete node in ZooKeeper.
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         :type path: str
         :type clear_queue: bool
         """

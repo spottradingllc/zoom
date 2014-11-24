@@ -20,9 +20,9 @@ from zoom.common.decorators import (
     run_only_one
 )
 from zoom.common.types import PlatformType
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.agent.util.helpers import verify_attribute
-from zoom.agent.common.child_process import ChildProcess
+from zoom.agent.entities.child_process import ChildProcess
 from zoom.agent.client.task_client import TaskClient
 from zoom.common.constants import (
     ZK_CONN_STRING,

@@ -1,6 +1,6 @@
 import logging
 from collections import deque
-from zoom.agent.common.task import Task
+from zoom.agent.entities.task import Task
 
 
 class UniqueQueue(deque):
@@ -10,7 +10,7 @@ class UniqueQueue(deque):
 
     def append_unique(self, task, sender='', first=False):
         """
-        :type task: zoom.agent.common.task.Task
+        :type task: zoom.agent.entities.task.Task
         :type sender: str
         :type first: bool
         :rtype: bool

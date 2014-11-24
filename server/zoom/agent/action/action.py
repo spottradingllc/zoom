@@ -1,10 +1,10 @@
 import logging
 
 from zoom.agent.predicate.factory import PredicateFactory
-from zoom.agent.common.stagger_lock import StaggerLock
-from zoom.agent.common.thread_safe_object import ApplicationMode
-from zoom.agent.common.task import Task
-from zoom.agent.common.thread_safe_object import ThreadSafeObject
+from zoom.agent.entities.stagger_lock import StaggerLock
+from zoom.agent.entities.thread_safe_object import ApplicationMode
+from zoom.agent.entities.task import Task
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class Action(object):
@@ -23,13 +23,13 @@ class Action(object):
         :param mode_controlled: Whether or not the action will run based on the
                                 ApplicationMode
         :type mode_controlled: bool
-        :type action_q: zoom.agent.common.unique_queue.UniqueQueue
+        :type action_q: zoom.agent.entities.unique_queue.UniqueQueue
         :type zkclient: kazoo.client.KazooClient
         :type proc_client: zoom.agent.client.process_client.ProcessClient
-        :type mode: zoom.agent.common.thread_safe_object.ApplicationMode
+        :type mode: zoom.agent.entities.thread_safe_object.ApplicationMode
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type disabled: bool
         :type pd_enabled: bool
         """

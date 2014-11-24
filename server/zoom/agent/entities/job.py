@@ -5,7 +5,7 @@ from datetime import datetime
 from kazoo.exceptions import NodeExistsError, NoNodeError
 
 from zoom.common.types import JobState
-from zoom.agent.common.application import Application
+from zoom.agent.entities.application import Application
 from zoom.common.decorators import (
     connected,
     time_this,
@@ -18,7 +18,7 @@ class Job(Application):
         """
         :type config: dict (json)
         :type conn: multiprocessing.Connection
-        :type queue: zoom.agent.common.unique_queue.UniqueQueue
+        :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type system: zoom.common.types.PlatformType
         :type application_type: zoom.common.types.ApplicationType
         """

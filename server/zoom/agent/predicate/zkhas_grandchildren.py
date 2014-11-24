@@ -11,7 +11,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
     def __init__(self, comp_name, settings, zkclient, nodepath, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type parent: str or None

@@ -5,7 +5,7 @@ class SimplePredicate(object):
     def __init__(self, comp_name, settings, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.common.thread_safe_object.ThreadSafeObject
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type parent: str or None
         """
         self._met = False
