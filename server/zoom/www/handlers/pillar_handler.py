@@ -127,7 +127,6 @@ class PillarHandler(tornado.web.RequestHandler):
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
 
-        print data_key + " " + data_val
         try:
             if all([minion, project, data_key, data_val]):
                 minion_data[project][data_key] = data_val
@@ -155,7 +154,6 @@ class PillarHandler(tornado.web.RequestHandler):
 
         if all([data_key, minion, project]):
             try:
-                print("data_key" + data_key)
                 del minion_data[project][data_key]
 
             except KeyError:
