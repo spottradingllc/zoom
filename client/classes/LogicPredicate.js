@@ -16,21 +16,6 @@ define(['knockout'],
                 self.predicates.push(pred);
             };
 
-            self.error = ko.computed(function() {
-                if (self.predType === 'not' && self.predicates().length !== 1) {
-                    return 'NOT excepts exactly one predicate';
-                }
-                else if (self.predType === 'or' && self.predicates().length < 2) {
-                    return 'OR needs two or more predicates';
-                }
-                else if (self.predType === 'and' && self.predicates().length < 2) {
-                    return 'AND needs two or more predicates';
-                }
-                else {
-                    return '';
-                }
-            });
-
             self.remove = function() {
                 self.parent.predicates.remove(self);
             };
@@ -47,21 +32,37 @@ define(['knockout'],
                 });
             };
 
-            self.validate = function() {
-                var valid = true;
-                if (self.error() !== '') {
-                    valid = false;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
+
+                if (self.predType === 'not' && self.predicates().length !== 1) {
+                    errors.push('NOT Predicate accepts exactly one child predicate.');
                 }
-                for (var i = 0; i < self.predicates().length; i++) {
-                    if (!self.predicates()[i].validate()) {
-                        valid = false;
-                    }
+                else if (self.predType === 'or' && self.predicates().length < 2) {
+                    errors.push('OR Predicate needs two or more child predicates.');
+                }
+                else if (self.predType === 'and' && self.predicates().length < 2) {
+                    errors.push('AND Predicate needs two or more child predicates.');
                 }
 
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.predicates(), function(predicate) {
+                    allErrors = allErrors.concat(predicate.validate());
+                });
+
+                return allErrors;
             };
 
             self.createPredicateXML = function() {

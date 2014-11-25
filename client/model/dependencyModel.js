@@ -1,4 +1,4 @@
-define(['knockout'], function(ko) {
+define(['knockout', 'model/constants'], function(ko, constants) {
     return function DependencyModel(applicationStateArray, parentAppState) {
         var self = this;
 
@@ -14,6 +14,7 @@ define(['knockout'], function(ko) {
             'holiday': self.holiday,
             'weekend': self.weekend,
             'zookeepergooduntiltime': self.zookeepergooduntiltime,
+            'time': self.zookeepergooduntiltime,
             'zookeeperhaschildren': self.requires,
             'zookeeperhasgrandchildren': self.requires
         };
@@ -40,7 +41,7 @@ define(['knockout'], function(ko) {
                 var path = entry.path;
 
                 // if path = /foo, match both /foo/bar and /foo/baz
-                if (predType === 'zookeeperhasgrandchildren') {
+                if (predType === constants.predicateTypes.ZooKeeperHasGrandChildren) {
                     ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) === path) {
                             self.requires.push(applicationState);
@@ -48,7 +49,7 @@ define(['knockout'], function(ko) {
                         }
                     });
                 }
-                else if (predType === 'zookeeperhaschildren') {
+                else if (predType === constants.predicateTypes.ZooKeeperHasChildren) {
                     var applicationState = ko.utils.arrayFirst(applicationStateArray(), function(applicationState) {
                         return (path === applicationState.configurationPath);
                     });
@@ -58,7 +59,7 @@ define(['knockout'], function(ko) {
                     }
                 }
                 // if this predicate type exists in arrayMapping
-                else if (typeof arrayMapping[predType] !== undefined) {
+                else if (typeof arrayMapping[predType] !== 'undefined') {
                     // push path to appropriate array based on predicate type
                     arrayMapping[predType].push(path);
                     neverFound = false;
@@ -75,12 +76,12 @@ define(['knockout'], function(ko) {
                     // so this should be OK - but not ideal
                     var showAsMissing = {
                         'configurationPath': path,
-                        'applicationStatusClass': parentAppState.glyphs.unknownQMark,
-                        'applicationStatusBg': parentAppState.colors.unknownGray,
-                        'applicationStatus': ko.observable(parentAppState.applicationStatuses.unknown),
+                        'applicationStatusClass': constants.glyphs.unknownQMark,
+                        'applicationStatusBg': constants.colors.unknownGray,
+                        'applicationStatus': ko.observable(constants.applicationStatuses.unknown),
                         'predType': predType,
                         'requires': ko.observableArray([]),
-                        'errorState': ko.observable(parentAppState.errorStates.unknown)
+                        'errorState': ko.observable(constants.errorStates.unknown)
                     };
                     self.requires.push(showAsMissing);
                 }
@@ -90,7 +91,7 @@ define(['knockout'], function(ko) {
         self.requirementsAreUp = ko.computed(function() {
             if (self.requires().length > 0) {
                 for (var i = 0; i < self.requires().length; i++) {
-                    if (self.requires()[i].applicationStatus() === parentAppState.applicationStatuses.stopped) {
+                    if (self.requires()[i].applicationStatus() === constants.applicationStatuses.stopped) {
                         return false;
                     }
                 }

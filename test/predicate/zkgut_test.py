@@ -1,7 +1,7 @@
 import mox
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.zkgut import ZookeeperGoodUntilTime
+from zoom.agent.predicate.zkgut import ZookeeperGoodUntilTime
 
 
 class ZookeeperGoodUntilTimeTest(unittest.TestCase):
@@ -14,7 +14,7 @@ class ZookeeperGoodUntilTimeTest(unittest.TestCase):
 
     def test_start(self):
 
-        pred = ZookeeperGoodUntilTime("test", None, "/path", None,
+        pred = ZookeeperGoodUntilTime("test", {}, None, "/path", None,
                                       interval=self.interval)
         self.mox.StubOutWithMock(pred, "_watch_node")
         pred._watch_node()
@@ -31,7 +31,7 @@ class ZookeeperGoodUntilTimeTest(unittest.TestCase):
 
     def test_stop(self):
 
-        pred = ZookeeperGoodUntilTime("test", None, "/path", None,
+        pred = ZookeeperGoodUntilTime("test", {}, None, "/path", None,
                                       interval=self.interval)
         self.mox.StubOutWithMock(pred, "_watch_node")
         pred._watch_node()

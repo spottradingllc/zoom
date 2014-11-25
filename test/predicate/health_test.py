@@ -2,7 +2,7 @@ import mox
 import time
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.health import PredicateHealth
+from zoom.agent.predicate.health import PredicateHealth
 
 
 class PredicateHealthTest(unittest.TestCase):
@@ -15,7 +15,7 @@ class PredicateHealthTest(unittest.TestCase):
 
     def test_start(self):
 
-        pred = PredicateHealth("test", "echo", self.interval, None)
+        pred = PredicateHealth("test", {}, "echo", self.interval, None)
         self.mox.StubOutWithMock(pred, "_run")
         pred._run().MultipleTimes()
 
@@ -32,7 +32,7 @@ class PredicateHealthTest(unittest.TestCase):
 
     def test_stop(self):
 
-        pred = PredicateHealth("test", "echo", self.interval, None)
+        pred = PredicateHealth("test", {}, "echo", self.interval, None)
         self.mox.StubOutWithMock(pred, "_run")
         pred._run().MultipleTimes()
 

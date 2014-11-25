@@ -104,20 +104,17 @@
                         <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax"
                                data-toggle="tooltip" data-placement="top"
                                title="restartmax - How many times to try to start an application/job if it fails to start.">
-                        <input type="number" class="form-control" placeholder="allowedinstances"
-                               data-bind="value: allowedinstances, text: allowedinstances">
                         <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath"
                                data-bind="value: registrationpath, text: registrationpath"
                                data-toggle="tooltip" data-placement="top"
                                title="registrationpath - Path in ZooKeeper used to register a service.">
                         <span class="dropdown">
-                            <input type="text" class="form-control" placeholder="restartoncrash" data-toggle="dropdown"
-                                   data-bind="value: restartoncrash, text: restartoncrash"
+                            <input type="text" class="form-control" placeholder="pagerduty api key" data-toggle="dropdown"
+                                   data-bind="value: pagerdutyService, text: pagerdutyService"
                                    data-toggle="tooltip" data-placement="top"
-                                   title="restartoncrash - If a service crashes after it has started, whether to try to start it again.">
-                                <ul class="dropdown-menu" role="menu" >
-                                    <li><a href="#" data-bind="click: function(){restartoncrash('True')}">True</a></li>
-                                    <li><a href="#" data-bind="click: function(){restartoncrash('False')}">False</a></li>
+                                   title="pagerduty_service - The PagerDuty service key to send the alerts to.">
+                                <ul class="dropdown-menu" role="menu" data-bind="foreach: Object.keys(TreeViewModel.pagerDutyServices).sort()">
+                                    <li><a data-bind="text: $data, click: function(){$parent.pagerdutyService($parent.TreeViewModel.pagerDutyServices[$data])}"></a></li>
                                 </ul>
                         </span>
                     </div>
@@ -153,6 +150,15 @@
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){disabled('True')}">True</a></li>
                                     <li><a href="#" data-bind="click: function(){disabled('False')}">False</a></li>
+                                </ul>
+                        </span>
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="pagerduty enabled"
+                                   data-toggle="dropdown" data-bind="value: pdEnabled, text: pdEnabled"
+                                   data-toggle="tooltip" data-placement="top" title="pagerduty enabled">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){pdEnabled('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){pdEnabled('False')}">False</a></li>
                                 </ul>
                         </span>
                     </div>
@@ -227,6 +233,7 @@
                                     <li><a href="#" data-bind="click: function(){setType('ZookeeperGoodUntilTime')}">ZookeeperGoodUntilTime</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Weekend')}">Weekend</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Holiday')}">Holiday</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('Time')}">Time</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Process'); interval(5)}">Process</a></li>
                                 </ul>
                         </span>
@@ -236,6 +243,15 @@
                         <input type="text" class="form-control" placeholder="command"
                                data-bind="text: command, value: command, visible: commandVisible"
                                data-toggle="tooltip" data-placement="top" title="command">
+                        <input type="text" class="form-control" placeholder="start"
+                               data-bind="text: start, value: start, visible: startStopVisible"
+                               data-toggle="tooltip" data-placement="top" title="start">
+                        <input type="text" class="form-control" placeholder="stop"
+                               data-bind="text: stop, value: stop, visible: startStopVisible"
+                               data-toggle="tooltip" data-placement="top" title="stop">
+                        <input type="text" class="form-control" placeholder="weekdays e.g., 0,1,3-5"
+                               data-bind="text: weekdays, value: weekdays, visible: startStopVisible"
+                               data-toggle="tooltip" data-placement="top" title="weekdays">
                         <!-- required attributes -->
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown"

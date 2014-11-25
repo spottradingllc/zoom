@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="Application">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Automation">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Component">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Actions">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element maxOccurs="unbounded" name="Action">
+														<xs:complexType>
+															<xs:sequence minOccurs="0">
+																<xs:element name="Dependency">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Predicate">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element minOccurs="0" name="Predicate">
+																							<xs:complexType>
+																								<xs:attribute name="type" type="xs:string" use="required" />
+																								<xs:attribute name="interval" type="xs:unsignedByte" use="required" />
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element minOccurs="0" name="Operands">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element maxOccurs="unbounded" name="Predicate">
+																										<xs:complexType>
+																											<xs:sequence minOccurs="0">
+																												<xs:element name="Predicate">
+																													<xs:complexType>
+																														<xs:attribute name="type" type="xs:string" use="required" />
+																														<xs:attribute name="path" type="xs:string" use="required" />
+																													</xs:complexType>
+																												</xs:element>
+																											</xs:sequence>
+																											<xs:attribute name="type" type="xs:string" use="required" />
+																											<xs:attribute name="path" type="xs:string" use="optional" />
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																					<xs:attribute name="type" type="xs:string" use="required" />
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="id" type="xs:string" use="required" />
+															<xs:attribute name="staggerpath" type="xs:string" use="optional" />
+															<xs:attribute name="staggertime" type="xs:unsignedByte" use="optional" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="id" type="xs:string" use="required" />
+									<xs:attribute name="type" type="xs:string" use="required" />
+									<xs:attribute name="script" type="xs:string" use="required" />
+									<xs:attribute name="restartmax" type="xs:unsignedByte" use="optional" />
+									<xs:attribute name="command" type="xs:string" use="optional" />
+									<xs:attribute name="registrationpath" type="xs:string" use="optional" />
+                                    <xs:attribute name="pagerduty" type="xs:string" use="optional" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,8 +1,8 @@
 import mox
 import unittest
 
-from spot.zoom.agent.sentinel.predicate.simple import SimplePredicate
-from spot.zoom.agent.sentinel.predicate.pred_or import PredicateOr
+from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.pred_or import PredicateOr
 
 
 class PredicateOrTest(unittest.TestCase):
@@ -10,63 +10,62 @@ class PredicateOrTest(unittest.TestCase):
         self.mox = mox.Mox()
         self.comp_name = "Test Predicate Or"
 
-        self.predFalse1 = self.mox.CreateMock(SimplePredicate)
-        self.predFalse1.met = False
-
-        self.predFalse2 = self.mox.CreateMock(SimplePredicate)
-        self.predFalse2.met = False
-
-        self.predTrue1 = self.mox.CreateMock(SimplePredicate)
-        self.predTrue1.met = True
-
-        self.predTrue2 = self.mox.CreateMock(SimplePredicate)
-        self.predTrue2.met = True
-
     def tearDown(self):
         pass
 
     def testmet_true_true(self):
 
-        preds = (self.predTrue1, self.predTrue2)
+        preds = [
+            self._create_simple_pred(met=True),
+            self._create_simple_pred(met=True)
+        ]
         
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
         self.assertTrue(pred.met)
 
         self.mox.VerifyAll() 
 
     def testmet_false_true(self):
 
-        preds = (self.predFalse1, self.predTrue2)
+        preds = [
+            self._create_simple_pred(met=False),
+            self._create_simple_pred(met=True)
+        ]
         
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
         self.assertTrue(pred.met)
 
         self.mox.VerifyAll() 
 
     def testmet_false_false(self):
 
-        preds = (self.predFalse1, self.predFalse2)
+        preds = [
+            self._create_simple_pred(met=False),
+            self._create_simple_pred(met=False)
+        ]
         
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
         self.assertFalse(pred.met)
 
         self.mox.VerifyAll() 
 
     def test_start(self):
 
-        preds = (self.predFalse1, self.predFalse2)
-        self.predFalse1.start()
-        self.predFalse2.start()
-        
+        preds = [
+            self._create_simple_pred(met=False),
+            self._create_simple_pred(met=False)
+        ]
+        [p.start() for p in preds]
+
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
 
         pred.start()
         pred.start()  # should noop
@@ -75,11 +74,14 @@ class PredicateOrTest(unittest.TestCase):
 
     def test_no_stop(self):
 
-        preds = (self.predFalse1, self.predFalse2)
+        preds = [
+            self._create_simple_pred(met=False),
+            self._create_simple_pred(met=False)
+        ]
         
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
 
         # test stop isn't called without starting
         pred.stop()
@@ -88,18 +90,18 @@ class PredicateOrTest(unittest.TestCase):
 
     def test_stop(self):
 
-        preds = (self.predFalse1, self.predFalse2)
+        preds = [
+            self._create_simple_pred(met=False),
+            self._create_simple_pred(met=False)
+        ]
 
-        self.predFalse2.start()
-        self.predFalse1.start()
-        self.predFalse1.stop()
-        self.predFalse2.stop()
-        self.predFalse1.start()
-        self.predFalse2.start()
-        
+        [p.start() for p in preds]
+        [p.stop() for p in preds]
+        [p.start() for p in preds]
+
         self.mox.ReplayAll()
         
-        pred = PredicateOr(self.comp_name, preds)
+        pred = self._create_pred_or(preds)
 
         pred.start()
         pred.stop()
@@ -111,38 +113,49 @@ class PredicateOrTest(unittest.TestCase):
 
     def test_equal(self):
 
-        pred1 = SimplePredicate(self.comp_name)
-        pred1.set_met(True)
+        pred1 = self._create_simple_pred(met=True)
         preds1 = (pred1,)
         
-        pred2 = SimplePredicate(self.comp_name)
-        pred2.set_met(True)
+        pred2 = self._create_simple_pred(met=True)
         preds2 = (pred2,)
 
         self.mox.ReplayAll()
         
-        pred_and1 = PredicateOr(self.comp_name, preds1)
-        pred_and2 = PredicateOr(self.comp_name, preds2)
+        pred_or1 = self._create_pred_or(preds1)
+        pred_or2 = self._create_pred_or(preds2)
 
-        self.assertEqual(pred_and1, pred_and2)
+        self.assertEqual(pred_or1, pred_or2)
 
         self.mox.VerifyAll() 
 
     def test_not_equal(self):
-    
-        pred1 = SimplePredicate(self.comp_name)
-        pred1.set_met(False)
+
+        pred1 = self._create_simple_pred(met=False)
         preds1 = (pred1,)
         
-        pred2 = SimplePredicate(self.comp_name)
-        pred2.set_met(True)
+        pred2 = self._create_simple_pred(met=True)
         preds2 = (pred2,)
 
         self.mox.ReplayAll()
         
-        pred_and1 = PredicateOr(self.comp_name, preds1)
-        pred_and2 = PredicateOr(self.comp_name, preds2)
+        pred_and1 = self._create_pred_or(preds1)
+        pred_and2 = self._create_pred_or(preds2)
 
         self.assertNotEqual(pred_and1, pred_and2)
 
         self.mox.VerifyAll()
+
+    def _create_pred_or(self, predicate_list, cname=None, parent=None):
+        if cname is None:
+            cname = self.comp_name
+
+        return PredicateOr(cname, {}, predicate_list, parent=parent)
+
+    def _create_simple_pred(self, cname=None, met=None):
+        if cname is None:
+            cname = self.comp_name
+        s = SimplePredicate(cname, {})
+        if met is not None:
+            s.set_met(met)
+
+        return s

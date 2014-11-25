@@ -8,6 +8,9 @@ define(['knockout'],
             self.interval = ko.observable(null);
             self.command = ko.observable(null);
             self.path = ko.observable(null);
+            self.start = ko.observable(null);
+            self.stop = ko.observable(null);
+            self.weekdays = ko.observable(null);
 
             self.isLogicalPred = false;
 
@@ -38,6 +41,16 @@ define(['knockout'],
                     return true;
                 }
             });
+            self.startStopVisible = ko.computed(function() {
+                if (self.predType() != null) {
+                    var predLower = self.predType().toLowerCase();
+                    return predLower === 'time';
+                }
+                else {
+                    return true;
+                }
+            });
+
             // recursively search for parent action
             var getAction = function(obj) {
                 if (typeof obj === 'undefined' || typeof obj.parent === 'undefined') {
@@ -53,7 +66,7 @@ define(['knockout'],
             };
 
             self.pathOptions = ko.computed(function() {
-                var action = getAction(self.parent);
+                var action = getAction(self);
 
                 if (action === null) { return []; }
 
@@ -77,11 +90,6 @@ define(['knockout'],
                 return 'Predicate ' + self.predType() + ' ' + self.path();
             });
 
-            self.error = ko.computed(function() {
-                // TODO Flag errors that aren't empty field
-                return '';
-            });
-
             self.remove = function() {
                 self.parent.predicates.remove(self);
             };
@@ -95,18 +103,24 @@ define(['knockout'],
                 }
             };
 
-            self.validate = function() {
-                var valid = true;
-                if (self.error() !== '') {
-                    valid = false;
-                }
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
+
                 if (self.predType() === null) {
-                    valid = false;
+                    errors.push('Predicate type cannot be null.');
                 }
-                if (!valid) {
-                    self.expandUp();
-                }
-                return true;
+
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                return getErrors();
             };
 
             self.createPredicateXML = function() {
@@ -122,6 +136,16 @@ define(['knockout'],
                 if (self.command() !== null) {
                     XML = XML.concat('command="' + self.command() + '" ');
                 }
+                if (self.start() !== null) {
+                    XML = XML.concat('start="' + self.start() + '" ');
+                }
+                if (self.stop() !== null) {
+                    XML = XML.concat('stop="' + self.stop() + '" ');
+                }
+                if (self.weekdays() !== null) {
+                    XML = XML.concat('weekdays="' + self.weekdays() + '" ');
+                }
+
                 XML = XML.concat('></Predicate>');
 
                 return XML;
@@ -132,6 +156,9 @@ define(['knockout'],
                 self.interval(node.getAttribute('interval'));
                 self.command(node.getAttribute('command'));
                 self.path(node.getAttribute('path'));
+                self.start(node.getAttribute('start'));
+                self.stop(node.getAttribute('stop'));
+                self.weekdays(node.getAttribute('weekdays'));
             };
         };
     });

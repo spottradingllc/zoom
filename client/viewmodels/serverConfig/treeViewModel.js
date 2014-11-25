@@ -1,14 +1,15 @@
-define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
-    function(ko, $, Component) {
+define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeautify'],
+    function(ko, $, Component, admin) {
 
         return function TreeViewModel(parent) {
             var self = this;
             self.components = ko.observableArray();
+            self.adminModel = admin;
 
             self.statePaths = (function() {
                 var paths = [];
                 $.ajax({
-                    url: '/api/application/states/',
+                    url: '/api/application/states',
                     success: function(data) {
                         ko.utils.arrayForEach(data.application_states, function(state) {
                             paths.push(state.configuration_path);
@@ -20,6 +21,18 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
                 return paths;
             }());  // run immediately, and store as an array
 
+            self.pagerDutyServices = function() {
+                var pd_dict
+                $.ajax({
+                    url: '/api/pagerduty/services/',
+                    success: function(data) {
+                        pd_dict = JSON.parse(data);
+                    },
+                    async: false
+                });
+                return pd_dict
+            }();
+
             self.addComponent = function() {
                 self.components.push(new Component(self));
             };
@@ -30,14 +43,19 @@ define(['knockout', 'jquery', 'classes/Component', 'vkbeautify'],
 
             self.validate = function() {
                 var valid = true;
-                for (var i = 0; i < self.components().length; i++) {
-                    if (!self.components()[i].validate()) {
-                        valid = false;
-                    }
-                }
+                var errors = [];
 
-                if (!valid) {
-                    alert('Red areas indicate errors');
+                ko.utils.arrayForEach(self.components(), function(component) {
+                    errors = errors.concat(component.validate());
+                });
+
+                if (errors.length > 0) {
+                    swal({
+                        title: 'I find your lack of config validity...disturbing.',
+                        text: errors.join('\n'),
+                        imageUrl: 'images/vadar.jpg'
+                    });
+                    valid = false;
                 }
 
                 return valid;

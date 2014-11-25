@@ -12,6 +12,8 @@ define(['knockout', 'classes/LogicPredicate', 'classes/Predicate'],
         };
 
         Factory.firstChild = function(node) {
+            if (typeof node === 'undefined') {return null;}
+
             var child = node.firstChild;
             // nodeType 1 == ELEMENT_NODE
             while (child !== null && child.nodeType !== 1) {

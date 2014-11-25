@@ -1,5 +1,5 @@
-define(['knockout', './Action'],
-    function(ko, Action) {
+define(['knockout', './Action', 'model/constants'],
+    function(ko, Action, constants) {
         return function Component(parent) {
             var self = this;
             self.TreeViewModel = parent;
@@ -8,23 +8,10 @@ define(['knockout', './Action'],
             self.compType = ko.observable(null);
             self.script = ko.observable(null);
             self.command = ko.observable(null);
-            self.allowedinstances = ko.observable(null);
             self.restartmax = ko.observable(null);
-            self.restartoncrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
-            // TODO: Pull this from some central location
-            self.appPath = '/spot/software/state/application/';
-
+            self.pagerdutyService = ko.observable(null);
             self.actions = ko.observableArray();
-
-            self.error = ko.computed(function() {
-                if (self.actions().length < 1) {
-                    return 'You have to have an Action';
-                }
-                else {
-                    return '';
-                }
-            });
 
             self.addAction = function() {
                 self.expanded(true);
@@ -47,30 +34,40 @@ define(['knockout', './Action'],
                 return (param !== null && param !== '');
             };
 
-            self.validate = function() {
-                var valid = true;
+            var getErrors = function() {
+                // return only errors related to this object
+                var errors = [];
 
-                if (self.error() !== '') {
-                    valid = false;
+                if (self.actions().length < 1) {
+                    errors.push('You should probably add an Action.');
                 }
                 if (!checkNull(self.ID()) || !checkNull(self.compType())) {
-                    valid = false;
+                    errors.push('Component ID and type cannot be null.');
                 }
                 if (self.compType() === 'job' && !checkNull(self.command()) ) {
-                    valid = false;
+                    errors.push('Component command cannot be null for jobs.');
                 }
                 else if (self.compType() === 'application' && !checkNull(self.script())) {
-                    valid = false;
+                    errors.push('Component script is null.');
                 }
-                for (var i = 0; i < self.actions().length; i++) {
-                    if (!self.actions()[i].validate()) {
-                        valid = false;
-                    }
-                }
-                if (!valid) {
-                    self.expandUp();
-                }
-                return valid;
+
+                return errors;
+            };
+
+            self.error = ko.computed(function() {
+                var e = getErrors();
+                return e.join(', ');
+            });
+
+            self.validate = function() {
+                // return errors for this object and all child objects
+                var allErrors = getErrors();
+
+                ko.utils.arrayForEach(self.actions(), function(action) {
+                    allErrors = allErrors.concat(action.validate());
+                });
+
+                return allErrors;
             };
 
             self.createComponentXML = function() {
@@ -87,18 +84,20 @@ define(['knockout', './Action'],
                 }
 
                 if (checkNull(self.command())) {
-                    var command = self.command().replace(/"/g, '&quot;');
-                    self.command(command);
+                    // replace xml entities
+                    var comEdit1 = self.command().replace(/"/g, '&quot;');
+                    var comEdit2 = comEdit1.replace(/'/g, '&apos;');
+                    var comEdit3 = comEdit2.replace(/</g, '&lt;');
+                    var comEdit4 = comEdit3.replace(/>/g, '&gt;');
+                    var comEdit5 = comEdit4.replace(/&(?=[a-z_0-9]+=)/g, '&amp;');
+                    self.command(comEdit5);
                     XML = XML.concat('command="' + self.command() + '" ');
                 }
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
                 }
-                if (checkNull(self.allowedinstances())) {
-                    XML = XML.concat('allowed_instances="' + self.allowedinstances() + '" ');
-                }
-                if (checkNull(self.restartoncrash())) {
-                    XML = XML.concat('restartoncrash="' + self.restartoncrash() + '" ');
+                if (checkNull(self.pagerdutyService())) {
+                    XML = XML.concat('pagerduty_service="' + self.pagerdutyService() + '" ');
                 }
                 XML = XML.concat('>');
 
@@ -124,9 +123,8 @@ define(['knockout', './Action'],
                 self.script(node.getAttribute('script'));
                 self.command(node.getAttribute('command'));
                 self.restartmax(node.getAttribute('restartmax'));
-                self.restartoncrash(node.getAttribute('restartoncrash'));
                 self.registrationpath(node.getAttribute('registrationpath'));
-                self.allowedinstances(node.getAttribute('allowed_instances'));
+                self.pagerdutyService(node.getAttribute('pagerduty_service'));
 
                 self.actions.removeAll();
                 var actions = node.getElementsByTagName('Action');

@@ -3,12 +3,13 @@
 
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
+LOGTIME=`date +%H%M%S`
 APPPATH="/opt/spot/zoom/server"
 VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
-#RUNLOG=$APPPATH/logs/stdout
-RUNLOG="/dev/null"
+RUNLOG=$APPPATH/logs/web_stdout
+#RUNLOG="/dev/null"
 
 export PATH=$PATH:/bin
 if [ -f /etc/profile.d/spotdev.sh ]; then
@@ -43,10 +44,16 @@ function dostart()
     if [ -n "$pid" ]; then
         die "$APP is already running with pid(s) $pid. \nEither stop the APP or run \"restart\" instead of \"start\".";
     fi;
+
     # check for virtual environment creation
     if [ ! -f ${VENV_PATH}/bin/activate ]; then
         die "Virtual Environment not found. Please create it first.";
     fi;
+
+    if [ -f $RUNLOG ]; then
+        mv $RUNLOG $RUNLOG.$LOGDATE.$LOGTIME
+    fi;
+
     # check for log dir
     if [ ! -d $APPPATH/logs ]; then
         /bin/mkdir $APPPATH/logs;

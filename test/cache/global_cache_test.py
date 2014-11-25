@@ -1,8 +1,8 @@
 import mox
 
 from unittest import TestCase
-from spot.zoom.www.cache.global_cache import GlobalCache
-from spot.zoom.www.zoo_keeper import ZooKeeper
+from zoom.www.cache.global_cache import GlobalCache
+from zoom.www.entities.zoo_keeper import ZooKeeper
 from test.test_utils import ConfigurationMock, EventMock, FakeMessage
 
 
@@ -22,14 +22,14 @@ class GlobalCacheTest(TestCase):
     
     def test_construct(self):
         self.mox.ReplayAll()
-        GlobalCache(self.configuration, self.zoo_keeper,
-                    self.web_socket_clients)
+        self._create_global_cache()
         self.mox.VerifyAll()
 
     def test_get_mode(self):
         self.configuration.global_mode_path = "mode/path"
-        cache = GlobalCache(self.configuration, self.zoo_keeper,
-                            self.web_socket_clients)
+        cache = self._create_global_cache()
+
+        self.zoo_keeper.connected = True
         self.zoo_keeper.get("mode/path",
                             watch=mox.IgnoreArg()).AndReturn((None, None))
         self.mox.ReplayAll()
@@ -38,8 +38,7 @@ class GlobalCacheTest(TestCase):
 
     def test_on_update(self):
         event = EventMock()
-        cache = GlobalCache(self.configuration, self.zoo_keeper,
-                            self.web_socket_clients)
+        cache = self._create_global_cache()
         self.socket_client1.write_message("globalmodejson")
         self.socket_client2.write_message("globalmodejson")
 
@@ -49,3 +48,7 @@ class GlobalCacheTest(TestCase):
         self.mox.ReplayAll()
         cache.on_update(event)
         self.mox.VerifyAll()
+
+    def _create_global_cache(self):
+        return GlobalCache(self.configuration, self.zoo_keeper,
+                           self.web_socket_clients)

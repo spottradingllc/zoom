@@ -4,16 +4,17 @@ define(
         'plugins/router',
         'service',
         'jquery',
-        'model/ApplicationState',
+        'jq-throttle',
         'model/environmentModel',
         'model/adminModel',
         'model/GlobalMode',
         'model/customFilterModel',
+        'classes/ApplicationState',
         'classes/applicationStateArray',
         'classes/dependency-maps/DependencyMaps'
     ],
-    function(ko, router, service, $, ApplicationState, environment, admin, GlobalMode,
-             CustomFilterModel, ApplicationStateArray, DependencyMaps) {
+    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
+             CustomFilterModel, ApplicationState, ApplicationStateArray, DependencyMaps) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
@@ -21,7 +22,7 @@ define(
             self.globalMode = GlobalMode;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
-            self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } }); 
+            self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } });
             self.environment = environment; 
             self.name = 'Application State Table';
             self.passwordConfirm = ko.observable('');
@@ -72,7 +73,7 @@ define(
                         'componentId': self.clickedApp().componentId,
                         'applicationHost': self.clickedApp().applicationHost,
                         'command': options.com,
-                        'argument': options.arg,
+                        'stay_down': options.stay_down,
                         'user': self.login.elements.username()
                     };
                     $.post('/api/agent/', dict, function() {
@@ -94,7 +95,7 @@ define(
                         'configurationPath': applicationState.configurationPath,
                         'applicationHost': applicationState.applicationHost,
                         'command': options.com,
-                        'argument': options.arg,
+                        'stay_down': options.stay_down,
                         'user': self.login.elements.username()
                     };
 
@@ -121,8 +122,8 @@ define(
             self.determineAndExecute = function() {
                 if (self.groupMode()) {
                     if (self.options.com === 'dep_restart') {
-                        self.executeGroupControl({'com': 'ignore', 'arg': false, 'clear_group': false});
-                        self.executeGroupControl({'com': 'stop', 'arg': false, 'clear_group': false});
+                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
+                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
                         self.checkDown();
                     }
                     else {
@@ -169,7 +170,7 @@ define(
 
             self.controlAgent = function(options, clickedApp) {
                 // options.com: command
-                // options.arg: command argument
+                // options.stay_down: stay_down
                 if (options === undefined) {
                     options = {'com': 'dep_restart'};
                 }
@@ -238,24 +239,6 @@ define(
                     }
                 });
             };
-
-            self.displaySize = ko.observable(10);
-
-            self.sliceArray = ko.computed(function () {
-                    self.appsToShow(self.applicationStateArray().slice(0, self.displaySize()));
-            });
-            
-           // Works, but somehow is used in other pages as well. Scope issue with the callback
-           // self.loadMore = $(window).scroll( function() {
-           //         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-           //             // add a few rows
-           //             alert("worked");
-           //             var add_size = 3;
-           //             var new_size = 0;
-           //             new_size = self.displaySize() + add_size;
-           //             self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
-           //         }
-           // });
 
             // Sorting
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
@@ -358,6 +341,47 @@ define(
             self.currentView = ko.observable(self);
             self.views = ko.observableArray([]);
             self.views.push(self);
+            
+            self.displaySize = ko.observable("");
+            
+            self.numRows = function () {
+                // if the object in the current view has the same name as self
+                if (self.currentView().constructor.name === self.constructor.name){
+                    var totalY = $(window).height();
+                    var rowY = 32; //each row is roughly 32 px high
+                    var newSize = totalY/rowY;
+
+                    // only update if new size is larger than current
+                    if (newSize > self.displaySize()){
+                        self.displaySize(newSize);
+                    }
+                }
+            };
+
+            self.numRows();
+
+            $(window).resize($.throttle(300, self.numRows));
+
+            self.showOnlyVisible = ko.computed(function () {
+                    self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
+            });
+            
+            self.autoLoad = $(document).bind('mousewheel', function() {
+                    if (self.currentView().constructor.name === self.constructor.name){
+                    var diff = $(window).scrollTop() + $(window).height() - $(document).height();
+                    // when zoomed, the diff can sometimes drift as far as 2 pixels off
+                    // root cause is not known - but likely a Chrome bug
+                    // http://bit.ly/1szF52q
+                    if (diff > -3) {
+                            // add a few rows
+                            var add_size = 3;
+                            var new_size = 0;
+                            new_size = self.displaySize() + add_size;
+                            self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
+                        }
+                    }
+            });
+
 
             // dependency maps
             self.dependencyMaps = new DependencyMaps(self);
@@ -441,7 +465,7 @@ define(
             };
 
             self.loadApplicationStates = function() {
-                return service.synchronousGet('api/application/states/',
+                return service.synchronousGet('api/application/states',
                     onApplicationStatesSuccess,
                     onApplicationStatesError);
             };
@@ -451,7 +475,7 @@ define(
             };
 
             self.loadApplicationDependencies = function() {
-                return service.synchronousGet('api/application/dependencies/',
+                return service.synchronousGet('api/application/dependencies',
                     self.handleApplicationDependencyUpdate,
                     onApplicationDependenciesError);
             };
