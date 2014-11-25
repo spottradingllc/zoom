@@ -61,9 +61,6 @@ class ApplicationStatesMessage(object):
             _dict.update({"environment": self._environment})
         return json.dumps(_dict)
 
-    def __len__(self):
-        return len(self._application_states)
-
     def remove_deletes(self):
         dels = []
         for key, value in self.application_states.iteritems():
@@ -71,3 +68,12 @@ class ApplicationStatesMessage(object):
                 dels.append(key)
         for key in dels:
             self.application_states.pop(key)
+
+    def __len__(self):
+        return len(self._application_states)
+
+    def __eq__(self, other):
+        return self._application_states == other
+
+    def __ne__(self, other):
+        return self._application_states != other

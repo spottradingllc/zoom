@@ -18,6 +18,7 @@ class ApplicationStateCache(object):
         :type configuration: zoom.config.configuration.Configuration
         :type zoo_keeper: zoom.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
+        :type time_estimate_cache: zoom.www.cache.time_estimate_cache.TimeEstimateCache
         """
         self._path_to_host_mapping = dict()
         self._configuration = configuration
