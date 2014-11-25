@@ -201,67 +201,73 @@ define( [
                 var target = update_list;
                 var run_func = "";
                 var run_arg = "zookeeper_pillar:" + project;
-
-                if (data_type === 'node') { 
-                    run_func = "test.ping";
-                }
-                else { //create/update/delete key/value/project 
-                    if (update_type === 'delete' && data_type === 'key') {
-                        //nothing necessary
+                var zk = "zookeeper_pillar";
+                
+                (function(data_type) {
+                    if (data_type === 'node') { 
+                            run_func = "test.ping";
                     }
-                    else if (data_type === 'key' || data_type === 'value') {
-                        run_func = "pillar.get";
-                        run_arg += ":" + data_delta; 
-                    }
-                }
-
-                console.log("Sending " + run_arg);
-                $('#validateVisual').modal('show');
-                var cmds = {
-                    'fun': run_func,
-                    //'expr_form': 'list',
-                    'tgt': target,
-                    'arg': run_arg,
-                    'username': 'salt',
-                    'password': 'salt',
-                    'eauth': 'pam',
-                    'client': 'local'
-                }
-
-                $.ajax({
-                    url: "http://saltStaging:8000/run",
-                    type: 'POST',
-                    data: cmds,
-                    headers: {'Accept': 'application/json'}
-                })
-                .fail(function(data) {
-                    console.log("Issue validating");
-                    swal("Error", "Failed to get data used to validate changes", 'error');
-                    $('#validateVisual').modal('hide');
-                })
-                .done(function(data) {
-                    console.log(data);
-                    // check if the data returned is correct
-                    var validate_fail = false;
-                    if (update_type === 'update') {
-                        for (var each in data.return[0]) {
-                            if (!data.return[0][each])
-                                validate_fail = true;
-                            if (value && data.return[0][each] !== value)
-                                validate_fail = true; 
+                    else { //create/update/delete key/value/project 
+                        if (update_type === 'delete' && data_type === 'key') {
+                            //nothing necessary
+                        }
+                        else if (data_type === 'key' || data_type === 'value') {
+                            run_func = "pillar.items";
+                            run_arg += ":" + data_delta; 
                         }
                     }
-                    if (update_type === 'delete') {
-                        for (var each in data.return[0]) {
-                            if (data.return[0][each])
-                                validate_fail = true;
-                        }
-                    }
-                    
 
-                    $('#validateVisual').modal('hide');
-                    if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
-                });
+                    console.log("Sending " + run_arg);
+                    $('#validateVisual').modal('show');
+                    var cmds = {
+                        'fun': run_func,
+                        //'expr_form': 'list',
+                        'tgt': target,
+                        //'arg': run_arg,
+                        'username': 'salt',
+                        'password': 'salt',
+                        'eauth': 'pam',
+                        'client': 'local'
+                    }
+
+                    $.ajax({
+                        url: "http://saltStaging:8000/run",
+                        type: 'POST',
+                        data: cmds,
+                        headers: {'Accept': 'application/json'}
+                    })
+                    .fail(function(data) {
+                        console.log("Issue validating");
+                        swal("Error", "Failed to get data used to validate changes", 'error');
+                        $('#validateVisual').modal('hide');
+                    })
+                    .done(function(data) {
+                        console.log(data);
+                        // check if the data returned is correct
+                        var validate_fail = false;
+                        if (update_type === 'update') {
+                            for (var each in data.return[0]) {
+                                var this_project = data.return[0][each][zk][project];
+                                // check if project exists
+                                if (!this_project)
+                                    validate_fail = true;
+                                // check if the value is correct and exists
+                                if (value && this_project.value !== value)
+                                    validate_fail = true; 
+                            }
+                        }
+                        if (update_type === 'delete') {
+                            for (var each in data.return[0]) {
+                                if (data.return[0][each])
+                                    validate_fail = true;
+                            }
+                        }
+                        
+
+                        $('#validateVisual').modal('hide');
+                        if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
+                    });
+                })(data_delta);
 
             };
                 
