@@ -1,7 +1,7 @@
-import unittest
+from unittest import TestCase
 
 
-class NoOpTest(unittest.TestCase):
+class NoOpTest(TestCase):
     def setUp(self):
         print "Setup"
 

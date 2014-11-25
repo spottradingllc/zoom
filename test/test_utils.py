@@ -16,6 +16,10 @@ class ConfigurationMock:
         self.agent_state_path = None
         self.environment = None
         self.throttle_interval = 1
+        self.pagerduty_subdomain = "sub"
+        self.pagerduty_api_token = "token"
+        self.pagerduty_default_svc_key = "key"
+        self.alert_path = "/path"
 
 
 class ApplicationStateMock:

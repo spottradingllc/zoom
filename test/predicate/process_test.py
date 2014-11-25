@@ -16,7 +16,7 @@ class PredicateProcessTest(TestCase):
 
     def test_start(self):
 
-        pred = PredicateProcess("/path", None, interval=self.interval)
+        pred = PredicateProcess("/path", {}, None, interval=self.interval)
         self.mox.StubOutWithMock(pred, "running")
         pred.running().MultipleTimes().AndReturn(True)
 
@@ -32,7 +32,7 @@ class PredicateProcessTest(TestCase):
 
     def test_stop(self):
 
-        pred = PredicateProcess("/path", None, interval=self.interval)
+        pred = PredicateProcess("/path", {}, None, interval=self.interval)
         self.mox.StubOutWithMock(pred, "running")
         pred.running().MultipleTimes().AndReturn(True)
 
