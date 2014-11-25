@@ -197,77 +197,108 @@ define( [
                 self.show_allInfo.valueHasMutated();
             };
 
+            function _valdata(update_type, data_type, data_delta, value, project, zk) {
+                var self = this;
+                self.type = update_type;
+                self.data = data_type;
+                self.key = data_delta;
+                self.value = value;
+                self.project = project;
+                self.zk = zk;
+            };
+
             self.validate_salt = function (update_list, update_type, data_type, data_delta, value, project) {
                 var target = update_list;
                 var run_func = "";
                 var run_arg = "zookeeper_pillar:" + project;
                 var zk = "zookeeper_pillar";
+
+                var _pass = new _valdata(update_type, data_type, data_delta, value, project, zk);
                 
-                (function(data_type) {
-                    if (data_type === 'node') { 
-                            run_func = "test.ping";
-                    }
-                    else { //create/update/delete key/value/project 
-                        if (update_type === 'delete' && data_type === 'key') {
-                            //nothing necessary
-                        }
-                        else if (data_type === 'key' || data_type === 'value') {
-                            run_func = "pillar.items";
-                            run_arg += ":" + data_delta; 
-                        }
-                    }
+                if (data_type === 'node') { 
+                        run_func = "test.ping";
+                }
+                else { //create/update/delete key/value/project 
+                    //if (update_type === 'delete' && (data_type === 'key' || data_type === 'project')) {
+                        run_func = "pillar.items";
+                        //nothing necessary
+                    //}
+                    /*else if (data_type === 'key' || data_type === 'value') {
+                        run_func = "pillar.items";
+                        run_arg += ":" + data_delta; 
+                    }*/
+                }
 
-                    console.log("Sending " + run_arg);
-                    $('#validateVisual').modal('show');
-                    var cmds = {
-                        'fun': run_func,
-                        //'expr_form': 'list',
-                        'tgt': target,
-                        //'arg': run_arg,
-                        'username': 'salt',
-                        'password': 'salt',
-                        'eauth': 'pam',
-                        'client': 'local'
-                    }
+                console.log("Sending " + run_arg);
+                $('#validateVisual').modal('show');
+                var cmds = {
+                    'fun': run_func,
+                    //'expr_form': 'list',
+                    'tgt': target,
+                    //'arg': run_arg,
+                    'username': 'salt',
+                    'password': 'salt',
+                    'eauth': 'pam',
+                    'client': 'local'
+                }
 
-                    $.ajax({
-                        url: "http://saltStaging:8000/run",
-                        type: 'POST',
-                        data: cmds,
-                        headers: {'Accept': 'application/json'}
-                    })
-                    .fail(function(data) {
-                        console.log("Issue validating");
-                        swal("Error", "Failed to get data used to validate changes", 'error');
-                        $('#validateVisual').modal('hide');
-                    })
-                    .done(function(data) {
-                        console.log(data);
-                        // check if the data returned is correct
-                        var validate_fail = false;
-                        if (update_type === 'update') {
-                            for (var each in data.return[0]) {
-                                var this_project = data.return[0][each][zk][project];
-                                // check if project exists
-                                if (!this_project)
+                $.ajax({
+                    url: "http://saltStaging:8000/run",
+                    type: 'POST',
+                    data: cmds,
+                    args: _pass,
+                    headers: {'Accept': 'application/json'}
+                })
+                .fail(function(data) {
+                    console.log("Issue validating");
+                    swal("Error", "Failed to get data used to validate changes", 'error');
+                    $('#validateVisual').modal('hide');
+                })
+                .done(function(data) {
+                    console.log(data);
+                    // check if the data returned is correct
+                    var validate_fail = false;
+                    if (this.args.type === 'update') {
+                        for (var each in data.return[0]) {
+                            var this_project = data.return[0][each][this.args.zk][this.args.project];
+                            // check if project exists
+                            if (!this_project)
+                                validate_fail = true;
+                            // check if the value is correct and exists
+                            var key = this.args.key;
+                            if (this.args.value && this_project[key] !== this.args.value)
+                                validate_fail = true; 
+                        }
+                    }
+                    else if (this.args.type === 'delete') {
+                        // corner case if deleting one node and it is successful...
+                        // shouldn't be a problem with this structure
+
+                        for (var each in data.return[0]) {
+                            if (this.args.data === 'key') {
+                                var this_project = data.return[0][each][this.args.zk][this.args.project];
+                                if (this_project[this.args.key])
                                     validate_fail = true;
-                                // check if the value is correct and exists
-                                if (value && this_project.value !== value)
-                                    validate_fail = true; 
+                            }
+                            else if (this.args.data === 'project') {
+                                if (data.return[0][each][this.args.zk][this.args.project])
+                                    validate_fail = true;
+                            }
+                            else if (this.args.data === 'node') {
+                                if (!($.isEmptyObject(data.return[0])))
+                                    validate_fail = true;
                             }
                         }
-                        if (update_type === 'delete') {
-                            for (var each in data.return[0]) {
-                                if (data.return[0][each])
-                                    validate_fail = true;
-                            }
-                        }
-                        
+                    }
 
-                        $('#validateVisual').modal('hide');
-                        if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
-                    });
-                })(data_delta);
+                    else if (this.args.type === 'create') {
+                        if ($.isEmptyObject(data.return[0])) 
+                            validate_fail = true;
+                    }
+
+                    $('#validateVisual').modal('hide');
+                    if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
+                });
 
             };
                 
