@@ -13,6 +13,7 @@ class RestartLogic(object):
         self._restart_max = restart_max
         self.stay_down = False
         self.ran_stop = False
+        self.crashed = False
         self.count = 0
 
     @property

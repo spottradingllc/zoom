@@ -178,10 +178,14 @@ class Application(object):
         Start actual process
         :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
-        # Same check as self.notify() but needed when start action is
-        # called after process crashes and all predicates are met when on Auto
-        if not self._proc_client.restart_logic.ran_stop \
-                and self._apptype == ApplicationType.APPLICATION:
+        # Restart from UI: ran_stop=True, stay_down=False
+        # Stop from UI: ran_stop=True, stay_down=True
+        # Crash: ran_stop=False, stay_down=False
+        if (self._proc_client.restart_logic.ran_stop
+            and self._proc_client.restart_logic.stay_down
+            and self._apptype == ApplicationType.APPLICATION) \
+                or self._proc_client.restart_logic.crashed:
+
             self._log.info('Not starting. App was stopped with Zoom.')
             return 0
         else:
