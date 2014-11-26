@@ -16,6 +16,7 @@ from zoom.www.handlers.list_servers_handler import ListServersHandler
 from zoom.www.handlers.login_handler import LoginHandler
 from zoom.www.handlers.pagerduty_services_handler import PagerDutyServicesHandler
 from zoom.www.handlers.pillar_handler import PillarHandler
+from zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
 from zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from zoom.www.handlers.server_config_handler import ServerConfigHandler
 from zoom.www.handlers.service_info_handler import ServiceInfoHandler
@@ -67,6 +68,7 @@ class WebServer(tornado.web.Application):
             # timing
             (r"/api/timingestimate", TimeEstimateHandler),
             # pillar
+            (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
             # zookeeer data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
