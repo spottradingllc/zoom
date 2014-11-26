@@ -5,6 +5,7 @@ define(
         'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
         'viewmodels/serverConfig/searchUpdateViewModel',
+        'bindings/uppercase'
     ],
     function($, ko, router, AlertsViewModel, SearchUpdateViewModel) {
 
