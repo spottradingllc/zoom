@@ -52,7 +52,7 @@ class PillarHandler(tornado.web.RequestHandler):
         self.write(data_val)
 
     @TimeThis(__file__)
-    def actionLog(self, username, action, affected, data="", etc=""):
+    def actionLog(self, username, action, affected, data=""):
         """
         :type username: str
         :type action: str
@@ -66,8 +66,6 @@ class PillarHandler(tornado.web.RequestHandler):
         logString += " for server " + affected
         if data:
             logString += ". Entire pillar: " + data
-        if etc:
-            logString += " changed: " + etc
         logging.info(logString)
 
     @TimeThis(__file__)
@@ -75,8 +73,9 @@ class PillarHandler(tornado.web.RequestHandler):
         """
         :type data: str
 
-             JSON-only for creating a project with arb. data
-        POST {minion: name, project: name, key_n: value_n...} BROKEN
+        JSON-only for creating a project with arb. data
+        POST /
+            JSON: {minion: name, project: name, key_n: value_n...}
 
         POST /{minion} > Create new minion
         POST /{minion}/{project} > Create new project
@@ -120,7 +119,7 @@ class PillarHandler(tornado.web.RequestHandler):
 
         PUT /{minion}/{project}/{key}/{value} > update arbitrary key-value pair
 
-        Not yet implemented:
+        Not implemented, but can be done with POST and JSON:
             PUT /{minion}/{project} {data} > update project with data {data}
             PUT /{minion}/{project}/data_val/{[data_key]} > update/create data_val and key???
         """
