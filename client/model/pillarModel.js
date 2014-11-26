@@ -216,26 +216,18 @@ define( [
                 var _pass = new _valdata(update_type, data_type, data_delta, value, project, zk);
                 
                 if (data_type === 'node') { 
-                        run_func = "test.ping";
+                    run_func = "test.ping";
                 }
                 else { //create/update/delete key/value/project 
-                    //if (update_type === 'delete' && (data_type === 'key' || data_type === 'project')) {
-                        run_func = "pillar.items";
-                        //nothing necessary
-                    //}
-                    /*else if (data_type === 'key' || data_type === 'value') {
-                        run_func = "pillar.items";
-                        run_arg += ":" + data_delta; 
-                    }*/
+                    run_func = "pillar.items";
                 }
 
                 console.log("Sending " + run_arg);
                 $('#validateVisual').modal('show');
                 var cmds = {
                     'fun': run_func,
-                    //'expr_form': 'list',
+                    'expr_form': 'list',
                     'tgt': target,
-                    //'arg': run_arg,
                     'username': 'salt',
                     'password': 'salt',
                     'eauth': 'pam',
