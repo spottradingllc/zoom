@@ -20,6 +20,8 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         self.node = nodepath
         self.zkclient = zkclient
         self._children = list()
+        self._new_nodes = list()
+        self._old_nodes = list()
         self._log = logging.getLogger('sent.{0}.pred.hgc'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
@@ -65,21 +67,9 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         else:
             data, stat = self.zkclient.get(node)
             if stat.ephemeralOwner == 0:  # not ephemeral
-                self._children.append(
-                    ZookeeperHasChildren(self._comp_name,
-                                         self._settings,
-                                         self.zkclient,
-                                         node,
-                                         met_on_delete=True,
-                                         parent='zk.has.gc'))
+                self._new_nodes.append(node)
             else:
-                self._children.append(
-                    ZookeeperHasChildren(self._comp_name,
-                                         self._settings,
-                                         self.zkclient,
-                                         os.path.dirname(node),
-                                         met_on_delete=True,
-                                         parent='zk.has.gc'))
+                self._new_nodes.append(os.path.dirname(node))
 
     @connected
     def _rewalk_tree(self, event=None):
@@ -90,15 +80,32 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
         if self.zkclient.exists(self.node, watch=self._rewalk_tree):
-            del self._children[:]  # clear children list
+            # setting a watch on grandparent node for additional children
+            children = self.zkclient.get_children(self.node, watch=self._rewalk_tree)
+            del self._new_nodes[:]
             self._walk(self.node)
-            for child in self._children:
-                child.add_callback({"zk_hgc": self._callback})
+            self._append_unique_nodes()
+            self._old_nodes = list(self._new_nodes)
             map(lambda x: x.start(), self._children)
         else:
             self._children.append(self._create_dummy_predicate())
             self._log.warning('Node {0} does not exist. Will wait until it '
                               'does.'.format(self.node))
+
+    def _append_unique_nodes(self):
+        for child in self._children:
+            if child.node in set(self._old_nodes) - set(self._new_nodes):
+                self._children.remove(child)
+
+        for new_node in set(self._new_nodes) - set(self._old_nodes):
+            zk_child = ZookeeperHasChildren(self._comp_name,
+                                            self._settings,
+                                            self.zkclient,
+                                            new_node,
+                                            met_on_delete=True,
+                                            parent='zk.has.gc')
+            zk_child.add_callback({"zk_hgc": self._callback})
+            self._children.append(zk_child)
 
     def _create_dummy_predicate(self):
         # TODO: This is duplicate code (available in PredicateFactory)
