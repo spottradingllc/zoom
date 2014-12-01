@@ -35,6 +35,7 @@ define( [
             self.new_project = ko.observable("");
             self.edit_value = ko.observable("");
             self.selectedModify = ko.observable("Existing project");
+            self.saltValFail = ko.observable("");
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
@@ -76,6 +77,7 @@ define( [
 
             $(document).on('click', '#allDrop', function() {
                 self.selectedProject($(this).text());
+                $("#projDropTitle").html($(this).text());
                 // reset so it can be calculated for the new project
                 self.allKeys([]);
                 self.missingProject([]);
@@ -207,11 +209,14 @@ define( [
                 self.zk = zk;
             };
 
-            self.validate_salt = function (update_list, update_type, data_type, data_delta, value, project) {
+            self.validate_salt = function (update_list, update_type, data_type, data_delta, value, project, async) {
                 var target = update_list;
                 var run_func = "";
                 var run_arg = "zookeeper_pillar:" + project;
                 var zk = "zookeeper_pillar";
+                var async_bool = true;
+
+                if (async_bool) async_bool = async;
 
                 var _pass = new _valdata(update_type, data_type, data_delta, value, project, zk);
                 
@@ -237,6 +242,7 @@ define( [
                 $.ajax({
                     url: "http://saltStaging:8000/run",
                     type: 'POST',
+                    async: async_bool,
                     data: cmds,
                     args: _pass,
                     headers: {'Accept': 'application/json'}
@@ -249,17 +255,17 @@ define( [
                 .done(function(data) {
                     console.log(data);
                     // check if the data returned is correct
-                    var validate_fail = false;
+                    self.saltValFail(false);
                     if (this.args.type === 'update') {
                         for (var each in data.return[0]) {
                             var this_project = data.return[0][each][this.args.zk][this.args.project];
                             // check if project exists
                             if (!this_project)
-                                validate_fail = true;
+                                self.saltValFail(true);
                             // check if the value is correct and exists
                             var key = this.args.key;
                             if (this.args.value && this_project[key] !== this.args.value)
-                                validate_fail = true; 
+                                self.saltValFail(true); 
                         }
                     }
                     else if (this.args.type === 'delete') {
@@ -270,26 +276,26 @@ define( [
                             if (this.args.data === 'key') {
                                 var this_project = data.return[0][each][this.args.zk][this.args.project];
                                 if (this_project[this.args.key])
-                                    validate_fail = true;
+                                    self.saltValFail(true);
                             }
                             else if (this.args.data === 'project') {
                                 if (data.return[0][each][this.args.zk][this.args.project])
-                                    validate_fail = true;
+                                    self.saltValFail(true);
                             }
                             else if (this.args.data === 'node') {
                                 if (!($.isEmptyObject(data.return[0])))
-                                    validate_fail = true;
+                                    self.saltValFail(true);
                             }
                         }
                     }
 
                     else if (this.args.type === 'create') {
                         if ($.isEmptyObject(data.return[0])) 
-                            validate_fail = true;
+                            self.saltValFail(true);
                     }
 
                     $('#validateVisual').modal('hide');
-                    if (validate_fail) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
+                    if (self.saltValFail()) swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
                 });
 
             };
@@ -397,21 +403,26 @@ define( [
                     "username": self.login.elements.username()
                 };
 
-                $.ajax({
-                    url: uri,
-                    data: JSON.stringify(_postdata),
-                    type: "POST",
-                    dataType: 'json'
-                })
-                .fail(function(data) {
-                    console.log("failed to create new pillar for a new minion");
-                    swal("failed to create", JSON.stringify(data), 'error');
-                })
-                .done(function(data) {
-                    swal("Success!", "A new " + type + " has been added.", 'success');
-                    self.salt_minion_update(minion + self.domain, true, 'create', 'node', node, null, null);
-                    self.loadServers();
-                });
+                // check if the server actually exists before creating a node for it!
+                self.validate_salt(node, 'create', 'node', null, null, null, null, false);
+
+                if (self.saltValFail() !== true) {
+                    $.ajax({
+                        url: uri,
+                        data: JSON.stringify(_postdata),
+                        type: "POST",
+                        dataType: 'json'
+                    })
+                    .fail(function(data) {
+                        console.log("failed to create new pillar for a new minion");
+                        swal("failed to create", JSON.stringify(data), 'error');
+                    })
+                    .done(function(data) {
+                        swal("Success!", "A new " + type + " has been added.", 'success');
+                        self.salt_minion_update(node, true, 'create', 'node', node, null, null);
+                        self.loadServers();
+                    });
+                }
             };
 
             self.api_delete = function(level_to_delete) {
