@@ -84,7 +84,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             children = self.zkclient.get_children(self.node, watch=self._rewalk_tree)
             del self._new_nodes[:]
             self._walk(self.node)
-            self._append_unique_nodes()
+            self._update_children_list()
             self._old_nodes = list(self._new_nodes)
             map(lambda x: x.start(), self._children)
         else:
@@ -92,7 +92,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             self._log.warning('Node {0} does not exist. Will wait until it '
                               'does.'.format(self.node))
 
-    def _append_unique_nodes(self):
+    def _update_children_list(self):
         for child in self._children:
             if child.node in set(self._old_nodes) - set(self._new_nodes):
                 self._children.remove(child)
