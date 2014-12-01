@@ -251,9 +251,9 @@ class Application(object):
         """
         :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
-        if not self._action_is_ready('restart', allow_undefined=True):
-            self._log.info('Restart action not ready.')
-            return
+        # if not self._action_is_ready('restart', allow_undefined=True):
+        #     self._log.info('Restart action not ready.')
+        #     return
 
         self._log.info('Running Restart. Queuing stop, unregister, start.')
         self._action_queue.clear()
