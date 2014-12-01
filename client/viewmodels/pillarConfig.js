@@ -7,10 +7,9 @@ define(
         'd3',
         'model/loginModel',
         'model/pillarModel',
-        'model/GlobalMode',
         'bindings/radio'
     ],
-    function(app, ko, service, $, d3, login, pillarModel, GlobalMode) {
+    function(app, ko, service, $, d3, login, pillarModel) {
         self.login = login;
         self.pillarModel = new pillarModel(self.login);
         self.attached = function() {
