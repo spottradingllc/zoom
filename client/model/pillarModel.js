@@ -365,7 +365,7 @@ define( [
                     //console.log(server_name);
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
-                            self.getPillar(_assoc, false);
+                            self.pillarApiModel.getPillar(_assoc, false);
                             serverAlreadyExists = true;
                         }
                     });
