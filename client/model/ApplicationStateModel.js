@@ -41,14 +41,14 @@ define(
                 {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
                 {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
                 {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
-                {title: 'Delete', sortPropertyName: 'control', asc: ko.observable(true)}
+                {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
             ];
 
             self.showHeader = function(index) {
                 if (self.headers[index].title === 'Control' && !self.login.elements.authenticated()) {
                     return false;
                 }
-                return !(self.headers[index].title === 'Delete' && !self.admin.enabled());
+                return !(self.headers[index].title === 'Admin' && !self.admin.enabled());
 
             };
 
@@ -402,7 +402,7 @@ define(
                 }
                 else {
                     var row = ko.utils.arrayFirst(self.applicationStateArray(), function(currentRow) {
-                        return currentRow.configurationPath == update.configuration_path;
+                        return currentRow.configurationPath === update.configuration_path;
                     });
                     if (row) {
                         row.applicationStatus(update.application_status);
@@ -414,6 +414,8 @@ define(
                         row.mtime = Date.now();
                         row.loginUser(update.login_user);
                         row.lastCommand(update.last_command);
+                        row.pdDisabled(update.pd_disabled);
+                        row.grayed(update.grayed);
                     }
                     else {
                         // add new item to array

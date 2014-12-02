@@ -62,6 +62,19 @@ class ApplicationStateCache(object):
             self._cache.application_states)
         self._cache.remove_deletes()
 
+    def manual_update(self, path, key, value):
+        """
+        Manual override from client of specific value
+        :type path: str
+        :param key: str
+        """
+        state = self._cache._application_states.get(path, None)
+        if state is not None:
+            message = ApplicationStatesMessage()
+            state[key] = value
+            message.update({path: state})
+            self._message_throttle.add_message(message)
+
     @connected_with_return(None)
     def _walk(self, path, result):
         """
@@ -143,7 +156,9 @@ class ApplicationStateCache(object):
                 local_mode=data.get('mode', 'unknown'),
                 login_user=data.get('login_user', 'Zoom'),
                 fqdn=data.get('fqdn', host),
-                last_command=self._get_last_command(data)
+                last_command=self._get_last_command(data),
+                pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
+                grayed=self._get_existing_attribute(path, 'grayed')
             )
 
         # ephemeral node
@@ -172,7 +187,9 @@ class ApplicationStateCache(object):
                 local_mode=parent_data.get('mode', 'unknown'),
                 login_user=parent_data.get('login_user', 'Zoom'),
                 fqdn=parent_data.get('fqdn', host),
-                last_command=self._get_last_command(parent_data)
+                last_command=self._get_last_command(parent_data),
+                pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
+                grayed=self._get_existing_attribute(path, 'grayed')
             )
         return application_state
 
@@ -219,3 +236,12 @@ class ApplicationStateCache(object):
             pass
 
         return self._last_command
+
+    def _get_existing_attribute(self, path, attr, default=False):
+        existing_obj = self._cache._application_states.get(path, None)
+        if existing_obj is None:
+            existing = default
+        else:
+            existing = existing_obj.get(attr, default)
+
+        return existing
