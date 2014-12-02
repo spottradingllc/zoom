@@ -40,29 +40,31 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
             self.pushConfig = function() {
                 // post JSON dictionary to server, catch callback message
                 // update existing config
-                var params = {
-                    'XML': self.serverConfig(),
-                    'serverName': ServerConfigViewModel.serverName()
-                };
+                if (confirm('Please confirm that you want to push the configuration for ' + ServerConfigViewModel.serverName() + ' by pressing OK.')) {
+                    var params = {
+                        'XML': self.serverConfig(),
+                        'serverName': ServerConfigViewModel.serverName()
+                    };
 
-                $.ajax(
-                    {
-                        url: '/api/config/' + ServerConfigViewModel.serverName(),
-                        type: 'PUT',
-                        data: JSON.stringify(params),
-                        success: function(returnData) {
-                            if (returnData === 'Node successfully updated.') {
-                                AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully updated!');
+                    $.ajax(
+                        {
+                            url: '/api/config/' + ServerConfigViewModel.serverName(),
+                            type: 'PUT',
+                            data: JSON.stringify(params),
+                            success: function (returnData) {
+                                if (returnData === 'Node successfully updated.') {
+                                    AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully updated!');
+                                }
+                                else {
+                                    AlertsViewModel.displayError(returnData);
+                                }
+                            },
+                            error: function (jqxhr) {
+                                return alert(jqxhr.responseText);
                             }
-                            else {
-                                AlertsViewModel.displayError(returnData);
-                            }
-                        },
-                        error: function(jqxhr) {
-                            return alert(jqxhr.responseText);
                         }
-                    }
-                );
+                    );
+                }
             };
 
             self.validateXML = function() {

@@ -13,6 +13,11 @@ define(['knockout', './Action', 'model/constants'],
             self.pagerdutyService = ko.observable(null);
             self.actions = ko.observableArray();
 
+            self.getpd = function() {
+                console.log("Does it get here")
+                return self.pagerdutyService
+            };
+
             self.addAction = function() {
                 self.expanded(true);
                 self.actions.push(new Action(self));

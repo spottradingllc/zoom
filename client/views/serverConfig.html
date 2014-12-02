@@ -112,7 +112,7 @@
                             <input type="text" class="form-control" placeholder="pagerduty api key" data-toggle="dropdown"
                                    data-bind="value: pagerdutyService, text: pagerdutyService"
                                    data-toggle="tooltip" data-placement="top"
-                                   title="pagerduty_service - The PagerDuty service key to send the alerts to.">
+                                   title data-bind= "function(){getpd()}">
                                 <ul class="dropdown-menu" role="menu" data-bind="foreach: Object.keys(TreeViewModel.pagerDutyServices).sort()">
                                     <li><a data-bind="text: $data, click: function(){$parent.pagerdutyService($parent.TreeViewModel.pagerDutyServices[$data])}"></a></li>
                                 </ul>
