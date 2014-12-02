@@ -1,4 +1,4 @@
-<sectionlabel>
+<section>
     <div id="loadVisual" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -32,7 +32,7 @@
                     <span data-bind="text: $data"></span>
                 </button>
             </div>
-            <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
+            <button class="btn btn-default" data-bind="visible: dummy(), click: function() { toggleSearch()}">
                 Toggle list 
             </button>
         </div>
@@ -78,7 +78,7 @@
                             <td data-bind="text: name"></td>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-danger" data-bind="click: function() { delPillar() }">Delete</button>
+                    <button type="button" class="btn btn-danger" data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
                 </div>
 
                 <div data-bind="visible: checked_servers().length == 0 && selectedOption() != 'Create Pillar'">
@@ -94,7 +94,7 @@
                         <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
                     </div>
                     <span> .spottrading.com </span>
-                    <button class="btn btn-default" data-bind="click:  function() { api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
+                    <button class="btn btn-default" data-bind="click:  function() { pillarApiModel.api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
                 </div>
 
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
@@ -145,7 +145,8 @@
                         <tr> 
                             <td data-bind="text: name"></td>
                             <!-- ko foreach: $parent.allKeys() -->
-                            <td data-bind="text: $parents[1].get_values($parent, $data)"></td>
+                            <td data-bind="visible: !$parents[1].dummy(), text: $parents[1].getValues($parent, $data), click: function () {$parents[1].changeDummy() }"></td>
+                            <td data-bind="visible: $parents[1].dummy()"><input data-bind="value: $parents[1].getValues($parent, $data), updateEdit: $parents[1].dummy"></input></td>
                             <!-- /ko -->
                             <!-- Direct access, but can't handle errors if data not there -->
                             <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
