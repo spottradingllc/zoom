@@ -261,6 +261,13 @@ class Application(object):
         self._action_queue.append_unique(Task('unregister'))
         self._action_queue.append_unique(Task('start', kwargs=kwargs))
 
+    def deploy_restart(self, **kwargs):
+        """
+        This will do the dependency restart upon deployment.
+        This will get called once the deployment node ceases to exist.
+        """
+        self.dep_restart() 
+
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()
         self._action_queue.append(Task('start_if_ready', pipe=False))
