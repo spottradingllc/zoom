@@ -242,7 +242,7 @@ define(
                                     type: 'PUT',
                                     data: JSON.stringify(params),
                                     error: function(data) {
-                                        swal('Failed putting Config ' + JSON.stringify(data));
+                                        swal('Failed putting Config', JSON.stringify(data), 'error');
                                     }
                                 });
                         }
@@ -260,16 +260,36 @@ define(
                 });
             };
 
+
             self.deleteRow = function() {
                 // delete an application row on the web page
                 // parses the config and deletes the component with a matching id
                 // deletes the path in zookeeper matching the configurationPath
                 if (self.dependencyModel.requiredBy().length > 0) {
-                    var message = 'Someone depends on this! ';
+                    var message = 'Are you sure?\n';
                     ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
-                        message = message + '\n' + applicationState.configurationPath;
+                        message = message + applicationState.configurationPath + '\n';
                     });
-                    swal(message);
+                    swal({
+                        title: 'Someone depends on this!',
+                        text: message,
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'It\'s a trap, abort!',
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            deleteFromConfig();
+                            // give the agent time to clean up the old config
+                            setTimeout(function() { deleteFromZK(); }, 2000);
+                            swal('Deleting', 'Give us a few seconds to clean up.');
+                        }
+                        else {
+                            swal('Cancelled', 'Nothing was deleted.');
+                        }
+                    });
                 }
                 else if (self.applicationHost() === '') {
                     swal({
