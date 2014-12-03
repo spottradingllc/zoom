@@ -32,6 +32,11 @@ define(
                     key = pillarModel.selectedKey();
                     val = pillarModel.edit_value();
                 }
+                else if (data_type === 'wholeTable') {
+                    update_phrase = "Updated pillar: " + _assoc.pillar;
+                    key = "";
+                    val = "";
+                }
 
                 var _projdata = {
                     "minion": _assoc.name,

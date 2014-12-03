@@ -19,7 +19,7 @@ define([
                 self.zk = zk;
             };
 
-            self.validate = function(update_list, update_type, data_type, data_delta, value, project) {
+            self.validate = function(update_list, pillar_lookup, update_type, data_type, data_delta, value, project) {
                 var target = update_list;
                 var run_func = "";
                 var run_arg = "zookeeper_pillar:" + project;
@@ -70,7 +70,11 @@ define([
                                     if (!thisProject) {
                                         validationFailure = true;
                                     }
-                                    // check if the value is correct and exists
+                                    // check if the pillar is correct and exists
+                                    var cur_pillar = pillar_lookup[i]
+                                    if (dataset[i][this.args.zk] != cur_pillar) {
+                                        validationFailure = true;
+                                    }
                                     var key = this.args.key;
                                     if (this.args.value && thisProject[key] !== this.args.value) {
                                         validationFailure = true;
@@ -119,14 +123,16 @@ define([
 
             self.updateMinion = function(ko_array_to_update, single_update, update_type, data_type, data_delta, value, project) {
                 var all = "";
-                // create comma-delimited 'list' to send
                 var first = true;
+
+                var pillar_lookup = {};
 
                 if (single_update) {
                     all = ko_array_to_update;
                 }
                 else {
                     ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {
+                        // create a salt-readable list for sending through the API
                         if (!first) {
                             all += "," + _assoc.name;
                         }
@@ -134,6 +140,9 @@ define([
                             all += _assoc.name;
                             first = false;
                         }
+                        // we need a way of determining if the pillar is updated and has the correct
+                        // data in salt!
+                        pillar_lookup[_assoc.name] = _assoc.pillar;
                     });
                 }
 
@@ -160,7 +169,7 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        self.validate(all, update_type, data_type, data_delta, value, project);
+                        self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
                     });
 
             };

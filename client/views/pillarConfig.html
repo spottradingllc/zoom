@@ -32,7 +32,7 @@
                     <span data-bind="text: $data"></span>
                 </button>
             </div>
-            <button class="btn btn-default" data-bind="visible: dummy(), click: function() { toggleSearch()}">
+            <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
                 Toggle list 
             </button>
         </div>
@@ -130,7 +130,7 @@
                         </div>
                     </div>
 
-                    <table style="margin-bottom: 20px; margin-top: 20px;">
+                    <table id="mainTable" style="margin-bottom: 20px; margin-top: 20px;">
                         <caption data-bind="visible: selectedProject(), text: 'All data for ' + selectedProject() + ':'"></caption>
                         <thead>
                         <tr>
@@ -145,8 +145,8 @@
                         <tr> 
                             <td data-bind="text: name"></td>
                             <!-- ko foreach: $parent.allKeys() -->
-                            <td data-bind="visible: !$parents[1].dummy(), text: $parents[1].getValues($parent, $data), click: function () {$parents[1].changeDummy() }"></td>
-                            <td data-bind="visible: $parents[1].dummy()"><input data-bind="value: $parents[1].getValues($parent, $data), updateEdit: $parents[1].dummy"></input></td>
+                            <td data-bind="visible: !$parent.editable(), text: $parents[1].getValues($parent, $data), click: function () {$parents[1].makeEditable($parent) }"></td>
+                            <td data-bind="visible: $parent.editable()"><input data-bind="value: $parents[1].getValues($parent, $data), updateEdit: $parent.editable"></input></td>
                             <!-- /ko -->
                             <!-- Direct access, but can't handle errors if data not there -->
                             <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
@@ -157,8 +157,7 @@
 
                     <div class="container" data-bind="visible: selectedModify() == 'Existing project'">
                         
-
-
+                        <button data-bind="click: function() {updateProjectWrapper('update', 'wholeTable')}"> Send updated table data </button>
 
                         <div class="dropdown" data-bind="visible: allKeys().length > 0 && allProjects().length > 0 && selectedProject()">
                             <div class="row">
