@@ -37,11 +37,10 @@ class PredicateTime(SimplePredicate):
         self._thread.daemon = True
         self._started = False
 
-    @property
     def weekday(self):
         """
         :rtype: int
-            0=Sunday, 1=Monday, etc.
+            0=Monday, 1=Tuesday, etc.
         """
         return datetime.date.today().weekday()
 
@@ -80,7 +79,7 @@ class PredicateTime(SimplePredicate):
             results.append(compare_to_stop < self.stop_time)
 
         if self.day_range is not None:
-            results.append(self.weekday in self.day_range)
+            results.append(self.weekday() in self.day_range)
 
         if not results:
             results.append(False)
