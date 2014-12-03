@@ -183,10 +183,16 @@ define( [
             };
 
             var tableEditing = false;
+
+            self.showEditTable = ko.observable(false);
+
+            self.showEdit = function() {
+                self.showEditTable(true);
+            };
                         
             ko.bindingHandlers.updateEdit = {
                 init: function(element, valueAccessor, allBindings) {
-                    $(element).focus(function() {
+                    $(element).focusin(function() {
                         var value = valueAccessor();
                         value(true);
                     });
@@ -194,24 +200,48 @@ define( [
                         var value = valueAccessor();
                         value(false);
                     });
+                    $(element).focusout(function() {
+                        var value = valueAccessor();
+                        value(false);
+                    });
                 },
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                    if (valueAccessor())
+                        $(element).focus()
+
+                     $(element).focusin(function() {
+                        var value = valueAccessor();
+                        value(true);
+                    });
                     var editing = ko.unwrap(valueAccessor());
                     if (editing) tableEditing = true;
+
+
+                    var index = self.checked_servers.indexOf(bindingContext.$parent);
+
+                    // only update if the project exists!
+                    if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
+                        self.checked_servers()[index].pillar[self.selectedProject()][bindingContext.$data] = element.value;
+                    }
 
                     if (!editing && tableEditing) {
                         // tell all others that we're done editing
                         doneEditing(bindingContext.$parent);
                         tableEditing = false;
                     }
+                }
+            };
 
-                    var index = self.checked_servers.indexOf(bindingContext.$parent);
-                    // only update if the project exists!
-                    if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
-                        self.checked_servers()[index].pillar[self.selectedProject()][bindingContext.$data] = element.value;
+            ko.bindingHandlers.updateLatest = {
+                update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                    // have to call in order for this to update
+                    var edit = ko.unwrap(valueAccessor());
+                    // check what getvalues returns first
+                    element.text = self.getValues(bindingContext.$parent, bindingContext.$data);
+                    if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
+                        $(element).text(bindingContext.$parent.pillar[self.selectedProject()][bindingContext.$data]);
+                        console.log(bindingContext.$data + " Val set to: " +  element.text);
                     }
-
-                    console.log("updated pillar: " + self.checked_servers()[index].pillar);
                 }
             };
 

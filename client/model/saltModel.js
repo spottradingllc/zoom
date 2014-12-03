@@ -62,6 +62,9 @@ define([
                         var dataset = data.return[0];
                         var thisProject;
 
+                        // check if we get an empty object - failure!!
+                        if ($.isEmptyObject(dataset)) validationFailure = true;
+
                         if (this.args.type === 'update') {
                             for (var i in dataset) {
                                 if (dataset.hasOwnProperty(i)) {
