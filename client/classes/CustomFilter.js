@@ -6,12 +6,11 @@ define(['jquery', 'knockout'], function($, ko) {
             applicationStatus: 'applicationStatus',
             configurationPath: 'configurationPath',
             applicationHost: 'applicationHost',
-            triggerTime: 'triggerTime',
-            completionTime: 'completionTime',
             errorState: 'errorState',
             dependency: 'dependency',
             requires: 'requires',
-            requiredBy: 'requiredBy'
+            requiredBy: 'requiredBy',
+            weekend: 'weekend'
         };
 
         self.searchTerms = {
@@ -99,11 +98,8 @@ define(['jquery', 'knockout'], function($, ko) {
                         self.searchTerm(self.searchTerm().toUpperCase());
                         self.applyLogicalFilter(appState.applicationHost().toUpperCase(), appState);
                     }
-                    else if (self.parameter() === self.parameters.triggerTime) {
-                        self.applyLogicalFilter(appState.triggerTime().toLowerCase(), appState);
-                    }
-                    else if (self.parameter() === self.parameters.completionTime) {
-                        self.applyLogicalFilter(appState.completionTime().toLowerCase(), appState);
+                    else if (self.parameter() === self.parameters.weekend) {
+                        self.applyWeekendFilter(appState);
                     }
                     else if (self.parameter() === self.parameters.errorState) {
                         // these are separate variables (do not map to errorState) but they are visible in the 'Status' column
@@ -129,6 +125,26 @@ define(['jquery', 'knockout'], function($, ko) {
             else if (appParameter.indexOf(self.searchTerm()) === -1 && self.inversed()) {
                 self.pushMatchedItem(appState);
             }
+        };
+
+        self.applyWeekendFilter = function(appState) {
+            var push = false;
+            if (appState.dependencyModel.weekend().length > 0) {
+                // if the item doesn't have 'NOT' in it, and it's not inversed, match it
+                if (appState.dependencyModel.weekend()[0].indexOf('NOT') === -1 && !self.inversed()) {
+                    push = true;
+                }
+                // if the item does have 'NOT' in it, and IS inversed, match it
+                else if (appState.dependencyModel.weekend()[0].indexOf('NOT') > -1 && self.inversed()) {
+                    push = true;
+                }
+            }
+            else if (!self.inversed()) {  // if not specified, it can run on weekend
+                push = true;
+            }
+
+            if (push) { self.pushMatchedItem(appState); }
+
         };
 
         self.applyBoolFilter = function (param, appState) {

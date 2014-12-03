@@ -325,19 +325,10 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
-                                <button data-bind="click: function(){setParameter('triggerTime')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'triggerTime') ? ' active' : ''))}"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Filter by trigger time.">
-                                    Trigger Time
-                                </button>
-                                <button data-bind="click: function(){setParameter('completionTime')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'completionTime') ? ' active' : ''))}"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Filter by completion time.">
-                                    Completion Time
+                                <button data-bind="click: function(){setParameter('weekend')},
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'weekend') ? ' active' : ''))}"
+                                        data-toggle="tooltip" data-placement="top" title="Filter by trigger time.">
+                                    Weekend
                                 </button>
                                 <button data-bind="click: function(){setParameter('errorState')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
