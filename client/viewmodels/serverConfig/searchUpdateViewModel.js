@@ -1,5 +1,5 @@
-define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautify'],
-    function($, ko, AlertsViewModel, TreeViewModel) {
+define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/constants', 'vkbeautify'],
+    function($, ko, AlertsViewModel, TreeViewModel, constants) {
 
         /******* SEARCH AND UPDATE VIEW MODEL *******/
         return function SearchUpdateViewModel(ServerConfigViewModel) {
@@ -40,29 +40,43 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
             self.pushConfig = function() {
                 // post JSON dictionary to server, catch callback message
                 // update existing config
-                var params = {
-                    'XML': self.serverConfig(),
-                    'serverName': ServerConfigViewModel.serverName()
-                };
-
-                $.ajax(
-                    {
-                        url: '/api/config/' + ServerConfigViewModel.serverName(),
-                        type: 'PUT',
-                        data: JSON.stringify(params),
-                        success: function(returnData) {
-                            if (returnData === 'Node successfully updated.') {
-                                AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully updated!');
+                swal({
+                    title: 'Config Change!',
+                    text: 'Are you sure you want to push the configuration for ' + ServerConfigViewModel.serverName() + '?',
+                    type: 'warning',
+                    confirmButtonText: 'Push it real good!',
+                    confirmButtonColor: constants.colors.confirmgreen,
+                    cancelButtonText: 'Cancel',
+                    showCancelButton: true,
+                    closeOnConfirm: true,
+                    closeOnCancel: true,
+                    allowOutsideClick: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        var params = {
+                            'XML': self.serverConfig(),
+                            'serverName': ServerConfigViewModel.serverName()
+                        };
+                        $.ajax(
+                            {
+                                url: '/api/config/' + ServerConfigViewModel.serverName(),
+                                type: 'PUT',
+                                data: JSON.stringify(params),
+                                success: function (returnData) {
+                                    if (returnData === 'Node successfully updated.') {
+                                        AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully updated!');
+                                    }
+                                    else {
+                                        AlertsViewModel.displayError(returnData);
+                                    }
+                                },
+                                error: function (jqxhr) {
+                                    return alert(jqxhr.responseText);
+                                }
                             }
-                            else {
-                                AlertsViewModel.displayError(returnData);
-                            }
-                        },
-                        error: function(jqxhr) {
-                            return alert(jqxhr.responseText);
-                        }
+                        );
                     }
-                );
+                })
             };
 
             self.validateXML = function() {
@@ -80,22 +94,35 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
             };
 
             self.deleteConfig = function() {
-                if (confirm('Please confirm that you want to delete the configuration for ' + ServerConfigViewModel.serverName() + ' by pressing OK.')) {
-                    // attempt to delete the server configuration, catch callback message
-                    $.ajax({
-                        url: '/api/config/' + ServerConfigViewModel.serverName(),
-                        type: 'DELETE',
-                        success: function(data) {
-                            if (data === 'Node successfully deleted.') {
-                                AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully deleted!');
-                                ServerConfigViewModel.getAllServerNames();
+                swal({
+                    title: 'Config Delete!',
+                    text: 'Are you sure you want to delete the configuration for ' + ServerConfigViewModel.serverName() + '?',
+                    type: 'warning',
+                    confirmButtonText: 'Delete it!',
+                    confirmButtonColor: constants.colors.errorRed,
+                    cancelButtonText: 'Cancel',
+                    showCancelButton: true,
+                    closeOnConfirm: true,
+                    closeOnCancel: true,
+                    allowOutsideClick: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        // attempt to delete the server configuration, catch callback message
+                        $.ajax({
+                            url: '/api/config/' + ServerConfigViewModel.serverName(),
+                            type: 'DELETE',
+                            success: function (data) {
+                                if (data === 'Node successfully deleted.') {
+                                    AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully deleted!');
+                                    ServerConfigViewModel.getAllServerNames();
+                                }
+                                else {
+                                    AlertsViewModel.displayError(data);
+                                }
                             }
-                            else {
-                                AlertsViewModel.displayError(data);
-                            }
-                        }
-                    });
-                }
+                        });
+                    }
+                })
             };
 
             self.editedConfig = function() {
