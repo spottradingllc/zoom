@@ -44,7 +44,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
                     title: 'Config Change!',
                     text: 'Are you sure you want to push the configuration for ' + ServerConfigViewModel.serverName() + '?',
                     type: 'warning',
-                    confirmButtonText: 'Push it good!',
+                    confirmButtonText: 'Push it real good!',
                     confirmButtonColor: "#336600",
                     cancelButtonText: 'Cancel',
                     showCancelButton: true,
