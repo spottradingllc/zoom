@@ -2,6 +2,7 @@ define([], function () {
     return {
         colors: {
             actionBlue: '#057D9F',
+            confirmgreen: '#CC574F',
             errorRed: '#CC574F',
             successTrans: '',
             unknownGray: '#F7EEDA',
