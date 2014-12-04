@@ -88,8 +88,17 @@ class ProcessClient(object):
         """
         self.last_status = self.status_method()
 
-        self._log.debug('Process {0} running: {1}'
-                        .format(self.name, self.last_status))
+        if not self.restart_logic.ran_stop \
+                and not self.restart_logic.stay_down \
+                and not self.last_status:
+            self.restart_logic.crashed = True
+            self._log.info('Crash detected.')
+        else:
+            self.restart_logic.crashed = False
+
+        self._log.debug('Process {0} running: {1}, crashed={2}'
+                        .format(self.name, self.last_status,
+                                self.restart_logic.crashed))
         return self.last_status
 
     def start(self):

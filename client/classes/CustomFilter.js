@@ -21,7 +21,9 @@ define(['jquery', 'knockout'], function($, ko) {
             ok: 'ok',
             starting: 'starting',
             stopping: 'stopping',
-            error: 'error'
+            error: 'error',
+            pdDisabled: 'pdDisabled',
+            grayed: 'grayed'
         };
 
         // member variables and getters/setters
@@ -104,7 +106,14 @@ define(['jquery', 'knockout'], function($, ko) {
                         self.applyLogicalFilter(appState.completionTime().toLowerCase(), appState);
                     }
                     else if (self.parameter() === self.parameters.errorState) {
-                        self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);
+                        // these are separate variables (do not map to errorState) but they are visible in the 'Status' column
+                        if (self.searchTerm() === self.searchTerms.pdDisabled || self.searchTerm() === self.searchTerms.grayed) {
+                            self.applyBoolFilter(self.searchTerm(), appState);
+                        }
+                        else {
+                            self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);
+                        }
+
                     }
                     else { // perform dependency filtering
                         self.applyDependencyFilter(appState);
@@ -118,6 +127,16 @@ define(['jquery', 'knockout'], function($, ko) {
                 self.pushMatchedItem(appState);
             }
             else if (appParameter.indexOf(self.searchTerm()) === -1 && self.inversed()) {
+                self.pushMatchedItem(appState);
+            }
+        };
+
+        self.applyBoolFilter = function (param, appState) {
+            // assuming these are ko.observables that are booleans
+            if (appState[param]() && !self.inversed()) {
+                self.pushMatchedItem(appState);
+            }
+            else if (!appState[param]() && self.inversed()) {
                 self.pushMatchedItem(appState);
             }
         };
