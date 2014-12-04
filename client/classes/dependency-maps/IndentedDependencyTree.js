@@ -262,7 +262,8 @@ define([], function() {
 
         // assign colors to nodes based on their status and the status of their children
         self.color = function(d) {
-            if (d.status === 'running' && self.allChildrenUp(d)) {
+            if (d.grayed) { return parent.colors.gray ;}
+            else if (d.status === 'running' && self.allChildrenUp(d)) {
                 return parent.colors.green;
             }
             else if (d.status === 'running' && !self.allChildrenUp(d)) {

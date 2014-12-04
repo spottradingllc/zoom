@@ -15,6 +15,13 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
         """
         return self.application.data_store
 
+    @property
+    def application_state_cache(self):
+        """
+        :rtype: zoom.www.cache.application_state_cache.ApplicationStateCache
+        """
+        return self.application.data_store.application_state_cache
+
     @TimeThis(__file__)
     def get(self, path):
         try:
@@ -33,3 +40,21 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
+
+    @TimeThis(__file__)
+    def post(self, path):
+        try:
+            logging.info('Over-riding Application State Cache values client {0}'
+                         .format(self.request.remote_ip))
+
+            request = json.loads(self.request.body)
+            key = request.get('key', None)
+            value = request.get('value', None)
+            if path is not None:
+                self.application_state_cache.manual_update(path, key, value)
+                self.set_status(httplib.OK)
+
+        except Exception as e:
+            self.set_status(httplib.INTERNAL_SERVER_ERROR)
+            self.write(json.dumps({'errorText': str(e)}))
+            logging.exception(e)

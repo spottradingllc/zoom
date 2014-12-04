@@ -15,6 +15,7 @@ from zoom.www.handlers.global_mode_handler import GlobalModeHandler
 from zoom.www.handlers.list_servers_handler import ListServersHandler
 from zoom.www.handlers.login_handler import LoginHandler
 from zoom.www.handlers.pagerduty_services_handler import PagerDutyServicesHandler
+from zoom.www.handlers.pagerduty_exceptions import PagerExceptionsHandler
 from zoom.www.handlers.pillar_handler import PillarHandler
 from zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
 from zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
@@ -64,6 +65,7 @@ class WebServer(tornado.web.Application):
             # service info
             (r"/api/serviceinfo/", ServiceInfoHandler),
             # pagerduty
+            (r"/api/pagerduty/exceptions/(?P<comp_id>.*)", PagerExceptionsHandler),
             (r"/api/pagerduty/services/", PagerDutyServicesHandler),
             # timing
             (r"/api/timingestimate", TimeEstimateHandler),

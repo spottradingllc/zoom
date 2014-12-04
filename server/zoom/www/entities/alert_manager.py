@@ -8,15 +8,17 @@ from zoom.common.types import AlertActionType
 
 
 class AlertManager(object):
-    def __init__(self, alert_path, zk, pd):
+    def __init__(self, alert_path, zk, pd, exceptions):
         """
         :type alert_path: str
         :type zk: zoom.www.zoo_keeper.ZooKeeper
-        :type pd: from zoom.entities.pagerduty.PagerDuty
+        :type pd: zoom.entities.pagerduty.PagerDuty
+        :type exceptions: list
         """
         self._path = alert_path
         self._zk = zk
         self._pd = pd
+        self._exceptions = exceptions
 
     def start(self):
         logging.info('Starting to watch for alerts at path: {0}'
@@ -41,14 +43,20 @@ class AlertManager(object):
                 alert_data = json.loads(data)
 
                 action = alert_data.get('action')
+                i_key = alert_data.get('incident_key')
+
                 if action == AlertActionType.TRIGGER:
-                    self._pd.trigger(alert_data.get('service_key'),
-                                     alert_data.get('incident_key'),
-                                     alert_data.get('description'),
-                                     alert_data.get('details'))
+                    if not self._has_exception(i_key):
+                        self._pd.trigger(alert_data.get('service_key'),
+                                         i_key,
+                                         alert_data.get('description'),
+                                         alert_data.get('details'))
+                    else:
+                        logging.info('Ignoring alert for {0}'.format(i_key))
+
                 elif action == AlertActionType.RESOLVE:
-                    self._pd.resolve(alert_data.get('api_key'),
-                                     alert_data.get('incident_key'))
+                    self._pd.resolve(alert_data.get('api_key'), i_key)
+
                 else:
                     logging.warning('Unknown action type: {0}'.format(action))
                     continue
@@ -64,3 +72,13 @@ class AlertManager(object):
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue
+
+    def _has_exception(self, key):
+        """
+        :type key: str
+        :rtype: bool
+        """
+        try:
+            return '/'.join(key.split('/')[1:-1]) in self._exceptions
+        except IndexError:
+            return False

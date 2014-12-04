@@ -15,7 +15,9 @@ class TestApplicationState(TestCase):
                                       local_mode="9",
                                       login_user="10",
                                       fqdn="11",
-                                      last_command="12")
+                                      last_command="12",
+                                      pd_disabled=False,
+                                      grayed=True)
 
     def test_to_dictionary(self):
         self.assertEquals(
@@ -31,7 +33,9 @@ class TestApplicationState(TestCase):
                 'local_mode': "9",
                 'login_user': "10",
                 'fqdn': "11",
-                'last_command': "12"
+                'last_command': "12",
+                'pd_disabled': False,
+                'grayed': True
             },
             self.state.to_dictionary()
         )

@@ -9,7 +9,7 @@ define([
 
         var self = this;
         self.parent = parent;
-        self.colors = {green: '#64FF74', yellow: '#FFE033', red: '#E85923', purple: '#AC0CE8'};
+        self.colors = {green: '#64FF74', yellow: '#FFE033', red: '#E85923', purple: '#AC0CE8', gray: '#71707F'};
 
         self.applicationStateArray = ko.computed(function() {
             return self.parent.filteredItems().slice();
@@ -21,6 +21,7 @@ define([
                 return {
                     name: name,
                     status: appState.applicationStatus(),
+                    grayed: appState.grayed(),
                     size: appState.dependencyModel.requiredBy().length + 1,
                     timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
                 };
@@ -31,6 +32,7 @@ define([
                     children: ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
                         return self.createDependentsDict(dependent);
                     }),
+                    grayed: appState.grayed(),
                     status: appState.applicationStatus(),
                     size: appState.dependencyModel.requiredBy().length + 1,
                     timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
@@ -46,6 +48,7 @@ define([
                 return {
                     name: name,
                     status: appState.applicationStatus(),
+                    grayed: false,
                     size: 1,
                     errorState: appState.errorState(),
                     timeComponent: false
@@ -58,6 +61,7 @@ define([
                         return self.createRequirementsDict(requirement);
                     }),
                     status: appState.applicationStatus(),
+                    grayed: appState.grayed(),
                     size: appState.dependencyModel.requires().length + 1,
                     errorState: appState.errorState(),
                     timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
@@ -103,7 +107,8 @@ define([
 
             // sort app states based on number of requirements
             var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
-                if (left.dependencyModel.requiredBy().length === right.dependencyModel.requiredBy().length) {
+                if (left.grayed()) { return 1; } // if app is disabled, push to bottom
+                else if (left.dependencyModel.requiredBy().length === right.dependencyModel.requiredBy().length) {
                     return 0;
                 }
                 else if (left.dependencyModel.requiredBy().length < right.dependencyModel.requiredBy().length) {
@@ -136,7 +141,8 @@ define([
 
             // sort app states based on status, then whether or not their requirements are up, then alphabetically
             var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
-                if (left.applicationStatus() === right.applicationStatus()) {
+                if (left.grayed()) { return 1; } // if app is disabled, push to bottom
+                else if (left.applicationStatus() === right.applicationStatus()) {
                     if (left.dependencyModel.requirementsAreUp() === right.dependencyModel.requirementsAreUp()) {
                         if (left.configurationPath < right.configurationPath) {
                             return -1;
