@@ -49,7 +49,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
 
         self.mox.ReplayAll()
 
-        #actually call twice
+        # actually call twice
         cache.load()
         cache.load()
 
@@ -59,11 +59,22 @@ class ApplicationStateCacheTest(unittest.TestCase):
 
         self.mox.VerifyAll()
 
-    def test_reload(self):
-        pass
-
     def test_manual_update(self):
-        pass
+        """
+        Test that the manual update actually updates the state in the cache
+        """
+        path = '/foo'
+        foo = 'foo'
+        bar = 'bar'
+
+        state = ApplicationState(application_host=foo, configuration_path=path)
+        cache = self._create_app_state_cache()
+        cache._cache.update({path: state.to_dictionary()})
+
+        # test that the state's attribute actually changes
+        cache.manual_update(path, 'application_host', bar)
+        result = cache._get_existing_attribute(path, 'application_host')
+        self.assertEqual(bar, result)
 
     def test_walk_no_children(self):
         cache = self._create_app_state_cache()
@@ -119,9 +130,6 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.assertEquals(result, compare)
 
         self.mox.VerifyAll()
-
-    def test_get_app_details(self):
-        pass
 
     def test_get_application_state_eph0(self):
 
