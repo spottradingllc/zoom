@@ -27,7 +27,7 @@ class PredicateTime(SimplePredicate):
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)
         self.start_time = self._get_datetime_object(start)
         self.stop_time = self._get_datetime_object(stop)
-        self.day_range = self._parse_range(weekdays)
+        self.day_range = self.parse_range(weekdays)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.pred.time'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
@@ -166,7 +166,8 @@ class PredicateTime(SimplePredicate):
         finally:
             return dt_object
 
-    def _parse_range(self, astr):
+    @staticmethod
+    def parse_range(astr):
         """
         https://www.darklaunch.com/2012/11/05/python-parse-range-and-parse-group-range
         Return a range list given a string.
@@ -187,7 +188,7 @@ class PredicateTime(SimplePredicate):
             # only accept 0-6
             return [i for i in sorted(result) if 0 <= i <= 6]
         except ValueError:
-            self._log.warning('Error parsing day range. Returning [].')
+            logging.warning('Error parsing day range. Returning [].')
             return None
 
     def __repr__(self):

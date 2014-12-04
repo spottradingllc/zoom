@@ -5,8 +5,9 @@ from xml.etree import ElementTree
 
 from kazoo.exceptions import NoNodeError
 
+from zoom.agent.predicate.pred_time import PredicateTime
 from zoom.common.decorators import connected_with_return
-from zoom.common.types import PredicateType
+from zoom.common.types import PredicateType, Weekdays
 from zoom.www.messages.application_dependencies \
     import ApplicationDependenciesMessage
 from zoom.www.messages.message_throttler import MessageThrottle
@@ -178,14 +179,27 @@ class ApplicationDependencyCache(object):
             if pred_type == PredicateType.TIME:
                 start = predicate.get('start', None)
                 stop = predicate.get('stop', None)
+                weekdays = predicate.get('weekdays', None)
                 msg = 'I should be up '
                 if start is not None:
                     msg += 'after: {0} '.format(start)
                 if stop is not None:
                     msg += 'until: {0}'.format(stop)
-                if not start and not stop:
-                    msg += '?'
-                dependencies.append({'type': pred_type, 'path': msg})
+                # only send dependency if there is something to send
+                if start is not None or stop is not None:
+                    dependencies.append({'type': pred_type, 'path': msg})
+
+                # pretend this is a weekend predicate for convenience
+                if weekdays is not None:
+                    day_range = PredicateTime.parse_range(weekdays)
+                    if Weekdays.SATURDAY in day_range or \
+                                    Weekdays.SUNDAY in day_range:
+                        wk_msg = 'Runs on weekends'
+                    else:
+                        wk_msg = 'Does NOT run on weekends'
+
+                    dependencies.append({'type': PredicateType.WEEKEND,
+                                         'path': wk_msg})
 
             if pred_type == PredicateType.NOT:
                 prev_was_not = True
