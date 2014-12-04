@@ -114,9 +114,8 @@ class PredicateTime(SimplePredicate):
                                               hour=dt_dict['hour'],
                                               minute=dt_dict['minute'],
                                               microsecond=0)
-
-                if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
+                if dt_dict['second'] is not None:
+                    dt_object = dt_object.replace(second=dt_dict['second'])
 
             # both hour and minute are not None
             elif all([dt_dict.get(i, None) is not None
@@ -125,7 +124,7 @@ class PredicateTime(SimplePredicate):
                                           minute=dt_dict['minute'],
                                           microsecond=0)
                 if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
+                    dt_object = dt_object.replace(second=dt_dict['second'])
             else:
                 logging.getLogger('PredicateTime').error(
                     'data "{0}" did not match regex. This will result in the '
@@ -190,7 +189,7 @@ class PredicateTime(SimplePredicate):
             return [i for i in sorted(result) if 0 <= i <= 6]
         except ValueError:
             logging.warning('Error parsing day range. Returning [].')
-            return None
+            return []
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", '

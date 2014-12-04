@@ -5,6 +5,7 @@ from zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from zoom.www.cache.application_state_cache import ApplicationStateCache
 from zoom.www.messages.application_states import ApplicationStatesMessage
 from zoom.www.entities.zoo_keeper import ZooKeeper
+from zoom.www.entities.application_state import ApplicationState
 from test.test_utils import (
     StatMock,
     EventMock,
@@ -39,68 +40,6 @@ class ApplicationStateCacheTest(unittest.TestCase):
                               self.web_socket_clients, self.time_estimate_cache)
         self.mox.VerifyAll()
 
-    def test_on_update(self):
-        cache = self._create_app_state_cache()
-
-        self.mox.StubOutWithMock(cache, "_walk")
-        cache._walk('path1', mox.IgnoreArg())
-
-        event = EventMock()
-        event.path = 'path1'
-
-        self.time_estimate_cache.update_states(mox.IgnoreArg())
-
-        self.mox.ReplayAll()
-         
-        cache._on_update(event)
-
-        self.mox.VerifyAll()
-
-    def test_get_application_state_eph0(self):
-
-        path = "/foo/bar/head"
-        test_unknown = '/test/Unknown'
-
-        cache = self._create_app_state_cache()
-
-        stat = StatMock()
-        stat.ephemeralOwner = 0
-        stat.last_modified = 0
-        
-        self.zoo_keeper.get(path, watch=mox.IgnoreArg()).AndReturn(("{}", stat))
-        self.zoo_keeper.get_children(path, watch=mox.IgnoreArg()).AndReturn([])
-        self.zoo_keeper.exists(test_unknown, watch=mox.IgnoreArg())
-
-        self.mox.ReplayAll()
-         
-        cache._get_application_state(path)
-
-        self.mox.VerifyAll()
-
-    def test_get_application_state_eph1(self):
-        foobar = "/foo/bar"
-        foobarhead = "/foo/bar/head"
-
-        cache = self._create_app_state_cache()
-
-        stat = StatMock()
-        stat.ephemeralOwner = 1
-        stat.last_modified = 0
-        stat.created = 1
-
-        self.zoo_keeper.get(foobarhead, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
-        self.zoo_keeper.get(foobar, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
-        self.zoo_keeper.get_children(foobar, watch=mox.IgnoreArg()).InAnyOrder()
-
-        self.mox.ReplayAll()
-         
-        cache._get_application_state(foobarhead)
-
-        self.mox.VerifyAll()
-
-    def fake_walk(self, path, results):
-        results.update({"key": "print message"})
-
     def test_load(self):
         cache = self._create_app_state_cache()
 
@@ -109,7 +48,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         cache._load()
 
         self.mox.ReplayAll()
-         
+
         #actually call twice
         cache.load()
         cache.load()
@@ -120,23 +59,13 @@ class ApplicationStateCacheTest(unittest.TestCase):
 
         self.mox.VerifyAll()
 
-    # TODO: this should test reload
-    # def test_clear(self):
-    #     # need to update w/ time estimate cache
-    #     cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
-    #                                   self.web_socket_clients )
-    #     self.configuration.application_state_path = 'path1'
-    #
-    #     self.mox.StubOutWithMock(cache, "_on_update_path")
-    #     cache._on_update_path('path1')
-    #
-    #     self.mox.ReplayAll()
-    #
-    #     cache.clear()
-    #
-    #     self.mox.VerifyAll()
-    
-    def test_walk_no_childen(self):
+    def test_reload(self):
+        pass
+
+    def test_manual_update(self):
+        pass
+
+    def test_walk_no_children(self):
         cache = self._create_app_state_cache()
 
         self.zoo_keeper.connected = True
@@ -152,7 +81,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         cache._get_application_state('path1').AndReturn(app_state)
 
         self.mox.ReplayAll()
-         
+
         cache._walk('path1', result)
         self.assertEquals(result, compare)
 
@@ -160,7 +89,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
 
     def test_walk_children(self):
         cache = ApplicationStateCache(self.configuration, self.zoo_keeper,
-                                      self.web_socket_clients, 
+                                      self.web_socket_clients,
                                       self.time_estimate_cache)
         app_state1 = ApplicationStateMock()
         app_state1.mock_dict = {'key': 'value'}
@@ -185,11 +114,138 @@ class ApplicationStateCacheTest(unittest.TestCase):
         cache._get_application_state('path1/bar').AndReturn(app_state1)
 
         self.mox.ReplayAll()
-         
+
         cache._walk('path1', result)
         self.assertEquals(result, compare)
 
         self.mox.VerifyAll()
+
+    def test_get_app_details(self):
+        pass
+
+    def test_get_application_state_eph0(self):
+
+        path = "/foo/bar/head"
+        test_unknown = '/test/Unknown'
+
+        cache = self._create_app_state_cache()
+
+        stat = StatMock()
+        stat.ephemeralOwner = 0
+        stat.last_modified = 0
+
+        self.zoo_keeper.get(path, watch=mox.IgnoreArg()).AndReturn(("{}", stat))
+        self.zoo_keeper.get_children(path, watch=mox.IgnoreArg()).AndReturn([])
+        self.zoo_keeper.exists(test_unknown, watch=mox.IgnoreArg())
+
+        self.mox.ReplayAll()
+
+        cache._get_application_state(path)
+
+        self.mox.VerifyAll()
+
+    def test_get_application_state_eph1(self):
+        foobar = "/foo/bar"
+        foobarhead = "/foo/bar/head"
+
+        cache = self._create_app_state_cache()
+
+        stat = StatMock()
+        stat.ephemeralOwner = 1
+        stat.last_modified = 0
+        stat.created = 1
+
+        self.zoo_keeper.get(foobarhead, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
+        self.zoo_keeper.get(foobar, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
+        self.zoo_keeper.get_children(foobar, watch=mox.IgnoreArg()).InAnyOrder()
+
+        self.mox.ReplayAll()
+
+        cache._get_application_state(foobarhead)
+
+        self.mox.VerifyAll()
+
+    def test_on_update(self):
+        cache = self._create_app_state_cache()
+
+        self.mox.StubOutWithMock(cache, "_walk")
+        cache._walk('path1', mox.IgnoreArg())
+
+        event = EventMock()
+        event.path = 'path1'
+
+        self.time_estimate_cache.update_states(mox.IgnoreArg())
+
+        self.mox.ReplayAll()
+         
+        cache._on_update(event)
+
+        self.mox.VerifyAll()
+
+    def test_on_agent_state_update(self):
+        """
+        Simply test that it runs :-/
+        """
+        cache = self._create_app_state_cache()
+
+        event = EventMock()
+        event.path = '/foo/host'
+
+        cache._path_to_host_mapping['host'] = '/path/bar'
+
+        self.mox.ReplayAll()
+        cache._on_agent_state_update(event)
+        self.mox.VerifyAll()
+
+    def test_get_last_command(self):
+        """
+        Test that _get_last_command returns properly with various inputs
+        """
+        cache = self._create_app_state_cache()
+
+        # test starting
+        data1 = {'state': 'starting'}
+        result = cache._get_last_command(data1)
+        self.assertEqual('Start', result)
+
+        # test stopping
+        data2 = {'state': 'stopping'}
+        result = cache._get_last_command(data2)
+        self.assertEqual('Stop', result)
+
+        # test arbitrary value
+        data3 = {'state': 'foo'}
+        result = cache._get_last_command(data3)
+        self.assertEqual('', result)
+
+        # test empty data
+        data4 = {}
+        result = cache._get_last_command(data4)
+        self.assertEqual('', result)
+
+    def test_get_existing_attribute(self):
+        """
+        Test pulling values from existing application states
+        """
+        path = '/foo'
+        host = 'FOOHOST'
+        default_val = 'default_val'
+
+        state = ApplicationState(application_host=host, configuration_path=path)
+        cache = self._create_app_state_cache()
+        cache._cache.update({path: state.to_dictionary()})
+
+        # test return of existing attribute
+        result = cache._get_existing_attribute(path, 'application_host')
+        self.assertEqual(host, result)
+
+        # state exists, attribute does not
+        result = cache._get_existing_attribute(path, 'foo', default=default_val)
+        self.assertEqual(default_val, result)
+
+        # state does not exist
+        result = cache._get_existing_attribute('', 'application_host')
+        self.assertEqual(False, result)
 
     def _create_app_state_cache(self):
         return ApplicationStateCache(self.configuration, self.zoo_keeper,
