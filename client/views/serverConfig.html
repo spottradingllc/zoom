@@ -108,13 +108,12 @@
                                data-bind="value: registrationpath, text: registrationpath"
                                data-toggle="tooltip" data-placement="top"
                                title="registrationpath - Path in ZooKeeper used to register a service.">
+                        <!-- TODO: figure out how to display PDService title wihtout hovering over XML -->
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="pagerduty api key" data-toggle="dropdown"
-                                   data-bind="value: pagerdutyService, text: pagerdutyService"
-                                   data-toggle="tooltip" data-placement="top"
-                                   title data-bind= "function(){getpd()}">
+                                   data-bind="value: pagerdutyService, text: pagerdutyService, tooltip: pdServiceName">
                                 <ul class="dropdown-menu" role="menu" data-bind="foreach: Object.keys(TreeViewModel.pagerDutyServices).sort()">
-                                    <li><a data-bind="text: $data, click: function(){$parent.pagerdutyService($parent.TreeViewModel.pagerDutyServices[$data])}"></a></li>
+                                    <li><a data-bind="text: $data, click: function(){$parent.setPDService($data)}"></a></li>
                                 </ul>
                         </span>
                     </div>

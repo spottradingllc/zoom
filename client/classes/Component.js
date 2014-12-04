@@ -1,4 +1,4 @@
-define(['knockout', './Action', 'model/constants'],
+define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
     function(ko, Action, constants) {
         return function Component(parent) {
             var self = this;
@@ -10,12 +10,29 @@ define(['knockout', './Action', 'model/constants'],
             self.command = ko.observable(null);
             self.restartmax = ko.observable(null);
             self.registrationpath = ko.observable(null);
+            self.pdServiceName = ko.observable(null);
             self.pagerdutyService = ko.observable(null);
             self.actions = ko.observableArray();
 
-            self.getpd = function() {
-                console.log("Does it get here")
-                return self.pagerdutyService
+            self.pdNameLookup = ko.computed(function() {
+                if (self.pagerdutyService()) {
+                    var ret = '';
+                    var dict = self.TreeViewModel.pagerDutyServices;
+                    for (var prop in dict) {
+                        if(dict.hasOwnProperty(prop)) {
+                            if (dict[prop] === self.pagerdutyService()) {
+                                ret = prop;
+                            }
+                        }
+                    }
+                    console.log(ret)
+                    self.pdServiceName(ret);
+                }
+            });
+
+            self.setPDService = function(name) {
+                self.pdServiceName(name);
+                self.pagerdutyService(self.TreeViewModel.pagerDutyServices[name])
             };
 
             self.addAction = function() {
