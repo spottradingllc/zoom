@@ -3,9 +3,9 @@ import datetime
 from time import sleep
 from threading import Thread
 import json
-import re
 
 from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.pred_time import PredicateTime
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.common.decorators import connected
 
@@ -87,71 +87,11 @@ class ZookeeperGoodUntilTime(SimplePredicate):
 
         self.set_met(all(results))  # every comparison returned True
 
-    def _create_dt_dict(self, datetime_string):
-        """
-        :type datetime_string: str
-        :rtype: dict
-        """
-        regex_dict = dict()
-        match = re.search(self._datetime_regex, datetime_string)
-        if match:
-            regex_dict = dict(year=match.group('year'),
-                              month=match.group('month'),
-                              day=match.group('day'),
-                              hour=match.group('hour'),
-                              minute=match.group('minute'),
-                              second=match.group('second'))
-
-        for k, v in regex_dict.iteritems():
-            if v is not None:
-                regex_dict[k] = int(v)
-
-        self._log.debug('dt_dict returning {0}'.format(regex_dict))
-        return regex_dict
-
     def _get_comparison(self, obj):
         if isinstance(obj, datetime.datetime):
             return self.current_datetime
         elif isinstance(obj, datetime.time):
             return self.current_time
-
-    def _get_datetime_object(self, data):
-        """
-        :type data: str
-        :rtype: datetime.datetime or datetime.time or None
-        """
-        dt_object = None
-        dt_dict = self._create_dt_dict(data)
-        try:
-            # All of year, month and day are not None
-            if all([dt_dict.get(i, None) is not None
-                    for i in ('year', 'month', 'day')]):
-                dt_object = datetime.datetime(year=dt_dict['year'],
-                                              month=dt_dict['month'],
-                                              day=dt_dict['day'],
-                                              hour=dt_dict['hour'],
-                                              minute=dt_dict['minute'],
-                                              microsecond=0)
-
-                if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
-
-            # both hour and minute are not None
-            elif all([dt_dict.get(i, None) is not None
-                      for i in ('hour', 'minute')]):
-                dt_object = datetime.time(hour=dt_dict['hour'],
-                                          minute=dt_dict['minute'],
-                                          microsecond=0)
-                if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
-            else:
-                self._log.error('data "{0}" did not match regex'.format(data))
-
-        except (ValueError, TypeError) as ex:
-            self._log.error('Problem with parsing data "{0}": {1}'
-                            .format(data, ex))
-        finally:
-            return dt_object
 
     def _parse_data(self, gut_data):
         """
@@ -160,13 +100,13 @@ class ZookeeperGoodUntilTime(SimplePredicate):
         start_data = gut_data.get(u'start', None)
         self._log.debug('raw start from zk is "{0}"'.format(start_data))
         if start_data is not None:
-            self._start = self._get_datetime_object(start_data)
+            self._start = PredicateTime.get_datetime_object(start_data)
             
         stop_data = gut_data.get(u'stop', None)
         self._log.debug('raw stop from zk is "{0}"'.format(stop_data))
 
         if stop_data is not None:
-            self._stop = self._get_datetime_object(stop_data)
+            self._stop = PredicateTime.get_datetime_object(stop_data)
 
         if start_data is None and stop_data is None:
             self._log.error('Start and Stop time not specified!')

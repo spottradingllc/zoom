@@ -25,8 +25,8 @@ class PredicateTime(SimplePredicate):
         :type interval: int or float
         """
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)
-        self.start_time = self._get_datetime_object(start)
-        self.stop_time = self._get_datetime_object(stop)
+        self.start_time = self.get_datetime_object(start)
+        self.stop_time = self.get_datetime_object(stop)
         self.day_range = self._parse_range(weekdays)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.pred.time'.format(comp_name))
@@ -86,41 +86,14 @@ class PredicateTime(SimplePredicate):
 
         self.set_met(all(results))  # every comparison returned True
 
-    def _create_dt_dict(self, datetime_string):
-        """
-
-        :type datetime_string: str
-        :rtype: dict
-        """
-        datetime_regex = (
-            "^((?P<year>\d{4})\-(?P<month>\d{2})\-(?P<day>\d{2})\s)?"
-            "(?P<hour>\d{2}):(?P<minute>\d{2})(:(?P<second>\d{2}))?"
-        )
-        regex_dict = dict()
-        match = re.search(datetime_regex, datetime_string)
-        if match:
-            regex_dict = dict(year=match.group('year'),
-                              month=match.group('month'),
-                              day=match.group('day'),
-                              hour=match.group('hour'),
-                              minute=match.group('minute'),
-                              second=match.group('second'))
-
-        # convert all values to integers
-        for k, v in regex_dict.iteritems():
-            if v is not None:
-                regex_dict[k] = int(v)
-
-        self._log.debug('dt_dict returning {0}'.format(regex_dict))
-        return regex_dict
-
     def _get_comparison(self, obj):
         if isinstance(obj, datetime.datetime):
             return datetime.datetime.now()
         elif isinstance(obj, datetime.time):
             return datetime.datetime.now().time()
 
-    def _get_datetime_object(self, data):
+    @staticmethod
+    def get_datetime_object(data):
         """
         Create datetime object from string value
         :type data: str or None
@@ -130,7 +103,7 @@ class PredicateTime(SimplePredicate):
             return
 
         dt_object = None
-        dt_dict = self._create_dt_dict(data)
+        dt_dict = PredicateTime.create_datetime_dict(data)
         try:
             # All of year, month and day are not None
             if all([dt_dict.get(i, None) is not None
@@ -154,16 +127,45 @@ class PredicateTime(SimplePredicate):
                 if dt_dict.get('second', None) is not None:
                     dt_object.replace(second=dt_dict['second'])
             else:
-                self._log.error(
+                logging.getLogger('PredicateTime').error(
                     'data "{0}" did not match regex. This will result in the '
                     'paramter returning as None. The predicate will never be '
                     'met for this parameter. '.format(data))
 
         except (ValueError, TypeError) as ex:
-            self._log.error('Problem with parsing data "{0}": {1}'
-                            .format(data, ex))
+            logging.getLogger('PredicateTime').error(
+                'Problem with parsing data "{0}": {1}'.format(data, ex))
         finally:
             return dt_object
+
+    @staticmethod
+    def create_datetime_dict(datetime_string):
+        """
+        :type datetime_string: str
+        :rtype: dict
+        """
+        datetime_regex = (
+            "^((?P<year>\d{4})\-(?P<month>\d{2})\-(?P<day>\d{2})\s)?"
+            "(?P<hour>\d{2}):(?P<minute>\d{2})(:(?P<second>\d{2}))?"
+        )
+        regex_dict = dict()
+        match = re.search(datetime_regex, datetime_string)
+        if match:
+            regex_dict = dict(year=match.group('year'),
+                              month=match.group('month'),
+                              day=match.group('day'),
+                              hour=match.group('hour'),
+                              minute=match.group('minute'),
+                              second=match.group('second'))
+
+        # convert all values to integers
+        for k, v in regex_dict.iteritems():
+            if v is not None:
+                regex_dict[k] = int(v)
+
+        logging.getLogger('PredicateTime').debug(
+            'datetime_dict returning {0}'.format(regex_dict))
+        return regex_dict
 
     def _parse_range(self, astr):
         """
