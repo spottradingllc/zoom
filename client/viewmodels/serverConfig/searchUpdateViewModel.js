@@ -1,5 +1,5 @@
-define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautify'],
-    function($, ko, AlertsViewModel, TreeViewModel) {
+define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/constants', 'vkbeautify'],
+    function($, ko, AlertsViewModel, TreeViewModel, constants) {
 
         /******* SEARCH AND UPDATE VIEW MODEL *******/
         return function SearchUpdateViewModel(ServerConfigViewModel) {
@@ -45,7 +45,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
                     text: 'Are you sure you want to push the configuration for ' + ServerConfigViewModel.serverName() + '?',
                     type: 'warning',
                     confirmButtonText: 'Push it real good!',
-                    confirmButtonColor: "#336600",
+                    confirmButtonColor: constants.colors.confirmgreen,
                     cancelButtonText: 'Cancel',
                     showCancelButton: true,
                     closeOnConfirm: true,
@@ -57,7 +57,6 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
                             'XML': self.serverConfig(),
                             'serverName': ServerConfigViewModel.serverName()
                         };
-
                         $.ajax(
                             {
                                 url: '/api/config/' + ServerConfigViewModel.serverName(),
@@ -100,7 +99,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'vkbeautif
                     text: 'Are you sure you want to delete the configuration for ' + ServerConfigViewModel.serverName() + '?',
                     type: 'warning',
                     confirmButtonText: 'Delete it!',
-                    confirmButtonColor: "#bb0035",
+                    confirmButtonColor: constants.colors.errorRed,
                     cancelButtonText: 'Cancel',
                     showCancelButton: true,
                     closeOnConfirm: true,
