@@ -25,7 +25,6 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                             }
                         }
                     }
-                    console.log(ret)
                     self.pdServiceName(ret);
                 }
             });
