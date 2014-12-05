@@ -112,7 +112,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
 
         except NoNodeError:
             self.write("Failed, path does not exist: {0}".format(path))
-            self.set_status(httplib.NO_CONTENT)
+            self.set_status(httplib.REQUESTED_RANGE_NOT_SATISFIABLE)
         except NotEmptyError:
             self.write("Please make sure to specify with no subdirectories,"
                        " or delete recursively by setting header 'recurse' "
