@@ -6,6 +6,7 @@ from zoom.common.types import ApplicationType
 from zoom.agent.entities.application import Application
 from zoom.agent.entities.job import Job
 from zoom.agent.entities.task import Task
+from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.agent.util.helpers import verify_attribute
 
@@ -23,6 +24,7 @@ class ChildProcess(object):
         self._log = logging.getLogger('sent.child')
         self.parent_conn, self.child_conn = Pipe()
         self._action_queue = UniqueQueue()
+        self._cancel_flag = ThreadSafeObject(False)
 
         self.name = verify_attribute(config, 'id')
         self._application_type = verify_attribute(config, 'type')
@@ -42,6 +44,12 @@ class ChildProcess(object):
         # was submitted (even if it was already there)
         if not added:
             self.child_conn.send('OK')
+
+    def cancel_current_task(self):
+        """
+        """
+        self._log.info('Setting Cancel Flag')
+        self._cancel_flag.set_value(True)
 
     def stop(self):
         """
@@ -71,10 +79,11 @@ class ChildProcess(object):
         if self._application_type == ApplicationType.APPLICATION:
             s = Application(self._config, self._settings, self.child_conn,
                             self._action_queue, self._system,
-                            self._application_type)
+                            self._application_type, self._cancel_flag)
         elif self._application_type == ApplicationType.JOB:
             s = Job(self._config, self._settings, self.child_conn,
-                    self._action_queue, self._system, self._application_type)
+                    self._action_queue, self._system, self._application_type,
+                    self._cancel_flag)
             
         t = Thread(target=s.run, name=self.name)
         t.daemon = True

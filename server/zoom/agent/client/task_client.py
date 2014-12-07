@@ -5,7 +5,7 @@ import time
 from kazoo.exceptions import NoNodeError
 
 from zoom.agent.entities.task import Task
-from zoom.common.types import ApplicationState
+from zoom.common.types import ApplicationState, CommandType
 from zoom.common.decorators import (
     connected,
 )
@@ -44,7 +44,7 @@ class TaskClient(object):
                 if task.result == ApplicationState.OK:
                     return  # ignore tasks that are already done
 
-                if task.name in self._settings.get('ALLOWED_WORK'):
+                if task.name in self._settings.get('ALLOWED_WORK') or task.name == 'cancel':
                     if task.target is not None:
                         self._send_work_single(task)
                     else:
@@ -93,6 +93,12 @@ class TaskClient(object):
 
         else:
             process = child['process']
-            process.add_work(task, immediate=False)
-            result = process.parent_conn.recv()  # will block until done
-            return {'target': task.target, 'work': task.name, 'result': result}
+            if task.name == CommandType.CANCEL:
+                process.cancel_current_task()
+                return {'target': task.target, 'work': task.name,
+                        'result': CommandType.CANCEL}
+            else:
+                process.add_work(task, immediate=False)
+                result = process.parent_conn.recv()  # will block until done
+                return {'target': task.target, 'work': task.name,
+                        'result': result}
