@@ -14,7 +14,7 @@ define(
             var pillarURI = "api/pillar/";
             self.saltModel = new saltModel();
 
-            self.api_post_json = function(_assoc, update_salt, ko_array_to_update, data_type) {
+            self.api_post_json = function(_assoc, update_salt, ko_array_to_update, data_type, project) {
                 var update_phrase = "";
                 var key = "";
                 var val = "";
@@ -40,7 +40,7 @@ define(
 
                 var _projdata = {
                     "minion": _assoc.name,
-                    "data": _assoc.pillar,
+                    "data": _assoc.edit_pillar,
                     "username": pillarModel.login.elements.username(),
                     "update_phrase": update_phrase
                 };
@@ -58,7 +58,7 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            self.saltModel.updateMinion(ko_array_to_update, false, 'update', data_type, key, val, pillarModel.selectedProject());
+                            self.saltModel.updateMinion(ko_array_to_update, false, 'update', data_type, key, val, project);
                         }
                     });
             };
@@ -88,17 +88,17 @@ define(
                     });
             };
 
-            self.api_delete = function(level_to_delete, project, key) {
-                var num_left = pillarModel.hasProject().length;
+            self.api_delete = function(level_to_delete, _proj, key) {
+                var num_left = _proj.hasProject().length;
                 var del_phrase = "";
-                ko.utils.arrayForEach(pillarModel.hasProject(), function(_assoc) {
+                ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                     var uri = pillarURI + _assoc.name;
                     if (level_to_delete === "project") {
-                        uri += "/" + project;
-                        del_phrase = "Deleted project: " + project;
+                        uri += "/" + _proj.proj_name;
+                        del_phrase = "Deleted project: " + _proj.proj_name;
                     }
                     else if (level_to_delete === "key") {
-                        uri += "/" + project;
+                        uri += "/" + _proj.proj_name;
                         uri += "/" + key;
                         del_phrase = "Deleted key: " + key;
                     }
@@ -120,7 +120,7 @@ define(
                             // if the last one, notify on it only
                             if (num_left === 1) {
                                 swal("Success", "Successfully deleted", 'success');
-                                self.saltModel.updateMinion(pillarModel.hasProject, false, 'delete', level_to_delete, null, null, project);
+                                self.saltModel.updateMinion(_proj.hasProject, false, 'delete', level_to_delete, null, null, _proj.proj_name);
                             }
                             num_left--;
 

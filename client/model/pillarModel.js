@@ -46,7 +46,7 @@ define( [
                 var self = this;
                 self.name = server_name;
                 self.pillar = pillar_data;
-                self.edit_pillar = pillar_data;
+                self.edit_pillar = {};
                 self.checked = ko.observable(false);
                 self.prior = false;
                 self.projects = {};
@@ -104,19 +104,20 @@ define( [
                 }
             };
 
-            // Todo: this was a computed!!!!
-            self.validateNewPair = function() {
+            self.validateNewPair = ko.computed( function() {
                 if (self.new_key() !== "" && !self.alphaNum.test(self.new_key())) {
                     swal("Error", "Your key cannot contain non-alphanumerics", 'error');
                     self.new_key("");
                     return false;
                 }
+                if (self.new_project() !== "" && !self.alphaNum.test(self.new_project())) {
+                    swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
+                    self.new_project("");
+                    return false;
+                }
 
                 return true;
-            };
-
-           
-                          
+            });
             
             var validateNewProject = function() {
                 if (self.new_project() === ""){
@@ -143,8 +144,6 @@ define( [
                 } catch(err) {
                     if (err.name === 'TypeError') {
                         ret = "Project Does Not Exist";
-                        if (self.missingProject().indexOf(_assoc) === -1)
-                            self.missingProject().push(_assoc);
                     }
                     else
                         ret = "An unexpected error occured";
@@ -174,10 +173,17 @@ define( [
 
             self.showEdit = function(html_proj) {
                 html_proj.editing(true);
-                /*index = self.allProjects.indexOf(html_proj);
-                self.allProjects()[index].editing(true);
-                self.allProjects()[index].editing.valueHasMutated();
-                console.log("editing set to: " + self.allProjects()[index].editing());*/
+                // get latest pillar data and place into edit_pillar:
+                // deep copy
+                ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
+                    _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
+                });
+
+                // deep copy equivalent
+                html_proj.edit_keys([]);
+                ko.utils.arrayForEach(html_proj.keys(), function(key) {
+                    html_proj.edit_keys.push(key);
+                });
             };
 
             self.cancelEditing = function(html_proj) {
@@ -190,19 +196,11 @@ define( [
                         var value = valueAccessor();
                         value(true);
                     });
-                    /*
-                    $(element).blur(function() {
-                        var value = valueAccessor();
-                        console.log("Setting to FALSE!!");
-                        value(false);
-                    });*/
-                    
                     $(element).focusout(function() {
                         var value = valueAccessor();
                         console.log("Setting to FALSE!!");
                         value(false);
                     });
-
                 },
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                     //console.log("update, editing val is: " + valueAccessor());
@@ -224,7 +222,7 @@ define( [
                         //console.log("project exists");
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
-                        self.checked_servers()[index].pillar[project][key] = element.value;
+                        self.checked_servers()[index].edit_pillar[project][key] = element.value;
                     }
 
                     if (!editing && tableEditing) {
@@ -242,15 +240,41 @@ define( [
                     var edit = ko.unwrap(valueAccessor());
                     console.log("update latest, editing val is: " + edit);
                     // check what getvalues returns first
-                    element.text = self.getValues(bindingContext.$parent, bindingContext.$parents[1].proj_name, bindingContext.$data);
+                    element.text = self.getValues(bindingContext.$parent, bindingContext.$parents[1], bindingContext.$data);
                     if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
-                        $(element).text(bindingContext.$parent.pillar[project][key]);
+                        $(element).text(bindingContext.$parent.edit_pillar[project][key]);
                         console.log(key + " Val set to: " +  element.text);
                     }
                 }
             };
+
+            self.visualUpdate = function(update_type, data_type, _proj, key) {
+                if (update_type === 'create') {
+                    if (data_type === 'key') {
+                        var new_key = _proj.new_key();
+                        if (new_key === "") {
+                            swal("Error", "Please enter a value for the new key", 'error');
+                            return
+                        }
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
+                            // essentially the same as json update
+                            _assoc.edit_pillar[_proj.proj_name][new_key] = "";
+                        });
+                        _proj.edit_keys.push(new_key);
+                    }
+                }
+                else if (update_type === 'delete') {
+                    if (data_type === 'key') {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
+                            delete _assoc.edit_pillar[_proj.proj_name][key];
+                        });
+                        var i = _proj.edit_keys.indexOf(key);
+                        _proj.edit_keys.splice(i, 1); 
+                    }
+                }
+            }; 
 
             var JSONcreateProject = function (_assoc) {
                 var pairs = {};
@@ -258,7 +282,8 @@ define( [
                     pairs[pair.key] = pair.value;
                 });
 
-                _assoc.pillar[self.new_project()] = pairs;
+                _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
+                _assoc.edit_pillar[self.new_project()] = pairs;
             };
 
             var JSONupdate = function(_assoc, update_type, project) {
@@ -313,27 +338,19 @@ define( [
                 });
             };
 
-            /*
-            self.editVisualUpdate = function(_proj, update_type, data_type, project, key) {
-                if (update_type === 'create') {
-                    if (data_type === 'key') {
-                        var new_key = _proj.new_key;
-                        if (new_key === "") }
-                            swal("Error", "Please enter a value for the new key", 'error');
-                            return
-                        }
-                        ko.utils.arrayForEach(_proj.hasProject
-            */
+            /*self.updateAll = function() {
+                ko.utils.arrayForEach(self.allProjects(), function(_proj) {
+            */        
 
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (self.missingProject().length > 0) {
-                    alertText = self.missingProject().length + " server(s) are missing the " + data_type + ", proceed to " + update_type + " anyway?";
+                if (_proj.hasProject().length < self.checked_servers()) {
+                    alertText = "Only " + _proj.has_project().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " + self.hasProject().length + " servers?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " servers?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -345,7 +362,7 @@ define( [
                 function(isConfirm){
                     if (isConfirm) {
                         if (update_type === 'delete')  
-                            self.pillarApiModel.api_delete(data_type, project, key);
+                            self.pillarApiModel.api_delete(data_type, _proj, key);
                         else {
                             var refresh_salt = false;
                             for (var each in _proj.hasProject()) {
@@ -353,6 +370,7 @@ define( [
                                     refresh_salt = true;
                                 }
                                 if (data_type !== 'wholeTable') JSONupdate(_proj.hasProject()[each], data_type);
+                                // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
                                 self.pillarApiModel.api_post_json(_proj.hasProject()[each], refresh_salt, _proj.hasProject, data_type);
                             }
                         }
@@ -456,7 +474,7 @@ define( [
                     //console.log(server_name);
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
-                            self.getPillar(_assoc, false);
+                            self.pillarApiModel.getPillar(_assoc, false);
                             serverAlreadyExists = true;
                         }
                     });

@@ -115,10 +115,16 @@
                     </div>
 
                     <!-- Main div for each project!!! -->
-                    <div id="eachProject" data-bind="foreach: allProjects()">
+                    <div id="eachProject" data-bind="foreach: allProjects(), visible: selectedModify() == 'Existing project'">
+
+                        <h2 data-bind="text: $data.proj_name"></h2>
+                        <div data-bind="visible: $data.editing">
+                            <button type="button" class="btn btn-danger" data-bind="click: function () { $parent.updateProjectWrapper('delete', 'project', $data) }, text: 'Delete Project ' + $data.proj_name" ></button>
+                        </div>
 
                         <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px;">
-                            <caption data-bind="text: 'All data for ' + $data.proj_name + ':'"></caption>
+                        
+                            <h4> Current Data from Salt Master </h4>
                             <thead>
                             <tr>
                                 <th>Server</th>
@@ -134,8 +140,7 @@
                                 <!-- ko foreach: $parent.keys() -->
                                 <td data-bind="text: $parents[2].getValues($parent, $parents[1], $data)"></td>
                                 <!-- /ko -->
-                                <!-- Direct access, but can't handle errors if data not there -->
-                                <!-- <td data-bind="text: $data[$parent.selectedProject()]().version"></td>-->
+
                             </tr>
                             </tbody>
 
@@ -145,24 +150,23 @@
                         <hr data-bind="visible: $data.editing"> 
 
                         <table class="table table-striped table-bordered edit" id="editTable" data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
-                            <caption data-bind="text: 'Edit data for ' + $data.proj_name  + ':'"></caption>
-                            <div data-bind="visible: $data.editing">
-                                <button data-bind="click: function () { $parent.addKey($data.proj_name) }">Add Key</button>
-                            </div>
-                            <div data-bind="visible: $data.editing">
-                                <button type="button" class="btn btn-danger" data-bind="click: function () { $parent.updateProjectWrapper('delete', 'project', $data) }, text: 'Delete Project ' + $data.proj_name" ></button>
-                            </div>
-  
+                            <h4 data-bind="visible: $data.editing"> Edit Data </h4>
                             <thead>
                             <tr>
                                 <th>Server</th>
-                                <!-- ko foreach: $data.keys() -->
+                                <!-- ko foreach: $data.edit_keys() -->
                                 <th>
                                     <span data-bind="text: $data"></span>
-                                    <button data-bind="click: function () { $parents[1].updateProjectWrapper('delete', 'key', $parent,  $data) }">Delete
+                                    <button data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">Delete
                                     </button>
                                 </th>
                                 <!-- /ko -->
+                                <td>
+                                    <div data-bind="visible: $data.editing">
+                                        <input type="text" placeholder="New Key Name" data-bind="textInput: new_key"></input> 
+                                        <button data-bind="click: function () { $parent.visualUpdate('create', 'key', $data) }">Add Key</button>
+                                    </div>
+                                </td>
                             </tr>
                             </thead>
 
@@ -170,16 +174,21 @@
                             <tr> 
                                 <td data-bind="text: name"></td>
 
-                                <!-- ko foreach: $parent.keys() -->
+                                <!-- ko foreach: $parent.edit_keys() -->
                                 <td data-bind="visible: $parent.editable"><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"></input></td>
 
                                 <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td>
                                 <!-- /ko -->
+                          
 
                             </tr>
                             </tbody>
 
                         </table>
+
+                        
+  
+
 
                         <div class="container" data-bind="visible: $parent.selectedModify() == 'Existing project' && $data.editing">
                             <button data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}"> Send updated table data 
@@ -190,7 +199,7 @@
                     <!-- end of existing project tab-->
 
                     <div data-bind="visible: selectedModify() == 'New project'">
-                        <h3>Create project <small> Blank values will be null </small> <h3/>
+                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> <h3/>
                         <span> Project name: </span>
                         <input type="text" placeholder="Project Name" data-bind="textInput: new_project"></input>
                         <!-- ko foreach: new_pairs() -->
