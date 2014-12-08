@@ -20,7 +20,7 @@ class AlertManager(object):
         self._zk = zk
         self._pd = pd
         self._exceptions = exceptions
-        self.threads = list()
+        self._threads = list()
 
     def start(self):
         logging.info('Starting to watch for alerts at path: {0}'
@@ -59,7 +59,7 @@ class AlertManager(object):
                                    )
                         t.daemon = True
                         t.start()
-                        self.threads.append(t)
+                        self._threads.append(t)
 
                     else:
                         logging.info('Ignoring alert for {0}'.format(i_key))
@@ -71,7 +71,7 @@ class AlertManager(object):
                                )
                     t.daemon = True
                     t.start()
-                    self.threads.append(t)
+                    self._threads.append(t)
                 else:
                     logging.warning('Unknown action type: {0}'.format(action))
                     continue
@@ -103,9 +103,9 @@ class AlertManager(object):
         Clean up threads that have finished.
         """
 
-        for thread in [t for t in self.threads if not t.is_alive()]:
+        for thread in [t for t in self._threads if not t.is_alive()]:
             try:
-                self.threads.remove(thread)
+                self._threads.remove(thread)
                 thread.join()
                 del thread
             except (IndexError, ValueError):
