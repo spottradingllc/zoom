@@ -82,19 +82,11 @@ class ProcessClient(object):
 
     def running(self):
         """
-        :type reset: bool
         :return: Whether the process is running.
         :rtype: bool
         """
         self.last_status = self.status_method()
-
-        if not self.restart_logic.ran_stop \
-                and not self.restart_logic.stay_down \
-                and not self.last_status:
-            self.restart_logic.crashed = True
-            self._log.info('Crash detected.')
-        else:
-            self.restart_logic.crashed = False
+        self.restart_logic.check_for_crash(self.last_status)
 
         self._log.debug('Process {0} running: {1}, crashed={2}'
                         .format(self.name, self.last_status,
