@@ -5,6 +5,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
             var self = this;
             self.components = ko.observableArray();
             self.adminModel = admin;
+            self.pagerDutyServices = {};
 
             self.statePaths = (function() {
                 var paths = [];
@@ -21,17 +22,14 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
                 return paths;
             }());  // run immediately, and store as an array
 
-            self.pagerDutyServices = function() {
-                var pd_dict = {};
-                $.ajax({
-                    url: '/api/pagerduty/services/',
-                    success: function(data) {
-                        pd_dict = JSON.parse(data);
-                    },
-                    async: false
-                });
-                return pd_dict;
-            }();
+            // will fill in self.pagerDutyServices when the call finishes
+            $.ajax({
+                url: '/api/pagerduty/services/',
+                success: function(data) {
+                    self.pagerDutyServices = JSON.parse(data);
+                },
+                async: true
+            });
 
             self.addComponent = function() {
                 self.components.push(new Component(self));
