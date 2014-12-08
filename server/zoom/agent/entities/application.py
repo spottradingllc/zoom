@@ -189,6 +189,7 @@ class Application(object):
             return 0
         elif self._proc_client.restart_logic.crashed:
             self._log.info('Not starting. The application has crashed.')
+            return 0
         else:
             self._log.debug('Start allowed.')
 
