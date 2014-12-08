@@ -49,10 +49,6 @@ class TaskServer(object):
         try:
             task_path = os.path.join(self._configuration.task_path, task.host)
 
-            # if task.name == CommandType.CANCEL:
-            #     # TODO: do we really want to delete the node on CANCEL?
-            #     self._remove(task, task_path, clear_queue=True)
-            # el
             if self._zookeeper.exists(task_path):
                 # if the node exists, the callback _on_update will submit the
                 # next task.

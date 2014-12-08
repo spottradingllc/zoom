@@ -47,6 +47,7 @@ class ChildProcess(object):
 
     def cancel_current_task(self):
         """
+        Set the cancel flag that is used in the process client.
         """
         self._log.info('Setting Cancel Flag')
         self._cancel_flag.set_value(True)

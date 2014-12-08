@@ -6,9 +6,7 @@ from kazoo.exceptions import NoNodeError
 
 from zoom.agent.entities.task import Task
 from zoom.common.types import ApplicationState, CommandType
-from zoom.common.decorators import (
-    connected,
-)
+from zoom.common.decorators import connected
 
 
 class TaskClient(object):
@@ -44,12 +42,13 @@ class TaskClient(object):
                 if task.result == ApplicationState.OK:
                     return  # ignore tasks that are already done
 
-                if task.name in self._settings.get('ALLOWED_WORK') or task.name == 'cancel':
+                if task.name in self._settings.get('ALLOWED_WORK'):
                     if task.target is not None:
                         self._send_work_single(task)
                     else:
                         self._send_work_all(task)
-                    self._log.info("just {0}'d {1}".format(task.name, task.target))
+                    self._log.info("Submitted task {0} for {1}"
+                                   .format(task.name, task.target))
                 else:
                     err = 'Invalid work submitted: {0}'.format(task.name)
                     self._log.warning(err)
@@ -85,11 +84,8 @@ class TaskClient(object):
         if child is None:
             self._log.warning('The targeted child "{0}" does not exists.'
                               .format(task.target))
-            return {
-                'target': task.target,
-                'work': task.name,
-                'result': '404: Not Found'
-            }
+            return {'target': task.target, 'work': task.name,
+                    'result': '404: Not Found'}
 
         else:
             process = child['process']
