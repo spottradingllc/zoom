@@ -1,5 +1,8 @@
 # Zoom
 
+
+
+
 Zoom is a platform created by Spot Trading to manage real-time application startup, configuration and dependency management. Zoom provides a server-side agent and front-end web interface to allow for easy administration of our software infrastructure.
 
 ## About
