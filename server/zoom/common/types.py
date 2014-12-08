@@ -27,6 +27,7 @@ class ApplicationStatus():
     RUNNING = 1
     STARTING = 2
     STOPPED = 3
+    CANCELLED = -2
     CRASHED = -99
 
 
