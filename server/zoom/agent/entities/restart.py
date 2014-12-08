@@ -54,7 +54,7 @@ class RestartLogic(object):
         self._log.debug(
             'running={0}, crashed={1}, ran_stop={2}, staydown={3}, agent={4}'
             .format(running, self.crashed, self.ran_stop, self.stay_down,
-                    self.agent_restarted))
+                    self._agent_restarted))
 
         # if it's running, we don't care that the agent just restarted
         if running:
@@ -65,7 +65,7 @@ class RestartLogic(object):
         if not running \
                 and not self.ran_stop \
                 and not self.stay_down \
-                and not self.agent_restarted:
+                and not self._agent_restarted:
 
             if not self.crashed:  # only log on change
                 self._log.warning('Crash detected!')
