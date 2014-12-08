@@ -11,7 +11,7 @@ class RestartLogic(object):
         """
         self._log = logging.getLogger('sent.restart')
         self._restart_max = restart_max
-        self.agent_restarted = True
+        self._agent_restarted = True
         self.stay_down = False
         self.ran_stop = False
         self.crashed = False
@@ -33,12 +33,12 @@ class RestartLogic(object):
     def set_stay_down(self, val):
         self._log.info('Setting stay_down to {0}.'.format(val))
         self.stay_down = bool(val)
-        self.agent_restared = False
+        self._agent_restarted = False
 
     def set_ran_stop(self, val):
         self._log.info('Setting ran_stop to {0}.'.format(val))
         self.ran_stop = bool(val)
-        self.agent_restared = False
+        self._agent_restarted = False
 
     def reset_count(self):
         self._log.debug('Resetting start count to 0.')
@@ -58,7 +58,7 @@ class RestartLogic(object):
 
         # if it's running, we don't care that the agent just restarted
         if running:
-            self.agent_restarted = False
+            self._agent_restarted = False
             self.crashed = False
             return
 
