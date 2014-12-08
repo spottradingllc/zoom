@@ -20,23 +20,21 @@ define( [
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
             self.missingProject = ko.observableArray([]);
-            self.hasProject = ko.observableArray([]);
-
-            self.searchVal = ko.observable(""); 
-            self.fieldOneVal = ko.observable("").extend({uppercase: true});
-            self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
-            self.selectedProject = ko.observable("").extend({notify: "always"});
-            self.selectedKey = ko.observable("").extend({notify: "always"});
-            self.new_key = ko.observable("");
-            self.new_value = ko.observable("");
-            self.new_project = ko.observable("");
-            self.edit_value = ko.observable("");
-            self.selectedModify = ko.observable("Existing project");
-            self.saltValFail = ko.observable("");
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
+
+
+            self.searchVal = ko.observable(""); 
+            self.fieldOneVal = ko.observable("").extend({uppercase: true});
+            self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
+            self.selectedModify = ko.observable("Existing project");
+            self.new_key = ko.observable("");
+            self.new_value = ko.observable("");
+            self.new_project = ko.observable("");
+            self.edit_value = ko.observable("");
+            self.saltValFail = ko.observable("");
 
             self.alphaNum = /^[a-zA-Z0-9]+$/;
 
@@ -48,6 +46,7 @@ define( [
                 var self = this;
                 self.name = server_name;
                 self.pillar = pillar_data;
+                self.edit_pillar = pillar_data;
                 self.checked = ko.observable(false);
                 self.prior = false;
                 self.projects = {};
@@ -55,13 +54,18 @@ define( [
                 // _assoc object also has dynamically created
             };
 
+            self._proj = function(name) {
+                var self = this;
+                self.proj_name = name;
+                self.keys = ko.observableArray([]);
+                self.edit_keys = ko.observableArray([]);
+                self.hasProject = ko.observableArray([]);
+                self.new_key = ko.observable("");
+                self.editing = ko.observable(false);
+            };
+
             var resetFields = function () {
-                self.selectedProject(null);
-                self.selectedKey(null);
-                self.new_key("");
-                self.new_value("");
                 self.new_project("");
-                self.edit_value("");
                 self.allKeys([]);
             };
 
@@ -70,25 +74,12 @@ define( [
                 self.allProjects([]);
                 addProjects(_assoc);
                 self.missingProject([]);
-                self.hasProject([]);
+                // self.hasProject([]);
             };
 
             $(document).on('change keyup keydown paste cut', '.textarea', function() {
                 $(this).height(0).height(this.scrollHeight);
             }).find('textarea').change();
-
-            $(document).on('click', '#allDrop', function() {
-                self.selectedProject($(this).text());
-                $("#projDropTitle").html($(this).text());
-                // reset so it can be calculated for the new project
-                self.allKeys([]);
-                self.missingProject([]);
-                self.hasProject([]);
-            });
-
-            $(document).on('click', '#allKey', function() {
-                self.selectedKey($(this).text());
-            });
 
             $(document).on('click', '#mainTable', function() {
                 $("#mainTable").popover('show');
@@ -113,15 +104,8 @@ define( [
                 }
             };
 
-            // ensure that no project is selected when moving to the New project tab
-            self.properNewView = ko.computed(function() {
-                if (self.selectedModify() === 'New project') { 
-                    self.selectedProject(null);
-                    self.selectedKey(null);
-                }
-            });
-
-            self.validateNewPair = ko.computed(function() {
+            // Todo: this was a computed!!!!
+            self.validateNewPair = function() {
                 if (self.new_key() !== "" && !self.alphaNum.test(self.new_key())) {
                     swal("Error", "Your key cannot contain non-alphanumerics", 'error');
                     self.new_key("");
@@ -129,8 +113,11 @@ define( [
                 }
 
                 return true;
-            });
+            };
 
+           
+                          
+            
             var validateNewProject = function() {
                 if (self.new_project() === ""){
                     swal("Error", "Please enter a project name", 'error');
@@ -147,14 +134,12 @@ define( [
             };
 
 
-            self.getValues = function (_assoc, field) {
+            self.getValues = function (_assoc, _proj, field) {
                 var ret = "";
-                if (typeof self.selectedProject() === 'undefined' || self.selectedProject() === null)
-                    return "Select a project";
                 try {
-                    ret = _assoc.projects[self.selectedProject()]()[field];
-                    if (self.hasProject().indexOf(_assoc) === -1)
-                        self.hasProject().push(_assoc);
+                    ret = _assoc.projects[_proj.proj_name]()[field];
+                    if (_proj.hasProject().indexOf(_assoc) === -1)
+                        _proj.hasProject().push(_assoc);
                 } catch(err) {
                     if (err.name === 'TypeError') {
                         ret = "Project Does Not Exist";
@@ -172,6 +157,7 @@ define( [
                 // find this _assoc in checked servers...
                 var index = self.checked_servers.indexOf(_assoc);
                 self.checked_servers()[index].editable(true);
+                console.log(self.checked_servers()[index].editable());
             };
 
             var doneEditing = function (_updatingassoc) {
@@ -186,45 +172,63 @@ define( [
 
             self.showEditTable = ko.observable(false);
 
-            self.showEdit = function() {
-                self.showEditTable(true);
+            self.showEdit = function(html_proj) {
+                html_proj.editing(true);
+                /*index = self.allProjects.indexOf(html_proj);
+                self.allProjects()[index].editing(true);
+                self.allProjects()[index].editing.valueHasMutated();
+                console.log("editing set to: " + self.allProjects()[index].editing());*/
+            };
+
+            self.cancelEditing = function(html_proj) {
+                html_proj.editing(false);
             };
                         
             ko.bindingHandlers.updateEdit = {
                 init: function(element, valueAccessor, allBindings) {
+                    $(element).focus(function() {
+                        var value = valueAccessor();
+                        value(true);
+                    });
+                    /*
+                    $(element).blur(function() {
+                        var value = valueAccessor();
+                        console.log("Setting to FALSE!!");
+                        value(false);
+                    });*/
+                    
+                    $(element).focusout(function() {
+                        var value = valueAccessor();
+                        console.log("Setting to FALSE!!");
+                        value(false);
+                    });
+
+                },
+                update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                    //console.log("update, editing val is: " + valueAccessor());
+                    //if (valueAccessor())
+                    //    $(element).focus()
+
                     $(element).focusin(function() {
                         var value = valueAccessor();
                         value(true);
                     });
-                    $(element).blur(function() {
-                        var value = valueAccessor();
-                        value(false);
-                    });
-                    $(element).focusout(function() {
-                        var value = valueAccessor();
-                        value(false);
-                    });
-                },
-                update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    if (valueAccessor())
-                        $(element).focus()
 
-                     $(element).focusin(function() {
-                        var value = valueAccessor();
-                        value(true);
-                    });
                     var editing = ko.unwrap(valueAccessor());
                     if (editing) tableEditing = true;
-
 
                     var index = self.checked_servers.indexOf(bindingContext.$parent);
 
                     // only update if the project exists!
                     if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
-                        self.checked_servers()[index].pillar[self.selectedProject()][bindingContext.$data] = element.value;
+                        //console.log("project exists");
+                        var project = bindingContext.$parents[1].proj_name;
+                        var key = bindingContext.$data;
+                        self.checked_servers()[index].pillar[project][key] = element.value;
                     }
 
                     if (!editing && tableEditing) {
+                        //console.log("done editing");
                         // tell all others that we're done editing
                         doneEditing(bindingContext.$parent);
                         tableEditing = false;
@@ -236,11 +240,14 @@ define( [
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                     // have to call in order for this to update
                     var edit = ko.unwrap(valueAccessor());
+                    console.log("update latest, editing val is: " + edit);
                     // check what getvalues returns first
-                    element.text = self.getValues(bindingContext.$parent, bindingContext.$data);
+                    element.text = self.getValues(bindingContext.$parent, bindingContext.$parents[1].proj_name, bindingContext.$data);
                     if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
-                        $(element).text(bindingContext.$parent.pillar[self.selectedProject()][bindingContext.$data]);
-                        console.log(bindingContext.$data + " Val set to: " +  element.text);
+                        var project = bindingContext.$parents[1].proj_name;
+                        var key = bindingContext.$data;
+                        $(element).text(bindingContext.$parent.pillar[project][key]);
+                        console.log(key + " Val set to: " +  element.text);
                     }
                 }
             };
@@ -254,10 +261,8 @@ define( [
                 _assoc.pillar[self.new_project()] = pairs;
             };
 
-            var JSONupdate = function(_assoc, update_type) {
-                if (update_type === 'value')
-                    _assoc.pillar[self.selectedProject()][self.selectedKey()] = self.edit_value();
-                else if (update_type === 'key')
+            var JSONupdate = function(_assoc, update_type, project) {
+                if (update_type === 'key')
                     _assoc.pillar[self.selectedProject()][self.new_key()] = self.new_value();
             };
 
@@ -285,7 +290,6 @@ define( [
                 if (typeof project_name === 'undefined')
                     console.log("no project");
                 else { 
-                    self.selectedProject(project_name);
                     self.selectedModify("Existing project");
                 }
             };
@@ -309,7 +313,19 @@ define( [
                 });
             };
 
-            self.updateProjectWrapper = function(update_type, data_type) {
+            /*
+            self.editVisualUpdate = function(_proj, update_type, data_type, project, key) {
+                if (update_type === 'create') {
+                    if (data_type === 'key') {
+                        var new_key = _proj.new_key;
+                        if (new_key === "") }
+                            swal("Error", "Please enter a value for the new key", 'error');
+                            return
+                        }
+                        ko.utils.arrayForEach(_proj.hasProject
+            */
+
+            self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
                 if (self.missingProject().length > 0) {
@@ -329,15 +345,15 @@ define( [
                 function(isConfirm){
                     if (isConfirm) {
                         if (update_type === 'delete')  
-                            self.pillarApiModel.api_delete(data_type);
+                            self.pillarApiModel.api_delete(data_type, project, key);
                         else {
                             var refresh_salt = false;
-                            for (var each in self.hasProject()) {
-                                if (each === (self.hasProject().length-1).toString()) {
+                            for (var each in _proj.hasProject()) {
+                                if (each === (_proj.hasProject().length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                if (data_type !== 'wholeTable') JSONupdate(self.hasProject()[each], data_type);
-                                self.pillarApiModel.api_post_json(self.hasProject()[each], refresh_salt, self.hasProject, data_type);
+                                if (data_type !== 'wholeTable') JSONupdate(_proj.hasProject()[each], data_type);
+                                self.pillarApiModel.api_post_json(_proj.hasProject()[each], refresh_salt, _proj.hasProject, data_type);
                             }
                         }
                     }
@@ -345,24 +361,21 @@ define( [
             };
 
             var addProjects = function(_assoc) {
-                for (var each in _assoc.pillar){
-                    if (self.allProjects.indexOf(each) < 0){
-                        //console.log(each);
-                        self.allProjects.push(each);
-                    }
-                }
-                try { 
-                    for (var each in _assoc.pillar[self.selectedProject()]){
-                        if (self.allKeys.indexOf(each) < 0){
-                            self.allKeys.push(each);
+                $.each(_assoc.pillar, function(proj_name, keyVals) {
+                    var found = false;
+                    for (var i in self.allProjects()) {
+                        if (self.allProjects()[i].proj_name === proj_name) {
+                            found = true;
                         }
+                    } 
+                    if (!found) {
+                        var new_proj = new self._proj(proj_name);
+                        $.each(keyVals, function(key, value) {
+                            new_proj.keys.push(key);
+                        }); 
+                        self.allProjects.push(new_proj);
                     }
-                } catch(err) {
-                    if (err.name === "TypeError")
-                        console.log("Race condition, not an issue");
-
-                }
-
+                });
             };
 
             self.objProjects = function (_assoc) {
@@ -399,16 +412,6 @@ define( [
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                 addProjects(_assoc);
                             });
-
-                            // selected project may no longer be in the all projects array
-                            var proj_exist = ko.utils.arrayFirst(self.allProjects(), function(project) {
-                                return project === self.selectedProject();
-                            });
-
-                            if (!proj_exist) { 
-                                self.selectedProject(null);
-                                self.selectedKey(null);
-                            }
 
                             _assoc.prior = false;
                             // if this is the last to be un-checked, reset all fields
@@ -483,7 +486,7 @@ define( [
                 self.servers(data);
                 updateAllAdditions();
                 updateAllDeletions();
-                self.pillarApiModel.updateChecked('get_list');
+                self.pillarApiModel.updateChecked();
             };
             
             var onFailure = function() {

@@ -66,47 +66,69 @@ define([
                         if ($.isEmptyObject(dataset)) validationFailure = true;
 
                         if (this.args.type === 'update') {
-                            for (var i in dataset) {
-                                if (dataset.hasOwnProperty(i)) {
-                                    thisProject = dataset[i][this.args.zk][this.args.project];
-                                    // check if project exists
-                                    if (!thisProject) {
-                                        validationFailure = true;
-                                    }
-                                    // check if the pillar is correct and exists
-                                    var cur_pillar = pillar_lookup[i]
-                                    if (dataset[i][this.args.zk] != cur_pillar) {
-                                        validationFailure = true;
-                                    }
-                                    var key = this.args.key;
-                                    if (this.args.value && thisProject[key] !== this.args.value) {
-                                        validationFailure = true;
+                            try {
+                                for (var i in dataset) {
+                                    if (dataset.hasOwnProperty(i)) {
+                                        thisProject = dataset[i][this.args.zk][this.args.project];
+                                        // check if project exists
+                                        if (!thisProject) {
+                                            validationFailure = true;
+                                        }
+                                        // check if the pillar exists and is correct
+                                        var cur_pillar = pillar_lookup[i]
+                                        if (dataset[i][this.args.zk] != cur_pillar) {
+                                            validationFailure = true;
+                                        }
+                                        // check if the key exists and is correct
+                                        var key = this.args.key;
+                                        if (this.args.value && thisProject[key] !== this.args.value) {
+                                            validationFailure = true;
+                                        }
                                     }
                                 }
+                            } catch(err) {
+                                if (err.type === 'TypeErr') {
+                                    console.log("TypeError caught, Salt config likely missing data");
+                                }
+                                else {
+                                    console.log("Unexpected error caught: " + err.type);
+                                }
+                                validationFailure = true;
                             }
+
                         }
                         else if (this.args.type === 'delete') {
                             // corner case if deleting one node and it is successful...
                             // shouldn't be a problem with this structure
 
                             for (var j in dataset) {
-                                if (dataset.hasOwnProperty(j)) {
-                                    if (this.args.data === 'key') {
-                                        thisProject = dataset[j][this.args.zk][this.args.project];
-                                        if (thisProject[this.args.key]) {
-                                            validationFailure = true;
+                                try {
+                                    if (dataset.hasOwnProperty(j)) {
+                                        if (this.args.data === 'key') {
+                                            thisProject = dataset[j][this.args.zk][this.args.project];
+                                            if (thisProject[this.args.key]) {
+                                                validationFailure = true;
+                                            }
+                                        }
+                                        else if (this.args.data === 'project') {
+                                            if (dataset[j][this.args.zk][this.args.project]) {
+                                                validationFailure = true;
+                                            }
+                                        }
+                                        else if (this.args.data === 'node') {
+                                            if (!($.isEmptyObject(dataset))) {
+                                                validationFailure = true;
+                                            }
                                         }
                                     }
-                                    else if (this.args.data === 'project') {
-                                        if (dataset[j][this.args.zk][this.args.project]) {
-                                            validationFailure = true;
-                                        }
+                                } catch(err) {
+                                    if (err.type === 'TypeErr') {
+                                        console.log("TypeError caught, Salt config likely missing data");
                                     }
-                                    else if (this.args.data === 'node') {
-                                        if (!($.isEmptyObject(dataset))) {
-                                            validationFailure = true;
-                                        }
+                                    else {
+                                        console.log("Unexpected error caught: " + err.type);
                                     }
+                                    validationFailure = true;
                                 }
                             }
                         }
