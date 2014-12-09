@@ -45,13 +45,8 @@ class Configuration(object):
             self._task_path = zookeeper_settings.get('task_path')
             self._application_state_path = zookeeper_settings.get('application_state_path')
             self._global_mode_path = zookeeper_settings.get('global_mode_path')
-
-            # points to TEMP path
-            self._pillar_path = "/test/spot/software/config/pillar"
-            #self._pillar_path = zookeeper_settings.get('pillar_path')
-
+            self._pillar_path = zookeeper_settings.get('pillar_path')
             self._alert_path = zookeeper_settings.get('alert_path')
-
             self._zookeeper_host = ZK_CONN_STRING
 
             #pagerduty

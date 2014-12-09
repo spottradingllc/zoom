@@ -26,7 +26,7 @@
 
     <div class="container" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
-            <h1> Pillar Value Editor<small> alpha </small></h1>
+            <h1> Pillar Value Editor<small> beta </small></h1>
             <div class="btn-group" data-bind="foreach: pillarOptions">
                 <button class="btn btn-default" data-bind="radio: $parent.selectedOption">
                     <span data-bind="text: $data"></span>
@@ -216,8 +216,12 @@
 
                 </div>
 
+                <div data-bind="visible: selectedOption() == 'View Pillar(s)'">
+                    <span> Re-select server if you are seeing outdated information </span>
+                </div>
                 <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checked_servers()" id="showJSON">
                     <p data-bind="text: name"></p>
+                    
                     <textarea readonly style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
                 </div>
             </div>

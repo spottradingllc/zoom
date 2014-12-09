@@ -100,7 +100,6 @@ define(
                         uri += "/" + key;
                         del_phrase = "Deleted key: " + key;
                     }
-                    console.log("URI sent to server: " + uri);
 
                     var _deldata = {
                         "username": pillarModel.login.elements.username(),

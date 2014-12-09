@@ -400,11 +400,11 @@ define( [
                             _assoc.prior = true;
                         }
                         else {
-                            /*self.allProjects([]);
+                            self.allProjects([]);
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                  addProjects(_assoc);
                                  self.objProjects(_assoc);
-                            });*/
+                            });
                         }
                     }
                     else if (!_assoc.checked()) {

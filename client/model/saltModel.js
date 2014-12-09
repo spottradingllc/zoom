@@ -189,7 +189,8 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
+                        // DISABLE validation until done and fixed...
+                        //self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
                     });
 
             };
