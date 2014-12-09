@@ -122,9 +122,9 @@
                             <button type="button" class="btn btn-danger" data-bind="click: function () { $parent.updateProjectWrapper('delete', 'project', $data) }, text: 'Delete Project ' + $data.proj_name" ></button>
                         </div>
 
-                        <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px;">
+                        <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px; cursor: pointer;"
+                            data-bind="visible: !$data.editing(), click: function () {$parent.showEdit($data)}">
                         
-                            <h4> Current Data from Salt Master </h4>
                             <thead>
                             <tr>
                                 <th>Server</th>
@@ -145,12 +145,13 @@
                             </tbody>
 
                         </table>
-                    
+
+                        <!--
                         <button data-bind="click: function () {$parent.showEdit($data)}, visible: !$data.editing()"> Edit </button>
-                        <hr data-bind="visible: $data.editing"> 
+                        -->
 
                         <table class="table table-striped table-bordered edit" id="editTable" data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
-                            <h4 data-bind="visible: $data.editing"> Edit Data </h4>
+                            <caption> Click a field to edit </caption>
                             <thead>
                             <tr>
                                 <th>Server</th>

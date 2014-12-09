@@ -5,12 +5,14 @@ define([
         'jquery',
         'bindings/uppercase'
     ],
-    function(ko, router, service, $) {
-        return function saltModel() {
+    function(ko, router, service) {
+        return function saltModel(pillarModel) {
             var self = this;
 
-            var _valdata = function(update_type, data_type, data_delta, value, project, zk) {
+            var _valdata = function(update_list, pillar_lookup, update_type, data_type, data_delta, value, project, zk) {
                 var self = this;
+                self.list = update_list;
+                self.pillar = pillar_lookup;
                 self.type = update_type;
                 self.data = data_type;
                 self.key = data_delta;
@@ -25,7 +27,7 @@ define([
                 var run_arg = "zookeeper_pillar:" + project;
                 var zk = "zookeeper_pillar";
 
-                var _pass = new _valdata(update_type, data_type, data_delta, value, project, zk);
+                var _pass = new _valdata(update_list, pillar_lookup, update_type, data_type, data_delta, value, project, zk);
 
                 if (data_type === 'node') {
                     run_func = "test.ping";
@@ -59,30 +61,25 @@ define([
                     .done(function(data) {
                         // check if the data returned is correct
                         var validationFailure = false;
+                        var errorMsg;
                         var dataset = data.return[0];
-                        var thisProject;
+                        var zkPillar;
 
                         // check if we get an empty object - failure!!
                         if ($.isEmptyObject(dataset)) validationFailure = true;
 
-                        if (this.args.type === 'update') {
+                        // any sort of update
+                        if (this.args.data !== 'node') {
                             try {
                                 for (var i in dataset) {
                                     if (dataset.hasOwnProperty(i)) {
-                                        thisProject = dataset[i][this.args.zk][this.args.project];
-                                        // check if project exists
-                                        if (!thisProject) {
+                                        zkPillar = dataset[i][this.args.zk];
+                                        // check if the pillars have the same value
+                                        // TODO: skeptical if lookup will work correctly
+                                        var expected_pillar = this.args.pillar_lookup[i];
+                                        if (zkPillar !== cur_pillar) {
                                             validationFailure = true;
-                                        }
-                                        // check if the pillar exists and is correct
-                                        var cur_pillar = pillar_lookup[i]
-                                        if (dataset[i][this.args.zk] != cur_pillar) {
-                                            validationFailure = true;
-                                        }
-                                        // check if the key exists and is correct
-                                        var key = this.args.key;
-                                        if (this.args.value && thisProject[key] !== this.args.value) {
-                                            validationFailure = true;
+                                            errorMsg = "Salt pillar and updated pillar do not match, manual refresh required";
                                         }
                                     }
                                 }
@@ -97,44 +94,39 @@ define([
                             }
 
                         }
-                        else if (this.args.type === 'delete') {
-                            // corner case if deleting one node and it is successful...
-                            // shouldn't be a problem with this structure
-
-                            for (var j in dataset) {
-                                try {
-                                    if (dataset.hasOwnProperty(j)) {
-                                        if (this.args.data === 'key') {
-                                            thisProject = dataset[j][this.args.zk][this.args.project];
-                                            if (thisProject[this.args.key]) {
-                                                validationFailure = true;
-                                            }
-                                        }
-                                        else if (this.args.data === 'project') {
-                                            if (dataset[j][this.args.zk][this.args.project]) {
-                                                validationFailure = true;
-                                            }
-                                        }
-                                        else if (this.args.data === 'node') {
-                                            if (!($.isEmptyObject(dataset))) {
-                                                validationFailure = true;
-                                            }
-                                        }
+                        else { // create or delete a node
+                            try {
+                                if (this.args.data === 'preCreate') {
+                                    // check if the ping is true
+                                    if (!dataset[0]){
+                                        validationFailure = true;
+                                        errorMsg = "Server not found in Salt, please make sure this server is in Salt"
                                     }
-                                } catch(err) {
-                                    if (err.type === 'TypeErr') {
-                                        console.log("TypeError caught, Salt config likely missing data");
-                                    }
-                                    else {
-                                        console.log("Unexpected error caught: " + err.type);
-                                    }
-                                    validationFailure = true;
+                                    // call api post
+                                    self.pi
                                 }
-                            }
-                        }
+                                else if (this.args.data === 'delete') {
+                                    // make sure zkpillar is gone
+                                    if (!$.isEmptyObject(dataset[0][this.args.zk])) {
+                                        validationFailure = true;
+                                        errorMsg = "ZK Pillar still exists";
+                                    }
+                                }
+                                else if (this.args.data === 'postCreate') {
+                                    // make sure zkpillar is there
+                                    if ($.isEmptyObject(dataset[0][this.args.zk])) {
+                                        validationFailure = true;
+                                        errorMsg = "ZK Pillar does not exist";
+                                    }
+                                }
 
-                        else if (this.args.type === 'create') {
-                            if ($.isEmptyObject(data.return[0])) {
+                            } catch(err) {
+                                if (err.type === 'TypeErr') {
+                                    console.log("TypeError caught, Salt config likely missing data");
+                                }
+                                else {
+                                    console.log("Unexpected error caught: " + err.type);
+                                }
                                 validationFailure = true;
                             }
                         }
@@ -152,8 +144,11 @@ define([
 
                 var pillar_lookup = {};
 
+                // creating a single node...
                 if (single_update) {
                     all = ko_array_to_update;
+                    // don't need to use pillar_lookup..
+                    //pillar_lookup[all] = {};
                 }
                 else {
                     ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {

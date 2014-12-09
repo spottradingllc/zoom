@@ -5,9 +5,10 @@ define( [
         'service',
         'jquery',
         'model/pillarApiModel',
+        'model/saltModel',
         'bindings/uppercase'
     ],
-    function(ko, router, composition, service, $, pillarApiModel) {
+    function(ko, router, composition, service, $, pillarApiModel, saltModel) {
         return function pillarModel(login) {
     
             var self = this;
@@ -15,7 +16,7 @@ define( [
 
             self.servers = ko.observableArray([]);
             self.allInfo = ko.observableArray([]);//.extend({rateLimit: 100});
-            self.checked_servers = ko.observableArray([]).extend({rateLimit: 100});
+            self.checked_servers = ko.observableArray([]);//.extend({rateLimit: 100});
             self.show_allInfo = ko.observableArray([]);
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
@@ -39,8 +40,7 @@ define( [
             self.alphaNum = /^[a-zA-Z0-9]+$/;
 
             self.pillarApiModel = new pillarApiModel(self);
-
-            //composition.addBindingHandler('hasFocus');
+            self.saltModel = new saltModel(self);
 
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
@@ -51,7 +51,6 @@ define( [
                 self.prior = false;
                 self.projects = {};
                 self.editable = ko.observable(false);
-                // _assoc object also has dynamically created
             };
 
             self._proj = function(name) {
@@ -62,6 +61,9 @@ define( [
                 self.hasProject = ko.observableArray([]);
                 self.new_key = ko.observable("");
                 self.editing = ko.observable(false);
+                // need a way of keeping track of the number of servers
+                // which have that project, when it reaches zero: remove
+                self.freq = 0;
             };
 
             var resetFields = function () {
@@ -74,7 +76,6 @@ define( [
                 self.allProjects([]);
                 addProjects(_assoc);
                 self.missingProject([]);
-                // self.hasProject([]);
             };
 
             $(document).on('change keyup keydown paste cut', '.textarea', function() {
@@ -156,7 +157,6 @@ define( [
                 // find this _assoc in checked servers...
                 var index = self.checked_servers.indexOf(_assoc);
                 self.checked_servers()[index].editable(true);
-                console.log(self.checked_servers()[index].editable());
             };
 
             var doneEditing = function (_updatingassoc) {
@@ -198,15 +198,10 @@ define( [
                     });
                     $(element).focusout(function() {
                         var value = valueAccessor();
-                        console.log("Setting to FALSE!!");
                         value(false);
                     });
                 },
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    //console.log("update, editing val is: " + valueAccessor());
-                    //if (valueAccessor())
-                    //    $(element).focus()
-
                     $(element).focusin(function() {
                         var value = valueAccessor();
                         value(true);
@@ -219,14 +214,12 @@ define( [
 
                     // only update if the project exists!
                     if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
-                        //console.log("project exists");
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
                         self.checked_servers()[index].edit_pillar[project][key] = element.value;
                     }
 
                     if (!editing && tableEditing) {
-                        //console.log("done editing");
                         // tell all others that we're done editing
                         doneEditing(bindingContext.$parent);
                         tableEditing = false;
@@ -238,14 +231,12 @@ define( [
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                     // have to call in order for this to update
                     var edit = ko.unwrap(valueAccessor());
-                    console.log("update latest, editing val is: " + edit);
                     // check what getvalues returns first
                     element.text = self.getValues(bindingContext.$parent, bindingContext.$parents[1], bindingContext.$data);
                     if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
                         $(element).text(bindingContext.$parent.edit_pillar[project][key]);
-                        console.log(key + " Val set to: " +  element.text);
                     }
                 }
             };
@@ -296,21 +287,17 @@ define( [
                     _assoc.checked(false);
                 });
             };
-            
-            // Performance issues, currently limited to 8 selected
-            self.checkAll = function(check) {
+
+            self.checkAll = function() {
                 if (self.show_allInfo().length > 8){
-                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'Error');
+                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
                     return;
                 }
-                var arrayCopy = self.show_allInfo();
-                for(var inc = 0; inc < arrayCopy.length; inc++){
-                    arrayCopy[inc].checked(true);
-                }
-                self.show_allInfo(arrayCopy);
-                self.show_allInfo.valueHasMutated();
+                ko.utils.arrayForEach(self.show_allInfo(), function(_assoc) {
+                    _assoc.checked(true);
+                });
             };
-
+            
             var switchViewToProject = function(project_name) {
                 if (typeof project_name === 'undefined')
                     console.log("no project");
@@ -337,10 +324,6 @@ define( [
                     }
                 });
             };
-
-            /*self.updateAll = function() {
-                ko.utils.arrayForEach(self.allProjects(), function(_proj) {
-            */        
 
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
@@ -383,14 +366,17 @@ define( [
                     var found = false;
                     for (var i in self.allProjects()) {
                         if (self.allProjects()[i].proj_name === proj_name) {
+                            self.allProjects()[i].freq++; 
                             found = true;
                         }
                     } 
                     if (!found) {
                         var new_proj = new self._proj(proj_name);
+                        new_proj.freq = 1;
                         $.each(keyVals, function(key, value) {
                             new_proj.keys.push(key);
                         }); 
+                        
                         self.allProjects.push(new_proj);
                     }
                 });
@@ -414,11 +400,11 @@ define( [
                             _assoc.prior = true;
                         }
                         else {
-                            self.allProjects([]);
+                            /*self.allProjects([]);
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                  addProjects(_assoc);
                                  self.objProjects(_assoc);
-                            });
+                            });*/
                         }
                     }
                     else if (!_assoc.checked()) {
@@ -471,7 +457,6 @@ define( [
             var updateAllAdditions = function() {
                 ko.utils.arrayForEach(self.servers(), function (server_name) {
                     var serverAlreadyExists = false;
-                    //console.log(server_name);
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
                             self.pillarApiModel.getPillar(_assoc, false);
