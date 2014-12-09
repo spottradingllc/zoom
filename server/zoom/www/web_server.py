@@ -72,7 +72,7 @@ class WebServer(tornado.web.Application):
             # pillar
             (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
-            # zookeeer data
+            # zookeeper data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
             # tornado-specific
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": ""}),

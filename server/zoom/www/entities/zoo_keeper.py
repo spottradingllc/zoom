@@ -45,7 +45,7 @@ class ZooKeeper(object):
                 self.kazoo.stop()
                 self.kazoo.close()
                 logging.info("ZooKeeper client stopped")
-    
+
         except TypeError:
             pass
 
@@ -62,8 +62,8 @@ class ZooKeeper(object):
     def get(self, path, watch=None):
         return self.kazoo.get(path=path, watch=watch)
 
-    def delete(self, path):
-        return self.kazoo.delete(path=path, recursive=True)
+    def delete(self, path, recursive=True):
+        return self.kazoo.delete(path=path, recursive=recursive)
 
     def get_children(self, path, watch=None):
         return self.kazoo.get_children(path=path, watch=watch)
