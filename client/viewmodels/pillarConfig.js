@@ -7,7 +7,8 @@ define(
         'd3',
         'model/loginModel',
         'model/pillarModel',
-        'bindings/radio'
+        'bindings/radio',
+        'bindings/tooltip'
     ],
     function(app, ko, service, $, d3, login, pillarModel) {
         self.login = login;

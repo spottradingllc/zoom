@@ -47,7 +47,8 @@ class Application(object):
     """
     Service object to represent an deployed service.
     """
-    def __init__(self, config, settings, conn, queue, system, application_type):
+    def __init__(self, config, settings, conn, queue, system, application_type,
+                 cancel_flag):
         """
         :type config: dict (xml)
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
@@ -55,6 +56,7 @@ class Application(object):
         :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type system: zoom.common.types.PlatformType
         :type application_type: zoom.common.types.ApplicationType
+        :type cancel_flag: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.config = config
         self._settings = settings
@@ -97,7 +99,8 @@ class Application(object):
         self.zkclient.add_listener(self._zk_listener)
         self._proc_client = self._init_proc_client(self.config,
                                                    settings,
-                                                   application_type)
+                                                   application_type,
+                                                   cancel_flag)
 
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
@@ -178,11 +181,17 @@ class Application(object):
         Start actual process
         :param kwargs: passed from zoom.handlers.control_agent_handlers
         """
-        # Same check as self.notify() but needed when start action is
-        # called after process crashes and all predicates are met when on Auto
-        if not self._proc_client.restart_logic.ran_stop \
+        # Restart from UI: ran_stop=True, stay_down=False
+        # Stop from UI: ran_stop=True, stay_down=True
+        # Crash: ran_stop=False, stay_down=False
+        if self._proc_client.restart_logic.ran_stop \
+                and self._proc_client.restart_logic.stay_down \
                 and self._apptype == ApplicationType.APPLICATION:
+
             self._log.info('Not starting. App was stopped with Zoom.')
+            return 0
+        elif self._proc_client.restart_logic.crashed:
+            self._log.info('Not starting. The application has crashed.')
             return 0
         else:
             self._log.debug('Start allowed.')
@@ -402,7 +411,7 @@ class Application(object):
 
         return paths
 
-    def _init_proc_client(self, config, settings, atype):
+    def _init_proc_client(self, config, settings, atype, cancel_flag):
         """Create the process client."""
         command = verify_attribute(config, 'command', none_allowed=True)
         script = verify_attribute(config, 'script', none_allowed=True)
@@ -422,7 +431,8 @@ class Application(object):
                              system=self._system,
                              restart_logic=RestartLogic(restartmax),
                              graphite_metric_names=g_names,
-                             settings=settings)
+                             settings=settings,
+                             cancel_flag=cancel_flag)
 
     def _init_actions(self, settings):
         """

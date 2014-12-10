@@ -325,19 +325,10 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
-                                <button data-bind="click: function(){setParameter('triggerTime')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'triggerTime') ? ' active' : ''))}"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Filter by trigger time.">
-                                    Trigger Time
-                                </button>
-                                <button data-bind="click: function(){setParameter('completionTime')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'completionTime') ? ' active' : ''))}"
-                                        data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Filter by completion time.">
-                                    Completion Time
+                                <button data-bind="click: function(){setParameter('weekend')},
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'weekend') ? ' active' : ''))}"
+                                        data-toggle="tooltip" data-placement="top" title="Filter by weekend.">
+                                    Weekend
                                 </button>
                                 <button data-bind="click: function(){setParameter('errorState')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
@@ -509,27 +500,20 @@
                     </td>
                     <td data-bind="text: completionTime"></td>
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
-                        <span data-bind="attr : {class : errorStateClass,
-                                                 title : errorState}">
-                        </span>
-                        <span data-bind="attr : {class : modeClass,
-                                                 title : mode}">
-                        </span>
+                        <span data-bind="attr : {class : errorStateClass, title : errorState}"></span>
+                        <span data-bind="attr : {class : modeClass, title : mode}"></span>
+                        <span data-bind="attr : {class : pdDisabledClass, title: pdDisabled() ? 'PD alerts disabled' : ''}"></span>
                     </td>
+                    <!-- Control -->
                     <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
                         <div class="btn-group btn-group-xs" >
-                            <button class="btn btn-default"
-                                    type="button"
+                            <button class="btn btn-default" type="button"
                                     data-bind="click: toggleGroupControl"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Star the agent to add it to group control.">
+                                    data-toggle="tooltip" data-placement="top" title="Star the agent to add it to group control.">
                                     <span data-bind="attr : {class : groupControlStar}"></span>
                             </button>
                             <button class="btn btn-default dropdown-toggle" type="button"
-                                    data-toggle="dropdown"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
+                                    data-toggle="dropdown" data-toggle="tooltip" data-placement="top"
                                     title="View control options for the agent.">
                                 <span class="caret"></span>
                             </button>
@@ -538,57 +522,62 @@
                                 <a data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Stop the agent.">Stop</a>
+                                       data-toggle="tooltip" data-placement="top" title="Stop the agent.">Stop</a>
                                 </li>
                                 <li role="presentation">
                                 <a data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Restart the agent.">Restart</a>
+                                       data-toggle="tooltip" data-placement="top" title="Restart the agent.">Restart</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Cancel pending commands to the agent.">Cancel</a>
+                                       data-toggle="tooltip" data-placement="top" title="Cancel pending commands to the agent.">Cancel</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
                                       {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
                                       'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Command the agent to ignore Zookeeper changes.">Ignore</a>
+                                       data-toggle="tooltip" data-placement="top" title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
-                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"                        
-                                       data-toggle="tooltip"
-                                       data-placement="top"
-                                       title="Command the agent to react to Zookeeper changes.">React</a>
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Command the agent to react to Zookeeper changes.">React</a>
                                 </li>
                            </ul>
                         </div>
                     </td>
+                    <!-- END Control -->
+                    <!-- Admin -->
                     <td class="text-center" data-bind="visible: $parent.appStateModel.admin.enabled">
                         <div class="btn-group btn-group-xs" >
-                            <button class="btn btn-default"
-                                    type="button"
-                                    data-bind="click: deleteRow"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Permanently delete this application">
-                                    <span class="glyphicon glyphicon-remove"></span>
+                            <button class="btn btn-default dropdown-toggle" type="button"
+                                    data-toggle="dropdown"
+                                    data-toggle="tooltip" data-placement="top" title="Admin options for the agent.">
+                                Admin Options
+                                <span class="caret"></span>
                             </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li role="presentation">
+                                <a data-bind="click: deleteRow"
+                                   data-toggle="tooltip" data-placement="top" title="Permanently delete this application">Delete</a>
+                                </li>
+                                <li role="presentation">
+                                <a data-bind="click: toggleGrayed, text: grayed() ? 'Un-Gray' : 'Gray-Out'"
+                                   data-toggle="tooltip" data-placement="top" title="Whether to Gray out the app."></a>
+                                </li>
+                                <li role="presentation">
+                                <a data-bind="click: togglePDDisabled, text: pdDisabled() ? 'PD-Enable' : 'PD-Disable'"
+                                   data-toggle="tooltip" data-placement="top" title="Whether to disable PD alerts."></a>
+                                </li>
+                           </ul>
                         </div>
                     </td>
+                    <!-- END Admin -->
                 </tr>
             </tbody>
             <!-- END Rows -->
@@ -677,7 +666,6 @@
                 data-placement="top"
                 title="Filter services whose status is ok.">
             <span class="glyphicon glyphicon-thumbs-up"></span>
-            </input>
         </button>
         <button data-bind="click: function(){setSearchTerm('starting')},
                            attr: {class : ('btn btn-default' + ((searchTerm() == 'starting') ? ' active' : ''))}"
@@ -685,7 +673,6 @@
                 data-placement="top"
                 title="Filter services whose status is starting.">
             <span class="glyphicon glyphicon-retweet"></span>
-            </input>
         </button>
         <button data-bind="click: function(){setSearchTerm('stopping')},
                            attr: {class : ('btn btn-default' + ((searchTerm() == 'stopping') ? ' active' : ''))}"
@@ -693,7 +680,6 @@
                 data-placement="top"
                 title="Filter services whose status is stopping.">
             <span class="glyphicon glyphicon-arrow-down"></span>
-            </input>
         </button>
         <button data-bind="click: function(){setSearchTerm('error')},
                            attr: {class : ('btn btn-default' + ((searchTerm() == 'error') ? ' active' : ''))}"
@@ -701,7 +687,6 @@
                 data-placement="top"
                 title="Filter services whose status is error.">
             <span class="glyphicon glyphicon-warning-sign"></span>
-            </input>
         </button>
         <button data-bind="click: function(){setSearchTerm('unknown')},
                            attr: {class : ('btn btn-default' + ((searchTerm() == 'unknown') ? ' active' : ''))}"
@@ -709,7 +694,20 @@
                 data-placement="top"
                 title="Filter services whose status is unknown.">
             <span class="glyphicon glyphicon-question-sign"></span>
-            </input>
+        </button>
+        <button data-bind="click: function(){setSearchTerm('grayed')},
+                           attr: {class : ('btn btn-default' + ((searchTerm() == 'grayed') ? ' active' : ''))}"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Filter services that are grayed out.">
+            <span class="glyphicon glyphicon-user"></span>
+        </button>
+        <button data-bind="click: function(){setSearchTerm('pdDisabled')},
+                           attr: {class : ('btn btn-default' + ((searchTerm() == 'pdDisabled') ? ' active' : ''))}"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Filter services that have PD disabled.">
+            <span class="glyphicon glyphicon glyphicon-wrench"></span>
         </button>
     </div>
 </script>

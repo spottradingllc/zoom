@@ -25,13 +25,15 @@ class DataStore(object):
         self._configuration = configuration
         self._zoo_keeper = zoo_keeper
         self._task_server = task_server
+        self._alert_exceptions = list()
 
         self._pd = PagerDuty(self._configuration.pagerduty_subdomain,
                              self._configuration.pagerduty_api_token,
                              self._configuration.pagerduty_default_svc_key)
 
         self._alert_manager = AlertManager(configuration.alert_path,
-                                           zoo_keeper, self._pd)
+                                           zoo_keeper, self._pd,
+                                           self._alert_exceptions)
 
         self._web_socket_clients = list()
 
@@ -140,3 +142,17 @@ class DataStore(object):
         :rtype: list
         """
         return self._web_socket_clients
+
+    @property
+    def application_state_cache(self):
+        """
+        :rtype: zoom.www.cache.application_state_cache.ApplicationStateCache
+        """
+        return self._application_state_cache
+
+    @property
+    def alert_exceptions(self):
+        """
+        :rtype: list
+        """
+        return self._alert_exceptions

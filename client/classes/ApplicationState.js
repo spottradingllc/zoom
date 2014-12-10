@@ -26,9 +26,12 @@ define(
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);
             self.lastCommand = ko.observable(data.last_command);
+            self.grayed = ko.observable(data.grayed);
+            self.pdDisabled = ko.observable(data.pd_disabled);
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
+
                 if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
                     ret = constants.glyphs.runningCheck;
                 }
@@ -43,7 +46,8 @@ define(
             }, self);
 
             self.applicationStatusBg = ko.computed(function() {
-                if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
+                if (self.grayed()) { return constants.colors.disabledGray; }
+                else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
                     return constants.colors.successTrans;
                 }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
@@ -71,7 +75,8 @@ define(
             });
 
             self.errorStateClass = ko.computed(function() {
-                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
+                if (self.grayed()) { return constants.glyphs.grayed; }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
                     return constants.glyphs.thumpsUp;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
@@ -94,8 +99,14 @@ define(
                 }
             }, self);
 
+            self.pdDisabledClass = ko.computed(function() {
+                if (self.pdDisabled()) { return constants.glyphs.pdWrench; }
+                else { return ""; }
+            });
+
             self.errorStateBg = ko.computed(function() {
-                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
+                if (self.grayed()) { return constants.colors.disabledGray; }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
                     if (self.mode() !== parent.globalMode.current()) {
                         return constants.colors.warnOrange;
                     }
@@ -138,7 +149,6 @@ define(
 
             self.groupControlStar.extend({rateLimit: 10});
 
-
             self.toggleGroupControl = function() {
                 if (parent.groupControl.indexOf(self) === -1) {
                     parent.groupControl.push(self);
@@ -146,6 +156,33 @@ define(
                 else {
                     parent.groupControl.remove(self);
                 }
+            };
+
+            self.toggleGrayed = function() {
+                var dict = {
+                    'key': 'grayed',
+                    'value': !self.grayed()
+                };
+                $.post('/api/application/states' + self.configurationPath, JSON.stringify(dict))
+                    .fail(function(data) { swal('Failure Toggling grayed ', JSON.stringify(data)); });
+            };
+
+            self.togglePDDisabled = function() {
+                var method;
+                if (self.pdDisabled()) {
+                    method = 'DELETE';
+                }
+                else {
+                    method = 'POST';
+                }
+
+                $.ajax({
+                    url: '/api/pagerduty/exceptions/' + self.componentId,
+                    type: method,
+                    success: function(data) { self.pdDisabled(!self.pdDisabled()); },
+                    error: function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data.responseText)); }
+                });
+
             };
 
             self.onControlAgentError = function() {
@@ -205,7 +242,7 @@ define(
                                     type: 'PUT',
                                     data: JSON.stringify(params),
                                     error: function(data) {
-                                        swal('Failed putting Config ' + JSON.stringify(data));
+                                        swal('Failed putting Config', JSON.stringify(data), 'error');
                                     }
                                 });
                         }
@@ -223,16 +260,36 @@ define(
                 });
             };
 
+
             self.deleteRow = function() {
                 // delete an application row on the web page
                 // parses the config and deletes the component with a matching id
                 // deletes the path in zookeeper matching the configurationPath
                 if (self.dependencyModel.requiredBy().length > 0) {
-                    var message = 'Someone depends on this! ';
+                    var message = 'Are you sure?\n';
                     ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
-                        message = message + '\n' + applicationState.configurationPath;
+                        message = message + applicationState.configurationPath + '\n';
                     });
-                    swal(message);
+                    swal({
+                        title: 'Someone depends on this!',
+                        text: message,
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'It\'s a trap, abort!',
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            deleteFromConfig();
+                            // give the agent time to clean up the old config
+                            setTimeout(function() { deleteFromZK(); }, 2000);
+                            swal('Deleting', 'Give us a few seconds to clean up.');
+                        }
+                        else {
+                            swal('Cancelled', 'Nothing was deleted.');
+                        }
+                    });
                 }
                 else if (self.applicationHost() === '') {
                     swal({

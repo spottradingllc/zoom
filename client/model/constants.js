@@ -2,11 +2,13 @@ define([], function () {
     return {
         colors: {
             actionBlue: '#057D9F',
+            confirmgreen: '#328332',
             errorRed: '#CC574F',
             successTrans: '',
             unknownGray: '#F7EEDA',
             warnOrange: '#FFAE2F',
-            configErrPink: '#FF64DB'
+            configErrPink: '#FF64DB',
+            disabledGray: '#71707F'
         },
 
         glyphs: {
@@ -22,7 +24,9 @@ define([], function () {
             emptyStar: 'glyphicon glyphicon-star-empty',
             modeAuto: 'glyphicon glyphicon-eye-open',
             modeManual: 'glyphicon glyphicon-eye-close',
-            configErr: 'glyphicon glyphicon-resize-small'
+            configErr: 'glyphicon glyphicon-resize-small',
+            grayed: 'glyphicon glyphicon-user',
+            pdWrench: 'glyphicon glyphicon-wrench'
         },
 
         applicationStatuses: {

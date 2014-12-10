@@ -10,6 +10,7 @@ from time import sleep, time
 from zoom.common.types import (
     PlatformType,
     ApplicationType,
+    ApplicationStatus
 )
 from zoom.agent.client.graphite_client import GraphiteClient
 
@@ -17,7 +18,7 @@ from zoom.agent.client.graphite_client import GraphiteClient
 class ProcessClient(object):
     def __init__(self, name=None, command=None, script=None, apptype=None,
                  system=None, restart_logic=None, graphite_metric_names=None,
-                 settings=None):
+                 settings=None, cancel_flag=None):
         """
         :type name: str or None
         :type command: str or None
@@ -40,6 +41,7 @@ class ProcessClient(object):
         self._apptype = apptype
         self._system = system
         self.restart_logic = restart_logic
+        self._cancel_flag = cancel_flag
 
         self.last_status = False
         self._graphite_metric_names = graphite_metric_names
@@ -82,14 +84,15 @@ class ProcessClient(object):
 
     def running(self):
         """
-        :type reset: bool
         :return: Whether the process is running.
         :rtype: bool
         """
         self.last_status = self.status_method()
+        self.restart_logic.check_for_crash(self.last_status)
 
-        self._log.debug('Process {0} running: {1}'
-                        .format(self.name, self.last_status))
+        self._log.debug('Process {0} running: {1}, crashed={2}'
+                        .format(self.name, self.last_status,
+                                self.restart_logic.crashed))
         return self.last_status
 
     def start(self):
@@ -120,6 +123,9 @@ class ProcessClient(object):
                                .format(self.name, self.restart_logic.count))
                 self.reset_counters()
                 break
+            elif return_code == ApplicationStatus.CANCELLED:
+                self._log.info('Start has been cancelled.')
+                break
             else:
                 self._log.info('{0} start attempt {1} failed.'
                                .format(self.name, self.restart_logic.count))
@@ -128,6 +134,7 @@ class ProcessClient(object):
                 sleep(10)  # minor wait before we try again
 
         self.restart_logic.set_ran_stop(False)
+        self._cancel_flag.set_value(False)
         return return_code
 
     def stop(self, **kwargs):
@@ -173,28 +180,13 @@ class ProcessClient(object):
         """
         Start process by running some arbitrary command
         """
-        return_code = -1
         self._log.info('Starting {0}'.format(self.command))
         if self._system == PlatformType.LINUX:
             cmd = shlex.split(self.command)
         else:
             cmd = self.command
 
-        with open(os.devnull, 'w') as devnull:
-            p = psutil.Popen(cmd, stdout=devnull, stderr=devnull)
-            while True:
-                return_code = p.poll()
-                if return_code is not None:  # None = still running
-                    break
-                elif p.status == psutil.STATUS_ZOMBIE:
-                    self._log.warning(
-                        '{0} command resulted in a zombie process. '
-                        'Returning with -1'.format(cmd))
-                    break
-                sleep(1)
-
-        self._log.debug('RETURNCODE: {0}'.format(return_code))
-        return return_code
+        return self._run_command(cmd)
 
     def _job_status(self):
         """
@@ -257,11 +249,18 @@ class ProcessClient(object):
         :return: The return code of the command.
         :rtype: int
         """
-        return_code = -1
         cmd = '/sbin/service {0} {1}'.format(self.script_name, action)
+        return self._run_command(shlex.split(cmd))
 
+    def _run_command(self, cmd):
+        """
+        Generic command runner
+        :param cmd: the param to run
+        :rtype: int
+        """
+        return_code = -1
         with open(os.devnull, 'w') as devnull:
-            p = psutil.Popen(shlex.split(cmd), stdout=devnull, stderr=devnull)
+            p = psutil.Popen(cmd, stdout=devnull, stderr=devnull)
             while True:
                 return_code = p.poll()
                 if return_code is not None:  # None = still running
@@ -269,7 +268,11 @@ class ProcessClient(object):
                 elif p.status == psutil.STATUS_ZOMBIE:
                     self._log.warning(
                         '{0} command resulted in a zombie process. '
-                        'Returning with -1'.format(action))
+                        'Returning with -1'.format(cmd))
+                    break
+                elif self._cancel_flag == True:
+                    p.terminate()
+                    return_code = -2
                     break
                 sleep(1)
 
