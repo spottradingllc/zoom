@@ -1,41 +1,42 @@
 define( [
         'knockout',
-        'plugins/router',
-        'durandal/composition',
         'service',
         'jquery',
         'model/pillarApiModel',
         'model/saltModel',
         'bindings/uppercase'
     ],
-    function(ko, router, composition, service, $, pillarApiModel, saltModel) {
+    function(ko, service, $, pillarApiModel, saltModel) {
         return function pillarModel(login) {
     
             var self = this;
             self.login = login;
 
-            self.servers = ko.observableArray([]);
+            self.servers = [];
+
+            // nodes with their associated pillar data in an _assoc
             self.allInfo = ko.observableArray([]);//.extend({rateLimit: 100});
-            self.checked_servers = ko.observableArray([]);//.extend({rateLimit: 100});
+
+            // nodes from allInfo that should be shown based on the current query 
             self.show_allInfo = ko.observableArray([]);
+
+            // nodes from show_allInfo that are checked
+            self.checked_servers = ko.observableArray([]);//.extend({rateLimit: 100});
+            
+            // all projects for a  
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
-            self.missingProject = ko.observableArray([]);
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
 
             self.searchVal = ko.observable(""); 
-            self.fieldOneVal = ko.observable("").extend({uppercase: true});
+            self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.selectedModify = ko.observable("Existing project");
             self.new_key = ko.observable("");
-            self.new_value = ko.observable("");
             self.new_project = ko.observable("");
-            self.edit_value = ko.observable("");
-            self.saltValFail = ko.observable("");
-            self.showEditTable = ko.observable(false);
             
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
@@ -48,10 +49,10 @@ define( [
                 self.name = server_name;
                 self.pillar = pillar_data;
                 self.edit_pillar = {};
-                self.checked = ko.observable(false);
-                self.prior = false;
                 self.projects = {};
+                self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
+                self.prior = false;
             };
 
             self._proj = function(name) {
@@ -59,7 +60,7 @@ define( [
                 self.proj_name = name;
                 self.keys = ko.observableArray([]);
                 self.edit_keys = ko.observableArray([]);
-                self.hasProject = ko.observableArray([]);
+                self.hasProject = [];
                 self.new_key = ko.observable("");
                 self.editing = ko.observable(false);
                 // need a way of keeping track of the number of servers
@@ -76,11 +77,14 @@ define( [
                 self.allKeys([]);
                 self.allProjects([]);
                 addProjects(_assoc);
-                self.missingProject([]);
             };
 
             self.toggleSearch = function() {
                 $('#searchPane').toggle(200);
+            };
+
+            self.removeQuery = function() {
+                self.searchVal("");
             };
 
             self.addPair = function() {
@@ -107,29 +111,41 @@ define( [
                 }
                 return true;
             });
-            
+
             var validateNewProject = function() {
                 if (self.new_project() === ""){
                     swal("Error", "Please enter a project name", 'error');
                     return false;
                 }
+                var ret = true;
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
                     if (pair.key !== "" && !alphaNum.test(pair.key)){
                         swal("Error", "Your key cannot contain non-alphanumerics", 'error');
                         pair.key = "";
-                        return false;
+                        ret = false;
                     }
+                    if (typeof pair.value !== 'undefined' && pair.value !== "") { 
+                        try {
+                            var parsed = JSON.parse(pair.value);
+                            // SET the pair to the new, parsed JSON!
+                            pair.value = parsed;
+                        } catch(err) {
+                            swal("Error", "Please make sure your values consist of valid JSON", 'error');
+                            ret = false;
+                        }
+                    }
+                
                 });               
-                return true;
+                return ret;
             };
 
 
             self.getValues = function (_assoc, _proj, field) {
                 var ret = "";
                 try {
-                    ret = _assoc.projects[_proj.proj_name]()[field];
-                    if (_proj.hasProject().indexOf(_assoc) === -1)
-                        _proj.hasProject().push(_assoc);
+                    ret = JSON.stringify(_assoc.projects[_proj.proj_name]()[field]);
+                    if (_proj.hasProject.indexOf(_assoc) === -1)
+                        _proj.hasProject.push(_assoc);
                 } catch(err) {
                     if (err.name === 'TypeError') {
                         ret = "Project Does Not Exist";
@@ -185,13 +201,28 @@ define( [
                 },
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                     var editing = ko.unwrap(valueAccessor());
-                    if (editing) tableEditing = true;
+                    if (editing) {
+                        tableEditing = true;
+                    }
                     var index = self.checked_servers.indexOf(bindingContext.$parent);
                     // only update if the project exists!
-                    if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
+                    if (!editing && element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
-                        self.checked_servers()[index].edit_pillar[project][key] = element.value;
+                        // don't care if value is null
+                        if (typeof element.value !== 'undefined' && element.value !== "") { 
+                            try {
+                                var parsed = JSON.parse(element.value);
+                            } catch(err) {
+                                swal("Error", "Please make sure your changes consist of valid JSON", 'error');
+                                return;
+                            }
+                        }
+
+                        else { 
+                            parsed = element.value;
+                        }
+                        self.checked_servers()[index].edit_pillar[project][key] = parsed;            
                     }
                     if (!editing && tableEditing) {
                         // tell all others that we're done editing
@@ -221,9 +252,9 @@ define( [
                         var new_key = _proj.new_key();
                         if (new_key === "") {
                             swal("Error", "Please enter a value for the new key", 'error');
-                            return
+                            return;
                         }
-                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
+                        _proj.hasProject.forEach(function(_assoc) {
                             // essentially the same as json update
                             _assoc.edit_pillar[_proj.proj_name][new_key] = "";
                         });
@@ -232,7 +263,7 @@ define( [
                 }
                 else if (update_type === 'delete') {
                     if (data_type === 'key') {
-                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
+                        _proj.forEach()(function(_assoc) {
                             delete _assoc.edit_pillar[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
@@ -249,11 +280,6 @@ define( [
                 // deep copy
                 _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
                 _assoc.edit_pillar[self.new_project()] = pairs;
-            };
-
-            var JSONupdate = function(_assoc, update_type, project) {
-                if (update_type === 'key')
-                    _assoc.pillar[self.selectedProject()][self.new_key()] = self.new_value();
             };
 
             self.uncheckAll = function() {
@@ -273,8 +299,9 @@ define( [
             };
             
             var switchViewToProject = function(project_name) {
-                if (typeof project_name === 'undefined')
+                if (typeof project_name === 'undefined') {
                     console.log("no project");
+                }
                 else { 
                     self.selectedModify("Existing project");
                 }
@@ -288,12 +315,15 @@ define( [
                         swal("Warning", "Project already exists on " + _assoc.name, 'error');
                         left--;
                     }
-                    else if (validateNewProject()){
+                
+                    else if (validateNewProject() === true){
                         // only refresh salt after the last one is updated 
-                        if (left == 1) refresh_salt = true; 
+                        if (left == 1) {
+                            refresh_salt = true; 
+                        }
                         left--;
                         JSONcreateProject(_assoc);
-                        self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checked_servers, 'project');
+                        self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checked_servers(), 'project');
                         switchViewToProject(data);
                     }
                 });
@@ -302,12 +332,12 @@ define( [
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (_proj.hasProject().length < self.checked_servers()) {
+                if (_proj.hasProject.length < self.checked_servers()) {
                     alertText = "Only " + _proj.has_project().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " servers?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " servers?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -318,17 +348,17 @@ define( [
                 }, 
                 function(isConfirm){
                     if (isConfirm) {
-                        if (update_type === 'delete')  
+                        if (update_type === 'delete') {
                             self.pillarApiModel.api_delete(data_type, _proj, key);
+                        } 
                         else {
                             var refresh_salt = false;
-                            for (var each in _proj.hasProject()) {
-                                if (each === (_proj.hasProject().length-1).toString()) {
+                            for (var each in _proj.hasProject) {
+                                if (each === (_proj.hasProject.length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                if (data_type !== 'wholeTable') JSONupdate(_proj.hasProject()[each], data_type);
                                 // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
-                                self.pillarApiModel.api_post_json(_proj.hasProject()[each], refresh_salt, _proj.hasProject, data_type);
+                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
                             }
                         }
                     }
@@ -350,7 +380,6 @@ define( [
                         $.each(keyVals, function(key, value) {
                             new_proj.keys.push(key);
                         }); 
-                        
                         self.allProjects.push(new_proj);
                     }
                 });
@@ -393,7 +422,7 @@ define( [
 
                             _assoc.prior = false;
                             // if this is the last to be un-checked, reset all fields
-                            if (self.checked_servers().length == 0){
+                            if (self.checked_servers().length === 0){
                                 resetFields();
                             }
                         }
@@ -427,7 +456,7 @@ define( [
             });
 
             var updateAllAdditions = function() {
-                ko.utils.arrayForEach(self.servers(), function (server_name) {
+                self.servers.forEach(function (server_name) {
                     var serverAlreadyExists = false;
                     ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                         if (server_name === _assoc.name) {
@@ -445,19 +474,20 @@ define( [
                 ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                     var serverAlreadyExists = false;
                     if (typeof _assoc !== "undefined"){
-                        ko.utils.arrayForEach(self.servers(), function (name) {
+                        self.servers.forEach(function (name) {
                             if (_assoc.name === name)
                                 serverAlreadyExists = true;
                         });
-                        if (!serverAlreadyExists)
+                        if (!serverAlreadyExists) {
                             self.allInfo.remove(_assoc);
+                        }
                     }
                 });
             };
                             
             var onSuccess = function (data) {
                 // get all server data
-                self.servers(data);
+                self.servers = data;
                 // update anything that was added, create new as necessary
                 updateAllAdditions();
                 // remove if any nodes are now gone

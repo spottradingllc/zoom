@@ -1,11 +1,8 @@
 define([
         'knockout',
-        'plugins/router',
-        'service',
         'jquery',
-        'bindings/uppercase'
     ],
-    function(ko, router, service) {
+    function(ko, $) {
         return function saltModel(pillarModel) {
             var self = this;
 
@@ -24,7 +21,6 @@ define([
             self.validate = function(update_list, pillar_lookup, update_type, data_type, data_delta, value, project) {
                 var target = update_list;
                 var run_func = "";
-                var run_arg = "zookeeper_pillar:" + project;
                 var zk = "zookeeper_pillar";
 
                 var _pass = new _valdata(update_list, pillar_lookup, update_type, data_type, data_delta, value, project, zk);
@@ -66,7 +62,9 @@ define([
                         var zkPillar;
 
                         // check if we get an empty object - failure!!
-                        if ($.isEmptyObject(dataset)) validationFailure = true;
+                        if ($.isEmptyObject(dataset)) {
+                            validationFailure = true;
+                        }
 
                         // any sort of update
                         if (this.args.data !== 'node') {
@@ -138,7 +136,7 @@ define([
                     });
             };
 
-            self.updateMinion = function(ko_array_to_update, single_update, update_type, data_type, data_delta, value, project) {
+            self.updateMinion = function(array_to_update, single_update, update_type, data_type, data_delta, value, project) {
                 var all = "";
                 var first = true;
 
@@ -146,10 +144,10 @@ define([
 
                 // creating a single node...
                 if (single_update) {
-                    all = ko_array_to_update;
+                    all = array_to_update;
                 }
                 else {
-                    ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {
+                    array_to_update.forEach(function(_assoc) {
                         // create a salt-readable list for sending through the API
                         if (!first) {
                             all += "," + _assoc.name;

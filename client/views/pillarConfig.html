@@ -91,10 +91,10 @@
                 <div data-bind="visible: selectedOption() == 'Create Pillar'">
                     <h4> Enter a unique hostname. Domain will be added to create the FQDN. </h4>
                     <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: fieldOneVal"></input> 
+                        <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: newNodeName"></input> 
                     </div>
                     <span> .spottrading.com </span>
-                    <button class="btn btn-default" data-bind="click:  function() { pillarApiModel.api_post('pillar', fieldOneVal())}, visible: fieldOneVal()">Create</button>
+                    <button class="btn btn-default" data-bind="click:  function() { pillarApiModel.api_post('pillar', newNodeName())}, visible: newNodeName()">Create</button>
                 </div>
 
                 <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
@@ -171,7 +171,7 @@
                                 <td data-bind="text: name"></td>
 
                                 <!-- ko foreach: $parent.edit_keys() -->
-                                <td data-bind="visible: $parent.editable"><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"></input></td>
+                                <td data-bind="visible: $parent.editable"><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable" style="width: 100%;"></input></td>
 
                                 <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td>
                                 <!-- /ko -->

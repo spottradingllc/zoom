@@ -1,18 +1,15 @@
 define(
     [
         'knockout',
-        'plugins/router',
-        'service',
         'jquery',
-        'bindings/uppercase'
     ],
-    function(ko, router, service) {
+    function(ko, $) {
         return function pillarApiModel(pillarModel) {
             var self = this;
             var domain = ".spottrading.com";
             var pillarURI = "api/pillar/";
 
-            self.api_post_json = function(_assoc, update_salt, ko_array_to_update, data_type, project) {
+            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
                 var update_phrase = "";
                 var key = "";
                 var val = "";
@@ -56,7 +53,7 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            pillarModel.saltModel.updateMinion(ko_array_to_update, false, 'update', data_type, key, val, project);
+                            pillarModel.saltModel.updateMinion(array_to_update, false, 'update', data_type, key, val, project);
                         }
                     });
             };
@@ -87,9 +84,9 @@ define(
             };
 
             self.api_delete = function(level_to_delete, _proj, key) {
-                var num_left = _proj.hasProject().length;
+                var num_left = _proj.hasProject.length;
                 var del_phrase = "";
-                ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
+                ko.utils.arrayForEach(_proj.hasProject, function(_assoc) {
                     var uri = pillarURI + _assoc.name;
                     if (level_to_delete === "project") {
                         uri += "/" + _proj.proj_name;
