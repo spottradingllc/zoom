@@ -122,21 +122,16 @@ class Application(object):
         - Check for already running instances. 
         - Start main loop, periodically checking whether the process has failed.
         """
-        try:
+        self.zkclient.start()
+        # make all action objects start processing predicates
+        self._log.info('Starting to process Actions.')
+        map(lambda x: x.start(), self._actions.values())  # start actions
+        self._check_mode()  # get global mode AFTER starting actions
 
-            self.zkclient.start()
-            # make all action objects start processing predicates
-            self._log.info('Starting to process Actions.')
-            map(lambda x: x.start(), self._actions.values())  # start actions
-            self._check_mode()  # get global mode AFTER starting actions
+        while self._running:
+            sleep(5)
 
-            while self._running:
-                sleep(5)
-
-            self.uninitialize()
-
-        except Exception as ex:
-            self._log.exception('Application.run exception: {0}'.format(ex))
+        self.uninitialize()
 
     @catch_exception(NodeExistsError)
     @connected
@@ -457,28 +452,25 @@ class Application(object):
         """
         :rtype: zoom.agent.entities.work_manager.WorkManager
         """
-        try:
-            acceptable_work = dict()
-            # actions have additional logic, so use those if available
-            for k, v in self._actions.iteritems():
-                acceptable_work[k] = v.run
+        acceptable_work = dict()
+        # actions have additional logic, so use those if available
+        for k, v in self._actions.iteritems():
+            acceptable_work[k] = v.run
 
-            # if action is not available, add the method from Application
-            for w in self._settings.get('ALLOWED_WORK', []):
-                if w not in acceptable_work:
-                    if hasattr(self, w):
-                        acceptable_work[w] = self.__getattribute__(w)
-                    else:
-                        self._log.error('Class has no method {0}'.format(w))
+        # if action is not available, add the method from Application
+        for w in self._settings.get('ALLOWED_WORK', []):
+            if w not in acceptable_work:
+                if hasattr(self, w):
+                    acceptable_work[w] = self.__getattribute__(w)
                 else:
-                    self._log.debug('Method {0} already assigned to action.'
-                                    .format(w))
+                    self._log.error('Class has no method {0}'.format(w))
+            else:
+                self._log.debug('Method {0} already assigned to action.'
+                                .format(w))
 
-            manager = WorkManager(self.name, queue, pipe, acceptable_work)
-            manager.start()
-            return manager
-        except Exception as ex:
-            self._log.exception('Exception in application: {0}'.format(ex))
+        manager = WorkManager(self.name, queue, pipe, acceptable_work)
+        manager.start()
+        return manager
 
     @connected
     def _check_mode(self, event=None):
