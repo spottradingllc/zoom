@@ -27,9 +27,10 @@ define( [
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
 
+            var newPairDefault = [{"key": "subtype", "value": null}, {"key": "version", "value": null}];
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
-            self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
+            self.new_pairs = ko.observableArray(newPairDefault); 
 
             self.searchVal = ko.observable(""); 
             self.newNodeName= ko.observable("").extend({uppercase: true});
@@ -43,6 +44,8 @@ define( [
 
             var tableEditing = false;
             var alphaNum = /^[a-zA-Z0-9]+$/;
+
+
 
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
@@ -88,7 +91,7 @@ define( [
             };
 
             self.addPair = function() {
-                self.new_pairs.push({"key": "", "value": ""});
+                self.new_pairs.push({"key": null, "value": null});
             };
 
             self.removePair = function() {
@@ -118,6 +121,8 @@ define( [
                     return false;
                 }
                 var ret = true;
+
+                var parsed_pairs = $.extend(true, [], self.new_pairs());
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
                     if (pair.key !== "" && !alphaNum.test(pair.key)){
                         swal("Error", "Your key cannot contain non-alphanumerics", 'error');
@@ -126,9 +131,8 @@ define( [
                     }
                     if (typeof pair.value !== 'undefined' && pair.value !== "") { 
                         try {
+                            // make sure we can parse it later
                             var parsed = JSON.parse(pair.value);
-                            // SET the pair to the new, parsed JSON!
-                            pair.value = parsed;
                         } catch(err) {
                             swal("Error", "Please make sure your values consist of valid JSON", 'error');
                             ret = false;
@@ -209,7 +213,8 @@ define( [
                     if (!editing && element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
-                        // don't care if value is null
+                        var parsed = element.value;
+                        // don't pass to the parser if null - parser will return and we want to allow null?
                         if (typeof element.value !== 'undefined' && element.value !== "") { 
                             try {
                                 var parsed = JSON.parse(element.value);
@@ -218,11 +223,10 @@ define( [
                                 return;
                             }
                         }
-
-                        else { 
-                            parsed = element.value;
+                        // keep it at null if nothing is there 
+                        if (element.value !== "") {
+                            self.checked_servers()[index].edit_pillar[project][key] = parsed;            
                         }
-                        self.checked_servers()[index].edit_pillar[project][key] = parsed;            
                     }
                     if (!editing && tableEditing) {
                         // tell all others that we're done editing
@@ -241,7 +245,7 @@ define( [
                     if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
-                        $(element).text(bindingContext.$parent.edit_pillar[project][key]);
+                        $(element).text(JSON.stringify(bindingContext.$parent.edit_pillar[project][key]));
                     }
                 }
             };
@@ -256,17 +260,18 @@ define( [
                         }
                         _proj.hasProject.forEach(function(_assoc) {
                             // essentially the same as json update
-                            _assoc.edit_pillar[_proj.proj_name][new_key] = "";
+                            _assoc.edit_pillar[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
                     }
                 }
                 else if (update_type === 'delete') {
                     if (data_type === 'key') {
-                        _proj.forEach()(function(_assoc) {
+                        _proj.hasProject.forEach(function(_assoc) {
                             delete _assoc.edit_pillar[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
+                        // delete and update array
                         _proj.edit_keys.splice(i, 1); 
                     }
                 }
@@ -275,7 +280,7 @@ define( [
             var JSONcreateProject = function (_assoc) {
                 var pairs = {};
                 ko.utils.arrayForEach(self.new_pairs(), function(pair) {
-                    pairs[pair.key] = pair.value;
+                    pairs[pair.key] = JSON.parse(pair.value);
                 });
                 // deep copy
                 _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
@@ -310,13 +315,18 @@ define( [
             self.createProjectWrapper = function(data) {
                 var left = self.checked_servers().length;
                 var refresh_salt = false;
+
+                // validate once, even if multiple servers since using the same data.
+                if (validateNewProject() === false) return;
+
+                // check if validate worked 
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     if (typeof _assoc.projects[data] !== "undefined"){
                         swal("Warning", "Project already exists on " + _assoc.name, 'error');
                         left--;
                     }
                 
-                    else if (validateNewProject() === true){
+                    else {
                         // only refresh salt after the last one is updated 
                         if (left == 1) {
                             refresh_salt = true; 

@@ -86,7 +86,7 @@ define(
             self.api_delete = function(level_to_delete, _proj, key) {
                 var num_left = _proj.hasProject.length;
                 var del_phrase = "";
-                ko.utils.arrayForEach(_proj.hasProject, function(_assoc) {
+                _proj.hasProject.forEach(function(_assoc) {
                     var uri = pillarURI + _assoc.name;
                     if (level_to_delete === "project") {
                         uri += "/" + _proj.proj_name;
