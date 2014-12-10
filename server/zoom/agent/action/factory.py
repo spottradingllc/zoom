@@ -44,6 +44,7 @@ class ActionFactory(object):
 
         actions = dict()
         for element in root.iter('Action'):
+            func = verify_attribute(element, 'func', none_allowed=True)
             name = verify_attribute(element, 'id').lower()
             staggerpath = verify_attribute(element, 'staggerpath',
                                            none_allowed=True)
@@ -59,7 +60,10 @@ class ActionFactory(object):
             else:
                 pagerduty_enabled = pd_enabled
 
-            action = getattr(self._comp, name, None)
+            if func is not None:
+                action = getattr(self._comp, func, None)
+            else:
+                action = getattr(self._comp, name, None)
             actions[name] = Action(name, self._comp.name, action, element,
                                    action_q=self._action_q,
                                    staggerpath=staggerpath,

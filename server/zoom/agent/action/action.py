@@ -79,35 +79,38 @@ class Action(object):
         self._execute(**kwargs)
 
     def _callback(self):
-        self._log.info('Callback triggered for {0}:\n{1}'
-                       .format(self, self._predicate))
+        try:
+            self._log.info('Callback triggered for {0}:\n{1}'
+                           .format(self, self._predicate))
 
-        if self._disabled:
-            self._log.info('Not running action {0}. It is disabled.'
-                           .format(self.name))
-            return
-        # ensure all predicates are started
-        elif not self._predicate.started:
-            self._log.warning('All predicates are not started. '
-                              'Ignoring action {0}'.format(self.name))
-            return
-        # ensure all predicates are met
-        elif not self._predicate.met:
-            self._log.debug('Not triggering action for {0}. '
-                            'Predicate not met.'.format(self))
-            return
-
-        elif self._action is not None:
-            self._log.debug('There is a callback and all predicates are met.')
-            if (self._mode != ApplicationMode.MANUAL or
-                    not self._mode_controlled):
-                self._action_queue.append_unique(Task(self.name,
-                                                      func=self._execute),
-                                                 sender=str(self))
-            else:
-                self._log.info('Run mode is set to Manual. Not triggering "{0}"'
-                               ' action based on dependency change.'
+            if self._disabled:
+                self._log.info('Not running action {0}. It is disabled.'
                                .format(self.name))
+                return
+            # ensure all predicates are started
+            elif not self._predicate.started:
+                self._log.warning('All predicates are not started. '
+                                  'Ignoring action {0}'.format(self.name))
+                return
+            # ensure all predicates are met
+            elif not self._predicate.met:
+                self._log.debug('Not triggering action for {0}. '
+                                'Predicate not met.'.format(self))
+                return
+
+            elif self._action is not None:
+                self._log.debug('There is a callback and all predicates are met.')
+                if (self._mode != ApplicationMode.MANUAL or
+                        not self._mode_controlled):
+                    self._action_queue.append_unique(Task(self.name,
+                                                          func=self._execute),
+                                                     sender=str(self))
+                else:
+                    self._log.info('Run mode is set to Manual. Not triggering "{0}"'
+                                   ' action based on dependency change.'
+                                   .format(self.name))
+        except Exception as ex:
+            self._log.info('### Exception in Action: {0}'.format(ex))
 
     def _execute(self, **kwargs):
         self._log.info('Attempting action "{0}"'.format(self.name))
