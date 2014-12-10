@@ -195,7 +195,6 @@ define(
             };
 
             self.getPillar = function(objOrName, create_new) {
-                //TODO: error handling for http get
                 var uri;
                 if (create_new) {
                     uri = pillarURI + objOrName;
@@ -224,7 +223,6 @@ define(
                             if (indexChecked !== -1) {
                                 pillarModel.checked_servers.replace(pillarModel.checked_servers()[indexChecked], objOrName);
                             }
-                            //update in checked_servers as well as allInfo
                         }
                     });
             };

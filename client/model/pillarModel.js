@@ -26,7 +26,6 @@ define( [
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": ""}, {"key": "version", "value": ""}]); 
 
-
             self.searchVal = ko.observable(""); 
             self.fieldOneVal = ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
@@ -36,11 +35,13 @@ define( [
             self.new_project = ko.observable("");
             self.edit_value = ko.observable("");
             self.saltValFail = ko.observable("");
-
-            self.alphaNum = /^[a-zA-Z0-9]+$/;
-
+            self.showEditTable = ko.observable(false);
+            
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
+
+            var tableEditing = false;
+            var alphaNum = /^[a-zA-Z0-9]+$/;
 
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
@@ -78,20 +79,8 @@ define( [
                 self.missingProject([]);
             };
 
-            $(document).on('change keyup keydown paste cut', '.textarea', function() {
-                $(this).height(0).height(this.scrollHeight);
-            }).find('textarea').change();
-
-            $(document).on('click', '#mainTable', function() {
-                $("#mainTable").popover('show');
-            });
-
             self.toggleSearch = function() {
                 $('#searchPane').toggle(200);
-            };
-
-            self.removeQuery = function() {
-                self.searchVal("");
             };
 
             self.addPair = function() {
@@ -105,18 +94,17 @@ define( [
                 }
             };
 
-            self.validateNewPair = ko.computed( function() {
-                if (self.new_key() !== "" && !self.alphaNum.test(self.new_key())) {
+            var validateNewPair = ko.computed( function() {
+                if (self.new_key() !== "" && !alphaNum.test(self.new_key())) {
                     swal("Error", "Your key cannot contain non-alphanumerics", 'error');
                     self.new_key("");
                     return false;
                 }
-                if (self.new_project() !== "" && !self.alphaNum.test(self.new_project())) {
+                if (self.new_project() !== "" && !alphaNum.test(self.new_project())) {
                     swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
                     self.new_project("");
                     return false;
                 }
-
                 return true;
             });
             
@@ -126,7 +114,7 @@ define( [
                     return false;
                 }
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
-                    if (pair.key !== "" && !self.alphaNum.test(pair.key)){
+                    if (pair.key !== "" && !alphaNum.test(pair.key)){
                         swal("Error", "Your key cannot contain non-alphanumerics", 'error');
                         pair.key = "";
                         return false;
@@ -149,7 +137,6 @@ define( [
                     else
                         ret = "An unexpected error occured";
                 }
-
                 return ret;
             };
 
@@ -167,10 +154,6 @@ define( [
                 });
             };
 
-            var tableEditing = false;
-
-            self.showEditTable = ko.observable(false);
-
             self.showEdit = function(html_proj) {
                 html_proj.editing(true);
                 // get latest pillar data and place into edit_pillar:
@@ -178,7 +161,6 @@ define( [
                 ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                     _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
                 });
-
                 // deep copy equivalent
                 html_proj.edit_keys([]);
                 ko.utils.arrayForEach(html_proj.keys(), function(key) {
@@ -202,23 +184,15 @@ define( [
                     });
                 },
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    $(element).focusin(function() {
-                        var value = valueAccessor();
-                        value(true);
-                    });
-
                     var editing = ko.unwrap(valueAccessor());
                     if (editing) tableEditing = true;
-
                     var index = self.checked_servers.indexOf(bindingContext.$parent);
-
                     // only update if the project exists!
                     if (element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
                         var project = bindingContext.$parents[1].proj_name;
                         var key = bindingContext.$data;
                         self.checked_servers()[index].edit_pillar[project][key] = element.value;
                     }
-
                     if (!editing && tableEditing) {
                         // tell all others that we're done editing
                         doneEditing(bindingContext.$parent);
@@ -229,7 +203,7 @@ define( [
 
             ko.bindingHandlers.updateLatest = {
                 update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    // have to call in order for this to update
+                    // have to use the valueaccessor in order for update to be called
                     var edit = ko.unwrap(valueAccessor());
                     // check what getvalues returns first
                     element.text = self.getValues(bindingContext.$parent, bindingContext.$parents[1], bindingContext.$data);
@@ -272,7 +246,7 @@ define( [
                 ko.utils.arrayForEach(self.new_pairs(), function(pair) {
                     pairs[pair.key] = pair.value;
                 });
-
+                // deep copy
                 _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
                 _assoc.edit_pillar[self.new_project()] = pairs;
             };
@@ -400,6 +374,7 @@ define( [
                             _assoc.prior = true;
                         }
                         else {
+                            //TODO: significant performance hit
                             self.allProjects([]);
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                  addProjects(_assoc);
@@ -409,9 +384,8 @@ define( [
                     }
                     else if (!_assoc.checked()) {
                         if (_assoc.prior){
-                            // remove from the array based on the server name
                             self.checked_servers.remove(_assoc);
-                            //TODO: remove all each time and re-calculate based on what is now selected
+                            //TODO: significant perormance hit
                             self.allProjects([]);
                             ko.utils.arrayForEach(self.checked_servers(), function(_assoc) {
                                 addProjects(_assoc);
@@ -433,9 +407,7 @@ define( [
                     return self.allInfo();
                 }
                 return ko.utils.arrayFilter(self.allInfo(), function(_assoc) {
-                    //TODO: is this necessary?
                     try {
-                        //return if the project exists
                         for (var each in _assoc.projects){
                             if (each.toLowerCase().indexOf(query) >= 0){
                                 return _assoc;
@@ -452,7 +424,7 @@ define( [
 
                     return _assoc.name.toLowerCase().indexOf(query) >= 0;
                 });
-            }, self);
+            });
 
             var updateAllAdditions = function() {
                 ko.utils.arrayForEach(self.servers(), function (server_name) {
@@ -465,7 +437,6 @@ define( [
                     });
                     if (serverAlreadyExists === false){
                         self.pillarApiModel.getPillar(server_name, true);
-                        //get pillar and create new _assoc object, push onto allInfo
                     }
                 });
             };
@@ -473,7 +444,6 @@ define( [
             var updateAllDeletions = function() {
                 ko.utils.arrayForEach(self.allInfo(), function (_assoc) {
                     var serverAlreadyExists = false;
-                    //TODO: getting undefined here for some reason????
                     if (typeof _assoc !== "undefined"){
                         ko.utils.arrayForEach(self.servers(), function (name) {
                             if (_assoc.name === name)
@@ -486,9 +456,13 @@ define( [
             };
                             
             var onSuccess = function (data) {
+                // get all server data
                 self.servers(data);
+                // update anything that was added, create new as necessary
                 updateAllAdditions();
+                // remove if any nodes are now gone
                 updateAllDeletions();
+                // update what is shown
                 self.pillarApiModel.updateChecked();
             };
             

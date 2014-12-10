@@ -60,7 +60,7 @@ define([
                     })
                     .done(function(data) {
                         // check if the data returned is correct
-                        var validationFailure = false;
+                 /*       var validationFailure = false;
                         var errorMsg;
                         var dataset = data.return[0];
                         var zkPillar;
@@ -130,11 +130,11 @@ define([
                                 validationFailure = true;
                             }
                         }
-
+                        */
                         $('#validateVisual').modal('hide');
-                        if (validationFailure) {
+                        /*if (validationFailure) {
                             swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
-                        }
+                        }*/
                     });
             };
 
@@ -147,8 +147,6 @@ define([
                 // creating a single node...
                 if (single_update) {
                     all = ko_array_to_update;
-                    // don't need to use pillar_lookup..
-                    //pillar_lookup[all] = {};
                 }
                 else {
                     ko.utils.arrayForEach(ko_array_to_update(), function(_assoc) {
@@ -190,7 +188,7 @@ define([
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
                         // DISABLE validation until done and fixed...
-                        //self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
+                        self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
                     });
 
             };
