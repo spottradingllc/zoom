@@ -36,7 +36,7 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
 
             self.addAction = function() {
                 self.expanded(true);
-                self.actions.push(new Action(self));
+                self.actions.unshift(new Action(self));  // add to front of array
             };
 
             self.remove = function() {
