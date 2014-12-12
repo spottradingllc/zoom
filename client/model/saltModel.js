@@ -56,7 +56,7 @@ define([
                     })
                     .done(function(data) {
                         // check if the data returned is correct
-                 /*       var validationFailure = false;
+                        var validationFailure = false;
                         var errorMsg;
                         var dataset = data.return[0];
                         var zkPillar;
@@ -101,7 +101,7 @@ define([
                                         errorMsg = "Server not found in Salt, please make sure this server is in Salt"
                                     }
                                     // call api post
-                                    self.pi
+                                    self.pillarModel.pillarApiModel.
                                 }
                                 else if (this.args.data === 'delete') {
                                     // make sure zkpillar is gone
@@ -128,11 +128,11 @@ define([
                                 validationFailure = true;
                             }
                         }
-                        */
+                        
                         $('#validateVisual').modal('hide');
-                        /*if (validationFailure) {
+                        if (validationFailure) {
                             swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
-                        }*/
+                        }
                     });
             };
 
@@ -185,7 +185,6 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        // DISABLE validation until done and fixed...
                         self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
                     });
 

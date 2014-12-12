@@ -175,14 +175,14 @@ define(
                             // does_not_exist is set, returned from the API, makes sure that we delete
                             // when a minion no longer exists.
                             if (data.DOES_NOT_EXIST) {
-                                pillarModel.allInfo.remove(_alloc);
+                                pillarModel.allNodes.remove(_alloc);
                                 pillarModel.checked_servers.remove(_alloc);
                             }
                             else {
-                                var index = pillarModel.allInfo.indexOf(_alloc);
+                                var index = pillarModel.allNodes.indexOf(_alloc);
                                 _alloc.pillar = data;
 
-                                pillarModel.allInfo.replace(pillarModel.allInfo()[index], _alloc);
+                                pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
                                 pillarModel.refreshTable(_alloc);
                             }
 
@@ -209,14 +209,14 @@ define(
                         if (create_new) {
                             var entry = new pillarModel._assoc(objOrName, data);
                             pillarModel.objProjects(entry);
-                            pillarModel.allInfo.push(entry);
+                            pillarModel.allNodes.push(entry);
                         }
                         else {
-                            var indexAll = pillarModel.allInfo.indexOf(objOrName);
+                            var indexAll = pillarModel.allNodes.indexOf(objOrName);
                             var indexChecked = pillarModel.checked_servers.indexOf(objOrName);
                             objOrName.pillar = data;
                             pillarModel.objProjects(objOrName);
-                            pillarModel.allInfo.replace(pillarModel.allInfo()[indexAll], objOrName);
+                            pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], objOrName);
                             if (indexChecked !== -1) {
                                 pillarModel.checked_servers.replace(pillarModel.checked_servers()[indexChecked], objOrName);
                             }

@@ -1,0 +1,20 @@
+
+
+.table-striped.edit>tbody>tr:nth-child(even)>td, 
+.table-striped.edit>tbody>tr:nth-child(even)>th {
+       background-color: #F5F3A2;
+}
+
+
+.table-striped.edit>tbody>tr:nth-child(odd)>td, 
+.table-striped.edit>tbody>tr:nth-child(odd)>th {
+       background-color: #F5FFA2;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>th {
+       background-color: #FFF;
+}
+
+
+

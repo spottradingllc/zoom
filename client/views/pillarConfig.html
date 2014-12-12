@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="checkbox-list">
-                    <div data-bind="foreach: show_allInfo"> 
+                    <div data-bind="foreach: queriedNodes"> 
                         <div class="row">
                             <label> 
                                 <input type="checkbox" data-bind="value: name, checked: checked">
@@ -152,7 +152,7 @@
                                 <th>Server</th>
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th>
-                                    <span data-bind="text: $data"></span>
+                                    <span> <input data-bind="inputText: $data"></span>
                                     <button data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">Delete
                                     </button>
                                 </th>
@@ -171,9 +171,9 @@
                                 <td data-bind="text: name"></td>
 
                                 <!-- ko foreach: $parent.edit_keys() -->
-                                <td data-bind="visible: $parent.editable"><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable" style="width: 100%;"></input></td>
+                                <td><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable" style="width: 100%;"></input></td>
 
-                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td>
+<!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
                                 <!-- /ko -->
                             </tr>
                             </tbody>
