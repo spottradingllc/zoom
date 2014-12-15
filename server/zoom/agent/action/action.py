@@ -108,6 +108,8 @@ class Action(object):
                 self._log.info('Run mode is set to Manual. Not triggering "{0}"'
                                ' action based on dependency change.'
                                .format(self.name))
+        else:
+            self._log.info('Nothing was done with callback')
 
     def _execute(self, **kwargs):
         self._log.info('Attempting action "{0}"'.format(self.name))
