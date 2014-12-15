@@ -28,6 +28,23 @@ define(['knockout', 'classes/predicateFactory'],
 
             });
 
+//            self.allowed_work = ko.computed(function() {
+//                console.log('Checkpoint 1')
+//                $.getJSON('api/zookeeper/spot/software/config/application/sentinel/', function(data) {
+//                    console.log(data.ALLOWED_WORK)
+//                    return data.ALLOWED_WORK
+//                });
+//            });
+
+            self.allowed_work = function(){
+                var allowed_work;
+                $.getJSON('api/zookeeper/spot/software/config/application/sentinel/', function(data) {
+                    allowed_work =  data.ALLOWED_WORK
+                });
+                console.log(allowed_work)
+                return allowed_work
+            }
+
             self.title = ko.computed(function() {
                 return 'Action ' + self.ID();
             });
