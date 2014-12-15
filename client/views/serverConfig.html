@@ -84,11 +84,11 @@
                 <form class="form-inline" role="form">
                     <div class="form-group">
                         <input type="text" class="form-control" required placeholder="id" data-toggle="dropdown"
-                               data-bind="value: ID, text: ID"
+                               data-bind="tooltip, value: ID, text: ID"
                                data-toggle="tooltip" data-placement="top" title="id - Must be Unique!">
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown"
-                                   data-bind="value: compType, text: compType"
+                                   data-bind="tooltip, value: compType, text: compType"
                                    data-toggle="tooltip" data-placement="top" title="type">
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){compType('application')}">application</a></li>
@@ -96,16 +96,16 @@
                                 </ul>
                         </span>
                         <!-- TODO: figure out how to dynamically set required in the below field -->
-                        <input type="text" class="form-control" placeholder="script" data-bind="value: script, text: script"
+                        <input type="text" class="form-control" placeholder="script" data-bind="tooltip, value: script, text: script"
                                data-toggle="tooltip" data-placement="top" title="script - Either the script name in /etc/init.d/ (not the full path) or the Windows Service name.">
-                        <input type="text" class="form-control" placeholder="command" data-bind="value: command, text: command"
+                        <input type="text" class="form-control" placeholder="command" data-bind="tooltip, value: command, text: command"
                                data-toggle="tooltip" data-placement="top"
                                title="command - Special command to run on the command line to start an application/job.">
-                        <input type="number" class="form-control" placeholder="restartmax" data-bind="value: restartmax, text: restartmax"
+                        <input type="number" class="form-control" placeholder="restartmax" data-bind="tooltip, value: restartmax, text: restartmax"
                                data-toggle="tooltip" data-placement="top"
                                title="restartmax - How many times to try to start an application/job if it fails to start.">
                         <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath"
-                               data-bind="value: registrationpath, text: registrationpath"
+                               data-bind="tooltip, value: registrationpath, text: registrationpath"
                                data-toggle="tooltip" data-placement="top"
                                title="registrationpath - Path in ZooKeeper used to register a service.">
                         <!-- TODO: figure out how to display PDService title wihtout hovering over XML -->
@@ -127,7 +127,7 @@
 
     <!-- Action -->
     <script type="text/html" id="action-template">
-        <div class="panel panel-default" data-bind="visible: actionVisible">
+        <div class="panel panel-success" data-bind="visible: actionVisible">
             <div class="panel-heading">
                     <!-- ko template: {name: 'add-predicate-template'} -->
                     <!-- /ko -->
@@ -135,17 +135,22 @@
             <div class="panel-body" data-bind="visible: expanded">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control" required placeholder="id" data-bind="value: ID, text: ID">
+                        <input type="text" class="form-control" required placeholder="id"
+                               data-bind="tooltip, value: ID, text: ID" data-toggle="tooltip"
+                               data-placement="top" title="id">
+                        <input type="text" class="form-control" placeholder="function (For custom IDs)"
+                               data-bind="tooltip, value: func, text: func" data-toggle="tooltip"
+                               data-placement="top" title="func">
                         <input type="text" class="form-control" placeholder="function (For custom IDs)" data-bind="value: func, text: func">
                         <input type="text" class="form-control" placeholder="staggerpath"
-                               data-bind="value: staggerpath, text: staggerpath" data-toggle="tooltip"
+                               data-bind="tooltip, value: staggerpath, text: staggerpath" data-toggle="tooltip"
                                data-placement="top" title="staggertime">
                         <input type="text" class="form-control" placeholder="staggertime"
-                               data-bind="value: staggertime, text: staggertime"
+                               data-bind="tooltip, value: staggertime, text: staggertime"
                                data-toggle="tooltip" data-placement="top" title="staggertime">
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="disabled"
-                                   data-toggle="dropdown" data-bind="value: disabled, text: disabled"
+                                   data-toggle="dropdown" data-bind="tooltip, value: disabled, text: disabled"
                                    data-toggle="tooltip" data-placement="top" title="disabled">
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){disabled('True')}">True</a></li>
@@ -154,7 +159,7 @@
                         </span>
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="pagerduty enabled"
-                                   data-toggle="dropdown" data-bind="value: pdEnabled, text: pdEnabled"
+                                   data-toggle="dropdown" data-bind="tooltip, value: pdEnabled, text: pdEnabled"
                                    data-toggle="tooltip" data-placement="top" title="pagerduty enabled">
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){pdEnabled('True')}">True</a></li>
@@ -210,7 +215,7 @@
 
     <!-- Single Predicate -->
     <script type="text/html" id="single-predicate-template">
-        <div class="panel panel-default">
+        <div class="panel panel-warning">
             <div class="panel-heading">
                 <button type="button" class="close" data-bind="click: remove"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                 <a class="btn btn-default disabled" role="button" data-bind="text: title">
@@ -224,7 +229,7 @@
                         <!-- required attributes so that menu falls is directly under -->
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="type" data-toggle="dropdown"
-                                   data-bind="value: predType, text: predType"
+                                   data-bind="tooltip, value: predType, text: predType"
                                    data-toggle="tooltip" data-placement="top" title="type">
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){setType('ZooKeeperHasChildren')}">ZooKeeperHasChildren</a></li>
@@ -238,24 +243,24 @@
                                 </ul>
                         </span>
                         <input type="number" class="form-control" placeholder="interval"
-                               data-bind="text: interval, value: interval, visible: intervalVisible"
+                               data-bind="tooltip, text: interval, value: interval, visible: intervalVisible"
                                data-toggle="tooltip" data-placement="top" title="interval">
                         <input type="text" class="form-control" placeholder="command"
-                               data-bind="text: command, value: command, visible: commandVisible"
+                               data-bind="tooltip, text: command, value: command, visible: commandVisible"
                                data-toggle="tooltip" data-placement="top" title="command">
                         <input type="text" class="form-control" placeholder="start"
-                               data-bind="text: start, value: start, visible: startStopVisible"
+                               data-bind="tooltip, text: start, value: start, visible: startStopVisible"
                                data-toggle="tooltip" data-placement="top" title="start">
                         <input type="text" class="form-control" placeholder="stop"
-                               data-bind="text: stop, value: stop, visible: startStopVisible"
+                               data-bind="tooltip, text: stop, value: stop, visible: startStopVisible"
                                data-toggle="tooltip" data-placement="top" title="stop">
                         <input type="text" class="form-control" placeholder="weekdays e.g., 0,1,3-5"
-                               data-bind="text: weekdays, value: weekdays, visible: startStopVisible"
+                               data-bind="tooltip, text: weekdays, value: weekdays, visible: startStopVisible"
                                data-toggle="tooltip" data-placement="top" title="weekdays">
                         <!-- required attributes -->
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown"
-                                   data-bind="text: path, value: path, visible: pathVisible"
+                                   data-bind="tooltip, text: path, value: path, visible: pathVisible"
                                    data-toggle="tooltip" data-placement="top" title="path">
                             <ul class="dropdown-menu" role="menu" data-bind="foreach: pathOptions()">
                                 <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
@@ -270,7 +275,7 @@
 
     <!-- Logic Predicate -->
     <script type="text/html" id="logic-predicate-template">
-        <div class="panel panel-default">
+        <div class="panel panel-info">
             <div class="panel-heading">
                     <!-- ko template: {name: 'add-predicate-template'} -->
                     <!-- /ko -->

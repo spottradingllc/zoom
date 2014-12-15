@@ -32,7 +32,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
             });
 
             self.addComponent = function() {
-                self.components.push(new Component(self));
+                self.components.unshift(new Component(self));  // add to front of array
             };
 
             self.clear = function() {

@@ -119,6 +119,8 @@ define(
 
             // Replaces dep_restart by checking self.options. Will also call every other command by passing
             // through self.options to executeGroupControl or executeSingleControl
+            // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
+            // before all the other selected services stopped.
             self.determineAndExecute = function() {
                 if (self.groupMode()) {
                     if (self.options.com === 'dep_restart') {

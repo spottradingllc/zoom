@@ -35,7 +35,7 @@ define(['knockout', 'classes/predicateFactory'],
             self.addPredicate = function(type) {
                 var pred = Factory.newPredicate(self, type);
                 self.expanded(true);
-                self.predicates.push(pred);
+                self.predicates.unshift(pred);  // add to front of array
             };
 
             self.remove = function() {
