@@ -30,7 +30,6 @@ class ApplicationStateCache(object):
         self._time_estimate_cache = time_estimate_cache
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
-        self._last_command = None
 
     def start(self):
         self._message_throttle.start()
@@ -228,16 +227,26 @@ class ApplicationStateCache(object):
             self._on_update_path(path)
 
     def _get_last_command(self, data):
+        """
+        :type data: dict
+        :rtype: str
+        """
         if data.get('state', 'Unknown') == 'starting':
-            self._last_command = "Start"
+            return "Start"
         elif data.get('state', 'Unknown') == 'stopping':
-            self._last_command = "Stop"
+            return "Stop"
         else:
-            pass
-
-        return self._last_command
+            return ''
 
     def _get_existing_attribute(self, path, attr, default=False):
+        """
+        Look in the existing cache for an app state dictionary, and check for
+        the value of some key (attr), and return it.
+        :type path: str
+        :type attr: str
+        :param default: the default value to return if the state dict or the
+            key (attr) does not exist
+        """
         existing_obj = self._cache._application_states.get(path, None)
         if existing_obj is None:
             existing = default

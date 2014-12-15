@@ -25,8 +25,8 @@ class PredicateTime(SimplePredicate):
         :type interval: int or float
         """
         SimplePredicate.__init__(self, comp_name, settings, parent=parent)
-        self.start_time = self._get_datetime_object(start)
-        self.stop_time = self._get_datetime_object(stop)
+        self.start_time = self.get_datetime_object(start)
+        self.stop_time = self.get_datetime_object(stop)
         self.day_range = self.parse_range(weekdays)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.pred.time'.format(comp_name))
@@ -37,11 +37,10 @@ class PredicateTime(SimplePredicate):
         self._thread.daemon = True
         self._started = False
 
-    @property
     def weekday(self):
         """
         :rtype: int
-            0=Sunday, 1=Monday, etc.
+            0=Monday, 1=Tuesday, etc.
         """
         return datetime.date.today().weekday()
 
@@ -80,16 +79,67 @@ class PredicateTime(SimplePredicate):
             results.append(compare_to_stop < self.stop_time)
 
         if self.day_range is not None:
-            results.append(self.weekday in self.day_range)
+            results.append(self.weekday() in self.day_range)
 
         if not results:
             results.append(False)
 
         self.set_met(all(results))  # every comparison returned True
 
-    def _create_dt_dict(self, datetime_string):
-        """
+    def _get_comparison(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return datetime.datetime.now()
+        elif isinstance(obj, datetime.time):
+            return datetime.datetime.now().time()
 
+    @staticmethod
+    def get_datetime_object(data):
+        """
+        Create datetime object from string value
+        :type data: str or None
+        :rtype: datetime.datetime or datetime.time or None
+        """
+        if data is None:
+            return
+
+        dt_object = None
+        dt_dict = PredicateTime.create_datetime_dict(data)
+        try:
+            # All of year, month and day are not None
+            if all([dt_dict.get(i, None) is not None
+                    for i in ('year', 'month', 'day')]):
+                dt_object = datetime.datetime(year=dt_dict['year'],
+                                              month=dt_dict['month'],
+                                              day=dt_dict['day'],
+                                              hour=dt_dict['hour'],
+                                              minute=dt_dict['minute'],
+                                              microsecond=0)
+                if dt_dict['second'] is not None:
+                    dt_object = dt_object.replace(second=dt_dict['second'])
+
+            # both hour and minute are not None
+            elif all([dt_dict.get(i, None) is not None
+                      for i in ('hour', 'minute')]):
+                dt_object = datetime.time(hour=dt_dict['hour'],
+                                          minute=dt_dict['minute'],
+                                          microsecond=0)
+                if dt_dict.get('second', None) is not None:
+                    dt_object = dt_object.replace(second=dt_dict['second'])
+            else:
+                logging.getLogger('PredicateTime').error(
+                    'data "{0}" did not match regex. This will result in the '
+                    'paramter returning as None. The predicate will never be '
+                    'met for this parameter. '.format(data))
+
+        except (ValueError, TypeError) as ex:
+            logging.getLogger('PredicateTime').error(
+                'Problem with parsing data "{0}": {1}'.format(data, ex))
+        finally:
+            return dt_object
+
+    @staticmethod
+    def create_datetime_dict(datetime_string):
+        """
         :type datetime_string: str
         :rtype: dict
         """
@@ -112,59 +162,9 @@ class PredicateTime(SimplePredicate):
             if v is not None:
                 regex_dict[k] = int(v)
 
-        self._log.debug('dt_dict returning {0}'.format(regex_dict))
+        logging.getLogger('PredicateTime').debug(
+            'datetime_dict returning {0}'.format(regex_dict))
         return regex_dict
-
-    def _get_comparison(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return datetime.datetime.now()
-        elif isinstance(obj, datetime.time):
-            return datetime.datetime.now().time()
-
-    def _get_datetime_object(self, data):
-        """
-        Create datetime object from string value
-        :type data: str or None
-        :rtype: datetime.datetime or datetime.time or None
-        """
-        if data is None:
-            return
-
-        dt_object = None
-        dt_dict = self._create_dt_dict(data)
-        try:
-            # All of year, month and day are not None
-            if all([dt_dict.get(i, None) is not None
-                    for i in ('year', 'month', 'day')]):
-                dt_object = datetime.datetime(year=dt_dict['year'],
-                                              month=dt_dict['month'],
-                                              day=dt_dict['day'],
-                                              hour=dt_dict['hour'],
-                                              minute=dt_dict['minute'],
-                                              microsecond=0)
-
-                if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
-
-            # both hour and minute are not None
-            elif all([dt_dict.get(i, None) is not None
-                      for i in ('hour', 'minute')]):
-                dt_object = datetime.time(hour=dt_dict['hour'],
-                                          minute=dt_dict['minute'],
-                                          microsecond=0)
-                if dt_dict.get('second', None) is not None:
-                    dt_object.replace(second=dt_dict['second'])
-            else:
-                self._log.error(
-                    'data "{0}" did not match regex. This will result in the '
-                    'paramter returning as None. The predicate will never be '
-                    'met for this parameter. '.format(data))
-
-        except (ValueError, TypeError) as ex:
-            self._log.error('Problem with parsing data "{0}": {1}'
-                            .format(data, ex))
-        finally:
-            return dt_object
 
     @staticmethod
     def parse_range(astr):
@@ -189,7 +189,7 @@ class PredicateTime(SimplePredicate):
             return [i for i in sorted(result) if 0 <= i <= 6]
         except ValueError:
             logging.warning('Error parsing day range. Returning [].')
-            return None
+            return []
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", '
