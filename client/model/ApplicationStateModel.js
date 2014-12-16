@@ -32,6 +32,9 @@ define(
             self.clickedApp = ko.observable({});
             self.customFilters = new CustomFilterModel(self);
             self.appsToShow = ko.observableArray([]);
+            self.forceRestart = ko.observable(false);
+            self.showRestartCheckbox = ko.observable(false);
+            self.forceRestartChecked = ko.observable(false);
 
             self.headers = [
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
@@ -43,6 +46,15 @@ define(
                 {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
                 {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
             ];
+
+            // callback for groupCheckModal to set forcedRestartChecked to false, password input to empty string
+            // and remove "incorrect password" popover if shown
+            $(document).on('show.bs.modal', '#groupCheckModal', function() {
+                self.forceRestartChecked(false);
+                self.passwordConfirm('')
+                $('#passwordFieldG').popover('destroy');
+            });
+
 
             self.showHeader = function(index) {
                 if (self.headers[index].title === 'Control' && !self.login.elements.authenticated()) {
@@ -122,18 +134,34 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                if (self.groupMode()) {
-                    if (self.options.com === 'dep_restart') {
+                console.log('checked or not: ' + self.forceRestart())
+                if (self.groupControl().length > 1) {
+                    if (self.options.com === 'restart' && !self.forceRestart()) {
+                        // dep_restart
+                        console.log('Group Dependency Restart')
                         self.executeGroupControl({'com': 'ignore', 'clear_group': false});
                         self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
                         self.checkDown();
                     }
                     else {
+                        console.log('Group Forced Restart')
                         self.executeGroupControl(self.options);
                     }
                 }
+                // Command send to single server
                 else {
-                    self.executeSingleControl(self.options);
+                    if (self.options.com === 'restart' && !self.forceRestart()) {
+                        // dep_restart
+                        console.log('Single Dependency Restart')
+                        self.executeSingleControl({'com': 'ignore', 'clear_group': false});
+                        self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
+                        self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': false});
+                    }
+                    else {
+                        console.log('Single Forced Restart')
+                        self.executeSingleControl(self.options);
+                    }
+
                 }
 
                 $('#groupCheckModal').modal('hide');
@@ -147,6 +175,8 @@ define(
             // Re-checks password and provides success and failure functions to $.post
             self.submitAction = function() {
                 // client-side blank password check
+                console.log('Force Restart is ' + self.forceRestart())
+
                 if ('' === self.passwordConfirm()) {
                     return self.disallowAction();
                 }
@@ -173,9 +203,6 @@ define(
             self.controlAgent = function(options, clickedApp) {
                 // options.com: command
                 // options.stay_down: stay_down
-                if (options === undefined) {
-                    options = {'com': 'dep_restart'};
-                }
 
                 // if no provided individual, this is a group
                 if (typeof clickedApp === 'undefined') {
@@ -189,7 +216,13 @@ define(
                 self.buttonLabel('Send ' + options.com.toUpperCase() + ' command');
                 self.options = options;
 
-                $('#passwordFieldG').popover('destroy');
+                if (options.com == "restart") {
+                    self.showRestartCheckbox(true)
+                }
+                else {
+                    self.showRestartCheckbox(false)
+                }
+
                 $('#groupCheckModal').modal('show');
             };
 
