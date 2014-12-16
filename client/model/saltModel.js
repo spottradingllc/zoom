@@ -1,36 +1,61 @@
 define([
         'knockout',
         'jquery',
+        'qunit'
     ],
     function(ko, $) {
-        return function saltModel(pillarModel) {
+        return function saltModel(pillarModel, qunit) {
             var self = this;
 
-            var _valdata = function(update_list, pillar_lookup, update_type, data_type, data_delta, value, project, zk) {
+            var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
                 var self = this;
                 self.list = update_list;
                 self.pillar = pillar_lookup;
                 self.type = update_type;
                 self.data = data_type;
-                self.key = data_delta;
-                self.value = value;
                 self.project = project;
-                self.zk = zk;
             };
 
-            self.validate = function(update_list, pillar_lookup, update_type, data_type, data_delta, value, project) {
+            var checkObjContents = function(obj1, obj2) {
+                var ret = true;
+                for (var each in obj1) {
+                    if (obj2.hasOwnProperty(each)) {
+                        if (typeof obj1[each] === 'object') {
+                            ret = checkObjContents(obj1[each], obj2[each]);
+                        }
+                        else if (obj1[each] !== obj2[each]) { 
+                            ret = false;
+                        }
+                        
+                    }
+                    else ret = false;
+                }
+
+                return ret;
+            };
+
+            self.validate = function(update_list, pillar_lookup, update_type, data_type, project) {
                 var target = update_list;
                 var run_func = "";
-                var zk = "zookeeper_pillar";
+                var domain = ".spottrading.com";
 
-                var _pass = new _valdata(update_list, pillar_lookup, update_type, data_type, data_delta, value, project, zk);
+
 
                 if (data_type === 'node') {
-                    run_func = "test.ping";
+                    if (update_type === 'preCreate') {
+                        run_func = "test.ping";
+                        target += domain;
+                    }
+                    else if (update_type  === 'postCreate') {
+                        run_func = "pillar.items";
+                    }
                 }
+
                 else { //create/update/delete key/value/project
                     run_func = "pillar.items";
                 }
+                
+                var _pass = new _valdata(target, pillar_lookup, update_type, data_type, project);
 
                 $('#validateVisual').modal('show');
                 var cmds = {
@@ -59,7 +84,9 @@ define([
                         var validationFailure = false;
                         var errorMsg;
                         var dataset = data.return[0];
+                        var zk = "zookeeper_pillar";
                         var zkPillar;
+                        var showSuccess = false;
 
                         // check if we get an empty object - failure!!
                         if ($.isEmptyObject(dataset)) {
@@ -71,11 +98,14 @@ define([
                             try {
                                 for (var i in dataset) {
                                     if (dataset.hasOwnProperty(i)) {
-                                        zkPillar = dataset[i][this.args.zk];
+                                        zkPillar = dataset[i][zk];
                                         // check if the pillars have the same value
                                         // TODO: skeptical if lookup will work correctly
-                                        var expected_pillar = this.args.pillar_lookup[i];
-                                        if (zkPillar !== cur_pillar) {
+                                        var expected_pillar = this.args.pillar[i];
+                                       // var val1 = qunit.assert.deepEqual(expected_pillar, zkPillar);
+                                        var val1 = checkObjContents(expected_pillar, zkPillar);
+                                        var val2 = checkObjContents(zkPillar, expected_pillar);
+                                        if (!val1 || !val2) {
                                             validationFailure = true;
                                             errorMsg = "Salt pillar and updated pillar do not match, manual refresh required";
                                         }
@@ -83,10 +113,10 @@ define([
                                 }
                             } catch(err) {
                                 if (err.type === 'TypeErr') {
-                                    console.log("TypeError caught, Salt config likely missing data");
+                                    errorMsg = "TypeError caught, Salt config likely missing data";
                                 }
                                 else {
-                                    console.log("Unexpected error caught: " + err.type);
+                                    errorMsg = "Unexpected error caught: " + err.type;
                                 }
                                 validationFailure = true;
                             }
@@ -94,49 +124,62 @@ define([
                         }
                         else { // create or delete a node
                             try {
-                                if (this.args.data === 'preCreate') {
+                                if (this.args.type === 'preCreate') {
                                     // check if the ping is true
-                                    if (!dataset[0]){
+                                    if (!dataset[this.args.list]){
                                         validationFailure = true;
                                         errorMsg = "Server not found in Salt, please make sure this server is in Salt"
                                     }
-                                    // call api post
-                                    self.pillarModel.pillarApiModel.
-                                }
-                                else if (this.args.data === 'delete') {
-                                    // make sure zkpillar is gone
-                                    if (!$.isEmptyObject(dataset[0][this.args.zk])) {
-                                        validationFailure = true;
-                                        errorMsg = "ZK Pillar still exists";
+                                    else {
+                                        // actually create the node if ping returned - zk handles duplicates so unnecessary to check 
+                                        pillarModel.pillarApiModel.api_post(this.args.list);
                                     }
                                 }
-                                else if (this.args.data === 'postCreate') {
+                                else if (this.args.type === 'delete') {
+                                    // make sure zkpillar is gone
+                                    for (var server in dataset) { 
+                                        if (typeof dataset[server][zk] !== "undefined") {
+                                            validationFailure = true;
+                                            errorMsg = "ZK Pillar was not deleted";
+                                        }
+                                    }
+                                }
+                                else if (this.args.type === 'postCreate') {
                                     // make sure zkpillar is there
-                                    if ($.isEmptyObject(dataset[0][this.args.zk])) {
+                                    if (typeof (dataset[this.args.list][zk]) === "undefined") {
                                         validationFailure = true;
                                         errorMsg = "ZK Pillar does not exist";
+                                    }
+                                    else {
+                                        showSuccess = true;
                                     }
                                 }
 
                             } catch(err) {
                                 if (err.type === 'TypeErr') {
-                                    console.log("TypeError caught, Salt config likely missing data");
+                                    errorMsg = "TypeError caught, Salt config likely missing data";
                                 }
                                 else {
-                                    console.log("Unexpected error caught: " + err.type);
+                                    errorMsg = "Unexpected error caught: " + err.type;
                                 }
                                 validationFailure = true;
                             }
                         }
                         
                         $('#validateVisual').modal('hide');
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
+
                         if (validationFailure) {
-                            swal("Fatal", "Validation returned negative, please make sure to refresh your minions", 'error');
+                            swal("Fatal", "Validation error: " + errorMsg, 'error');
+                        }
+                        if (showSuccess) {
+                            swal("Success", "External pillar zookeeper node created.", 'success');
                         }
                     });
             };
 
-            self.updateMinion = function(array_to_update, single_update, update_type, data_type, data_delta, value, project) {
+            self.updateMinion = function(array_to_update, single_update, update_type, data_type, project) {
                 var all = "";
                 var first = true;
 
@@ -158,11 +201,15 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        pillar_lookup[_assoc.name] = _assoc.pillar;
+                        pillar_lookup[_assoc.name] = _assoc.edit_pillar;
                     });
                 }
 
                 $('#loadVisual').modal('show');
+
+                // KILL update for testing!!
+                //$('#loadVisual').modal('hide');
+                //self.validate(all, pillar_lookup, update_type, data_type, project);
 
                 var cmds = {
                     'fun': 'saltutil.refresh_pillar',
@@ -185,7 +232,7 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        self.validate(all, pillar_lookup, update_type, data_type, data_delta, value, project);
+                        self.validate(all, pillar_lookup, update_type, data_type, project);
                     });
 
             };

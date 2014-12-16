@@ -19,7 +19,7 @@ define( [
             // nodes with their associated data in _assoc
             self.allNodes = ko.observableArray([]);//.extend({rateLimit: 100});
 
-            // nodes from allNodes that should be shown based on the current query 
+            // node names from allNodes that should be shown based on the current query 
             self.queriedNodes = ko.observableArray([]);
 
             // nodes from allNodes that are checked
@@ -31,13 +31,12 @@ define( [
 
             self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
-            self.new_pairs = ko.observableArray(newPairDefault); 
+            self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]); 
 
             self.searchVal = ko.observable(""); 
             self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.selectedModify = ko.observable("Existing project");
-            self.new_key = ko.observable("");
             self.new_project = ko.observable("");
             
             self.pillarApiModel = new pillarApiModel(self);
@@ -73,6 +72,7 @@ define( [
             var resetFields = function () {
                 self.new_project("");
                 self.allKeys([]);
+                self.checkedNodes([]);
             };
 
             self.refreshTable = function(_assoc) {
@@ -100,12 +100,7 @@ define( [
                 }
             };
 
-            var validateNewPair = ko.computed( function() {
-                if (self.new_key() !== "" && !alphaNum.test(self.new_key())) {
-                    swal("Error", "Your key cannot contain non-alphanumerics", 'error');
-                    self.new_key("");
-                    return false;
-                }
+            var validateProjectName = ko.computed( function() {
                 if (self.new_project() !== "" && !alphaNum.test(self.new_project())) {
                     swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
                     self.new_project("");
@@ -131,7 +126,7 @@ define( [
                     if (typeof pair.value !== 'undefined' && pair.value !== "") { 
                         try {
                             // make sure we can parse it later
-                            var parsed = JSON.parse(pair.value);
+                            JSON.parse(pair.value);
                         } catch(err) {
                             swal("Error", "Please make sure your values consist of valid JSON", 'error');
                             ret = false;
@@ -195,12 +190,16 @@ define( [
                 if (update_type === 'create') {
                     if (data_type === 'key') {
                         var new_key = _proj.new_key();
+
                         if (new_key === "") {
                             swal("Error", "Please enter a value for the new key", 'error');
                             return;
                         }
+                        else if (!alphaNum.test(_proj.new_key())) {
+                            swal("Error", "Project keys must be alphanumeric", 'error');
+                            return;
+                        }
                         _proj.hasProject.forEach(function(_assoc) {
-                            // essentially the same as json update
                             _assoc.edit_pillar[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
@@ -212,8 +211,13 @@ define( [
                             delete _assoc.edit_pillar[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
-                        // delete and update array
+                        // delete and update entire array
                         _proj.edit_keys.splice(i, 1); 
+                    }
+                    else if (data_type === 'project') { 
+                        _proj.hasProject.forEach(function(_assoc) {
+                            delete _assoc.edit_pillar[_proj.proj_name];
+                        });
                     }
                 }
             }; 
@@ -235,11 +239,11 @@ define( [
             };
 
             self.checkAll = function() {
-                if (self.show_allNodes().length > 8){
+                if (self.queriedNodes().length > 8){
                     swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
                     return;
                 }
-                ko.utils.arrayForEach(self.show_allNodes(), function(_assoc) {
+                ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
                     _assoc.checked(true);
                 });
             };
@@ -300,6 +304,8 @@ define( [
                 function(isConfirm){
                     if (isConfirm) {
                         if (update_type === 'delete') {
+                            // need to update the edit_pillar first!
+                            self.visualUpdate(update_type, data_type, _proj, key);
                             self.pillarApiModel.api_delete(data_type, _proj, key);
                         } 
                         else {
@@ -383,7 +389,7 @@ define( [
                 });
             });
 
-            self.show_allNodes= ko.computed(function() {
+            self.queriedNodes= ko.computed(function() {
                 var query = self.searchVal().toLowerCase();
                 if (query === ""){
                     return self.allNodes();

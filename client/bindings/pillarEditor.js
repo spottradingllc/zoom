@@ -22,7 +22,7 @@ define(
                 if (editing) {
                     pillarModel.tableEditing = true;
                 }
-                var index = pillarModel.checked_servers.indexOf(bindingContext.$parent);
+                var index = pillarModel.checkedNodes.indexOf(bindingContext.$parent);
                 // only update if the project exists!
                 if (!editing && element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
                     var project = bindingContext.$parents[1].proj_name;
@@ -39,7 +39,7 @@ define(
                     }
                     // keep it at null if nothing is there 
                     if (element.value !== "") {
-                        pillarModel.checked_servers()[index].edit_pillar[project][key] = parsed;            
+                        pillarModel.checkedNodes()[index].edit_pillar[project][key] = parsed;            
                     }
                 }
                 if (!editing && pillarModel.tableEditing) {
