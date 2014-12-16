@@ -71,9 +71,9 @@
             </div>
         
             <div id="mainPane" class="col-md-8"> 
-                <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Delete Pillar(s)'">
+                <div data-bind="visible: checkedNodes().length > 0 && selectedOption() == 'Delete Pillar(s)'">
                     <span> Selected servers: </span>
-                    <div data-bind="foreach: checked_servers">
+                    <div data-bind="foreach: checkedNodes">
                         <table>
                             <td data-bind="text: name"></td>
                         </table>
@@ -81,7 +81,7 @@
                     <button type="button" class="btn btn-danger" data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
                 </div>
 
-                <div data-bind="visible: checked_servers().length == 0 && selectedOption() != 'Create Pillar'">
+                <div data-bind="visible: checkedNodes().length == 0 && selectedOption() != 'Create Pillar'">
                     <h4>
                         Please select at least one server. 
                     </h4>
@@ -94,10 +94,10 @@
                         <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: newNodeName"></input> 
                     </div>
                     <span> .spottrading.com </span>
-                    <button class="btn btn-default" data-bind="click:  function() { pillarApiModel.api_post('pillar', newNodeName())}, visible: newNodeName()">Create</button>
+                    <button class="btn btn-default" data-bind="click:  function() { saltModel.validate(newNodeName(), null, 'preCreate', 'node', null) }, visible: newNodeName()">Create</button>
                 </div>
 
-                <div data-bind="visible: checked_servers().length > 0 && selectedOption() == 'Modify Pillar(s)'">
+                <div data-bind="visible: checkedNodes().length > 0 && selectedOption() == 'Modify Pillar(s)'">
 
                     <div class="btn-group" data-bind="foreach: modifyOptions">
                         <button class="btn btn-default" data-bind="radio: $parent.selectedModify">
@@ -134,7 +134,7 @@
                             </tr>
                             </thead>
 
-                            <tbody data-bind="foreach: $parent.checked_servers()">
+                            <tbody data-bind="foreach: $parent.checkedNodes()">
                             <tr> 
                                 <td data-bind="text: name"></td>
                                 <!-- ko foreach: $parent.keys() -->
@@ -152,7 +152,7 @@
                                 <th>Server</th>
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th>
-                                    <span> <input data-bind="inputText: $data"></span>
+                                    <span data-bind="text: $data"></span>
                                     <button data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">Delete
                                     </button>
                                 </th>
@@ -166,7 +166,7 @@
                             </tr>
                             </thead>
 
-                            <tbody data-bind="foreach: $parent.checked_servers()">
+                            <tbody data-bind="foreach: $parent.checkedNodes()">
                             <tr> 
                                 <td data-bind="text: name"></td>
 
@@ -207,7 +207,7 @@
                 <div data-bind="visible: selectedOption() == 'View Pillar(s)'">
                     <span> Re-select server if you are seeing outdated information </span>
                 </div>
-                <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checked_servers()" id="showJSON">
+                <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checkedNodes()" id="showJSON">
                     <p data-bind="text: name"></p>
                     
                     <textarea readonly style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>

@@ -6,7 +6,6 @@ define(
     function(ko, $) {
         return function pillarApiModel(pillarModel) {
             var self = this;
-            var domain = ".spottrading.com";
             var pillarURI = "api/pillar/";
 
             self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
@@ -53,15 +52,14 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            pillarModel.saltModel.updateMinion(array_to_update, false, 'update', data_type, key, val, project);
+                            pillarModel.saltModel.updateMinion(array_to_update, false, 'update', data_type, project);
                         }
                     });
             };
 
             // only used for node creation
-            self.api_post = function(type, minion, project) {
-                var node = minion + domain;
-                var uri = pillarURI + minion + domain;
+            self.api_post = function(node) {
+                var uri = pillarURI + node;
                 var _postdata = {
                     "username": pillarModel.login.elements.username()
                 };
@@ -73,12 +71,10 @@ define(
                     dataType: 'json'
                 })
                     .fail(function(data) {
-                        console.log("failed to create new pillar for a new minion");
                         swal("failed to create", JSON.stringify(data), 'error');
                     })
                     .done(function(data) {
-                        swal("Success!", "A new " + type + " has been added.", 'success');
-                        pillarModel.saltModel.updateMinion(minion + domain, true, 'create', 'node', node, null, null);
+                        pillarModel.saltModel.updateMinion(node, true, 'postCreate', 'node', null);
                         pillarModel.loadServers();
                     });
             };
@@ -114,7 +110,7 @@ define(
                             // if the last one, notify on it only
                             if (num_left === 1) {
                                 swal("Success", "Successfully deleted", 'success');
-                                pillarModel.saltModel.updateMinion(_proj.hasProject, false, 'delete', level_to_delete, null, null, _proj.proj_name);
+                                pillarModel.saltModel.updateMinion(_proj.hasProject, false, 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
 
@@ -126,14 +122,14 @@ define(
             self.delPillar = function() {
                 swal({
                         title: "Confirm",
-                        text: "Are you sure you want to delete " + pillarModel.checked_servers().length + " servers and ALL of their zookeeper pillar data?",
+                        text: "Are you sure you want to delete " + pillarModel.checkedNodes().length + " servers and ALL of their zookeeper pillar data?",
                         showCancelButton: true,
                         confirmButtonText: "Yes"
                     },
                     function(isConfirm) {
                         if (isConfirm) {
-                            var left = pillarModel.checked_servers().length;
-                            ko.utils.arrayForEach(pillarModel.checked_servers(), function(_assoc) {
+                            var left = pillarModel.checkedNodes().length;
+                            ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_assoc) {
                                 var uri = pillarURI + _assoc.name;
 
                                 var _deldata = {
@@ -153,7 +149,7 @@ define(
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
                                             pillarModel.loadServers();
-                                            pillarModel.saltModel.updateMinion(pillarModel.checked_servers, false, 'delete', 'node', null, null, null);
+                                            pillarModel.saltModel.updateMinion(pillarModel.checkedNodes, false, 'delete', 'node', null);
                                         }
                                         left--;
                                     });
@@ -163,7 +159,7 @@ define(
             };
 
             self.updateChecked = function() {
-                ko.utils.arrayForEach(pillarModel.checked_servers(), function(_alloc) {
+                ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_alloc) {
                     $.ajax({
                         url: pillarURI + _alloc.name,
                         type: "GET"
@@ -176,7 +172,7 @@ define(
                             // when a minion no longer exists.
                             if (data.DOES_NOT_EXIST) {
                                 pillarModel.allNodes.remove(_alloc);
-                                pillarModel.checked_servers.remove(_alloc);
+                                pillarModel.checkedNodes.remove(_alloc);
                             }
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
@@ -208,17 +204,17 @@ define(
                     .done(function(data) {
                         if (create_new) {
                             var entry = new pillarModel._assoc(objOrName, data);
-                            pillarModel.objProjects(entry);
+                            pillarModel.createObjForProjects(entry);
                             pillarModel.allNodes.push(entry);
                         }
                         else {
                             var indexAll = pillarModel.allNodes.indexOf(objOrName);
-                            var indexChecked = pillarModel.checked_servers.indexOf(objOrName);
+                            var indexChecked = pillarModel.checkedNodes.indexOf(objOrName);
                             objOrName.pillar = data;
-                            pillarModel.objProjects(objOrName);
+                            pillarModel.createObjForProjects(objOrName);
                             pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], objOrName);
                             if (indexChecked !== -1) {
-                                pillarModel.checked_servers.replace(pillarModel.checked_servers()[indexChecked], objOrName);
+                                pillarModel.checkedNodes.replace(pillarModel.checkedNodes()[indexChecked], objOrName);
                             }
                         }
                     });

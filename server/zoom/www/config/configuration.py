@@ -35,6 +35,7 @@ class Configuration(object):
             self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
             self._html_path = os.path.join(self._client_path, "views")
             self._images_path = os.path.join(self._client_path, "images")
+            self._test_path = os.path.join(self._client_path, "tests")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 
@@ -189,3 +190,7 @@ class Configuration(object):
     @property
     def graphite_host(self):
         return self._graphite_host
+
+    @property
+    def test_path(self):
+        return self._test_path

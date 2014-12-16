@@ -10,6 +10,7 @@ requirejs.config({
         'jquery':       './libs/jquery-2.1.1.min',
         'jq-throttle':  './libs/jquery.ba-throttle-debounce.min',
         'jq-mousewh':   './libs/jquery.mousewheel.min',
+        'qunit':        './libs/qunit-1.16.0',
         'd3':           './libs/d3.min',
         'vkbeautify':   './libs/vkbeautify.0.99.00.beta',
         'sweet-alert':  './libs/sweet-alert.min'

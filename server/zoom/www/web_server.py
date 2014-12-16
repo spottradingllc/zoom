@@ -25,6 +25,9 @@ from zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
 from zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 
+class testHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("../../../client/tests/test.html")
 
 
 class WebServer(tornado.web.Application):
@@ -42,6 +45,8 @@ class WebServer(tornado.web.Application):
 
         # initialize Tornado
         handlers = [
+
+
             (r'/login', LoginHandler),
             (r'/zoom/ws', ZoomWSHandler),
             # global mode
@@ -80,6 +85,9 @@ class WebServer(tornado.web.Application):
             (r'/(.*\.html)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
             (r'/images/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.images_path}),
             (r'/(.*\.json)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
+
+            (r'/tests/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.test_path}),
+            (r'/test/', testHandler),
             (r'/', tornado.web.RedirectHandler, {"url": "/index.html"})
         ]
 
