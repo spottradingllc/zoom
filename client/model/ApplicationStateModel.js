@@ -34,7 +34,6 @@ define(
             self.appsToShow = ko.observableArray([]);
             self.forceRestart = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
-            self.forceRestartChecked = ko.observable(false);
 
             self.headers = [
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
@@ -47,10 +46,10 @@ define(
                 {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
             ];
 
-            // callback for groupCheckModal to set forcedRestartChecked to false, password input to empty string
+            // callback for groupCheckModal to set forcedRestart to false, password input to empty string
             // and remove "incorrect password" popover if shown
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
-                self.forceRestartChecked(false);
+                self.forceRestart(false);
                 self.passwordConfirm('')
                 $('#passwordFieldG').popover('destroy');
             });
@@ -134,7 +133,6 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                console.log('checked or not: ' + self.forceRestart())
                 if (self.groupControl().length > 1) {
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
@@ -153,9 +151,9 @@ define(
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
                         console.log('Single Dependency Restart')
-                        self.executeSingleControl({'com': 'ignore', 'clear_group': false});
-                        self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
-                        self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': false});
+                        self.executeSingleControl({'com': 'ignore', 'clear_group': true});
+                        self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                        self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                     }
                     else {
                         console.log('Single Forced Restart')
@@ -175,8 +173,6 @@ define(
             // Re-checks password and provides success and failure functions to $.post
             self.submitAction = function() {
                 // client-side blank password check
-                console.log('Force Restart is ' + self.forceRestart())
-
                 if ('' === self.passwordConfirm()) {
                     return self.disallowAction();
                 }
