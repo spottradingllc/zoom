@@ -103,7 +103,7 @@ define( [
             var validateProjectName = ko.computed( function() {
                 if (self.new_project() !== "" && !alphaNum.test(self.new_project())) {
                     swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
-                    self.new_project("");
+                    self.new_project(self.new_project().replace(/[\W_]+/g, ""));
                     return false;
                 }
                 return true;

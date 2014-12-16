@@ -33,7 +33,7 @@
                 </button>
             </div>
             <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
-                Toggle list 
+                Show/Hide List 
             </button>
         </div>
 
@@ -124,7 +124,7 @@
 
                         <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px; cursor: pointer;"
                             data-bind="visible: !$data.editing(), click: function () {$parent.showEdit($data)}">
-                        
+                            <caption> Click to edit </caption>
                             <thead>
                             <tr>
                                 <th>Server</th>
@@ -146,7 +146,6 @@
                         </table>
 
                         <table class="table table-striped table-bordered edit" id="editTable" data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
-                            <caption> Click a field to edit </caption>
                             <thead>
                             <tr>
                                 <th>Server</th>

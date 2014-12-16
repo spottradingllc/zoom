@@ -1,10 +1,9 @@
 define([
         'knockout',
         'jquery',
-        'qunit'
     ],
     function(ko, $) {
-        return function saltModel(pillarModel, qunit) {
+        return function saltModel(pillarModel) {
             var self = this;
 
             var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
@@ -100,9 +99,8 @@ define([
                                     if (dataset.hasOwnProperty(i)) {
                                         zkPillar = dataset[i][zk];
                                         // check if the pillars have the same value
-                                        // TODO: skeptical if lookup will work correctly
+                                        // ordering of the keys may be different thanks to python
                                         var expected_pillar = this.args.pillar[i];
-                                       // var val1 = qunit.assert.deepEqual(expected_pillar, zkPillar);
                                         var val1 = checkObjContents(expected_pillar, zkPillar);
                                         var val2 = checkObjContents(zkPillar, expected_pillar);
                                         if (!val1 || !val2) {
