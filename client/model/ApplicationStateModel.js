@@ -94,8 +94,7 @@ define(
                             swal('Error Posting ControlAgent.', JSON.stringify(data), 'error');
                         });
                 }
-                self.passwordConfirm('');
-
+                self.clearGroupControl();
             };
 
             // Takes in 'options' as an argument and actually sends a command to the server
@@ -123,9 +122,6 @@ define(
                 if (options.clear_group) {
                     self.clearGroupControl();
                 }
-
-                // Clears modal dialog password entry field
-                self.passwordConfirm('');
             };
 
             // Replaces dep_restart by checking self.options. Will also call every other command by passing
@@ -136,13 +132,11 @@ define(
                 if (self.groupControl().length > 1) {
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
-                        console.log('Group Dependency Restart')
                         self.executeGroupControl({'com': 'ignore', 'clear_group': false});
                         self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
                         self.checkDown();
                     }
                     else {
-                        console.log('Group Forced Restart')
                         self.executeGroupControl(self.options);
                     }
                 }
@@ -150,13 +144,11 @@ define(
                 else {
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
-                        console.log('Single Dependency Restart')
                         self.executeSingleControl({'com': 'ignore', 'clear_group': true});
                         self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
                         self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                     }
                     else {
-                        console.log('Single Forced Restart')
                         self.executeSingleControl(self.options);
                     }
 
@@ -166,7 +158,6 @@ define(
             };
 
             self.disallowAction = function() {
-                self.passwordConfirm('');
                 $('#passwordFieldG').popover('show');
             };
 
