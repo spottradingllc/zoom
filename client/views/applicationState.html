@@ -42,6 +42,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    <input type="checkbox" style="width:20px;height:20px" data-bind="checked: forceRestart, enable: showRestartCheckbox"
+                           title="Valid for Restart command only">
+                        Force Restart
+                    </input>
                 </div>
                 <div class="modal-footer">
                     <form class="container-fluid">
@@ -58,7 +62,6 @@
                                     data-bind="click: submitAction, text:buttonLabel"></button>
                             </div>
                         </div>
-      
                     </form>
                 </div>
             </div>
@@ -219,12 +222,6 @@
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
-                    <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent()}"
-                                          data-toggle="tooltip"
-                                          data-placement="top"
-                                          title="Restart the starred services."> 
-                        <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
                                           data-bind="click: function(){appStateModel.controlAgent({'com':'ignore', 'clear_group':true})}"
                                           data-toggle="tooltip"
