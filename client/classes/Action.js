@@ -5,6 +5,7 @@ define(['knockout', 'classes/predicateFactory'],
             self.isAction = true;
             self.expanded = ko.observable(false);
             self.ID = ko.observable(null);
+            self.func = ko.observable(null);
             self.staggerpath = ko.observable(null);
             self.staggertime = ko.observable(null);
             self.modeControlled = ko.observable(null);
@@ -88,6 +89,9 @@ define(['knockout', 'classes/predicateFactory'],
                 var XML = '<Action ';
                 XML = XML.concat('id="' + self.ID() + '" ');
 
+                if (checkNull(self.func())) {
+                    XML = XML.concat('func="' + self.func() + '" ');
+                }
                 if (checkNull(self.staggerpath())) {
                     XML = XML.concat('staggerpath="' + self.staggerpath() + '" ');
                 }
