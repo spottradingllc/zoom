@@ -123,6 +123,7 @@ define(['knockout', 'classes/predicateFactory'],
 
             self.loadXML = function(node) {
                 self.ID(node.getAttribute('id'));
+                self.func(node.getAttribute('func'));
                 self.staggerpath(node.getAttribute('staggerpath'));
                 self.staggertime(node.getAttribute('staggertime'));
                 self.modeControlled(node.getAttribute('mode_controlled'));
