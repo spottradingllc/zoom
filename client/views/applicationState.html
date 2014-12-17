@@ -42,10 +42,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <input type="checkbox" style="width:20px;height:20px" data-bind="checked: forceRestart, visible: showRestartCheckbox"
-                           title="Valid for Restart command only">
-                        <label data-bind="visible: showRestartCheckbox"> Restart NOW! (Don't wait for its start-up dependencies to be up)</label>
-                    </input>
                 </div>
                 <div class="modal-footer">
                     <form class="container-fluid">
@@ -63,6 +59,25 @@
                             </div>
                         </div>
                     </form>
+                </div>
+                <div class="accordion" id="accordion2">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne" data-bind="visible: showRestartCheckbox">
+                                <p align="left" style="margin-left: 25px">Advanced Options</p>
+                            </a>
+                        </div>
+                    <div id="collapseOne" class="accordion-body collapse">
+                        <div class="accordion-inner">
+                            <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: forceRestart, visible: showRestartCheckbox"
+                                   title="Valid for Restart command only">
+                                <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
+                                    <span>Restart without dependencies</span>
+                                    <h5> This will restart only the selected application(s) regardless of whether the startup dependencies for that application are up or not.
+Most often you probably don’t need to use this option.</h5>
+                                </label>
+                            </input>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
