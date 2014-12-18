@@ -46,13 +46,13 @@ define(
                 {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
             ];
 
-            // callback for groupCheckModal to set forcedRestart to false, password input to empty string
-            // and remove "incorrect password" popover if shown
+            // callback for groupCheckModal to set forcedRestart to false, password input to empty string,
+            // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestart(false);
                 self.passwordConfirm('')
                 $('#passwordFieldG').popover('destroy');
-                $("#collapseOne").collapse('hide');
+                $("#advancedOptionsBody").collapse('hide');
             });
 
             self.showHeader = function(index) {
