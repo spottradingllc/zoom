@@ -8,10 +8,11 @@ define( [
         'bindings/pillarEditor'
     ],
     function(ko, service, $, pillarApiModel, saltModel) {
-        return function pillarModel(login) {
+        return function pillarModel(login, admin) {
     
             var self = this;
             self.login = login;
+            self.adminModel = admin;
 
             // stores list of node names returned from API
             self.nodeNames = [];
@@ -44,6 +45,18 @@ define( [
 
             self.tableEditing = false;
             var alphaNum = /^[a-zA-Z0-9]+$/;
+
+            ko.computed(function() {
+                if(self.adminModel.enabled()) {
+                    self.pillarOptions.push("Delete Pillar(s)");
+                }
+                else {
+                    var ind = self.pillarOptions.indexOf("Delete Pillar(s)");
+                    if (ind !== -1) {
+                        self.pillarOptions.splice(ind, 1); 
+                    }
+                }
+            });
 
             self._assoc = function(server_name, pillar_data) {
                 var self = this;

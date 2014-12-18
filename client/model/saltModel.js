@@ -1,10 +1,28 @@
 define([
         'knockout',
         'jquery',
+        'service',
+        
     ],
-    function(ko, $) {
+    function(ko, $, service) {
         return function saltModel(pillarModel) {
             var self = this;
+
+            self.saltParams = {};
+
+            var onSuccess = function(data) {
+                try {
+                    self.saltParams = JSON.parse(data);
+                } catch(err) {
+                    swal("Error", "Unable to parse Salt API parameters", 'error');
+                }
+            }
+
+            var onFailure = function(data) {
+                swal("Error", "Unable to retrieve Salt API paramaters", 'error');
+            }
+                
+            service.get('api/saltREST', onSuccess, onFailure);
 
             var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
                 var self = this;
@@ -47,6 +65,9 @@ define([
                     }
                     else if (update_type  === 'postCreate') {
                         run_func = "pillar.items";
+                    }
+                    else if (update_type === 'delete') {
+                        run_func = "pillar.items"
                     }
                 }
 
@@ -92,9 +113,8 @@ define([
                             validationFailure = true;
                         }
 
-                        // any sort of update
-                        if (this.args.data !== 'node') {
-                            try {
+                        try {                        
+                            if (this.args.data !== 'node') {
                                 for (var i in dataset) {
                                     if (dataset.hasOwnProperty(i)) {
                                         zkPillar = dataset[i][zk];
@@ -109,19 +129,8 @@ define([
                                         }
                                     }
                                 }
-                            } catch(err) {
-                                if (err.type === 'TypeErr') {
-                                    errorMsg = "TypeError caught, Salt config likely missing data";
-                                }
-                                else {
-                                    errorMsg = "Unexpected error caught: " + err.type;
-                                }
-                                validationFailure = true;
                             }
-
-                        }
-                        else { // create or delete a node
-                            try {
+                            else { // create or delete a node
                                 if (this.args.type === 'preCreate') {
                                     // check if the ping is true
                                     if (!dataset[this.args.list]){
@@ -136,7 +145,9 @@ define([
                                 else if (this.args.type === 'delete') {
                                     // make sure zkpillar is gone
                                     for (var server in dataset) { 
-                                        if (typeof dataset[server][zk] !== "undefined") {
+                                        // external pillar will not be completely gone from salts perspective
+                                        // still appears as an empty object
+                                        if (!$.isEmptyObject(dataset[server][zk])) {
                                             validationFailure = true;
                                             errorMsg = "ZK Pillar was not deleted";
                                         }
@@ -153,25 +164,27 @@ define([
                                     }
                                 }
 
-                            } catch(err) {
-                                if (err.type === 'TypeErr') {
-                                    errorMsg = "TypeError caught, Salt config likely missing data";
-                                }
-                                else {
-                                    errorMsg = "Unexpected error caught: " + err.type;
-                                }
-                                validationFailure = true;
+                            } 
+                        } catch(err) {
+                            if (err.type === 'TypeErr') {
+                                errorMsg = "TypeError caught, Salt config likely missing data";
                             }
+                            else {
+                                errorMsg = "Unexpected error caught: " + err.type;
+                            }
+                            validationFailure = true;
                         }
                         
                         $('#validateVisual').modal('hide');
+                        // necessary due to switching contexts in async call above,
+                        // not having access to validate visual fully
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
 
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
                         }
-                        if (showSuccess) {
+                        else if (showSuccess) {
                             swal("Success", "External pillar zookeeper node created.", 'success');
                         }
                     });

@@ -140,7 +140,8 @@ define(
                                 $.ajax({
                                     url: uri,
                                     type: "DELETE",
-                                    data: JSON.stringify(_deldata)
+                                    data: JSON.stringify(_deldata),
+                                    args: _assoc.name
                                 })
                                     .fail(function(data) {
                                         swal("Delete Failed", "Failed to delete pillar(s)", 'error');
@@ -149,7 +150,7 @@ define(
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
                                             pillarModel.loadServers();
-                                            pillarModel.saltModel.updateMinion(pillarModel.checkedNodes, false, 'delete', 'node', null);
+                                            pillarModel.saltModel.updateMinion(this.args, true, 'delete', 'node', null);
                                         }
                                         left--;
                                     });
