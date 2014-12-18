@@ -30,7 +30,6 @@ class ApplicationStateCache(object):
         self._time_estimate_cache = time_estimate_cache
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
-        self._last_command = None
 
     def start(self):
         self._message_throttle.start()
@@ -233,13 +232,11 @@ class ApplicationStateCache(object):
         :rtype: str
         """
         if data.get('state', 'Unknown') == 'starting':
-            self._last_command = "Start"
+            return "Start"
         elif data.get('state', 'Unknown') == 'stopping':
-            self._last_command = "Stop"
+            return "Stop"
         else:
-            pass
-
-        return self._last_command
+            return ''
 
     def _get_existing_attribute(self, path, attr, default=False):
         """

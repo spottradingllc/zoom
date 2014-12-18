@@ -40,7 +40,7 @@ define(
                 {title: 'Configuration Path', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
                 {title: 'Trigger Time', sortPropertyName: 'triggerTime', asc: ko.observable(false)},
-                {title: 'Completigiton Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
+                {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
                 {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
                 {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
                 {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
