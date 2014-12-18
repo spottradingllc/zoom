@@ -44,6 +44,7 @@ class ActionFactory(object):
 
         actions = dict()
         for element in root.iter('Action'):
+            func = verify_attribute(element, 'func', none_allowed=True)
             name = verify_attribute(element, 'id').lower()
             staggerpath = verify_attribute(element, 'staggerpath',
                                            none_allowed=True)
@@ -59,20 +60,29 @@ class ActionFactory(object):
             else:
                 pagerduty_enabled = pd_enabled
 
-            action = getattr(self._comp, name, None)
-            actions[name] = Action(name, self._comp.name, action, element,
-                                   action_q=self._action_q,
-                                   staggerpath=staggerpath,
-                                   staggertime=staggertime,
-                                   mode_controlled=mode_controlled,
-                                   zkclient=self._zk,
-                                   proc_client=self._proc,
-                                   mode=self._mode,
-                                   system=self._system,
-                                   pred_list=self._pred_list,
-                                   settings=self._settings,
-                                   disabled=bool(disabled),
-                                   pd_enabled=pagerduty_enabled)
-            self._log.info('Registered {0}.'.format(actions[name]))
+            if func is not None:
+                action = getattr(self._comp, func, None)
+            else:
+                action = getattr(self._comp, name, None)
+
+            if action is not None:
+                actions[name] = Action(name, self._comp.name, action, element,
+                                       action_q=self._action_q,
+                                       staggerpath=staggerpath,
+                                       staggertime=staggertime,
+                                       mode_controlled=mode_controlled,
+                                       zkclient=self._zk,
+                                       proc_client=self._proc,
+                                       mode=self._mode,
+                                       system=self._system,
+                                       pred_list=self._pred_list,
+                                       settings=self._settings,
+                                       disabled=bool(disabled),
+                                       pd_enabled=pagerduty_enabled)
+                self._log.info('Registered {0}.'.format(actions[name]))
+            else:
+                self._log.error('Invalid action ID or func specified: '
+                                'ID: {0}, func: {1}'.format(name, func))
+
 
         return actions

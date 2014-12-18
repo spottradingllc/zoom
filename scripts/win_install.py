@@ -44,8 +44,11 @@ class PythonService(win32serviceutil.ServiceFramework):
     def main(self):
         os.chdir(r"C:\Program Files\Spot Trading LLC\zoom\server")
         self._proc = psutil.Popen(r"C:\Python27\python.exe sentinel.py")
-        while self._proc.status == psutil.STATUS_RUNNING:
-            time.sleep(1)
+        try:
+            while self._proc.status == psutil.STATUS_RUNNING:
+                time.sleep(1)
+        except psutil.NoSuchProcess:
+            pass
 
 
 if __name__ == '__main__':
