@@ -82,7 +82,7 @@ class ApplicationDependencyCache(object):
 
             if children:
                 for child in children:
-                    self._walk(os.path.join(path, child), result)
+                    self._walk(os.path.join(path, child).replace("\\", "/"), result)
             else:
                 self._get_application_dependency(path, result)
         except NoNodeError:
@@ -109,7 +109,7 @@ class ApplicationDependencyCache(object):
 
                     if registrationpath is None:
                         registrationpath = os.path.join(
-                            self._configuration.application_state_path, app_id)
+                            self._configuration.application_state_path, app_id).replace("\\", "/")
 
                     start_action = node.find('Actions/Action[@id="start"]')
 

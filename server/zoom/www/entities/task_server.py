@@ -37,7 +37,7 @@ class TaskServer(object):
         self._task_queue.clear()
         children = self._zookeeper.get_children(self._configuration.task_path)
         for c in children:
-            path = os.path.join(self._configuration.task_path, c)
+            path = os.path.join(self._configuration.task_path, c).replace("\\", "/")
             logging.info('Deleting stale task node {0}'.format(path))
             self._zookeeper.delete(path)
 
@@ -47,7 +47,7 @@ class TaskServer(object):
         :type task: zoom.agent.entities.task.Task
         """
         try:
-            task_path = os.path.join(self._configuration.task_path, task.host)
+            task_path = os.path.join(self._configuration.task_path, task.host).replace("\\", "/")
 
             if self._zookeeper.exists(task_path):
                 # if the node exists, the callback _on_update will submit the

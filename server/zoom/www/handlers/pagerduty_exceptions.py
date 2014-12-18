@@ -69,5 +69,5 @@ class PagerExceptionsHandler(tornado.web.RequestHandler):
             logging.exception(e)
 
     def _update_app_state(self, comp_id, value):
-        path = os.path.join(self.app_state_path, comp_id)
+        path = os.path.join(self.app_state_path, comp_id).replace("\\", "/")
         self.application_state_cache.manual_update(path, 'pd_disabled', value)

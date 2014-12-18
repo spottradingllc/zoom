@@ -28,6 +28,7 @@ from zoom.common.constants import (
     ZK_CONN_STRING,
     ZK_AGENT_CONFIG,
 )
+from zoom.agent.util.helpers import get_system
 
 
 class SentinelDaemon(object):
@@ -40,7 +41,7 @@ class SentinelDaemon(object):
 
         self.children = dict()
         self._settings = ThreadSafeObject(dict())
-        self._system = self._get_system()
+        self._system = get_system()
         self._hostname = platform.node().upper()  # must be uppercase
         self._prev_state = None
         self.listener_lock = Lock()
@@ -230,12 +231,3 @@ class SentinelDaemon(object):
             self._prev_state = state
         except Exception as e:
             self._log.error('Listener excepted out with error: {0}'.format(e))
-
-    def _get_system(self):
-        system_str = platform.platform(terse=True)
-        if 'Linux' in system_str:
-            return PlatformType.LINUX
-        elif 'Windows' in system_str:
-            return PlatformType.WINDOWS
-        else:
-            return PlatformType.UNKNOWN

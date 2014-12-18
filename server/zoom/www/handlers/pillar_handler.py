@@ -10,7 +10,6 @@ from kazoo.exceptions import NoNodeError
 
 from zoom.common.decorators import TimeThis
 
-
 class PillarHandler(tornado.web.RequestHandler):
 
     @property
@@ -240,4 +239,4 @@ class PillarHandler(tornado.web.RequestHandler):
         self.zk.set(path, json.dumps(data))
 
     def _assemble_path(self, minion):
-        return os.path.join(self.pillar_path, minion)
+        return os.path.join(self.pillar_path, minion).replace("\\", "/")

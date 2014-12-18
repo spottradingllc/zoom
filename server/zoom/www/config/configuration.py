@@ -5,6 +5,8 @@ import os
 import socket
 
 from zoom.common.constants import ZK_CONN_STRING, ZOOM_CONFIG
+from zoom.agent.util.helpers import get_system
+from zoom.common.types import PlatformType
 
 
 class Configuration(object):
@@ -25,6 +27,9 @@ class Configuration(object):
             logging_config = config.get('logging')
             logging.config.dictConfig(logging_config)
 
+            # get system type
+            running_os = self._get_system()
+
             self._host = socket.gethostname()
             # web_server
             web_server_settings = config.get('web_server')
@@ -32,9 +37,9 @@ class Configuration(object):
             self._is_debug = web_server_settings.get('debug')
 
             self._application_path = os.getcwd()
-            self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
-            self._html_path = os.path.join(self._client_path, "views")
-            self._images_path = os.path.join(self._client_path, "images")
+            self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client').replace("\\", "/")
+            self._html_path = os.path.join(self._client_path, "views").replace("\\", "/")
+            self._images_path = os.path.join(self._client_path, "images").replace("\\", "/")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 
@@ -59,7 +64,10 @@ class Configuration(object):
             # database
             db_settings = config.get('database')
             self._db_type = db_settings.get('db_type')
-            self._sql_connection = db_settings.get('sql_connection')
+            if running_os == PlatformType.WINDOWS:
+                self._sql_connection = "DRIVER={SQL Server};SERVER=CHIDEVSQL01;PORT=1433;DATABASE=Zookeeper;UID=zookeeperuser;PWD=Zoo123"
+            elif running_os == PlatformType.LINUX:
+                self._sql_connection = db_settings.get('sql_connection')
 
             # authentication
             ad_settings = config.get('active_directory')
@@ -89,6 +97,10 @@ class Configuration(object):
         except Exception as e:
             logging.exception('An unhandled exception occurred.')
             raise e
+
+    def _get_system(self):
+        sys = get_system()
+        return sys
 
     @property
     def application_path(self):

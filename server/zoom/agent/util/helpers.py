@@ -1,8 +1,11 @@
 import logging
 import os
+import platform
+
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 from xml.etree import ElementTree
+from zoom.common.types import PlatformType
 
 
 def setup_logging():
@@ -47,3 +50,14 @@ def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
             return False
         else:
             return cast(a)
+
+
+def get_system():
+    system_str = platform.platform(terse=True)
+    if 'Linux' in system_str:
+        return PlatformType.LINUX
+    elif 'Windows' in system_str:
+        return PlatformType.WINDOWS
+    else:
+        return PlatformType.UNKNOWN
+
