@@ -63,8 +63,7 @@ class Application(object):
         self.name = verify_attribute(self.config, 'id', none_allowed=False)
         self._log = logging.getLogger('sent.{0}.app'.format(self.name))
         # informational attributes
-        self._host = platform.node().upper()
-        self._fqdn = socket.getfqdn()
+        self._host = socket.getfqdn()
         self._system = system
         self._predicates = list()
         self._running = True  # used to manually stop the run loop
@@ -109,7 +108,6 @@ class Application(object):
     def app_details(self):
         return {'name': self.name,
                 'host': self._host,
-                'fqdn': self._fqdn,
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
