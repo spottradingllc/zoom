@@ -40,7 +40,7 @@ class AlertManager(object):
         self._clean_up_threads()
         alerts = self._zk.get_children(self._path, watch=self._handle_alerts)
         for alert in alerts:
-            path = os.path.join(self._path, alert)
+            path = os.path.join(self._path, alert).replace("\\", "/")
             try:
                 data, stat = self._zk.get(path)
                 alert_data = json.loads(data)
@@ -94,7 +94,7 @@ class AlertManager(object):
         :rtype: bool
         """
         try:
-            return '/'.join(key.split('/')[1:-1]) in self._exceptions
+            return os.path.join(key.split('/')[1:-1]).replace("\\", "/") in self._exceptions
         except IndexError:
             return False
 

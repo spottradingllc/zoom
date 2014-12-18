@@ -85,7 +85,7 @@ class ApplicationStateCache(object):
 
             if children:
                 for child in children:
-                    self._walk(os.path.join(path, child), result)
+                    self._walk(os.path.join(path, child).replace("\\", "/"), result)
             else:
                 app_state = self._get_application_state(path)
                 result.update(
@@ -132,7 +132,7 @@ class ApplicationStateCache(object):
             self._zoo_keeper.get_children(path, watch=self._on_update)
             host = data.get('host', 'Unknown')
             agent_path = os.path.join(self._configuration.agent_state_path,
-                                      host)
+                                      host).replace("\\", "/")
 
             # if the agent is down, update state and mode with unknown
             if (host is None or 
