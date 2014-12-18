@@ -58,8 +58,26 @@
                                     data-bind="click: submitAction, text:buttonLabel"></button>
                             </div>
                         </div>
-      
                     </form>
+                </div>
+                <div class="accordion" id="advancedOptions">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" href="#advancedOptionsBody" data-bind="visible: showRestartCheckbox">
+                                <p align="left" style="margin-left: 25px">Advanced Options</p>
+                            </a>
+                        </div>
+                        <div id="advancedOptionsBody" class="accordion-body collapse in" >
+                            <div class="accordion-inner">
+                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: forceRestart, visible: showRestartCheckbox"
+                                   title="Valid for Restart command only">
+                                    <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
+                                        <span>Restart without dependencies.</span>
+                                    </label>
+                                </input>
+                                <p style="margin-left: 55px; margin-right:55px;">This will restart only the selected application(s) regardless of whether the startup dependencies for that application are up or not.
+                                                        Most often you probably don’t need to use this option. </p>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -219,12 +237,6 @@
                                           data-placement="top"
                                           title="Restart the starred services.">
                         <span class="glyphicon glyphicon-retweet"></span></button>
-                    <button type="button" class="btn btn-default"
-                                          data-bind="click: function(){appStateModel.controlAgent()}"
-                                          data-toggle="tooltip"
-                                          data-placement="top"
-                                          title="Restart the starred services."> 
-                        <span class="glyphicon glyphicon-retweet"></span> w/ Dependencies</button>
                     <button type="button" class="btn btn-default"
                                           data-bind="click: function(){appStateModel.controlAgent({'com':'ignore', 'clear_group':true})}"
                                           data-toggle="tooltip"
@@ -522,19 +534,19 @@
                                 <a data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Stop the agent.">Stop</a>
+                                       data-toggle="tooltip" data-placement="top" title="Stop the service.">Stop</a>
                                 </li>
                                 <li role="presentation">
                                 <a data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Restart the agent.">Restart</a>
+                                       data-toggle="tooltip" data-placement="top" title="Restart the service.">Restart</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Cancel pending commands to the agent.">Cancel</a>
+                                       data-toggle="tooltip" data-placement="top" title="Cancel running command.">Cancel</a>
                                 </li>
                                 <li role="presentation">
                                     <a data-bind="click: function()

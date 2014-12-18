@@ -1,8 +1,17 @@
 #!/bin/sh
 
+# allow for where we're setting the virtual environment
+if [[ $# -eq 0 ]] ;
+then
+    echo 'No arguments detected. Setting default VENV_DIR.'
+    VENV_DIR=/opt/spot/zoom/venv
+else
+    VENV_DIR=$1
+fi
+echo "VENV_DIR=$VENV_DIR"
+
 WEB_SERVER=http://spotpypi01.spottrading.com/pypi
 PY_3RDPARTY=${WEB_SERVER}/3rdparty/python
-VENV_DIR=/opt/spot/zoom/venv
 
 
 /bin/cat >  ~/.pydistutils.cfg << EOF
