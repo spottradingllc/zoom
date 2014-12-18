@@ -5,12 +5,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="text"
-                               id="searchBox"
-                               class="form-control"
+                        <span class="dropdown">
+                        <input type="text" id="searchBox" class="form-control" data-toggle="dropdown"
                                data-bind="value: serverName, text: serverName, event: { keypress: keyPressed}, valueUpdate:'afterkeydown'"
-                               placeholder="Server name..."
-                               autofocus/>
+                               placeholder="Server name..." autofocus>
+                            <ul class="dropdown-menu" role="menu" data-bind="foreach: serverOptions()">
+                                <li><a data-bind="text: $data, click: function(){ $parent.serverName($data) }"></a></li>
+                            </ul>
+                        </span>
                         <div class="input-group-btn">
                             <button type="button" class="btn btn-default" data-bind="click: clearPage">
                                 <span class="glyphicon glyphicon-remove"></span>
