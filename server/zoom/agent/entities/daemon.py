@@ -1,6 +1,7 @@
 import logging
 import json
 import signal
+import socket
 import sys
 import platform
 import pprint
@@ -41,7 +42,7 @@ class SentinelDaemon(object):
         self.children = dict()
         self._settings = ThreadSafeObject(dict())
         self._system = self._get_system()
-        self._hostname = platform.node().upper()  # must be uppercase
+        self._hostname = socket.getfqdn()
         self._prev_state = None
         self.listener_lock = Lock()
 

@@ -27,7 +27,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                             ServerConfigViewModel.serverList.remove(ServerConfigViewModel.serverName());
                         }
                     }).fail(function(data) {
-                        alert('Failed Get Config ' + JSON.stringify(data));
+                        swal('Failed Get Config', data.responseText, 'error');
                     });
                 }
             };
