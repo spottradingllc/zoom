@@ -11,6 +11,7 @@ from zoom.common.types import PredicateType, Weekdays
 from zoom.www.messages.application_dependencies \
     import ApplicationDependenciesMessage
 from zoom.www.messages.message_throttler import MessageThrottle
+from zoom.agent.util.helpers import zk_path_join
 
 
 class ApplicationDependencyCache(object):
@@ -82,7 +83,7 @@ class ApplicationDependencyCache(object):
 
             if children:
                 for child in children:
-                    self._walk(os.path.join(path, child).replace("\\", "/"), result)
+                    self._walk(zk_path_join(path, child), result)
             else:
                 self._get_application_dependency(path, result)
         except NoNodeError:
@@ -108,8 +109,8 @@ class ApplicationDependencyCache(object):
                     registrationpath = node.attrib.get('registrationpath', None)
 
                     if registrationpath is None:
-                        registrationpath = os.path.join(
-                            self._configuration.application_state_path, app_id).replace("\\", "/")
+                        registrationpath = zk_path_join(
+                            self._configuration.application_state_path, app_id)
 
                     start_action = node.find('Actions/Action[@id="start"]')
 

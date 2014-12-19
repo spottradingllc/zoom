@@ -7,7 +7,7 @@ from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 
 from zoom.common.decorators import TimeThis
-
+from zoom.agent.util.helpers import zk_path_join
 
 class ServerConfigHandler(tornado.web.RequestHandler):
     @property
@@ -36,7 +36,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
         logging.info('Updating server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         server = server.upper()
-        zk_path = os.path.join(self.agent_configuration_path, server).replace("\\", "/")
+        zk_path = zk_path_join(self.agent_configuration_path, server)
 
         try:
             request = json.loads(self.request.body)
@@ -64,7 +64,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def get(self, server):
         logging.info('Searching for server {0}'.format(server))
         server = server.upper()
-        path = os.path.join(self.agent_configuration_path, server).replace("\\", "/")
+        path = zk_path_join(self.agent_configuration_path, server)
 
         # get tuple (value, ZnodeStat) if the node exists
         if self.zk.exists(path):
@@ -85,8 +85,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
         logging.info('Adding server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         server = server.upper()
-        path = os.path.join(self.agent_configuration_path, server).replace("\\", "/")
-
+        path = zk_path_join(self.agent_configuration_path, server)
         # add server if it does not already exist
         if self.zk.exists(path):
             output = 'Node {0} already exists'.format(server)
@@ -109,7 +108,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
         logging.info('Deleting server {0} for client'
                      .format(server, self.request.remote_ip))
         server = server.upper()
-        path = os.path.join(self.agent_configuration_path, server).replace("\\", "/")
+        path = zk_path_join(self.agent_configuration_path, server)
 
         # recursively delete server and children
         try:
@@ -177,7 +176,7 @@ class ServerConfigHandler(tornado.web.RequestHandler):
         :type reg_to_find: str or None
         :rtype: bool
         """
-        path = os.path.join(self.agent_configuration_path, server).replace("\\", "/")
+        path = zk_path_join(self.agent_configuration_path, server)
         if self.zk.exists(path):
             xmlstr, stat = self.zk.get(path)
         else:

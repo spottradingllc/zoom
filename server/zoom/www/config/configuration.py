@@ -5,7 +5,7 @@ import os
 import socket
 
 from zoom.common.constants import ZK_CONN_STRING, ZOOM_CONFIG
-from zoom.agent.util.helpers import get_system
+from zoom.agent.util.helpers import get_system, zk_path_join
 from zoom.common.types import PlatformType
 
 
@@ -37,9 +37,9 @@ class Configuration(object):
             self._is_debug = web_server_settings.get('debug')
 
             self._application_path = os.getcwd()
-            self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client').replace("\\", "/")
-            self._html_path = os.path.join(self._client_path, "views").replace("\\", "/")
-            self._images_path = os.path.join(self._client_path, "images").replace("\\", "/")
+            self._client_path = zk_path_join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
+            self._html_path = zk_path_join(self._client_path, "views")
+            self._images_path = zk_path_join(self._client_path, "images")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 

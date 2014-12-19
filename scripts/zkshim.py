@@ -6,6 +6,7 @@ import sys
 import time
 from argparse import ArgumentParser
 from kazoo.client import KazooClient
+from zoom.www.agent.util.helpers import zk_path_join
 
 ZK_CONN_STRING = ('ZooStaging01:2181, ZooStaging02:2181,'
                   'ZooStaging03:2181, ZooStaging04:2181, ZooStaging05:2181')
@@ -102,13 +103,13 @@ class ZKShim(object):
             self._check_exists(p)
             children = self._zk.get_children(p)
             for child in [str(c) for c in children]:
-                child_path = os.path.join(p, child).replace("\\", "/")
+                child_path = zk_path_join(p, child)
                 logging.info('Deleting path {0}'.format(child_path))
                 self._zk.delete(child_path)
 
     def _create_new(self):
         for p in self._upstream:
-            new_path = os.path.join(p, 'ZKSHIM').replace("\\", "/")
+            new_path = zk_path_join(p, 'ZKSHIM')
             logging.info('Creating path {0}'.format(new_path))
             if self._gut is not None:
                 self._zk.create(new_path, value=self._gut)

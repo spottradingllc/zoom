@@ -6,6 +6,7 @@ import os.path
 import tornado.web
 
 from zoom.common.decorators import TimeThis
+from zoom.agent.util.helpers import zk_path_join
 
 
 class PagerExceptionsHandler(tornado.web.RequestHandler):
@@ -69,5 +70,5 @@ class PagerExceptionsHandler(tornado.web.RequestHandler):
             logging.exception(e)
 
     def _update_app_state(self, comp_id, value):
-        path = os.path.join(self.app_state_path, comp_id).replace("\\", "/")
+        path = zk_path_join(self.app_state_path, comp_id)
         self.application_state_cache.manual_update(path, 'pd_disabled', value)

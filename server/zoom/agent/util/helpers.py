@@ -61,3 +61,13 @@ def get_system():
     else:
         return PlatformType.UNKNOWN
 
+
+def zk_path_join(*args):
+    """
+    Use the smart joining of os.join, but replace Windows backslashes with
+    forward slashes if they are inserted due to running natively on Windows.
+    :param args: iterable of strings to join
+    :return: string
+    """
+    return os.path.join(*args).replace("\\", "/")
+
