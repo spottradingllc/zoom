@@ -154,7 +154,6 @@ class ApplicationStateCache(object):
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown'),
                 login_user=data.get('login_user', 'Zoom'),
-                fqdn=data.get('fqdn', host),
                 last_command=self._get_last_command(data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed')
@@ -185,7 +184,6 @@ class ApplicationStateCache(object):
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown'),
                 login_user=parent_data.get('login_user', 'Zoom'),
-                fqdn=parent_data.get('fqdn', host),
                 last_command=self._get_last_command(parent_data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed')

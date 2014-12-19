@@ -4,8 +4,7 @@ define(
         'knockout',
         'plugins/router',
         'viewmodels/serverConfig/alertsViewModel',
-        'viewmodels/serverConfig/searchUpdateViewModel',
-        'bindings/uppercase'
+        'viewmodels/serverConfig/searchUpdateViewModel'
     ],
     function($, ko, router, AlertsViewModel, SearchUpdateViewModel) {
 
@@ -33,14 +32,24 @@ define(
                 for (var i = 0; i < data.length; i++) {
                     ServerConfigViewModel.serverList.push(data[i]);
                 }
+                ServerConfigViewModel.serverList.sort();
             }).fail(function(data) {
-                alert('Failed Get for list servers ' + JSON.stringify(data));
+                swal('Failed Get for list servers',JSON.stringify(data), 'error');
             });
-            ServerConfigViewModel.serverList.sort();
         };
 
-        // extend the server name to be all caps
-        ServerConfigViewModel.serverName.extend({ uppercase: true });
+        ServerConfigViewModel.serverOptions = ko.computed(function() {
+
+            if (ServerConfigViewModel.serverList() === []) { return []; }
+
+            if (ServerConfigViewModel.serverName() === null || ServerConfigViewModel.serverName() === '') {
+                return ServerConfigViewModel.serverList();
+            }
+
+            return ko.utils.arrayFilter(ServerConfigViewModel.serverList(), function(path) {
+                return path.toLowerCase().indexOf(ServerConfigViewModel.serverName().toLowerCase()) !== -1;
+            });
+        });
 
         // subscribe to changes in the server name
         ServerConfigViewModel.serverName.subscribe(function() {

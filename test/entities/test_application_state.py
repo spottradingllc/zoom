@@ -14,7 +14,6 @@ class TestApplicationState(TestCase):
                                       delete="8",
                                       local_mode="9",
                                       login_user="10",
-                                      fqdn="11",
                                       last_command="12",
                                       pd_disabled=False,
                                       grayed=True)
@@ -32,7 +31,6 @@ class TestApplicationState(TestCase):
                 'delete': "8",
                 'local_mode': "9",
                 'login_user': "10",
-                'fqdn': "11",
                 'last_command': "12",
                 'pd_disabled': False,
                 'grayed': True
