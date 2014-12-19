@@ -28,7 +28,7 @@ class TaskClient(object):
             time.sleep(1)
 
         task_path = settings.get('ZK_TASK_PATH')
-        self._path = os.path.join([task_path, self._host]).replace("\\", "/")
+        self._path = '/'.join([task_path, self._host])
 
         self.reset_watches()
 
