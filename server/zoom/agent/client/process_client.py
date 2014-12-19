@@ -284,16 +284,21 @@ class WindowsProcessClient(ProcessClient):
     def __init__(self, *args, **kwargs):
         ProcessClient.__init__(self, *args, **kwargs)
 
-        from zoom.agent.client.wmi_client import WMIServiceClient
-        self._wmi = WMIServiceClient(self.script_name)
+        from zoom.agent.client.win_svc_client import WindowsServiceClient
+        from zoom.agent.client.win_svc_client import WinSvcStates
+
+        self._states = WinSvcStates
+        self._wsc = WindowsServiceClient(self.script_name)
 
     def _service_start(self):
         self._log.info('Starting service {0}'.format(self.script_name))
-        return self._wmi.start()
+        return self._wsc.start_wait()
 
     def _service_status(self):
-        return self._wmi.status()
+        return self._wsc.status_bool()
 
     def _service_stop(self):
         self._log.info('Stopping service {0}'.format(self.script_name))
-        return self._wmi.stop()
+        return self._wsc.stop_wait(wait_for_status=self._states.STOPPED,
+                                   timeout=10,
+                                   force=True)
