@@ -5,7 +5,7 @@ import logging
 class Task(object):
     def __init__(self, name,
                  func=None, args=(), kwargs={}, block=True, pipe=False,
-                 target=None, host=None, result=None):
+                 retval=False, target=None, host=None, result=None):
         """
         :type name: str
         :type func: types.FunctionType or None
@@ -13,6 +13,7 @@ class Task(object):
         :type kwargs: dict
         :type block: bool
         :type pipe: bool
+        :type retval: bool
         :type target: str or None
         :type host: str or None
         :type result: str or None
@@ -23,6 +24,7 @@ class Task(object):
         self.kwargs = kwargs
         self.block = block
         self.pipe = pipe
+        self.retval = retval
         self.target = target
         self.host = host
         self.result = result
@@ -53,6 +55,7 @@ class Task(object):
                     kwargs=json_data.get('kwargs', {}),
                     block=json_data.get('block', True),
                     pipe=json_data.get('pipe', False),
+                    retval=json_data.get('retval', False),
                     target=json_data.get('target', None),
                     host=json_data.get('host', None),
                     result=json_data.get('result', None),
