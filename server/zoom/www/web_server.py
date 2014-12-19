@@ -18,6 +18,7 @@ from zoom.www.handlers.pagerduty_services_handler import PagerDutyServicesHandle
 from zoom.www.handlers.pagerduty_exceptions import PagerExceptionsHandler
 from zoom.www.handlers.pillar_handler import PillarHandler
 from zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
+from zoom.www.handlers.salt_master_handler import SaltMasterHandler
 from zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from zoom.www.handlers.server_config_handler import ServerConfigHandler
 from zoom.www.handlers.service_info_handler import ServiceInfoHandler
@@ -72,6 +73,8 @@ class WebServer(tornado.web.Application):
             # pillar
             (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
+            # salt master rest api
+            (r"/api/saltmaster/", SaltMasterHandler),
             # zookeeper data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
             # tornado-specific

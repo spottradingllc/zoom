@@ -2,27 +2,40 @@ define([
         'knockout',
         'jquery',
         'service',
-        
+        'model/environmentModel'
     ],
-    function(ko, $, service) {
+    function(ko, $, service, environment) {
         return function saltModel(pillarModel) {
             var self = this;
 
-            self.saltParams = {};
+            var saltParams = {};
+            var saltMaster = "";
 
             var onSuccess = function(data) {
                 try {
-                    self.saltParams = JSON.parse(data);
+                    saltParams = data.salt;
+                    if (environment.env().toLowerCase() === environment.envType.stg) {
+                        saltMaster = saltParams.staging;
+                    }
+                    // UAT and Production both point to the Production Salt Master
+                    else if (environment.env().toLowerCase() === environment.envType.uat ||
+                        environment.env().toLowerCase() === environment.envType.prod) {
+                        saltMaster = saltParams.production;
+                    }
+                    else {
+                        swal("Error", "Environment not set", 'error');
+                    }
                 } catch(err) {
                     swal("Error", "Unable to parse Salt API parameters", 'error');
                 }
             }
 
             var onFailure = function(data) {
-                swal("Error", "Unable to retrieve Salt API paramaters", 'error');
+                swal("Error", "Unable to retrieve Salt API parameters", 'error');
+                console.log(data);
             }
                 
-            service.get('api/saltREST', onSuccess, onFailure);
+            service.get('api/saltmaster/', onSuccess, onFailure);
 
             var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
                 var self = this;
@@ -82,14 +95,14 @@ define([
                     'fun': run_func,
                     'expr_form': 'list',
                     'tgt': target,
-                    'username': 'salt',
-                    'password': 'salt',
+                    'username': saltParams.username,
+                    'password': saltParams.password,
                     'eauth': 'pam',
                     'client': 'local'
                 };
 
                 $.ajax({
-                    url: "http://saltStaging:8000/run",
+                    url: saltMaster,
                     type: 'POST',
                     data: cmds,
                     args: _pass,
@@ -226,13 +239,13 @@ define([
                     'fun': 'saltutil.refresh_pillar',
                     'expr_form': 'list',
                     'tgt': all,
-                    'username': 'salt',
-                    'password': 'salt',
+                    'username': saltParams.username,
+                    'password': saltParams.password,
                     'eauth': 'pam'
                 };
 
                 $.ajax({
-                    url: "http://saltStaging:8000/run",
+                    url: saltMaster,
                     type: 'POST',
                     data: cmds,
                     headers: {'Accept': 'application/json'}

@@ -65,7 +65,8 @@ class Configuration(object):
             db_settings = config.get('database')
             self._db_type = db_settings.get('db_type')
             if running_os == PlatformType.WINDOWS:
-                self._sql_connection = "DRIVER={SQL Server};SERVER=CHIDEVSQL01;PORT=1433;DATABASE=Zookeeper;UID=zookeeperuser;PWD=Zoo123"
+                #self._sql_connection = "DRIVER={SQL Server};SERVER=CHIDEVSQL01;PORT=1433;DATABASE=Zookeeper;UID=zookeeperuser;PWD=Zoo123"
+                self._sql_connection = db_settings.get('sql_connection_windows')
             elif running_os == PlatformType.LINUX:
                 self._sql_connection = db_settings.get('sql_connection')
 
@@ -84,12 +85,7 @@ class Configuration(object):
             self._throttle_interval = throttle_settings.get('interval')
 
             # salt
-            salt_settings = config.get('salt')
-            self._salt_staging = salt_settings.get('staging')
-            self._salt_production = salt_settings.get('production')
-            self._salt_username = salt_settings.get('username')
-            self._salt_password = salt_settings.get('password')
-
+            self._salt_settings = config.get('saltREST')
 
         except ValueError as e:
             logging.error('Data at {0} is not valid JSON.'.format(ZOOM_CONFIG))
@@ -101,6 +97,10 @@ class Configuration(object):
     def _get_system(self):
         sys = get_system()
         return sys
+
+    @property
+    def salt_settings(self):
+        return self._salt_settings
 
     @property
     def application_path(self):

@@ -6,8 +6,9 @@ import tornado.httpclient
 
 from zoom.common.decorators import TimeThis
 
+
 class SaltMasterHandler(tornado.web.RequestHandler):
-    @Property
+    @property
     def environment(self):
         """
         :rtype: str
@@ -18,7 +19,7 @@ class SaltMasterHandler(tornado.web.RequestHandler):
         """
         :rtype: str
         """
-        return json.dumps(self.application.configuration.salt)
+        return self.application.configuration.salt_settings
 
     @TimeThis(__file__)
     def get(self):
