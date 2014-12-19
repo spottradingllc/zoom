@@ -425,8 +425,7 @@
                             class="glyphicon glyphicon-info-sign pull-right cursor-pointer" 
                             data-bind="click: appInfo.toggle">
                         </span>
-                        <div data-bind="visible:(dependencyModel.requires().length > 0 || dependencyModel.requiredBy().length) > 0 
-                            && dependencyModel.showDependencies">
+                        <div data-bind="visible: dependencyModel.dependencyVisible">
                             
                             <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
                             <ul class="dep-list" 
