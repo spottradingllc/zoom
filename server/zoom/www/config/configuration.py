@@ -84,11 +84,11 @@ class Configuration(object):
             self._throttle_interval = throttle_settings.get('interval')
 
             # salt
-            #salt_settings = config.get('salt')
-            #self._salt_staging = salt_settings.get('staging')
-            #self._salt_production = salt_settings.get('production')
-            #self._salt_username = salt_settings.get('username')
-            #self._salt_password = salt_settings.get('password')
+            salt_settings = config.get('salt')
+            self._salt_staging = salt_settings.get('staging')
+            self._salt_production = salt_settings.get('production')
+            self._salt_username = salt_settings.get('username')
+            self._salt_password = salt_settings.get('password')
 
 
         except ValueError as e:

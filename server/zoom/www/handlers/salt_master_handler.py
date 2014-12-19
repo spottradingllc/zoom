@@ -14,7 +14,7 @@ class SaltMasterHandler(tornado.web.RequestHandler):
         """
         return self.application.configuration.environment
 
-    def salt(self, subtype):
+    def salt(self):
         """
         :rtype: str
         """
