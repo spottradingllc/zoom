@@ -102,13 +102,13 @@ class ZKShim(object):
             self._check_exists(p)
             children = self._zk.get_children(p)
             for child in [str(c) for c in children]:
-                child_path = '/'.join(p, child)
+                child_path = os.path.join(p, child).replace("\\", "/")
                 logging.info('Deleting path {0}'.format(child_path))
                 self._zk.delete(child_path)
 
     def _create_new(self):
         for p in self._upstream:
-            new_path = '/'.join(p, 'ZKSHIM')
+            new_path = os.path.join(p, 'ZKSHIM').replace("\\", "/")
             logging.info('Creating path {0}'.format(new_path))
             if self._gut is not None:
                 self._zk.create(new_path, value=self._gut)
