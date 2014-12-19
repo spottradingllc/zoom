@@ -104,7 +104,6 @@ class Application(object):
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
 
-    @property
     def app_details(self):
         return {'name': self.name,
                 'host': self._host,
@@ -372,10 +371,11 @@ class Application(object):
             self._state.set_value(ApplicationState.CONFIG_ERROR)
 
         # make sure data is the most recent
-        if self.app_details != agent_apps:
+        if self.app_details() != agent_apps:
             self.zkclient.set(self._paths['zk_state_base'],
-                              json.dumps(self.app_details))
-            self._log.debug('Registering app data {0}'.format(self.app_details))
+                              json.dumps(self.app_details()))
+            self._log.debug('Registering app data {0}'
+                            .format(self.app_details()))
 
         # set watch
         if self._state != ApplicationState.CONFIG_ERROR:
@@ -455,16 +455,15 @@ class Application(object):
         for k, v in self._actions.iteritems():
             acceptable_work[k] = v.run
 
-        # if action is not available, add the method from Application
-        for w in self._settings.get('ALLOWED_WORK', []):
-            if w not in acceptable_work:
-                if hasattr(self, w):
-                    acceptable_work[w] = self.__getattribute__(w)
+        # if action is not available, add public methods
+        for attribute in [a for a in dir(self) if not a.startswith('_')]:
+            obj = getattr(self, attribute)
+            if hasattr(obj, '__call__'):
+                if attribute not in acceptable_work:
+                    acceptable_work[attribute] = obj
                 else:
-                    self._log.error('Class has no method {0}'.format(w))
-            else:
-                self._log.debug('Method {0} already assigned to action.'
-                                .format(w))
+                    self._log.debug('Method {0} already assigned to action.'
+                                    .format(attribute))
 
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()

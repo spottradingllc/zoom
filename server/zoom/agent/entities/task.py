@@ -5,7 +5,7 @@ import logging
 class Task(object):
     def __init__(self, name,
                  func=None, args=(), kwargs={}, block=True, pipe=False,
-                 retval=False, target=None, host=None, result=None):
+                 retval=True, target=None, host=None, result=None):
         """
         :type name: str
         :type func: types.FunctionType or None

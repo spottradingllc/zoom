@@ -81,7 +81,7 @@ class WorkManager(object):
 
                 else:
                     if task.pipe:
-                        pipe.send('')
+                        pipe.send('404: Not Found')
                     self._log.warning('Cannot do "{0}", it is not a valid '
                                       'action.'.format(task.name))
                 try:
