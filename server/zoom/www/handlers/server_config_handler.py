@@ -35,7 +35,6 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def put(self, server):
         logging.info('Updating server {0} for client {1}'
                      .format(server, self.request.remote_ip))
-        server = server.upper()
         zk_path = zk_path_join(self.agent_configuration_path, server)
 
         try:
@@ -84,8 +83,8 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def post(self, server):
         logging.info('Adding server {0} for client {1}'
                      .format(server, self.request.remote_ip))
-        server = server.upper()
         path = zk_path_join(self.agent_configuration_path, server)
+
         # add server if it does not already exist
         if self.zk.exists(path):
             output = 'Node {0} already exists'.format(server)
@@ -107,7 +106,6 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     def delete(self, server):
         logging.info('Deleting server {0} for client'
                      .format(server, self.request.remote_ip))
-        server = server.upper()
         path = zk_path_join(self.agent_configuration_path, server)
 
         # recursively delete server and children

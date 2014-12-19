@@ -1,6 +1,7 @@
 import logging
 import json
 import signal
+import socket
 import sys
 import platform
 import pprint
@@ -42,7 +43,7 @@ class SentinelDaemon(object):
         self.children = dict()
         self._settings = ThreadSafeObject(dict())
         self._system = get_system()
-        self._hostname = platform.node().upper()  # must be uppercase
+        self._hostname = socket.getfqdn()
         self._prev_state = None
         self.listener_lock = Lock()
 
@@ -134,7 +135,7 @@ class SentinelDaemon(object):
 
             data, stat = self.zkclient.get(config_path)
             config = ElementTree.fromstring(data.strip())
-            
+
             self._terminate_children()
             self._spawn_children(config)
 
@@ -196,7 +197,7 @@ class SentinelDaemon(object):
         if self.task_client is not None:
             self.task_client.reset_watches()
         self._log.info('Daemon listener callback complete!')
-                
+
     def _zk_listener(self, state):
         """
         The callback function that runs when the connection state to Zookeeper
