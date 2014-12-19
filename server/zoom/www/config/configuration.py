@@ -65,7 +65,6 @@ class Configuration(object):
             db_settings = config.get('database')
             self._db_type = db_settings.get('db_type')
             if running_os == PlatformType.WINDOWS:
-                #self._sql_connection = "DRIVER={SQL Server};SERVER=CHIDEVSQL01;PORT=1433;DATABASE=Zookeeper;UID=zookeeperuser;PWD=Zoo123"
                 self._sql_connection = db_settings.get('sql_connection_windows')
             elif running_os == PlatformType.LINUX:
                 self._sql_connection = db_settings.get('sql_connection')

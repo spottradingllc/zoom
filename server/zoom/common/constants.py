@@ -32,5 +32,4 @@ __env_connections = {
 __env = os.environ.get('EnvironmentToUse', 'Staging')
 ZK_CONN_STRING = __env_connections[__env]
 ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
-#ZOOM_CONFIG = '/spot/software/config/application/zoom'
-ZOOM_CONFIG = '/test/spot/software/config/application/zoom'
+ZOOM_CONFIG = '/spot/software/config/application/zoom'
