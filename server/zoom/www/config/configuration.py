@@ -5,6 +5,8 @@ import os
 import socket
 
 from zoom.common.constants import ZK_CONN_STRING, ZOOM_CONFIG
+from zoom.agent.util.helpers import get_system, zk_path_join
+from zoom.common.types import PlatformType
 
 
 class Configuration(object):
@@ -25,6 +27,9 @@ class Configuration(object):
             logging_config = config.get('logging')
             logging.config.dictConfig(logging_config)
 
+            # get system type
+            running_os = self._get_system()
+
             self._host = socket.gethostname()
             # web_server
             web_server_settings = config.get('web_server')
@@ -32,9 +37,9 @@ class Configuration(object):
             self._is_debug = web_server_settings.get('debug')
 
             self._application_path = os.getcwd()
-            self._client_path = os.path.join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
-            self._html_path = os.path.join(self._client_path, "views")
-            self._images_path = os.path.join(self._client_path, "images")
+            self._client_path = zk_path_join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
+            self._html_path = zk_path_join(self._client_path, "views")
+            self._images_path = zk_path_join(self._client_path, "images")
             self._pid = os.getpid()
             self._environment = os.environ.get('EnvironmentToUse', 'Staging')
 
@@ -59,7 +64,10 @@ class Configuration(object):
             # database
             db_settings = config.get('database')
             self._db_type = db_settings.get('db_type')
-            self._sql_connection = db_settings.get('sql_connection')
+            if running_os == PlatformType.WINDOWS:
+                self._sql_connection = db_settings.get('sql_connection_windows')
+            elif running_os == PlatformType.LINUX:
+                self._sql_connection = db_settings.get('sql_connection')
 
             # authentication
             ad_settings = config.get('active_directory')
@@ -75,12 +83,23 @@ class Configuration(object):
             throttle_settings = config.get('message_throttle')
             self._throttle_interval = throttle_settings.get('interval')
 
+            # salt
+            self._salt_settings = config.get('saltREST')
+
         except ValueError as e:
             logging.error('Data at {0} is not valid JSON.'.format(ZOOM_CONFIG))
             raise e
         except Exception as e:
             logging.exception('An unhandled exception occurred.')
             raise e
+
+    def _get_system(self):
+        sys = get_system()
+        return sys
+
+    @property
+    def salt_settings(self):
+        return self._salt_settings
 
     @property
     def application_path(self):

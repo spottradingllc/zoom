@@ -1,8 +1,11 @@
 import logging
 import os
+import platform
+
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 from xml.etree import ElementTree
+from zoom.common.types import PlatformType
 
 
 def parse_args():
@@ -58,3 +61,24 @@ def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
             return False
         else:
             return cast(a)
+
+
+def get_system():
+    system_str = platform.platform(terse=True)
+    if 'Linux' in system_str:
+        return PlatformType.LINUX
+    elif 'Windows' in system_str:
+        return PlatformType.WINDOWS
+    else:
+        return PlatformType.UNKNOWN
+
+
+def zk_path_join(*args):
+    """
+    Use the smart joining of os.join, but replace Windows backslashes with
+    forward slashes if they are inserted due to running natively on Windows.
+    :param args: iterable of strings to join
+    :return: string
+    """
+    return os.path.join(*args).replace("\\", "/")
+

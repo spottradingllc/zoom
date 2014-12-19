@@ -29,6 +29,7 @@ from zoom.common.constants import (
     ZK_CONN_STRING,
     ZK_AGENT_CONFIG,
 )
+from zoom.agent.util.helpers import get_system
 
 
 class SentinelDaemon(object):
@@ -43,7 +44,7 @@ class SentinelDaemon(object):
         self._port = port
         self.children = dict()
         self._settings = ThreadSafeObject(dict())
-        self._system = self._get_system()
+        self._system = get_system()
         self._hostname = socket.getfqdn()
         self._prev_state = None
         self.listener_lock = Lock()
@@ -136,7 +137,7 @@ class SentinelDaemon(object):
 
             data, stat = self.zkclient.get(config_path)
             config = ElementTree.fromstring(data.strip())
-            
+
             self._terminate_children()
             self._spawn_children(config)
 
@@ -198,7 +199,7 @@ class SentinelDaemon(object):
         if self.task_client is not None:
             self.task_client.reset_watches()
         self._log.info('Daemon listener callback complete!')
-                
+
     def _zk_listener(self, state):
         """
         The callback function that runs when the connection state to Zookeeper
@@ -233,12 +234,3 @@ class SentinelDaemon(object):
             self._prev_state = state
         except Exception as e:
             self._log.error('Listener excepted out with error: {0}'.format(e))
-
-    def _get_system(self):
-        system_str = platform.platform(terse=True)
-        if 'Linux' in system_str:
-            return PlatformType.LINUX
-        elif 'Windows' in system_str:
-            return PlatformType.WINDOWS
-        else:
-            return PlatformType.UNKNOWN

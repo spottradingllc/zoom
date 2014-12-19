@@ -10,7 +10,7 @@ define(['knockout', 'service' ], function(ko, service) {
         unknown: '#FF33CC'
      };
 
-    var envType = {
+    environment.envType = {
         stg: 'staging',
         uat: 'uat',
         prod: 'production'
@@ -18,11 +18,11 @@ define(['knockout', 'service' ], function(ko, service) {
 
     environment.envColor = ko.computed(function() {
         switch (environment.env().toLowerCase()) {
-            case envType.stg:
+            case environment.envType.stg:
                 return envColor.staging;
-            case envType.uat:
+            case environment.envType.uat:
                 return envColor.uat;
-            case envType.prod:
+            case environment.envType.prod:
                 return envColor.production;
             default:
                 return envColor.unknown;
@@ -31,7 +31,7 @@ define(['knockout', 'service' ], function(ko, service) {
 
     environment.envTextColor = ko.computed(function() {
         switch (environment.env().toLowerCase()) {
-            case envType.prod:
+            case environment.envType.prod:
                 return envColor.prodText;
             default:
                 return envColor.stagText;
