@@ -16,12 +16,15 @@ define(
             self.configurationPath = data.configuration_path;
             self.applicationStatus = ko.observable(data.application_status);
             self.applicationHost = ko.observable(data.application_host);
+            self.applicationHostShort = ko.computed(function() {
+                return self.applicationHost().split('.')[0].toUpperCase();
+            });
             self.triggerTime = ko.observable(data.trigger_time);
             self.completionTime = ko.observable(data.completion_time);
             self.errorState = ko.observable(data.error_state);
             self.mode = ko.observable(data.local_mode);
             self.mtime = Date.now();
-            self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHost(), self.configurationPath);
+            self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHostShort(), self.configurationPath);
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);
