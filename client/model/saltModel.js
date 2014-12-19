@@ -56,11 +56,9 @@ define([
                         else if (obj1[each] !== obj2[each]) { 
                             ret = false;
                         }
-                        
                     }
                     else ret = false;
                 }
-
                 return ret;
             };
 
@@ -68,8 +66,6 @@ define([
                 var target = update_list;
                 var run_func = "";
                 var domain = ".spottrading.com";
-
-
 
                 if (data_type === 'node') {
                     if (update_type === 'preCreate') {
@@ -230,10 +226,6 @@ define([
                 }
 
                 $('#loadVisual').modal('show');
-
-                // KILL update for testing!!
-                //$('#loadVisual').modal('hide');
-                //self.validate(all, pillar_lookup, update_type, data_type, project);
 
                 var cmds = {
                     'fun': 'saltutil.refresh_pillar',
