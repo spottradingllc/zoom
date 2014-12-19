@@ -35,7 +35,7 @@ class WindowsServiceClient(WService):
             return retcode
 
         self.stop()
-        if wait_for_status:
+        if wait_for_status is not None:
             state = self.fetchstatus(wait_for_status, timeout=timeout)
             if state == WinSvcStates.TIMEDOUT and force:
                 retcode = self.kill(self.get_pid())
