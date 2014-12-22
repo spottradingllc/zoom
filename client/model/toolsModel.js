@@ -6,7 +6,7 @@ define( [
         'model/saltModel',
         'bindings/uppercase'
     ],
-    function(ko, service, $, pillarApiModel, saltModel) {
+    function(ko, service, $) {
         return function toolsModel(login) {
             var self = this;
             self.oldPath = ko.observable();
@@ -33,8 +33,40 @@ define( [
                         swal('Error! Path does not exist: ' + self.oldPath());
                     }
                 });
-
             }
+
+
+            // recursively search for parent action
+            var getAction = function(obj) {
+                if (typeof obj === 'undefined' || typeof obj.parent === 'undefined') {
+                    return null;
+                }
+                else if (obj.parent && obj.parent.isAction) {
+                    return obj.parent;
+                }
+                else {
+                    // we haven't found it yet. Keep trying
+                    return getAction(obj.parent);
+                }
+            };
+
+            self.pathOptions = ko.computed(function() {
+                console.log('check check')
+                var action = getAction(self);
+
+                if (action === null) { return []; }
+
+                var paths = action.parentComponent.TreeViewModel.statePaths;
+
+                if (self.path() === null || self.path() === '') { return paths; }
+
+                return ko.utils.arrayFilter(paths, function(path) {
+                    return path.indexOf(self.path()) !== -1;
+                });
+            });
+
+
+
 
         }
     })

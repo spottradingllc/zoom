@@ -4,14 +4,20 @@
             <h1>Zoookeeper Tools</h1>
         </div>
 
-        <div id="pathRefactor">
+        <span class="dropdown">
             <form>
-                Old Path: <input data-bind="textInput: toolsModel.oldPath" style="margin-left: 6px;" size="60" ><br>
-                New Path: <input data-bind="textInput: toolsModel.newPath" size="60"><br>
+                Old Path: <input type="text" class="form-control" placeholder="old path" data-toggle="dropdown"
+                       data-bind="textInput: toolsModel.oldPath"
+                       data-toggle="tooltip" data-placement="top" title="Old Path">
+                <ul class="dropdown-menu" role="menu" data-bind="foreach: pathOptions()">
+                    <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
+                </ul>
+                New Path: <input type="text" class="form-control" placeholder="new path"
+                       data-bind="textInput: toolsModel.newPath"
+                       data-toggle="tooltip" data-placement="top" title="New Path">
                 <input type="submit" data-bind="click: toolsModel.showPaths">
             </form>
-            <p>Click the "Submit" button to change the paths in Zookeeper.</p>
-        </div>
+        </span>
     </div>
 
 
