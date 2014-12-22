@@ -1,0 +1,18 @@
+<section xmlns="http://www.w3.org/1999/html">
+    <div class="container-fluid">
+        <div class="page-header" style="margin-top: 85px">
+            <h1>Zoookeeper Tools</h1>
+        </div>
+
+        <div id="pathRefactor">
+            <form>
+                Old Path: <input data-bind="textInput: toolsModel.oldPath" style="margin-left: 6px;" size="60" ><br>
+                New Path: <input data-bind="textInput: toolsModel.newPath" size="60"><br>
+                <input type="submit" data-bind="click: toolsModel.showPaths">
+            </form>
+            <p>Click the "Submit" button to change the paths in Zookeeper.</p>
+        </div>
+    </div>
+
+
+</section>

@@ -98,7 +98,7 @@ class LoginHandler(tornado.web.RequestHandler):
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
-            self.write({'errorText': e.message['desc'] })
+            self.write({'errorText': e.message['desc']})
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
