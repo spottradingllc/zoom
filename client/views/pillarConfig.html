@@ -19,55 +19,100 @@
             </div>
         </div>
     </div>
+    <div id="addModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"> Create Mapping </h4>
+                    <h4 class="modal-dialog"> Create a targetable mapping for a specific host.</h4>
+
+                </div>
+                <div class="modal-body">
+                    <h4> Enter a unique hostname. Domain will be added to create the FQDN. </h4>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: pillarModel.newNodeName">
+                    </div>
+                    <span> .spottrading.com </span>
+                    <button class="btn btn-default"
+                            data-bind="click:  function() { pillarModel.saltModel.validate(pillarModel.newNodeName(), null, 'preCreate',
+                            'node', null) }, visible: pillarModel.newNodeName()">Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
         <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
     </div>
 
-    <div class="container" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
+    <div class="container-fluid" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
             <h1> Pillar Value Editor<small> beta </small></h1>
-            <div class="btn-group" data-bind="foreach: pillarOptions">
-                <button class="btn btn-default" data-bind="radio: $parent.selectedOption">
-                    <span data-bind="text: $data"></span>
+            <div>
+                <button class="btn btn-default" data-bind="click: function() { showAddModal() }" type="button" title="Add Host to Map project to">
+                    <span class="glyphicon glyphicon-plus"></span>
                 </button>
             </div>
-            <button class="btn btn-default" data-bind="click: function() { toggleSearch()}">
-                Show/Hide List 
-            </button>
+
+
         </div>
 
-        <div class="row">
+
+        <div class="page-body">
             <!--sidebar-->
             <div id="searchPane" class="col-md-4 hidden-desktop" data-bind="visible: selectedOption() != 'Create Pillar'">
                 
                 <div class="input-group">
-                    <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal, valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus=""></input> 
+                    <input type="text" id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
+                     valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus="">
                     <span class="input-group-btn">
-                        <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button" title="Clear search">
+                        <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button"
+                                title="Clear search">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
-                        <button class="btn btn-default" data-bind="click: function() {checkAll()}" type="button" title="Select all visible servers, with a maximum of 8 at a time">
+                        <button class="btn btn-default" data-bind="click: function() {checkAll()}" type="button"
+                                title="Select all visible servers, with a maximum of 8 at a time">
                             <span class="glyphicon glyphicon-check"></span>
                         </button>
-                        <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button" title="Unselect ALL selected servers, not just visible ones">
+                        <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button"
+                                title="Unselect ALL selected servers, not just visible ones">
                             <span class="glyphicon glyphicon-unchecked"></span>
                         </button>
 
                     </span>
                 </div>
 
-                <div class="checkbox-list">
-                    <div data-bind="foreach: queriedNodes"> 
-                        <div class="row">
-                            <label> 
-                                <input type="checkbox" data-bind="value: name, checked: checked">
-                                <span data-bind="text: name"/>
-                                <!--<span data-bind="text: ko.toJSON(pillar, null, 2)"></span>-->
-                            </label>
-                        </div>
-                    </div>
-                </div>
+            </div>
+
+            <div class="checkbox-list">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>
+                                Host Name
+                            </th>
+                            <th>
+                                Projects/Services/Applications
+                            </th>
+                            <th>
+                                Select
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: queriedNodes">
+                        <tr>
+                            <td data-bind="text: name"></td>
+                            <td data-bind="text: $parent.getArray($data)"></td>
+                            <td>
+                                <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">
+                                    <span data-bind="attr: { class: star }"></span>
+                                </button>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         
             <div id="mainPane" class="col-md-8"> 
@@ -75,10 +120,11 @@
                     <span> Selected servers: </span>
                     <div data-bind="foreach: checkedNodes">
                         <table>
-                            <td data-bind="text: name"></td>
+                            <tr data-bind="text: name"></tr>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-danger" data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
+                    <button type="button" class="btn btn-danger"
+                            data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
                 </div>
 
                 <div data-bind="visible: checkedNodes().length == 0 && selectedOption() != 'Create Pillar'">
@@ -87,17 +133,9 @@
                     </h4>
                 </div>
 
-                
-                <div data-bind="visible: selectedOption() == 'Create Pillar'">
-                    <h4> Enter a unique hostname. Domain will be added to create the FQDN. </h4>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: newNodeName"></input> 
-                    </div>
-                    <span> .spottrading.com </span>
-                    <button class="btn btn-default" data-bind="click:  function() { saltModel.validate(newNodeName(), null, 'preCreate', 'node', null) }, visible: newNodeName()">Create</button>
-                </div>
 
-                <div data-bind="visible: checkedNodes().length > 0 && selectedOption() == 'Modify Pillar(s)'">
+
+                <div data-bind="visible: checkedNodes().length > 0">
 
                     <div class="btn-group" data-bind="foreach: modifyOptions">
                         <button class="btn btn-default" data-bind="radio: $parent.selectedModify">
@@ -119,7 +157,9 @@
 
                         <h2 data-bind="text: $data.proj_name"></h2>
                         <div data-bind="visible: $data.editing">
-                            <button type="button" class="btn btn-danger" data-bind="click: function () { $parent.updateProjectWrapper('delete', 'project', $data) }, text: 'Delete Project ' + $data.proj_name" ></button>
+                            <button type="button" class="btn btn-danger"
+                                    data-bind="click: function () { $parent.updateProjectWrapper('delete', 'project', $data) },
+                                     text: 'Delete Project ' + $data.proj_name" ></button>
                         </div>
 
                         <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px; cursor: pointer;"
@@ -145,21 +185,26 @@
 
                         </table>
 
-                        <table class="table table-striped table-bordered edit" id="editTable" data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
+                        <table class="table table-striped table-bordered edit" id="editTable"
+                               data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
                             <thead>
                             <tr>
                                 <th>Server</th>
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th>
                                     <span data-bind="text: $data"></span>
-                                    <button data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">Delete
+                                    <button
+                                            data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">
+                                        Delete
                                     </button>
                                 </th>
                                 <!-- /ko -->
                                 <td>
                                     <div data-bind="visible: $data.editing">
-                                        <input type="text" placeholder="New Key Name" data-bind="textInput: new_key"></input> 
-                                        <button data-bind="click: function () { $parent.visualUpdate('create', 'key', $data) }">Add Key</button>
+                                        <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
+                                        <button
+                                                data-bind="click: function () { $parent.visualUpdate('create', 'key', $data) }">
+                                            Add Key</button>
                                     </div>
                                 </td>
                             </tr>
@@ -170,7 +215,10 @@
                                 <td data-bind="text: name"></td>
 
                                 <!-- ko foreach: $parent.edit_keys() -->
-                                <td><input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable" style="width: 100%;"></input></td>
+                                <td>
+                                    <input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
+                                        style="width: 100%;">
+                                </td>
 
 <!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
                                 <!-- /ko -->
@@ -179,7 +227,8 @@
                         </table>
 
                         <div class="container" data-bind="visible: $parent.selectedModify() == 'Existing project' && $data.editing">
-                            <button data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}"> Send updated table data 
+                            <button data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}">
+                                Send updated table data
                             </button>
                             <button data-bind="click: function() { $parent.cancelEditing($data) }">Cancel Editing</button>
                         </div>
@@ -187,13 +236,13 @@
                     <!-- end of existing project tab-->
 
                     <div data-bind="visible: selectedModify() == 'New project'">
-                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> <h3/>
+                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> </h3>
                         <span> Project name: </span>
-                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project"></input>
+                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
                         <!-- ko foreach: new_pairs() -->
                         <div class="row">
-                            <input type="text" placeholder="Key" data-bind="textInput: key"></input>
-                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value"></input>
+                            <input type="text" placeholder="Key" data-bind="textInput: key">
+                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
                         </div>
                         <!-- /ko-->
                         <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
@@ -201,15 +250,6 @@
                         <button class="btn btn-default" data-bind="click: function() {createProjectWrapper(new_project())}">Create</button>
                     </div>
 
-                </div>
-
-                <div data-bind="visible: selectedOption() == 'View Pillar(s)'">
-                    <span> Re-select server if you are seeing outdated information </span>
-                </div>
-                <div data-bind="visible: selectedOption() == 'View Pillar(s)', foreach: checkedNodes()" id="showJSON">
-                    <p data-bind="text: name"></p>
-                    
-                    <textarea readonly style="width: 500px; height: 500px" data-bind="value: ko.toJSON(pillar, null, 2)"></textarea>
                 </div>
             </div>
         <!-- end main pane-->

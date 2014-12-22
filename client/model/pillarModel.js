@@ -4,10 +4,12 @@ define( [
         'jquery',
         'model/pillarApiModel',
         'model/saltModel',
+        'model/constants',
         'bindings/uppercase',
         'bindings/pillarEditor'
+
     ],
-    function(ko, service, $, pillarApiModel, saltModel) {
+    function(ko, service, $, pillarApiModel, saltModel, constants) {
         return function pillarModel(login, admin) {
     
             var self = this;
@@ -30,7 +32,6 @@ define( [
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
 
-            self.pillarOptions = ko.observableArray(["Modify Pillar(s)", "Create Pillar", "View Pillar(s)"]);//, "Delete Pillar(s)" ]);
             self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]); 
 
@@ -46,24 +47,14 @@ define( [
             self.tableEditing = false;
             var alphaNum = /^[a-zA-Z0-9]+$/;
 
-            ko.computed(function() {
-                if(self.adminModel.enabled()) {
-                    self.pillarOptions.push("Delete Pillar(s)");
-                }
-                else {
-                    var ind = self.pillarOptions.indexOf("Delete Pillar(s)");
-                    if (ind !== -1) {
-                        self.pillarOptions.splice(ind, 1); 
-                    }
-                }
-            });
-
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
                 self.name = server_name;
                 self.pillar = pillar_data;
                 self.edit_pillar = {};
                 self.projects = {};
+                self.projArr = [];
+                self.star = ko.observable(constants.glyphs.emptyStar);
                 self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
                 self.prior = false;
@@ -92,10 +83,6 @@ define( [
                 self.allKeys([]);
                 self.allProjects([]);
                 addProjects(_assoc);
-            };
-
-            self.toggleSearch = function() {
-                $('#searchPane').toggle(200);
             };
 
             self.removeQuery = function() {
@@ -136,7 +123,7 @@ define( [
                         pair.key = "";
                         ret = false;
                     }
-                    if (typeof pair.value !== 'undefined' && pair.value !== "") { 
+                    if (typeof pair.value !== 'undefined' && pair.value !== "") {
                         try {
                             // make sure we can parse it later
                             JSON.parse(pair.value);
@@ -145,8 +132,8 @@ define( [
                             ret = false;
                         }
                     }
-                
-                });               
+
+                });
                 return ret;
             };
 
@@ -176,7 +163,7 @@ define( [
             self.doneEditing = function (_updatingassoc) {
                 ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                     if (_assoc !== _updatingassoc) {
-                        if (_assoc.editable) _assoc.editable(false); 
+                        if (_assoc.editable) _assoc.editable(false);
                     }
                 });
             };
@@ -195,10 +182,14 @@ define( [
                 });
             };
 
+            self.showAddModal = function() {
+                $('#addModal').modal('show');
+            };
+
             self.cancelEditing = function(html_proj) {
                 html_proj.editing(false);
             };
-                        
+
             self.visualUpdate = function(update_type, data_type, _proj, key) {
                 if (update_type === 'create') {
                     if (data_type === 'key') {
@@ -225,15 +216,15 @@ define( [
                         });
                         var i = _proj.edit_keys.indexOf(key);
                         // delete and update entire array
-                        _proj.edit_keys.splice(i, 1); 
+                        _proj.edit_keys.splice(i, 1);
                     }
-                    else if (data_type === 'project') { 
+                    else if (data_type === 'project') {
                         _proj.hasProject.forEach(function(_assoc) {
                             delete _assoc.edit_pillar[_proj.proj_name];
                         });
                     }
                 }
-            }; 
+            };
 
             var JSONcreateProject = function (_assoc) {
                 var pairs = {};
@@ -246,8 +237,10 @@ define( [
             };
 
             self.uncheckAll = function() {
+                self.checkedNodes([]);
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
                     _assoc.checked(false);
+                    _assoc.star(constants.glyphs.emptyStar);
                 });
             };
 
@@ -257,7 +250,7 @@ define( [
                     return;
                 }
                 ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
-                    _assoc.checked(true);
+                    self.handleSelect(_assoc);
                 });
             };
             
@@ -361,10 +354,45 @@ define( [
                 for (var each in _assoc.pillar){
                     _assoc.projects[each] = ko.observable("");
                     _assoc.projects[each](_assoc.pillar[each]);
+                    _assoc.projArr.push(JSON.stringify(_assoc.pillar[each]));
                 }
             };
 
             // Computed function that is called whenever a server in allNodes 
+
+            self.getArray = function(_assoc) {
+                var project_list = "";
+                $.each(_assoc.pillar, function(proj_name, values) {
+                    project_list += proj_name + ",";
+                });
+
+                return project_list;
+            };
+
+            self.handleSelect = function(_assoc) {
+                    if (!_assoc.prior){
+                        addProjects(_assoc);
+                        _assoc.star(constants.glyphs.filledStar);
+                        self.checkedNodes.push(_assoc);
+                        _assoc.prior = true;
+                        self.createObjForProjects(_assoc);
+                    }
+                    else if (_assoc.prior){
+                        self.checkedNodes.remove(_assoc);
+                        //TODO: significant performance hit
+                        self.allProjects([]);
+                        ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
+                            addProjects(_assoc);
+                        });
+
+                        _assoc.prior = false;
+                        // if this is the last to be un-checked, reset all fields
+                        if (self.checkedNodes().length === 0){
+                            resetFields();
+                        }
+                        _assoc.star(constants.glyphs.emptyStar);
+                    }
+            };
 
             self.checked_server_data = ko.computed(function() {
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
@@ -386,7 +414,7 @@ define( [
                     else if (!_assoc.checked()) {
                         if (_assoc.prior){
                             self.checkedNodes.remove(_assoc);
-                            //TODO: significant perormance hit
+                            //TODO: significant performance hit
                             self.allProjects([]);
                             ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                                 addProjects(_assoc);
