@@ -8,69 +8,63 @@ define(
         'model/loginModel',
         'model/ApplicationStateModel',
         'model/GlobalMode',
+        'viewmodels/navbar',
         'bindings/radio'
     ],
-    function(app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode) {
+    function(app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode, navbar) {
         var self = this;
+        self.navbar = navbar;
         self.login = login;
         self.appStateModel = new ApplicationStateModel(self.login);
         self.mode = GlobalMode;
 
-        var connection;
-        $(document).ready(function() {
-            connection = new WebSocket('ws://' + document.location.host + '/zoom/ws');
+        var callbackInstance = {};
+        var callbackObj = function() {
+            this.callback = function() {
+                self.navbar.connection.onmessage = function (evt) {
+                    console.log('websocket message: ' + evt.data);
+                    var message = JSON.parse(evt.data);
 
-            connection.onopen = function() {
-                console.log('websocket connected');
+                    if ('update_type' in message) {
 
-            };
+                        if (message.update_type === 'application_state') {
 
-            connection.onclose = function(evt) {
-                console.log('websocket closed');
-                document.getElementById("applicationHost").style.backgroundColor = '#FF7BFE';
-                swal('Uh oh...', 'You will need to refresh the page to receive updates.', 'error');
-            };
+                            $.each(message.application_states, function () {
+                                self.appStateModel.handleApplicationStatusUpdate(this);
+                            });
 
-            connection.onmessage = function(evt) {
-                // console.log('websocket message: ' + evt.data);
-                var message = JSON.parse(evt.data);
+                            // resort the column, holding its sorted direction
+                            self.appStateModel.holdSortDirection(true);
+                            self.appStateModel.sort(self.appStateModel.activeSort());
+                        }
 
-                if ('update_type' in message) {
-
-                    if (message.update_type === 'application_state') {
-
-                        $.each(message.application_states, function() {
-                            self.appStateModel.handleApplicationStatusUpdate(this);
-                        });
-
-                        // resort the column, holding its sorted direction
-                        self.appStateModel.holdSortDirection(true);
-                        self.appStateModel.sort(self.appStateModel.activeSort());
-                    }
-
-                    else if (message.update_type === 'global_mode') {
-                        self.mode.handleModeUpdate(message);
-                    }
-                    else if (message.update_type === 'timing_estimate') {
-                        self.mode.handleTimingUpdate(message);
-                    }
-                    else if (message.update_type === 'application_dependency') {
-                        self.appStateModel.handleApplicationDependencyUpdate(message);
+                        else if (message.update_type === 'global_mode') {
+                            self.mode.handleModeUpdate(message);
+                        }
+                        else if (message.update_type === 'timing_estimate') {
+                            self.mode.handleTimingUpdate(message);
+                        }
+                        else if (message.update_type === 'application_dependency') {
+                            self.appStateModel.handleApplicationDependencyUpdate(message);
+                        }
+                        else {
+                            console.log('unknown type in message: ' + message.update_type);
+                        }
                     }
                     else {
-                        console.log('unknown type in message: ' + message.update_type);
+                        console.log('no type in message');
                     }
-                }
-                else {
-                    console.log('no type in message');
-                }
-            };
-        });
+                };
+            }
+        };
+
 
         self.attached = function() {
             self.appStateModel.loadApplicationStates();  // load initial data
             self.appStateModel.loadApplicationDependencies();  // load initial data
             self.appStateModel.dependencyMaps.showView(self.appStateModel.currentView());
+            callbackInstance = new callbackObj;
+            callbackInstance.callback();
         };
 
         self.detached = function() {

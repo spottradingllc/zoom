@@ -12,12 +12,31 @@
         'bootstrap'
     ],
     function(router, app, $, ko, service, login, admin, environment, pillar) {
+        var self = this;
+        self.connection = {};
+
+        // Create the websocket right away so we know if we lose connection to server on any page
+        $(document).ready(function() {
+            self.connection = new WebSocket('ws://' + document.location.host + '/zoom/ws');
+
+            self.connection.onopen = function() {
+                console.log('websocket connected');
+            };
+
+            self.connection.onclose = function(evt) {
+                console.log('websocket closed');
+                document.getElementById("applicationHost").style.backgroundColor = '#FF7BFE';
+                swal('Uh oh...', 'You will need to refresh the page to receive updates.', 'error');
+            };
+        });
+
         return {
             router: router,
             login: login,
             admin: admin,
             environment: environment,
             pillar: pillar,
+            connection: self.connection,
             isFAQ: function(title) {
                 return title.search('FAQ') !== -1;
             },
