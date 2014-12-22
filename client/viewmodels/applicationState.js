@@ -27,7 +27,7 @@ define(
 
             connection.onclose = function(evt) {
                 console.log('websocket closed');
-                document.getElementById("application_state_page").style.backgroundColor = '#FF7BFE';
+                document.getElementById("applicationHost").style.backgroundColor = '#FF7BFE';
                 swal('Uh oh...', 'You will need to refresh the page to receive updates.', 'error');
             };
 
