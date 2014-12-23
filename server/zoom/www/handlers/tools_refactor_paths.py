@@ -25,7 +25,7 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         new_path = self.get_argument('newPath')
 
         # check if the path exists
-        if not self.zk.exists(old_path):
+        if not self.zk.exists(old_path) or new_path is None:
             self.set_status(httplib.NOT_FOUND)
             return
 
