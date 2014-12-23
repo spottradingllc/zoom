@@ -31,14 +31,11 @@ define( [
             // all projects for a  
             self.allProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
+            self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]);
 
-            self.modifyOptions = ko.observableArray(["Existing project", "New project"]);
-            self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]); 
-
-            self.searchVal = ko.observable(""); 
+            self.searchVal = ko.observable("");
             self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
-            self.selectedModify = ko.observable("Existing project");
             self.new_project = ko.observable("");
             
             self.pillarApiModel = new pillarApiModel(self);
