@@ -20,6 +20,7 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         Save filter
         """
         config_path = '/justin/configs'
+        updated_server_list = list()
 
         old_path = self.get_argument('oldPath')
         new_path = self.get_argument('newPath')
@@ -36,5 +37,8 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
             data, stat = self.zk.get(child_path)
             if old_path in data:
                 updated_data, num = re.subn(old_path, new_path, data)
-                logging.info("Updated data for child: {0}".format(child))
-                logging.info("config: {0}".format(updated_data))
+                updated_server_list.append(child)
+            else:
+                logging.info('### Skipping')
+
+        self.write({'server_list': updated_server_list})

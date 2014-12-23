@@ -7,14 +7,14 @@
         <span class="dropdown">
                 Old Path: <input type="text" class="form-control" placeholder="old path to replace" data-toggle="dropdown"
                        data-bind="textInput: toolsModel.oldPath, style: {color : 'red'}, border-right: 'thick'"
-                       data-toggle="tooltip" data-placement="top" title="Old Path" style="margin-bottom: 25px">
+                       data-toggle="tooltip" data-placement="top" style="margin-bottom: 25px">
                 <ul class="dropdown-menu" role="menu" data-bind="foreach: toolsModel.pathOptions">
                     <li><a data-bind="text: $data, click: function(){ toolsModel.setOldPath($data) }"></a></li>
                 </ul>
 
                 New Path: <input type="text" class="form-control" placeholder="e.g. /spot/software/state/application/unique_application_name"
                        data-bind="textInput: toolsModel.newPath, style: {color : 'green'}"
-                       data-toggle="tooltip" data-placement="top" title="New Path" style="margin-bottom: 25px">
+                       data-toggle="tooltip" data-placement="top" style="margin-bottom: 25px">
                 <input type="submit" data-bind="click: toolsModel.showPaths">
         </span>
     </div>

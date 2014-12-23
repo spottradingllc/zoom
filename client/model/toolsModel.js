@@ -30,19 +30,42 @@ define( [
                 if (self.oldPath() === '' || self.newPath() === ''){
                     swal('Please specify both paths!');
                 }
+                else if (self.oldPath() === self.newPath()){
+                    swal('Paths are the same! Not Replacing');
+                }
                 else{
-                   $.ajax({
-                            url: '/tools/refactor_path/',
-                            async: false,
-                            data: paths_dict,
-                            type: 'POST',
-                            success: function(data){
-                                swal('Success: ' + data);
-                            },
-                            error: function(data) {
-                                swal('Error! Path does not exist: ' + self.oldPath());
-                            }
-                        });
+                    swal({
+                        title: 'Please double check!',
+                        text: 'Replace old path: ' + self.oldPath() + '\n with new path: ' + self.newPath() + '?',
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, Replace it!",
+                        closeOnConfirm: true
+                    },
+                    function(isConfirm){
+                        if (isConfirm) {
+                           $.ajax({
+                                    url: '/tools/refactor_path/',
+                                    async: true,
+                                    data: paths_dict,
+                                    type: 'POST',
+                                    success: function(data){
+                                        swal({
+                                            title:"Success!",
+                                            text: data.server_list,
+                                            closeOnConfirm: false
+
+                                        });
+                                    },
+                                    error: function(data) {
+                                        swal('Error! Path does not exist: ' + self.oldPath());
+                                    }
+                                });
+                        } else {
+                            return
+                        }
+                    })
                 }
             }
 
