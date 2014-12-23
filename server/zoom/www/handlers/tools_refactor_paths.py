@@ -20,10 +20,14 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         Save filter
         """
         config_path = '/justin/configs'
+        app_state_path = '/spot/software/state/application/'
         updated_server_list = list()
 
         old_path = self.get_argument('oldPath')
         new_path = self.get_argument('newPath')
+
+        old_unique_id = old_path.replace(app_state_path, '')
+        new_unique_id = new_path.replace(app_state_path, '')
 
         # check if the path exists
         if not self.zk.exists(old_path) or new_path is None:
@@ -35,8 +39,8 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         for child in children:
             child_path = '/'.join([config_path, child])
             data, stat = self.zk.get(child_path)
-            if old_path in data:
-                updated_data, num = re.subn(old_path, new_path, data)
+            if old_unique_id in data:
+                updated_data, num = re.subn(old_unique_id, new_unique_id, data)
                 updated_server_list.append(child)
             else:
                 logging.info('### Skipping')
