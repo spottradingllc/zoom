@@ -53,7 +53,6 @@ define( [
                 self.pillar = pillar_data;
                 self.edit_pillar = {};
                 self.projects = {};
-                self.projArr = [];
                 self.star = ko.observable(constants.glyphs.emptyStar);
                 self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
@@ -182,8 +181,8 @@ define( [
                 });
             };
 
-            self.showAddModal = function() {
-                $('#addModal').modal('show');
+            self.showModal = function(modal_id) {
+                $('#'+modal_id).modal('show');
             };
 
             self.cancelEditing = function(html_proj) {
@@ -253,12 +252,12 @@ define( [
                     self.handleSelect(_assoc);
                 });
             };
-            
+
             var switchViewToProject = function(project_name) {
                 if (typeof project_name === 'undefined') {
                     console.log("no project");
                 }
-                else { 
+                else {
                     self.selectedModify("Existing project");
                 }
             };
@@ -270,17 +269,17 @@ define( [
                 // validate once, even if multiple servers since using the same data.
                 if (validateNewProject() === false) return;
 
-                // check if validate worked 
+                // check if validate worked
                 ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                     if (typeof _assoc.projects[data] !== "undefined"){
                         swal("Warning", "Project already exists on " + _assoc.name, 'error');
                         left--;
                     }
-                
+
                     else {
-                        // only refresh salt after the last one is updated 
+                        // only refresh salt after the last one is updated
                         if (left == 1) {
-                            refresh_salt = true; 
+                            refresh_salt = true;
                         }
                         left--;
                         JSONcreateProject(_assoc);
@@ -306,14 +305,14 @@ define( [
                     text: alertText,
                     showCancelButton: true,
                     confirmButtonText: "Yes"
-                }, 
+                },
                 function(isConfirm){
                     if (isConfirm) {
                         if (update_type === 'delete') {
                             // need to update the edit_pillar first!
                             self.visualUpdate(update_type, data_type, _proj, key);
                             self.pillarApiModel.api_delete(data_type, _proj, key);
-                        } 
+                        }
                         else {
                             var refresh_salt = false;
                             for (var each in _proj.hasProject) {
@@ -333,16 +332,16 @@ define( [
                     var found = false;
                     for (var i in self.allProjects()) {
                         if (self.allProjects()[i].proj_name === proj_name) {
-                            self.allProjects()[i].freq++; 
+                            self.allProjects()[i].freq++;
                             found = true;
                         }
-                    } 
+                    }
                     if (!found) {
                         var new_proj = new self._proj(proj_name);
                         new_proj.freq = 1;
                         $.each(keyVals, function(key, value) {
                             new_proj.keys.push(key);
-                        }); 
+                        });
                         self.allProjects.push(new_proj);
                     }
                 });
@@ -354,19 +353,17 @@ define( [
                 for (var each in _assoc.pillar){
                     _assoc.projects[each] = ko.observable("");
                     _assoc.projects[each](_assoc.pillar[each]);
-                    _assoc.projArr.push(JSON.stringify(_assoc.pillar[each]));
                 }
             };
 
-            // Computed function that is called whenever a server in allNodes 
+            // Computed function that is called whenever a server in allNodes
 
             self.getArray = function(_assoc) {
-                var project_list = "";
+                var project_list = [];
                 $.each(_assoc.pillar, function(proj_name, values) {
-                    project_list += proj_name + ",";
+                    project_list.push(proj_name);
                 });
-
-                return project_list;
+                return project_list.join(", ");
             };
 
             self.handleSelect = function(_assoc) {
