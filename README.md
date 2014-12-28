@@ -6,7 +6,7 @@ Zoom is a platform created by Spot Trading to manage real-time application start
 
 ### The Agent
 
-The Zoom agent is python service called Sentinel. It is responsible for watching the status of Linux daemons and Windows services. When the service is it watching is running, the agent creates a node in ZooKeeper.
+The Zoom agent is python service called Sentinel. It is responsible for watching the status of Linux daemons and Windows services. When the service it is watching is running, the agent creates a node in ZooKeeper.
  
 All interaction with Sentinel happens in ZooKeeper:
 
