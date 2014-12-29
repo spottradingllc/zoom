@@ -4,15 +4,12 @@ define(
         'knockout',
         'service',
         'jquery',
-        'd3',
-        'model/loginModel',
         'model/toolsModel',
         'bindings/radio',
         'bindings/tooltip'
     ],
-    function(app, ko, service, $, d3, login, toolsModel) {
-        self.login = login;
-        self.toolsModel = new toolsModel(self.login);
+    function(app, ko, service, $, toolsModel) {
+        self.toolsModel = new toolsModel();
 
         return {
             toolsModel: self.toolsModel

@@ -7,11 +7,10 @@ define( [
         'bindings/uppercase'
     ],
     function(ko, service, $) {
-        return function toolsModel(login) {
+        return function toolsModel() {
             var self = this;
             self.oldPath = ko.observable('');
-            self.newPath = ko.observable('');
-            self.path = ko.observable(null);
+            self.newPath = ko.observable('/spot/software/state/application/');
 
             self.setOldPath = function(path){
                 self.oldPath(path)
@@ -41,7 +40,7 @@ define( [
                         showCancelButton: true,
                         confirmButtonColor: "#DD6B55",
                         confirmButtonText: "Yes, Replace it!",
-                        closeOnConfirm: true
+                        closeOnConfirm: false
                     },
                     function(isConfirm){
                         if (isConfirm) {
@@ -59,7 +58,11 @@ define( [
                                         });
                                     },
                                     error: function(data) {
-                                        swal('Error! Path does not exist: ' + self.oldPath());
+                                        swal({
+                                            title:"Error!",
+                                            text: data.responseJSON.errorText,
+                                            closeOnConfirm: false
+                                        });
                                     }
                                 });
                         } else {
@@ -67,7 +70,7 @@ define( [
                         }
                     })
                 }
-            }
+            };
 
 
             self.statePaths = (function() {
@@ -90,10 +93,10 @@ define( [
             self.pathOptions = ko.computed(function() {
                 var paths = self.statePaths;
 
-                if (self.path() === null || self.path() === '') { return paths; }
+                if (self.oldPath() === null || self.oldPath() === '') { return paths; }
 
                 return ko.utils.arrayFilter(paths, function(path) {
-                    return path.indexOf(self.path()) !== -1;
+                    return path.indexOf(self.oldPath()) !== -1;
                 });
             });
 

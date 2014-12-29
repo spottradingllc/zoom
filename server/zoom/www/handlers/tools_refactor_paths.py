@@ -30,9 +30,23 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         new_unique_id = new_path.replace(app_state_path, '')
 
         # check if the path exists
-        if not self.zk.exists(old_path) or new_path is None:
+        if not self.zk.exists(old_path):
             self.set_status(httplib.NOT_FOUND)
+            self.write({'errorText': 'Old path does not exist'})
             return
+
+        # check if the new path already exists in ZK
+        if self.zk.exists(new_path):
+            self.set_status(httplib.NOT_FOUND)
+            self.write({'errorText': 'New path already exists in Zookeeper'})
+            return
+
+        # check if new path has correct base app path
+        if app_state_path not in new_path:
+            self.set_status(httplib.NOT_FOUND)
+            self.write({'errorText': 'New path does not have the correct base app path'})
+            return
+
 
         children = self.zk.get_children(config_path)
 
@@ -42,6 +56,7 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
             if old_unique_id in data:
                 updated_data, num = re.subn(old_unique_id, new_unique_id, data)
                 updated_server_list.append(child)
+                # push update_data to Zookeeper
             else:
                 logging.info('### Skipping')
 
