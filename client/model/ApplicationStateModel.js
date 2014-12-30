@@ -134,6 +134,7 @@ define(
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
                         self.executeSingleControl({'com': 'ignore', 'clear_group': true});
+                        // only send stop if it's needed
                         self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
                         self.checkStopped();
                     }
@@ -246,6 +247,9 @@ define(
             };
 
             self.sendDepRestart = function() {
+                // needs to sleep so that stop command gets put into the agent's queue first
+                // TODO: a better alternative to ensure stop gets called first
+                self.sleep(500)
                 if (!self.groupMode()){
                     self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
