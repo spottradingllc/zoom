@@ -134,7 +134,6 @@ define(
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
                         self.executeSingleControl({'com': 'ignore', 'clear_group': true});
-                        // only send stop if it's needed
                         self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
                         self.checkStopped();
                     }
