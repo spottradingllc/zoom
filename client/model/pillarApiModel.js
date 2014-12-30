@@ -10,26 +10,11 @@ define(
 
             self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
                 var update_phrase = "";
-                var key = "";
-                var val = "";
                 if (data_type === 'project') {
                     update_phrase = "Created project " + pillarModel.new_project();
-                    key = pillarModel.new_project();
-                }
-                else if (data_type === 'key') {
-                    update_phrase = "Created key: " + pillarModel.new_key() + " with value: " + pillarModel.new_value();
-                    key = pillarModel.new_key();
-                    val = pillarModel.new_value();
-                }
-                else if (data_type === 'value') {
-                    update_phrase = "Updated key: " + pillarModel.selectedKey() + " with value: " + pillarModel.edit_value();
-                    key = pillarModel.selectedKey();
-                    val = pillarModel.edit_value();
                 }
                 else if (data_type === 'wholeTable') {
                     update_phrase = "Updated pillar: " + _assoc.pillar;
-                    key = "";
-                    val = "";
                 }
 
                 var _projdata = {

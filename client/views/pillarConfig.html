@@ -134,6 +134,101 @@
             </div>
         </div>
     </div>
+    <div id="groupExistingModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Multiple Servers</h3>
+                </div>
+                <div class="modal-body" data-bind="with: pillarModel">
+                    <h3> Add project <small> For ALL selected servers. Blank values will be null </small> </h3>
+                    <span> Select an existing project: </span>
+                    <select data-bind="options: allProjects, optionsText: function(item) { return item.proj_name }, value: selectedProject"></select>
+                    <!-- ko foreach: new_pairs() -->
+                    <div class="row">
+                        <input type="text" placeholder="Key" data-bind="textInput: key">
+                        <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                    </div>
+                    <!-- /ko-->
+                    <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                    <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject())}">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="groupNewModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Multiple Servers</h3>
+                </div>
+                <div class="modal-body" data-bind="with: pillarModel">
+                     <div>
+                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> </h3>
+                        <span> Project name: </span>
+                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
+                        <!-- ko foreach: new_pairs() -->
+                        <div class="row">
+                            <input type="text" placeholder="Key" data-bind="textInput: key">
+                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                        </div>
+                        <!-- /ko-->
+                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project())}">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="existingModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body" data-bind="with: pillarModel">
+                    <span> Select an existing project: </span>
+                    <select data-bind="options: allProjects, optionsText: function(item) { return item.proj_name }, value: selectedProject"></select>
+                    <!-- ko foreach: new_pairs() -->
+                    <div class="row">
+                        <input type="text" placeholder="Key" data-bind="textInput: key">
+                        <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                    </div>
+                    <!-- /ko-->
+                    <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                    <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject(), true)}">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="newModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body" data-bind="with: pillarModel">
+                     <div>
+                        <span> Project name: </span>
+                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
+                        <!-- ko foreach: new_pairs() -->
+                        <div class="row">
+                            <input type="text" placeholder="Key" data-bind="textInput: key">
+                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                        </div>
+                        <!-- /ko-->
+                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), true)}">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
         <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
@@ -150,15 +245,23 @@
                         Add Server for Mapping
                     </button>
                 </div>
-                <div class="col-md-6 text-right">
-                    <small class="pull-right">
-                        <div class="pull-right">
-                             <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }" data-placement="top" type="button" title="Group Edit Server Data">
-                                <span class="glyphicon glyphicon-edit"></span>
-                                Group Edit
-                             </button>
-                        </div>
-                    </small>
+                <div class="col-md-6 text-right"  >
+                    <div class="pull-right">
+                         <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <span class="glyphicon glyphicon-edit"></span>
+                            Group Edit
+                         </button>
+                        <button class="btn btn-default" data-bind="click: function() { showModal('groupExistingModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <span class="glyphicon glyphicon-edit"></span>
+                            Group Add Existing
+                        </button>
+                        <button class="btn btn-default" data-bind="click: function() { showModal('groupNewModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <span class="glyphicon glyphicon-edit"></span>
+                            Group Add New
+                        </button>
+
+
+                    </div>
                 </div>
             </div>
 
@@ -187,8 +290,8 @@
                         <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button"
                                 title="Unselect ALL selected servers, not just visible ones">
                             <span class="glyphicon glyphicon-unchecked"></span>
-                            <span class="badge" data-bind="text: checkedNodes.length"></span>
                             Uncheck All
+                            <span class="badge" data-bind="text: checkedNodes().length"></span>
                         </button>
 
                     </span>
@@ -213,17 +316,121 @@
                     </thead>
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
-                            <td data-bind="text: name"></td>
+                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data) }"></td>
                             <td data-bind="text: $parent.getArray($data)"></td>
                             <td>
-                                <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">
-                                    <span data-bind="attr: { class: star }"></span>
-                                </button>
+                                <div class="btn-group btn-group-xs">
+                                    <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">
+                                        <span data-bind="attr: { class: star }"></span>
+                                    </button>
+                                    <button class="btn btn-default dropdown-toggle" type="button"
+                                        data-toggle="dropdown" data-toggle="tooltip" data-placement="top">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                        <li role="presentation">
+                                            <a data-bind="click: function() { $parent.handleAction($data, 'existing') }" data-toggle="tooltip"
+                                                    data-placement="top">
+                                                Add Existing
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a data-bind="click: function() { $parent.handleAction($data, 'new') }" data-toggle="tooltip"
+                                                    data-placement="top">
+                                                Add New
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
+                            </tr>
+                                <!-- Main div for each project!!! -->
+                            <tr data-bind="visible: projArray().length > 0">
+                            <td colspan="3">
+                    <div id="eachProject" data-bind="foreach: projArray">
+
+                        <div data-bind="visible: $data.editing">
+                            <button type="button" class="btn btn-danger"
+                                    data-bind="click: function () { $parents[1].updateProjectWrapper('delete', 'project', $data) },
+                                     text: 'Delete Project ' + $data.proj_name" ></button>
+                        </div>
+
+                        <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; cursor: pointer;"
+                            data-bind="visible: !$data.editing(), click: function () {$parents[1].showEdit($data)}">
+                            <thead>
+                            <tr>
+                                <th class="col-sm-1">Project</th>
+                                <!-- ko foreach: $data.keys() -->
+                                <th class="col-sm-1" data-bind="text: $data"></th>
+                                <!-- /ko -->
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr>
+                                <td class="col-sm-1" data-bind="text: proj_name"></td>
+                                <!-- ko foreach: keys -->
+                                <td class="col-sm-1" data-bind="text: $parents[2].getValues($parents[1], $parent, $data)"></td>
+                                <!-- /ko -->
+                            </tr>
+                            </tbody>
+
+                        </table>
+
+                        <table class="table table-striped table-bordered edit" id="editTable"
+                               data-bind="visible: $data.editing" style="margin-bottom: 20px; ">
+                            <thead>
+                            <tr>
+                                <th>Server</th>
+                                <!-- ko foreach: $data.edit_keys() -->
+                                <th>
+                                    <span data-bind="text: $data"></span>
+                                    <button
+                                            data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
+                                        Delete
+                                    </button>
+                                </th>
+                                <!-- /ko -->
+                                <td>
+                                    <div data-bind="visible: $data.editing">
+                                        <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
+                                        <button
+                                                data-bind="click: function () { $parents[1].visualUpdate('create', 'key', $data) }">
+                                            Add Key</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </thead>
+
+                            <tbody data-bind="with: $parent">
+                            <tr>
+                                <td data-bind="text: name"></td>
+
+                                <!-- ko foreach: $parent.edit_keys() -->
+                                <td>
+                                    <input data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
+                                        style="width: 100%;">
+                                </td>
+
+<!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
+                                <!-- /ko -->
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="container" data-bind="visible: $data.editing">
+                            <button data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
+                                Send updated table data
+                            </button>
+                            <button data-bind="click: function() { $parents[1].cancelEditing($data) }">Cancel Editing</button>
+                        </div>
+                    </div>
+                    <!-- end of existing project tab-->
                             <!--
                             <span data-bind="template: {name: 'individual-host-template'}"></span>
                             -->
 
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -239,33 +446,6 @@
                     </div>
                     <button type="button" class="btn btn-danger"
                             data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
-                </div>
-
-                <div data-bind="visible: checkedNodes().length == 0 && selectedOption() != 'Create Pillar'">
-                    <h4>
-                        Please select at least one server. 
-                    </h4>
-                </div>
-
-
-
-                <div data-bind="visible: checkedNodes().length > 0">
-
-                    <div data-bind="visible: selectedModify() == 'New project'">
-                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> </h3>
-                        <span> Project name: </span>
-                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
-                        <!-- ko foreach: new_pairs() -->
-                        <div class="row">
-                            <input type="text" placeholder="Key" data-bind="textInput: key">
-                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
-                        </div>
-                        <!-- /ko-->
-                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {createProjectWrapper(new_project())}">Create</button>
-                    </div>
-
                 </div>
             </div>
         <!-- end main pane-->

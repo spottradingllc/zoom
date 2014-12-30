@@ -17,7 +17,13 @@ define(
             },
             update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var editing = ko.unwrap(valueAccessor());
-                var pillarModel = bindingContext.$parents[2];
+                if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
+                    var pillarModel = bindingContext.$parents[2];
+                }
+                else {
+                    var pillarModel = bindingContext.$parents[3];
+                }
+
 
                 if (editing) {
                     pillarModel.tableEditing = true;
@@ -38,7 +44,8 @@ define(
                         }
                     }
                     // keep it at null if nothing is there 
-                    if (element.value !== "") {
+                    if (element.value !== "" && index !== -1) {
+
                         pillarModel.checkedNodes()[index].edit_pillar[project][key] = parsed;            
                     }
                 }

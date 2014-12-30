@@ -22,7 +22,7 @@ define( [
             // nodes with their associated data in _assoc
             self.allNodes = ko.observableArray([]);//.extend({rateLimit: 100});
 
-            // node names from allNodes that should be shown based on the current query 
+            // nodes from allNodes that should be shown based on the current query
             self.queriedNodes = ko.observableArray([]);
 
             // nodes from allNodes that are checked
@@ -37,7 +37,9 @@ define( [
             self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.new_project = ko.observable("");
-            
+            self.selectedProject = ko.observable("");
+            self.selectedAssoc = ko.observable("");
+
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
 
@@ -50,6 +52,7 @@ define( [
                 self.pillar = pillar_data;
                 self.edit_pillar = {};
                 self.projects = {};
+                self.projArray = ko.observableArray([]);
                 self.star = ko.observable(constants.glyphs.emptyStar);
                 self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
@@ -105,11 +108,19 @@ define( [
                 return true;
             });
 
-            var validateNewProject = function() {
-                if (self.new_project() === ""){
-                    swal("Error", "Please enter a project name", 'error');
+            var validateNewProject = function(type) {
+                if (type === 'new') {
+                    if (self.new_project() === "") {
+                        swal("Error", "Please enter a project name", 'error');
+                        return false;
+                    }
+                }
+
+                if (typeof type === 'undefined') {
+                    swal("Error", "Select an existing project", 'error');
                     return false;
                 }
+
                 var ret = true;
 
                 var parsed_pairs = $.extend(true, [], self.new_pairs());
@@ -237,6 +248,7 @@ define( [
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
                     _assoc.checked(false);
                     _assoc.star(constants.glyphs.emptyStar);
+                    _assoc.prior = false;
                 });
             };
 
@@ -250,40 +262,43 @@ define( [
                 });
             };
 
-            var switchViewToProject = function(project_name) {
-                if (typeof project_name === 'undefined') {
-                    console.log("no project");
-                }
-                else {
-                    self.selectedModify("Existing project");
-                }
-            };
-
-            self.createProjectWrapper = function(data) {
+            self.projectWrapper = function(project_name, single) {
                 var left = self.checkedNodes().length;
                 var refresh_salt = false;
 
                 // validate once, even if multiple servers since using the same data.
-                if (validateNewProject() === false) return;
+                if (validateNewProject(project_name) === false) return;
 
-                // check if validate worked
-                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                    if (typeof _assoc.projects[data] !== "undefined"){
+
+                var doesNotAlreadyExist = function(_assoc, num_remaining) {
+                    if (typeof _assoc.projects[project_name] !== "undefined") {
                         swal("Warning", "Project already exists on " + _assoc.name, 'error');
-                        left--;
+                        num_remaining--;
+                        return false;
                     }
-
-                    else {
-                        // only refresh salt after the last one is updated
-                        if (left == 1) {
-                            refresh_salt = true;
+                    else return true;
+                };
+                // check if validate worked
+                if (typeof single === 'undefined') {
+                    ko.utils.arrayForEach(self.checkedNodes(), function (_assoc) {
+                        if (doesNotAlreadyExist(_assoc, left)) {
+                            // only refresh salt after the last one is updated
+                            if (left == 1) {
+                                refresh_salt = true;
+                            }
+                            left--;
+                            JSONcreateProject(_assoc);
+                            self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name);
                         }
-                        left--;
-                        JSONcreateProject(_assoc);
-                        self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project');
-                        switchViewToProject(data);
-                    }
-                });
+                    });
+                }
+                else {
+                    doesNotAlreadyExist(_assoc);
+                    JSONcreateProject(_assoc);
+                    var singleItemArray = [];
+                    singleItemArray.push(_assoc.name);
+                    self.pillarApiModel.api_post_json(_assoc, true, singleItemArray, 'project', project_name);
+                }
             };
 
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
@@ -388,6 +403,33 @@ define( [
                     }
             };
 
+            self.handleAction = function(_assoc, action_type) {
+                self.selectedAssoc(_assoc);
+                if (action_type === 'existing') {
+                    self.showModal('existingModal');
+                }
+                else if (action_type === 'new') {
+                    self.showModal('newModal');
+                }
+            };
+
+            self.toggleEdit = function(_assoc) {
+                if (_assoc.projArray().length === 0) {
+                    $.each(_assoc.pillar, function(projects, keyVals) {
+                        var new_proj = new self._proj(projects);
+                        $.each(keyVals, function(key) {
+                                new_proj.keys.push(key);
+                        });
+                        _assoc.projArray.push(new_proj);
+                    });
+                }
+                else {
+                    _assoc.projArray([]);
+                }
+            };
+
+            /*
+
             self.checked_server_data = ko.computed(function() {
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
                     if (_assoc.checked()){
@@ -423,6 +465,7 @@ define( [
                     }
                 });
             });
+            */
 
             self.queriedNodes= ko.computed(function() {
                 var query = self.searchVal().toLowerCase();
