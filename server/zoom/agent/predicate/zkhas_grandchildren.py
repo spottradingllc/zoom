@@ -39,8 +39,8 @@ class ZookeeperHasGrandChildren(SimplePredicate):
     def start(self):
         if not self._started:
             self._log.debug('Starting {0}'.format(self))
-            self._started = True
             self._rewalk_tree()
+            self._started = True
         else:
             self._log.debug('Already started {0}'.format(self))
 
