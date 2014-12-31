@@ -22,7 +22,7 @@ define(
         var callbackObj = function() {
             this.callback = function() {
                 self.navbar.connection.onmessage = function (evt) {
-                    console.log('websocket message: ' + evt.data);
+//                    console.log('websocket message: ' + evt.data);
                     var message = JSON.parse(evt.data);
 
                     if ('update_type' in message) {
@@ -55,7 +55,7 @@ define(
                         console.log('no type in message');
                     }
                 };
-            }
+            };
         };
 
 

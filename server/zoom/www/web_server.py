@@ -4,7 +4,6 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
