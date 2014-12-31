@@ -47,7 +47,6 @@ class PredicateTime(SimplePredicate):
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))
-            self._started = True
             self._thread.start()
         else:
             self._log.debug('Already started {0}'.format(self))
@@ -65,6 +64,7 @@ class PredicateTime(SimplePredicate):
     def _run_loop(self):
         while self._operate == True:
             self._process_met()
+            self._started = True
             sleep(self.interval)
         self._log.info('Done comparing times.')
 

@@ -26,8 +26,8 @@ class PredicateNot(SimplePredicate):
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))
-            self._started = True
             self.dependency.start()
+            self._started = True
         else:
             self._log.debug('Already started {0}'.format(self))
 
