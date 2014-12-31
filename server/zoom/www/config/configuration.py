@@ -84,7 +84,7 @@ class Configuration(object):
             self._throttle_interval = throttle_settings.get('interval')
 
             # salt
-            self._salt_settings = config.get('saltREST')
+            self._salt_settings = env_settings.get('saltREST')
 
         except ValueError as e:
             logging.error('Data at {0} is not valid JSON.'.format(ZOOM_CONFIG))
