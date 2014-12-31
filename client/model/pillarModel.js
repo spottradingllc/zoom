@@ -328,10 +328,10 @@ define( [
                         else {
                             var refresh_salt = false;
                             for (var each in _proj.hasProject) {
+                                // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
                                 if (each === (_proj.hasProject.length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
                                 self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
                             }
                         }
@@ -367,8 +367,6 @@ define( [
                     _assoc.projects[each](_assoc.pillar[each]);
                 }
             };
-
-            // Computed function that is called whenever a server in allNodes
 
             self.getArray = function(_assoc) {
                 var project_list = [];

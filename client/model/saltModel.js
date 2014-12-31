@@ -136,6 +136,10 @@ define([
                                             validationFailure = true;
                                             errorMsg = "Salt pillar and updated pillar do not match, manual refresh required";
                                         }
+                                        // Override validation failure of empty object if that's what we expect
+                                        if ($.isEmptyObject(expected_pillar) && $.isEmptyObject(zkPillar)) {
+                                            validationFailure = false;
+                                        }
                                     }
                                 }
                             }
@@ -160,6 +164,7 @@ define([
                                             validationFailure = true;
                                             errorMsg = "ZK Pillar was not deleted";
                                         }
+                                        else validationFailure = false;
                                     }
                                 }
                                 else if (this.args.type === 'postCreate') {
