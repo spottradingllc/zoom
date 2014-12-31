@@ -71,6 +71,8 @@ class Application(object):
         self._actions = dict()  # created in _reset_watches on zk connect
         self._env = os.environ.get('EnvironmentToUse', 'Staging')
         self._apptype = application_type
+        self._restart_on_crash = \
+            verify_attribute(self.config, 'restart_on_crash', none_allowed=True)
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -187,7 +189,8 @@ class Application(object):
 
             self._log.info('Not starting. App was stopped with Zoom.')
             return 0
-        elif self._proc_client.restart_logic.crashed:
+        elif self._proc_client.restart_logic.crashed and \
+                not self._restart_on_crash:
             self._log.info('Not starting. The application has crashed.')
             return 0
         else:
