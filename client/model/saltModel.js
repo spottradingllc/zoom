@@ -248,6 +248,7 @@ define([
                     headers: {'Accept': 'application/json'}
                 })
                     .fail(function(data) {
+                        console.log(data);
                         $('#loadVisual').modal('hide');
                         swal("Critical", "Salt was not able to update - pillar will not be applied", 'error');
                     })

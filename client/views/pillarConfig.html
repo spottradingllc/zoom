@@ -271,10 +271,11 @@
 
         <div class="page-body">
             <!--sidebar-->
-            <div id="searchPane" class="col-md-4 hidden-desktop" data-bind="visible: selectedOption() != 'Create Pillar'">
+            <div class="row">
+            <div id="searchPane" class="col-md-6 text-left" data-bind="visible: selectedOption() != 'Create Pillar'">
 
                 <div class="input-group" style="margin-bottom: 20px;">
-                    <input type="text"  id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
+                    <input style="min-width: 200px;" type="text"  id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
                      valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus="">
                     <span class="input-group-btn">
                         <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button"
@@ -298,6 +299,7 @@
                 </div>
 
             </div>
+                </div>
 
             <div class="checkbox-list">
                 <table class="table table-bordered table-condensed">

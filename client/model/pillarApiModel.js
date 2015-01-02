@@ -10,7 +10,7 @@ define(
             var pillarURI = "api/pillar/";
 
             // Updates data for a node - either the entire node or adding a project
-            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
+            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project, single_update){
                 var update_phrase = "";
                 if (data_type === 'project') {
                     update_phrase = "Created project " + pillarModel.new_project();
@@ -39,7 +39,7 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            pillarModel.saltModel.updateMinion(array_to_update, false, 'update', data_type, project);
+                            pillarModel.saltModel.updateMinion(array_to_update, single_update, 'update', data_type, project);
                         }
                     });
             };

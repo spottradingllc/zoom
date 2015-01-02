@@ -105,7 +105,6 @@ define( [
 
             var resetFields = function () {
                 self.new_project("");
-                self.
                 self.allKeys([]);
                 self.checkedNodes([]);
             };
@@ -299,16 +298,17 @@ define( [
                             }
                             left--;
                             JSONcreateProject(_assoc);
-                            self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name);
+                            self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name, false);
                         }
                     });
                 }
                 else {
-                    doesNotAlreadyExist(_assoc);
-                    JSONcreateProject(_assoc);
+                    doesNotAlreadyExist(self.selectedAssoc());
+                    JSONcreateProject(self.selectedAssoc());
+                    self.selectedAssoc().edit_pillar(self.selectedAssoc().pillar());
                     var singleItemArray = [];
-                    singleItemArray.push(_assoc.name);
-                    self.pillarApiModel.api_post_json(_assoc, true, singleItemArray, 'project', project_name);
+                    singleItemArray.push(self.selectedAssoc().name);
+                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArray, 'project', project_name, true);
                 }
             };
 
@@ -343,7 +343,7 @@ define( [
                                 if (each === (_proj.hasProject.length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
+                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type, false);
                             }
                         }
                     }
