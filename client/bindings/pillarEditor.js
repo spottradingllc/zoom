@@ -46,7 +46,7 @@ define(
                     // keep it at null if nothing is there 
                     if (element.value !== "" && index !== -1) {
 
-                        pillarModel.checkedNodes()[index].edit_pillar[project][key] = parsed;            
+                        pillarModel.checkedNodes()[index].edit_pillar()[project][key] = parsed;
                     }
                 }
                 if (!editing && pillarModel.tableEditing) {
@@ -68,7 +68,7 @@ define(
                 if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                     var project = bindingContext.$parents[1].proj_name;
                     var key = bindingContext.$data;
-                    $(element).text(JSON.stringify(bindingContext.$parent.edit_pillar[project][key]));
+                    $(element).text(JSON.stringify(bindingContext.$parent.edit_pillar()[project][key]));
                 }
             }
         };

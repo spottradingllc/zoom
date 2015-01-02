@@ -9,6 +9,7 @@ define(
             var self = this;
             var pillarURI = "api/pillar/";
 
+            // Updates data for a node - either the entire node or adding a project
             self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
                 var update_phrase = "";
                 if (data_type === 'project') {
@@ -65,6 +66,7 @@ define(
                     });
             };
 
+            // Deletes either projects or keys from a node.
             self.api_delete = function(level_to_delete, _proj, key) {
                 var num_left = _proj.hasProject.length;
                 var del_phrase = "";
@@ -105,6 +107,8 @@ define(
                 });
             };
 
+
+            // Deletes the ZKnode for the selected server
             self.delPillar = function() {
                 swal({
                         title: "Confirm",
@@ -145,6 +149,7 @@ define(
                     });
             };
 
+            // Makes sure that the checked nodes are updated with the latest data after a change
             self.updateChecked = function() {
                 ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_alloc) {
                     $.ajax({
@@ -164,15 +169,12 @@ define(
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
                                 _alloc.pillar = data;
-                                _alloc.projects = {};
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
                                 pillarModel.refreshTable(_alloc);
                             }
-
                         });
                 });
-
             };
 
             self.getPillar = function(objOrName, create_new) {
@@ -183,7 +185,6 @@ define(
                 else {
                     uri = pillarURI + objOrName.name;
                 }
-
                 $.get(uri, function() {
                 })
                     .fail(function(data) {
@@ -224,7 +225,7 @@ define(
             };
 
             var updateAllDeletions = function() {
-                ko.utils.arrayForEach(self.allNodes(), function (_assoc) {
+                ko.utils.arrayForEach(pillarModel.allNodes(), function (_assoc) {
                     var serverAlreadyExists = false;
                     if (typeof _assoc !== "undefined"){
                         pillarModel.nodeNames.forEach(function (name) {

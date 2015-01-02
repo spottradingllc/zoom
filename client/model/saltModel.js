@@ -226,7 +226,7 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        pillar_lookup[_assoc.name] = _assoc.edit_pillar;
+                        pillar_lookup[_assoc.name] = _assoc.edit_pillar();
                     });
                 }
 

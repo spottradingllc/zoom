@@ -49,8 +49,8 @@ define( [
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
                 self.name = server_name;
-                self.pillar = pillar_data;
-                self.edit_pillar = {};
+                self.pillar = ko.observable(pillar_data);
+                self.edit_pillar = ko.observable("");
                 self.projects = {};
                 self.projArray = ko.observableArray([]);
                 self.star = ko.observable(constants.glyphs.emptyStar);
@@ -93,7 +93,7 @@ define( [
 
             self.projectList = function(_assoc) {
                 var project_list = [];
-                $.each(_assoc.pillar, function(proj_name) {
+                $.each(_assoc.pillar(), function(proj_name) {
                     project_list.push(proj_name);
                 });
                 return project_list.join(", ");
@@ -206,7 +206,7 @@ define( [
                 // get latest pillar data and place into edit_pillar:
                 // deep copy
                 ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                    _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
+                    _assoc.edit_pillar($.extend(true, {}, _assoc.pillar));
                 });
                 // deep copy equivalent
                 html_proj.edit_keys([]);
@@ -237,7 +237,7 @@ define( [
                             return;
                         }
                         _proj.hasProject.forEach(function(_assoc) {
-                            _assoc.edit_pillar[_proj.proj_name][new_key] = null;
+                            _assoc.edit_pillar()[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
                     }
@@ -245,7 +245,7 @@ define( [
                 else if (update_type === 'delete') {
                     if (data_type === 'key') {
                         _proj.hasProject.forEach(function(_assoc) {
-                            delete _assoc.edit_pillar[_proj.proj_name][key];
+                            delete _assoc.edit_pillar()[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
                         // delete and update entire array
@@ -253,7 +253,7 @@ define( [
                     }
                     else if (data_type === 'project') {
                         _proj.hasProject.forEach(function(_assoc) {
-                            delete _assoc.edit_pillar[_proj.proj_name];
+                            delete _assoc.edit_pillar()[_proj.proj_name];
                         });
                     }
                 }
@@ -265,8 +265,8 @@ define( [
                     pairs[pair.key] = JSON.parse(pair.value);
                 });
                 // deep copy
-                _assoc.edit_pillar = $.extend(true, {}, _assoc.pillar);
-                _assoc.edit_pillar[self.new_project()] = pairs;
+                _assoc.edit_pillar($.extend(true, {}, _assoc.pillar));
+                _assoc.edit_pillar()[self.new_project()] = pairs;
             };
 
             self.projectWrapper = function(project_name, single) {
@@ -346,7 +346,7 @@ define( [
             };
 
             var addProjects = function(_assoc) {
-                $.each(_assoc.pillar, function(proj_name, keyVals) {
+                $.each(_assoc.pillar(), function(proj_name, keyVals) {
                     var found = false;
                     for (var i in self.allProjects()) {
                         if (self.allProjects()[i].proj_name === proj_name) {
@@ -367,10 +367,10 @@ define( [
 
             self.createObjForProjects = function (_assoc) {
                 //delete existing!!!
-                _assoc.projects = [];
-                for (var each in _assoc.pillar){
+                _assoc.projects = {};
+                for (var each in _assoc.pillar()){
                     _assoc.projects[each] = ko.observable("");
-                    _assoc.projects[each](_assoc.pillar[each]);
+                    _assoc.projects[each](_assoc.pillar()[each]);
                 }
             };
 
@@ -411,7 +411,7 @@ define( [
 
             self.toggleEdit = function(_assoc) {
                 if (_assoc.projArray().length === 0) {
-                    $.each(_assoc.pillar, function(projects, keyVals) {
+                    $.each(_assoc.pillar(), function(projects, keyVals) {
                         var new_proj = new self._proj(projects);
                         $.each(keyVals, function(key) {
                                 new_proj.keys.push(key);
