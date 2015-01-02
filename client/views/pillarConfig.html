@@ -49,7 +49,7 @@
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
                     <!-- Main div for each project!!! -->
-                    <div id="eachProject" data-bind="foreach: allProjects()">
+                    <div id="eachProject" data-bind="foreach: selectedProjects()">
 
                         <h2 data-bind="text: $data.proj_name"></h2>
                         <div data-bind="visible: $data.editing">
@@ -304,7 +304,7 @@
                     <thead>
                         <tr>
                             <th>
-                                Host Name
+                                Host Name (Click to View and Edit Projects)
                             </th>
                             <th>
                                 Projects/Services/Applications

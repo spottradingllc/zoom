@@ -175,15 +175,45 @@ define(
                             }
                         });
                 });
+                ko.utils.arrayForEach(pillarModel.editingNodes(), function(_alloc) {
+                    $.ajax({
+                        url: pillarURI + _alloc.name,
+                        type: "GET"
+                    })
+                        .fail(function(data) {
+                            swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
+                        })
+                        .done(function(data) {
+                            // does_not_exist is set, returned from the API, makes sure that we delete
+                            // when a minion no longer exists.
+                            if (data.DOES_NOT_EXIST) {
+                                pillarModel.allNodes.remove(_alloc);
+                                pillarModel.editingNodes.remove(_alloc);
+                            }
+                            else {
+                                var index = pillarModel.allNodes.indexOf(_alloc);
+                                _alloc.pillar(data);
+                                pillarModel.createObjForProjects(_alloc);
+                                pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
+                                pillarModel.refreshTable(_alloc);
+                            }
+                        });
+                });
+                pillarModel.allNodes.valueHasMutated();
             };
 
+            // objOrName is either the name of the node to retrieve or the _assoc object
             self.getPillar = function(objOrName, create_new) {
                 var uri;
+                var name;
+                var _assoc;
                 if (create_new) {
-                    uri = pillarURI + objOrName;
+                    name = objOrName;
+                    uri = pillarURI + name;
                 }
                 else {
-                    uri = pillarURI + objOrName.name;
+                    _assoc = objOrName;
+                    uri = pillarURI + _assoc.name;
                 }
                 $.get(uri, function() {
                 })
@@ -192,18 +222,18 @@ define(
                     })
                     .done(function(data) {
                         if (create_new) {
-                            var entry = new pillarModel._assoc(objOrName, data);
+                            var entry = new pillarModel._assoc(name, data);
                             pillarModel.createObjForProjects(entry);
                             pillarModel.allNodes.push(entry);
                         }
                         else {
-                            var indexAll = pillarModel.allNodes.indexOf(objOrName);
-                            var indexChecked = pillarModel.checkedNodes.indexOf(objOrName);
-                            objOrName.pillar(data);
-                            pillarModel.createObjForProjects(objOrName);
-                            pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], objOrName);
+                            var indexAll = pillarModel.allNodes.indexOf(_assoc);
+                            var indexChecked = pillarModel.checkedNodes.indexOf(_assoc);
+                            _assoc.pillar(data);
+                            pillarModel.createObjForProjects(_assoc);
+                            pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], _assoc);
                             if (indexChecked !== -1) {
-                                pillarModel.checkedNodes.replace(pillarModel.checkedNodes()[indexChecked], objOrName);
+                                pillarModel.checkedNodes.replace(pillarModel.checkedNodes()[indexChecked], _assoc);
                             }
                         }
                     });
@@ -238,6 +268,10 @@ define(
                     }
                 });
             };
+
+            var updateAllProjects = function() {
+                pillModel.allProjects.push()
+            }
 
             var onSuccess = function (data) {
                 // get all server data

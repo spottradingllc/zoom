@@ -27,9 +27,13 @@ define( [
 
             // nodes from allNodes that are checked
             self.checkedNodes = ko.observableArray([]);//.extend({rateLimit: 100});
+
+            // nodes from allNodes that are currently opened for editing
+            self.editingNodes = ko.observableArray([]);
             
             // all projects for a  
             self.allProjects = ko.observableArray([]);
+            self.selectedProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
             self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]);
 
@@ -101,14 +105,15 @@ define( [
 
             var resetFields = function () {
                 self.new_project("");
+                self.
                 self.allKeys([]);
                 self.checkedNodes([]);
             };
 
             self.refreshTable = function(_assoc) {
                 self.allKeys([]);
-                self.allProjects([]);
-                addProjects(_assoc);
+                self.selectedProjects([]);
+                addProjects(_assoc, self.selectedProjects);
             };
 
             self.removeQuery = function() {
@@ -345,23 +350,30 @@ define( [
                 });
             };
 
-            var addProjects = function(_assoc) {
+            var addProjects = function(_assoc, koArray) {
                 $.each(_assoc.pillar(), function(proj_name, keyVals) {
                     var found = false;
-                    for (var i in self.allProjects()) {
-                        if (self.allProjects()[i].proj_name === proj_name) {
-                            self.allProjects()[i].freq++;
+                    for (var i in koArray()) {
+                        if (koArray()[i].proj_name === proj_name) {
+                            koArray()[i].freq++;
                             found = true;
                         }
                     }
                     if (!found) {
                         var new_proj = new self._proj(proj_name);
                         new_proj.freq = 1;
-                        $.each(keyVals, function(key, value) {
+                        $.each(keyVals, function(key) {
                             new_proj.keys.push(key);
                         });
-                        self.allProjects.push(new_proj);
+                        koArray.push(new_proj);
                     }
+                });
+            };
+
+            // Determine all projects available before showing the modal
+            var getAllProjects = function() {
+                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
+                    addProjects(_assoc, self.allProjects);
                 });
             };
 
@@ -376,7 +388,7 @@ define( [
 
             self.handleSelect = function(_assoc) {
                     if (!_assoc.prior){
-                        addProjects(_assoc);
+                        addProjects(_assoc, self.selectedProjects);
                         _assoc.star(constants.glyphs.filledStar);
                         self.checkedNodes.push(_assoc);
                         _assoc.prior = true;
@@ -385,9 +397,9 @@ define( [
                     else if (_assoc.prior){
                         self.checkedNodes.remove(_assoc);
                         //TODO: significant performance hit
-                        self.allProjects([]);
+                        self.selectedProjects([]);
                         ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                            addProjects(_assoc);
+                            addProjects(_assoc, self.selectedProjects);
                         });
 
                         _assoc.prior = false;
@@ -396,12 +408,14 @@ define( [
                             resetFields();
                         }
                         _assoc.star(constants.glyphs.emptyStar);
+
                     }
             };
 
             self.handleAction = function(_assoc, action_type) {
                 self.selectedAssoc(_assoc);
                 if (action_type === 'existing') {
+                    getAllProjects();
                     self.showModal('existingModal');
                 }
                 else if (action_type === 'new') {
@@ -418,8 +432,10 @@ define( [
                         });
                         _assoc.projArray.push(new_proj);
                     });
+                    self.editingNodes.push(_assoc);
                 }
                 else {
+                    self.editingNodes.remove(_assoc);
                     _assoc.projArray([]);
                 }
             };
