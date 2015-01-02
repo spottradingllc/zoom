@@ -1,9 +1,10 @@
 define(
     [
         'knockout',
-        'jquery',
+        'service',
+        'jquery'
     ],
-    function(ko, $) {
+    function(ko, service, $) {
         return function pillarApiModel(pillarModel) {
             var self = this;
             var pillarURI = "api/pillar/";
@@ -163,7 +164,8 @@ define(
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
                                 _alloc.pillar = data;
-
+                                _alloc.projects = {};
+                                pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
                                 pillarModel.refreshTable(_alloc);
                             }
@@ -206,6 +208,54 @@ define(
                     });
             };
 
+            var updateAllAdditions = function() {
+                pillarModel.nodeNames.forEach(function (server_name) {
+                    var serverAlreadyExists = false;
+                    ko.utils.arrayForEach(pillarModel.allNodes(), function (_assoc) {
+                        if (server_name === _assoc.name) {
+                            self.getPillar(_assoc, false);
+                            serverAlreadyExists = true;
+                        }
+                    });
+                    if (serverAlreadyExists === false){
+                        self.getPillar(server_name, true);
+                    }
+                });
+            };
+
+            var updateAllDeletions = function() {
+                ko.utils.arrayForEach(self.allNodes(), function (_assoc) {
+                    var serverAlreadyExists = false;
+                    if (typeof _assoc !== "undefined"){
+                        pillarModel.nodeNames.forEach(function (name) {
+                            if (_assoc.name === name)
+                                serverAlreadyExists = true;
+                        });
+                        if (!serverAlreadyExists) {
+                            pillarModel.allNodes.remove(_assoc);
+                        }
+                    }
+                });
+            };
+
+            var onSuccess = function (data) {
+                // get all server data
+                pillarModel.nodeNames = data;
+                // update anything that was added, create new as necessary
+                updateAllAdditions();
+                // remove if any nodes are now gone
+                updateAllDeletions();
+                // update what is shown
+                self.updateChecked();
+            };
+
+            var onFailure = function() {
+                console.log('failed to get list of servers');
+            };
+
+            self.loadServers = function () {
+                service.get('api/pillar/list_servers/', onSuccess, onFailure);
+            };
         };
     }
 );

@@ -272,7 +272,7 @@
         <div class="page-body">
             <!--sidebar-->
             <div id="searchPane" class="col-md-4 hidden-desktop" data-bind="visible: selectedOption() != 'Create Pillar'">
-                
+
                 <div class="input-group" style="margin-bottom: 20px;">
                     <input type="text"  id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
                      valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus="">
@@ -317,7 +317,7 @@
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
                             <td data-bind="text: name, click: function() { $parent.toggleEdit($data) }"></td>
-                            <td data-bind="text: $parent.getArray($data)"></td>
+                            <td data-bind="text: $parent.projectList($data)"></td>
                             <td>
                                 <div class="btn-group btn-group-xs">
                                     <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">

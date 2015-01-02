@@ -72,6 +72,33 @@ define( [
                 self.freq = 0;
             };
 
+            self.uncheckAll = function() {
+                self.checkedNodes([]);
+                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
+                    _assoc.checked(false);
+                    _assoc.star(constants.glyphs.emptyStar);
+                    _assoc.prior = false;
+                });
+            };
+
+            self.checkAll = function() {
+                if (self.queriedNodes().length > 8){
+                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
+                    return;
+                }
+                ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
+                    self.handleSelect(_assoc);
+                });
+            };
+
+            self.projectList = function(_assoc) {
+                var project_list = [];
+                $.each(_assoc.pillar, function(proj_name) {
+                    project_list.push(proj_name);
+                });
+                return project_list.join(", ");
+            };
+
             var resetFields = function () {
                 self.new_project("");
                 self.allKeys([]);
@@ -99,7 +126,7 @@ define( [
                 }
             };
 
-            var validateProjectName = ko.computed( function() {
+            ko.computed( function() {
                 if (self.new_project() !== "" && !alphaNum.test(self.new_project())) {
                     swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
                     self.new_project(self.new_project().replace(/[\W_]+/g, ""));
@@ -123,7 +150,7 @@ define( [
 
                 var ret = true;
 
-                var parsed_pairs = $.extend(true, [], self.new_pairs());
+                $.extend(true, [], self.new_pairs());
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
                     if (pair.key !== "" && !alphaNum.test(pair.key)){
                         swal("Error", "Your key cannot contain non-alphanumerics", 'error');
@@ -143,7 +170,6 @@ define( [
                 });
                 return ret;
             };
-
 
             self.getValues = function (_assoc, _proj, field) {
                 var ret = "";
@@ -243,32 +269,12 @@ define( [
                 _assoc.edit_pillar[self.new_project()] = pairs;
             };
 
-            self.uncheckAll = function() {
-                self.checkedNodes([]);
-                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
-                    _assoc.checked(false);
-                    _assoc.star(constants.glyphs.emptyStar);
-                    _assoc.prior = false;
-                });
-            };
-
-            self.checkAll = function() {
-                if (self.queriedNodes().length > 8){
-                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
-                    return;
-                }
-                ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
-                    self.handleSelect(_assoc);
-                });
-            };
-
             self.projectWrapper = function(project_name, single) {
                 var left = self.checkedNodes().length;
                 var refresh_salt = false;
 
                 // validate once, even if multiple servers since using the same data.
                 if (validateNewProject(project_name) === false) return;
-
 
                 var doesNotAlreadyExist = function(_assoc, num_remaining) {
                     if (typeof _assoc.projects[project_name] !== "undefined") {
@@ -368,14 +374,6 @@ define( [
                 }
             };
 
-            self.getArray = function(_assoc) {
-                var project_list = [];
-                $.each(_assoc.pillar, function(proj_name, values) {
-                    project_list.push(proj_name);
-                });
-                return project_list.join(", ");
-            };
-
             self.handleSelect = function(_assoc) {
                     if (!_assoc.prior){
                         addProjects(_assoc);
@@ -426,45 +424,6 @@ define( [
                 }
             };
 
-            /*
-
-            self.checked_server_data = ko.computed(function() {
-                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
-                    if (_assoc.checked()){
-                        if (!_assoc.prior){
-                            addProjects(_assoc);
-                            self.checkedNodes.push(_assoc);
-                            _assoc.prior = true;
-                        }
-                        else {
-                            //TODO: significant performance hit
-                            self.allProjects([]);
-                            ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                                 addProjects(_assoc);
-                                 self.createObjForProjects(_assoc);
-                            });
-                        }
-                    }
-                    else if (!_assoc.checked()) {
-                        if (_assoc.prior){
-                            self.checkedNodes.remove(_assoc);
-                            //TODO: significant performance hit
-                            self.allProjects([]);
-                            ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                                addProjects(_assoc);
-                            });
-
-                            _assoc.prior = false;
-                            // if this is the last to be un-checked, reset all fields
-                            if (self.checkedNodes().length === 0){
-                                resetFields();
-                            }
-                        }
-                    }
-                });
-            });
-            */
-
             self.queriedNodes= ko.computed(function() {
                 var query = self.searchVal().toLowerCase();
                 if (query === ""){
@@ -485,58 +444,8 @@ define( [
                             console.log(err);
                         }
                     } 
-
                     return _assoc.name.toLowerCase().indexOf(query) >= 0;
                 });
             });
-
-            var updateAllAdditions = function() {
-                self.nodeNames.forEach(function (server_name) {
-                    var serverAlreadyExists = false;
-                    ko.utils.arrayForEach(self.allNodes(), function (_assoc) {
-                        if (server_name === _assoc.name) {
-                            self.pillarApiModel.getPillar(_assoc, false);
-                            serverAlreadyExists = true;
-                        }
-                    });
-                    if (serverAlreadyExists === false){
-                        self.pillarApiModel.getPillar(server_name, true);
-                    }
-                });
-            };
-
-            var updateAllDeletions = function() {
-                ko.utils.arrayForEach(self.allNodes(), function (_assoc) {
-                    var serverAlreadyExists = false;
-                    if (typeof _assoc !== "undefined"){
-                        self.nodeNames.forEach(function (name) {
-                            if (_assoc.name === name)
-                                serverAlreadyExists = true;
-                        });
-                        if (!serverAlreadyExists) {
-                            self.allNodes.remove(_assoc);
-                        }
-                    }
-                });
-            };
-                            
-            var onSuccess = function (data) {
-                // get all server data
-                self.nodeNames = data;
-                // update anything that was added, create new as necessary
-                updateAllAdditions();
-                // remove if any nodes are now gone
-                updateAllDeletions();
-                // update what is shown
-                self.pillarApiModel.updateChecked();
-            };
-            
-            var onFailure = function() {
-                console.log('failed to get list of servers');
-            };
-
-            self.loadServers = function () {
-                service.get('api/pillar/list_servers/', onSuccess, onFailure);
-            };   
         };
     });

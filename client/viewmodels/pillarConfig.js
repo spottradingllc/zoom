@@ -16,7 +16,7 @@ define(
         self.adminModel = admin;
         self.pillarModel = new pillarModel(self.login, self.adminModel);
         self.attached = function() {
-            self.pillarModel.loadServers(true);
+            self.pillarModel.pillarApiModel.loadServers(true);
         };
         self.detached = function() {
             // do something here??
