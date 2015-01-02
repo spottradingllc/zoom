@@ -16,12 +16,12 @@ define(
                     update_phrase = "Created project " + pillarModel.new_project();
                 }
                 else if (data_type === 'wholeTable') {
-                    update_phrase = "Updated pillar: " + _assoc.pillar;
+                    update_phrase = "Updated pillar: " + _assoc.pillar();
                 }
 
                 var _projdata = {
                     "minion": _assoc.name,
-                    "data": _assoc.edit_pillar,
+                    "data": _assoc.edit_pillar(),
                     "username": pillarModel.login.elements.username(),
                     "update_phrase": update_phrase
                 };
@@ -168,7 +168,7 @@ define(
                             }
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
-                                _alloc.pillar = data;
+                                _alloc.pillar(data);
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
                                 pillarModel.refreshTable(_alloc);
@@ -199,7 +199,7 @@ define(
                         else {
                             var indexAll = pillarModel.allNodes.indexOf(objOrName);
                             var indexChecked = pillarModel.checkedNodes.indexOf(objOrName);
-                            objOrName.pillar = data;
+                            objOrName.pillar(data);
                             pillarModel.createObjForProjects(objOrName);
                             pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], objOrName);
                             if (indexChecked !== -1) {

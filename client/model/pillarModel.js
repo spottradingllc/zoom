@@ -206,7 +206,7 @@ define( [
                 // get latest pillar data and place into edit_pillar:
                 // deep copy
                 ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                    _assoc.edit_pillar($.extend(true, {}, _assoc.pillar));
+                    _assoc.edit_pillar($.extend(true, {}, _assoc.pillar()));
                 });
                 // deep copy equivalent
                 html_proj.edit_keys([]);
@@ -265,7 +265,7 @@ define( [
                     pairs[pair.key] = JSON.parse(pair.value);
                 });
                 // deep copy
-                _assoc.edit_pillar($.extend(true, {}, _assoc.pillar));
+                _assoc.edit_pillar($.extend(true, {}, _assoc.pillar()));
                 _assoc.edit_pillar()[self.new_project()] = pairs;
             };
 
