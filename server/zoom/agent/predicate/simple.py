@@ -8,7 +8,7 @@ class SimplePredicate(object):
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type parent: str or None
         """
-        self._met = False
+        self._met = None
         self._parent = parent
         self._comp_name = comp_name
         self._callbacks = list()
@@ -23,7 +23,7 @@ class SimplePredicate(object):
 
     @property
     def started(self):
-        return self._started
+        return self._started and self._met is not None
 
     def add_callback(self, cb):
         """
