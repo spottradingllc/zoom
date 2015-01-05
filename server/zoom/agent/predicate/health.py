@@ -37,6 +37,7 @@ class PredicateHealth(SimplePredicate):
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))
+            self._started = True
             self._thread.start()
         else:
             self._log.debug('Already started {0}'.format(self))
@@ -98,7 +99,6 @@ class PredicateHealth(SimplePredicate):
     def _run_loop(self):
         while self._operate == True:
             self._run()
-            self._started = True
             sleep(self.interval)
         self._log.info('Done running {0}'.format(self))
 
