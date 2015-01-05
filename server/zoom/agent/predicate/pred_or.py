@@ -30,8 +30,8 @@ class PredicateOr(SimplePredicate):
     def start(self):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))
-            map(lambda x: x.start(), self.dependencies)
             self._started = True
+            map(lambda x: x.start(), self.dependencies)
         else:
             self._log.debug('Already started {0}'.format(self))
 

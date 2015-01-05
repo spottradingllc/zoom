@@ -22,8 +22,8 @@ class ZookeeperNodeExists(SimplePredicate):
     def start(self):
         if not self._started:
             self._log.debug('Starting {0}'.format(self))
-            self._watch_node()
             self._started = True
+            self._watch_node()
         else:
             self._log.debug('Already started {0}'.format(self))
 

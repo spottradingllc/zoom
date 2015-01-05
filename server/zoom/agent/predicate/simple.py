@@ -23,6 +23,7 @@ class SimplePredicate(object):
 
     @property
     def started(self):
+        # must be started and the met value must have changed from None
         return self._started and self._met is not None
 
     def add_callback(self, cb):
