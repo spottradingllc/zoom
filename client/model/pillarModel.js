@@ -219,6 +219,17 @@ define( [
                 });
             };
 
+            self.showEditInline = function(_assoc) {
+                _assoc.edit_pillar($.extend(true, {}, _assoc.pillar()));
+                ko.utils.arrayForEach(_assoc.projArray(), function (_proj) {
+                    _proj.editing(true);
+                    _proj.edit_keys([]);
+                    ko.utils.arrayForEach(_proj.keys(), function(key) {
+                        _proj.edit_keys.push(key);
+                    });
+                });
+            };
+
             self.showModal = function(modal_id) {
                 $('#'+modal_id).modal('show');
             };
@@ -263,14 +274,14 @@ define( [
                 }
             };
 
-            var JSONcreateProject = function (_assoc) {
+            var JSONcreateProject = function (_assoc, project_name) {
                 var pairs = {};
                 ko.utils.arrayForEach(self.new_pairs(), function(pair) {
                     pairs[pair.key] = JSON.parse(pair.value);
                 });
                 // deep copy
                 _assoc.edit_pillar($.extend(true, {}, _assoc.pillar()));
-                _assoc.edit_pillar()[self.new_project()] = pairs;
+                _assoc.edit_pillar()[project_name] = pairs;
             };
 
             self.projectWrapper = function(project_name, single) {
@@ -297,18 +308,17 @@ define( [
                                 refresh_salt = true;
                             }
                             left--;
-                            JSONcreateProject(_assoc);
-                            self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name, false);
+                            JSONcreateProject(_assoc, project_name);
+                            self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name);
                         }
                     });
                 }
                 else {
                     doesNotAlreadyExist(self.selectedAssoc());
-                    JSONcreateProject(self.selectedAssoc());
-                    self.selectedAssoc().edit_pillar(self.selectedAssoc().pillar());
-                    var singleItemArray = [];
-                    singleItemArray.push(self.selectedAssoc().name);
-                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArray, 'project', project_name, true);
+                    JSONcreateProject(self.selectedAssoc(), project_name);
+                    var singleItemArr = [];
+                    singleItemArr.push(self.selectedAssoc());
+                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
                 }
             };
 
@@ -343,7 +353,7 @@ define( [
                                 if (each === (_proj.hasProject.length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type, false);
+                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
                             }
                         }
                     }

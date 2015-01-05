@@ -10,7 +10,7 @@ define(
             var pillarURI = "api/pillar/";
 
             // Updates data for a node - either the entire node or adding a project
-            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project, single_update){
+            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project){
                 var update_phrase = "";
                 if (data_type === 'project') {
                     update_phrase = "Created project " + pillarModel.new_project();
@@ -39,7 +39,7 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            pillarModel.saltModel.updateMinion(array_to_update, single_update, 'update', data_type, project);
+                            pillarModel.saltModel.updateMinion(array_to_update, 'update', data_type, project);
                         }
                     });
             };
@@ -61,8 +61,10 @@ define(
                         swal("failed to create", JSON.stringify(data), 'error');
                     })
                     .done(function(data) {
-                        pillarModel.saltModel.updateMinion(node, true, 'postCreate', 'node', null);
-                        pillarModel.loadServers();
+                        var singleItem = "";
+                        singleItem = node;
+                        pillarModel.saltModel.updateMinion(singleItem, 'postCreate', 'node', null);
+                        self.loadServers();
                     });
             };
 
@@ -98,7 +100,7 @@ define(
                             // if the last one, notify on it only
                             if (num_left === 1) {
                                 swal("Success", "Successfully deleted", 'success');
-                                pillarModel.saltModel.updateMinion(_proj.hasProject, false, 'delete', level_to_delete, _proj.proj_name);
+                                pillarModel.saltModel.updateMinion(_proj.hasProject, 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
 
@@ -140,7 +142,9 @@ define(
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
                                             pillarModel.loadServers();
-                                            pillarModel.saltModel.updateMinion(this.args, true, 'delete', 'node', null);
+                                            var singleItemArr = [];
+                                            singleItemArr.push(this.args);
+                                            pillarModel.saltModel.updateMinion(singleItemArr, 'delete', 'node', null);
                                         }
                                         left--;
                                     });

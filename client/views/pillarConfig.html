@@ -152,7 +152,7 @@
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                     <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject())}">Create</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name)}">Create</button>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                     <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject(), true)}">Create</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, true)}">Create</button>
                 </div>
             </div>
         </div>
@@ -318,7 +318,9 @@
                     </thead>
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
-                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data) }"></td>
+                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data) }">
+
+                            </td>
                             <td data-bind="text: $parent.projectList($data)"></td>
                             <td>
                                 <div class="btn-group btn-group-xs">
@@ -351,14 +353,16 @@
                             <td colspan="3">
                     <div id="eachProject" data-bind="foreach: projArray">
 
-                        <div data-bind="visible: $data.editing">
-                            <button type="button" class="btn btn-danger"
-                                    data-bind="click: function () { $parents[1].updateProjectWrapper('delete', 'project', $data) },
-                                     text: 'Delete Project ' + $data.proj_name" ></button>
-                        </div>
+                                <div data-bind="visible: $index() == 0 && $data.editing()">
+                                    <button data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
+                                        Send updated table data
+                                    </button>
+                                    <button data-bind="click: function() { $parents[1].cancelEditing($data) }">Cancel Editing</button>
+                                </div>
+
 
                         <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; cursor: pointer;"
-                            data-bind="visible: !$data.editing(), click: function () {$parents[1].showEdit($data)}">
+                            data-bind="visible: !$data.editing(), click: function () {$parents[1].showEditInline($parent)}">
                             <thead>
                             <tr>
                                 <th class="col-sm-1">Project</th>
@@ -383,9 +387,9 @@
                                data-bind="visible: $data.editing" style="margin-bottom: 20px; ">
                             <thead>
                             <tr>
-                                <th>Server</th>
+                                <th class="col-sm-1">Project</th>
                                 <!-- ko foreach: $data.edit_keys() -->
-                                <th>
+                                <th class="col-sm-1">
                                     <span data-bind="text: $data"></span>
                                     <button
                                             data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
@@ -393,7 +397,7 @@
                                     </button>
                                 </th>
                                 <!-- /ko -->
-                                <td>
+                                <td class="col-sm-1">
                                     <div data-bind="visible: $data.editing">
                                         <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
                                         <button
@@ -401,15 +405,22 @@
                                             Add Key</button>
                                     </div>
                                 </td>
+                                <td class="col-sm-1">
+                                    <div data-bind="visible: $data.editing">
+                                    <button type="button" class="btn btn-danger"
+                                        data-bind="click: function () { $parents[1].updateProjectWrapper('delete', 'project', $data) },
+                                         text: 'Delete Project ' + $data.proj_name" ></button>
+                                </div>
+                                </td>
                             </tr>
                             </thead>
 
                             <tbody data-bind="with: $parent">
                             <tr>
-                                <td data-bind="text: name"></td>
+                                <td class="col-sm-1" data-bind="text: $parent.proj_name"></td>
 
                                 <!-- ko foreach: $parent.edit_keys() -->
-                                <td>
+                                <td class="col-sm-1">
                                     <input data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                         style="width: 100%;">
                                 </td>
@@ -420,12 +431,7 @@
                             </tbody>
                         </table>
 
-                        <div class="container" data-bind="visible: $data.editing">
-                            <button data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
-                                Send updated table data
-                            </button>
-                            <button data-bind="click: function() { $parents[1].cancelEditing($data) }">Cancel Editing</button>
-                        </div>
+
                     </div>
                     <!-- end of existing project tab-->
                             <!--
