@@ -2,16 +2,14 @@ define( [
         'knockout',
         'service',
         'jquery',
-        'model/pillarApiModel',
-        'model/saltModel',
-        'bindings/uppercase'
+        'model/constants'
     ],
-    function(ko, service, $) {
+    function(ko, service, $, constants) {
         return function toolsModel(login) {
             var self = this;
             self.login = login;
             self.oldPath = ko.observable('');
-            self.newPath = ko.observable('/spot/software/state/application/');
+            self.newPath = ko.observable(constants.zkPaths.appStatePath);
 
             self.setOldPath = function(path){
                 self.oldPath(path)

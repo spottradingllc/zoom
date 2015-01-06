@@ -14,18 +14,25 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         """
         return self.application.zk
 
+    @property
+    def configuration(self):
+        return self.application._configuration
+
+
     @TimeThis(__file__)
     def post(self):
         """
         Save filter
         """
-        config_path = '/justin/configs'
-        app_state_path = '/spot/software/state/application/'
         config_dict = dict()
         comp_id_found = False
+        app_state_path = self.configuration._application_state_path + '/'
+        agent_config_path = self.configuration._agent_configuration_path[:-1]
+
 
         old_path = self.get_argument('oldPath')
         new_path = self.get_argument('newPath')
+
 
         old_uid = old_path.replace(app_state_path, '')
         new_uid = new_path.replace(app_state_path, '')
@@ -51,11 +58,11 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
                                      'base app path'})
             return
 
-        children = self.zk.get_children(config_path)
+        children = self.zk.get_children(agent_config_path)
 
         try:
             for child in children:
-                child_path = '/'.join([config_path, child])
+                child_path = '/'.join([agent_config_path, child])
                 data, stat = self.zk.get(child_path)
                 if old_uid in data:
                     updated_data, num = re.subn(old_uid, new_uid, data)
@@ -67,7 +74,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
             if comp_id_found:
                 # push the new configs to Zookeeper
                 for child_path, config in config_dict.iteritems():
-                    logging.info('### {0}, {1}'.format(child_path, config))
                     self.zk.set(child_path, config)
                 logging.info('Added new configs for paths: {0}'
                              .format(config_dict.keys()))
