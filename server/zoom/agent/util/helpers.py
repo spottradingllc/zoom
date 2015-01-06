@@ -1,11 +1,27 @@
 import logging
 import os
+import platform
+
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 from xml.etree import ElementTree
+from zoom.common.types import PlatformType
 
 
-def setup_logging():
+def parse_args():
+    ap = ArgumentParser()
+    ap.add_argument('-v', '--verbose', action='store_true',
+                    help='Enable verbose logging.')
+    ap.add_argument('-p', '--port', type=int, default=9000,
+                    help='Which port the REST server should listen on. '
+                         'Default=9000')
+    return ap.parse_args()
+
+
+def setup_logging(verbose=False):
+    """
+    :type verbose: bool
+    """
     if not os.path.exists('logs'):
         os.mkdir('logs')
 
@@ -17,10 +33,8 @@ def setup_logging():
     handler.setFormatter(fmt)
 
     logger = logging.getLogger('')
-    ap = ArgumentParser()
-    ap.add_argument('-v', '--verbose', action='store_true')
-    args = ap.parse_args()
-    if args.verbose:
+
+    if verbose:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
@@ -47,3 +61,24 @@ def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
             return False
         else:
             return cast(a)
+
+
+def get_system():
+    system_str = platform.platform(terse=True)
+    if 'Linux' in system_str:
+        return PlatformType.LINUX
+    elif 'Windows' in system_str:
+        return PlatformType.WINDOWS
+    else:
+        return PlatformType.UNKNOWN
+
+
+def zk_path_join(*args):
+    """
+    Use the smart joining of os.join, but replace Windows backslashes with
+    forward slashes if they are inserted due to running natively on Windows.
+    :param args: iterable of strings to join
+    :return: string
+    """
+    return os.path.join(*args).replace("\\", "/")
+

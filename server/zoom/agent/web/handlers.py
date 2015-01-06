@@ -12,7 +12,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def settings(self):
-        return self.application.settings
+        return self.application.app_settings
 
     def _send_work_all(self, work):
         """
@@ -37,7 +37,8 @@ class BaseHandler(tornado.web.RequestHandler):
             return {'target': target, 'work': work, 'result': '404: Not Found'}
         else:
             process = child['process']
-            process.add_work(Task(work, block=True, pipe=True), immediate=True)
+            process.add_work(Task(work, block=True, pipe=True, retval=True),
+                             immediate=True)
             result = process.parent_conn.recv()  # will block until done
             # synthetically create result dictionary
             # it's not directly available yet
@@ -51,20 +52,12 @@ class WorkHandler(BaseHandler):
         :type work: str
         :param target: str
         """
-        if work in self.settings.get('ALLOWED_WORK'):
-            if target is not None:
-                result = self._send_work_single(work, target)
-                self.write(json.dumps(result))
-            else:
-                result = self._send_work_all(work)
-                self.write(json.dumps(result))
+        if target is not None:
+            result = self._send_work_single(work, target)
+            self.write(json.dumps(result))
         else:
-            err = 'Invalid work submitted: {0}'.format(work)
-            self.set_status(404, err)
-            self.log.warning(err)
-            self.write(json.dumps(
-                {'target': target, 'work': work, 'result': '404: Not Found'})
-            )
+            result = self._send_work_all(work)
+            self.write(json.dumps(result))
 
 
 class LogHandler(BaseHandler):

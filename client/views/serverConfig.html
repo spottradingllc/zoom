@@ -5,12 +5,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="text"
-                               id="searchBox"
-                               class="form-control"
+                        <span class="dropdown">
+                        <input type="text" id="searchBox" class="form-control" data-toggle="dropdown"
                                data-bind="value: serverName, text: serverName, event: { keypress: keyPressed}, valueUpdate:'afterkeydown'"
-                               placeholder="Server name..."
-                               autofocus/>
+                               placeholder="Server name..." autofocus>
+                            <ul class="dropdown-menu" role="menu" data-bind="foreach: serverOptions()">
+                                <li><a data-bind="text: $data, click: function(){ $parent.serverName($data) }"></a></li>
+                            </ul>
+                        </span>
                         <div class="input-group-btn">
                             <button type="button" class="btn btn-default" data-bind="click: clearPage">
                                 <span class="glyphicon glyphicon-remove"></span>
@@ -104,6 +106,15 @@
                         <input type="number" class="form-control" placeholder="restartmax" data-bind="tooltip, value: restartmax, text: restartmax"
                                data-toggle="tooltip" data-placement="top"
                                title="restartmax - How many times to try to start an application/job if it fails to start.">
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="restart on crash"
+                                   data-toggle="dropdown" data-bind="tooltip, value: restartOnCrash, text: restartOnCrash"
+                                   data-toggle="tooltip" data-placement="top" title="Whether to allow a restart when the application has crashed.">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){restartOnCrash('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){restartOnCrash('False')}">False</a></li>
+                                </ul>
+                        </span>
                         <input type="text" class="form-control dropdown-toggle" placeholder="registrationpath"
                                data-bind="tooltip, value: registrationpath, text: registrationpath"
                                data-toggle="tooltip" data-placement="top"

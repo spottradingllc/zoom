@@ -13,7 +13,7 @@ class RestServer(tornado.web.Application):
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
-        self.settings = settings
+        self.app_settings = settings
         handlers = [
             (r"/log", LogHandler),
             (r"/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", WorkHandler),

@@ -9,6 +9,7 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
             self.script = ko.observable(null);
             self.command = ko.observable(null);
             self.restartmax = ko.observable(null);
+            self.restartOnCrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
             self.pdServiceName = ko.observable(null);
             self.pagerdutyService = ko.observable(null);
@@ -117,6 +118,9 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
                 }
+                if (checkNull(self.restartOnCrash())) {
+                    XML = XML.concat('restart_on_crash="' + self.restartOnCrash() + '" ');
+                }
                 if (checkNull(self.pagerdutyService())) {
                     XML = XML.concat('pagerduty_service="' + self.pagerdutyService() + '" ');
                 }
@@ -144,6 +148,7 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 self.script(node.getAttribute('script'));
                 self.command(node.getAttribute('command'));
                 self.restartmax(node.getAttribute('restartmax'));
+                self.restartOnCrash(node.getAttribute('restart_on_crash'));
                 self.registrationpath(node.getAttribute('registrationpath'));
                 self.pagerdutyService(node.getAttribute('pagerduty_service'));
 

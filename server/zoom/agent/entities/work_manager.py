@@ -6,6 +6,23 @@ from threading import Thread
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
+class ThreadWithReturn(Thread):
+    def __init__(self, *args, **kwargs):
+        super(ThreadWithReturn, self).__init__(*args, **kwargs)
+
+        self._return = None
+
+    def run(self):
+        if self._Thread__target is not None:
+            self._return = self._Thread__target(*self._Thread__args,
+                                                **self._Thread__kwargs)
+
+    def join(self, *args, **kwargs):
+        super(ThreadWithReturn, self).join(*args, **kwargs)
+
+        return self._return
+
+
 class WorkManager(object):
     def __init__(self, comp_name, queue, pipe, work_dict):
         """
@@ -46,19 +63,25 @@ class WorkManager(object):
                 if func_to_run is not None:
                     self._log.info('Found work "{0}" in queue.'
                                    .format(task.name))
-                    t = Thread(target=func_to_run, name=task.name,
-                               args=task.args, kwargs=task.kwargs)
+                    retval = None
+                    t = ThreadWithReturn(target=func_to_run, name=task.name,
+                                         args=task.args, kwargs=task.kwargs)
                     t.start()
                     # the block should come before the pipe if we want to
                     # capture the result and send it off
-                    if task.pipe:
-                        pipe.send('OK')
 
                     if task.block:
-                        t.join()
+                        retval = t.join()
+
+                    if task.pipe:
+                        if task.retval and retval is not None:
+                            pipe.send(retval)
+                        else:
+                            pipe.send('OK')
+
                 else:
                     if task.pipe:
-                        pipe.send('')
+                        pipe.send('404: Not Found')
                     self._log.warning('Cannot do "{0}", it is not a valid '
                                       'action.'.format(task.name))
                 try:

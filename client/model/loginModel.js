@@ -37,10 +37,10 @@ define(['knockout', 'service', 'jquery' ], function(ko, service, $) {
     };
 
     login.onFailure = function(data) {
-        console.log(JSON.stringify(data));
-
         if (login.elements.password() !== '') {
-            $('#password').popover('show');
+            var pw = $('#password');
+            pw.attr('data-content', data.errorText);
+            pw.popover('show');
         }
     };
 

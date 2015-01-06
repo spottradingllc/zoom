@@ -7,6 +7,7 @@ from zoom.common.types import ApplicationState
 from kazoo.exceptions import NoNodeError
 from zoom.common.types import CommandType
 from kazoo.retry import KazooRetry
+from zoom.agent.util.helpers import zk_path_join
 
 
 class TaskServer(object):
@@ -37,7 +38,7 @@ class TaskServer(object):
         self._task_queue.clear()
         children = self._zookeeper.get_children(self._configuration.task_path)
         for c in children:
-            path = os.path.join(self._configuration.task_path, c)
+            path = zk_path_join(self._configuration.task_path, c)
             logging.info('Deleting stale task node {0}'.format(path))
             self._zookeeper.delete(path)
 
@@ -47,7 +48,7 @@ class TaskServer(object):
         :type task: zoom.agent.entities.task.Task
         """
         try:
-            task_path = os.path.join(self._configuration.task_path, task.host)
+            task_path = zk_path_join(self._configuration.task_path, task.host)
 
             if self._zookeeper.exists(task_path):
                 # if the node exists, the callback _on_update will submit the
@@ -71,7 +72,7 @@ class TaskServer(object):
         try:
             data, stat = self._zookeeper.get(event.path)
             task = Task.from_json(data)
-            if task.result == ApplicationState.OK:
+            if task.result is not None:
                 self._remove(task, event.path)
                 self._submit_next(task.host)
 

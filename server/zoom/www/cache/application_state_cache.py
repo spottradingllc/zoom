@@ -9,6 +9,7 @@ from zoom.common.types import ApplicationStatus
 from zoom.www.entities.application_state import ApplicationState
 from zoom.www.messages.application_states import ApplicationStatesMessage
 from zoom.www.messages.message_throttler import MessageThrottle
+from zoom.agent.util.helpers import zk_path_join
 
 
 class ApplicationStateCache(object):
@@ -85,7 +86,7 @@ class ApplicationStateCache(object):
 
             if children:
                 for child in children:
-                    self._walk(os.path.join(path, child), result)
+                    self._walk(zk_path_join(path, child), result)
             else:
                 app_state = self._get_application_state(path)
                 result.update(
@@ -131,7 +132,7 @@ class ApplicationStateCache(object):
             # watch node to see if children are created
             self._zoo_keeper.get_children(path, watch=self._on_update)
             host = data.get('host', 'Unknown')
-            agent_path = os.path.join(self._configuration.agent_state_path,
+            agent_path = zk_path_join(self._configuration.agent_state_path,
                                       host)
 
             # if the agent is down, update state and mode with unknown
@@ -154,7 +155,6 @@ class ApplicationStateCache(object):
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown'),
                 login_user=data.get('login_user', 'Zoom'),
-                fqdn=data.get('fqdn', host),
                 last_command=self._get_last_command(data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed')
@@ -185,7 +185,6 @@ class ApplicationStateCache(object):
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown'),
                 login_user=parent_data.get('login_user', 'Zoom'),
-                fqdn=parent_data.get('fqdn', host),
                 last_command=self._get_last_command(parent_data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed')

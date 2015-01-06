@@ -63,8 +63,7 @@ class Application(object):
         self.name = verify_attribute(self.config, 'id', none_allowed=False)
         self._log = logging.getLogger('sent.{0}.app'.format(self.name))
         # informational attributes
-        self._host = platform.node().upper()
-        self._fqdn = socket.getfqdn()
+        self._host = socket.getfqdn()
         self._system = system
         self._predicates = list()
         self._running = True  # used to manually stop the run loop
@@ -72,6 +71,8 @@ class Application(object):
         self._actions = dict()  # created in _reset_watches on zk connect
         self._env = os.environ.get('EnvironmentToUse', 'Staging')
         self._apptype = application_type
+        self._restart_on_crash = \
+            verify_attribute(self.config, 'restart_on_crash', none_allowed=True)
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -105,11 +106,9 @@ class Application(object):
         self._actions = self._init_actions(settings)
         self._work_manager = self._init_work_manager(self._action_queue, conn)
 
-    @property
     def app_details(self):
         return {'name': self.name,
                 'host': self._host,
-                'fqdn': self._fqdn,
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
@@ -190,7 +189,8 @@ class Application(object):
 
             self._log.info('Not starting. App was stopped with Zoom.')
             return 0
-        elif self._proc_client.restart_logic.crashed:
+        elif self._proc_client.restart_logic.crashed and \
+                not self._restart_on_crash:
             self._log.info('Not starting. The application has crashed.')
             return 0
         else:
@@ -374,10 +374,11 @@ class Application(object):
             self._state.set_value(ApplicationState.CONFIG_ERROR)
 
         # make sure data is the most recent
-        if self.app_details != agent_apps:
+        if self.app_details() != agent_apps:
             self.zkclient.set(self._paths['zk_state_base'],
-                              json.dumps(self.app_details))
-            self._log.debug('Registering app data {0}'.format(self.app_details))
+                              json.dumps(self.app_details()))
+            self._log.debug('Registering app data {0}'
+                            .format(self.app_details()))
 
         # set watch
         if self._state != ApplicationState.CONFIG_ERROR:
@@ -457,16 +458,15 @@ class Application(object):
         for k, v in self._actions.iteritems():
             acceptable_work[k] = v.run
 
-        # if action is not available, add the method from Application
-        for w in self._settings.get('ALLOWED_WORK', []):
-            if w not in acceptable_work:
-                if hasattr(self, w):
-                    acceptable_work[w] = self.__getattribute__(w)
+        # if action is not available, add public methods
+        for attribute in [a for a in dir(self) if not a.startswith('_')]:
+            obj = getattr(self, attribute)
+            if hasattr(obj, '__call__'):
+                if attribute not in acceptable_work:
+                    acceptable_work[attribute] = obj
                 else:
-                    self._log.error('Class has no method {0}'.format(w))
-            else:
-                self._log.debug('Method {0} already assigned to action.'
-                                .format(w))
+                    self._log.debug('Method {0} already assigned to action.'
+                                    .format(attribute))
 
         manager = WorkManager(self.name, queue, pipe, acceptable_work)
         manager.start()

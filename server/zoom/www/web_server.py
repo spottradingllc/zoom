@@ -4,7 +4,6 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
@@ -18,6 +17,7 @@ from zoom.www.handlers.pagerduty_services_handler import PagerDutyServicesHandle
 from zoom.www.handlers.pagerduty_exceptions import PagerExceptionsHandler
 from zoom.www.handlers.pillar_handler import PillarHandler
 from zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
+from zoom.www.handlers.salt_master_handler import SaltMasterHandler
 from zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
 from zoom.www.handlers.server_config_handler import ServerConfigHandler
 from zoom.www.handlers.service_info_handler import ServiceInfoHandler
@@ -55,8 +55,8 @@ class WebServer(tornado.web.Application):
             # cache
             (r'/api/cache/reload/', ReloadCacheHandler),
             # config
-            (r"/api/config/(?P<server>\w+)", ServerConfigHandler),
             (r"/api/config/list_servers/", ListServersHandler),
+            (r"/api/config/(?P<server>.*)", ServerConfigHandler),
             # delete app
             (r"/api/delete/", DeletePathHandler),
             # environment
@@ -73,6 +73,8 @@ class WebServer(tornado.web.Application):
             # pillar
             (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),
+            # salt master rest api
+            (r"/api/saltmaster/", SaltMasterHandler),
             # zookeeper data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
             # zookeeper tools
