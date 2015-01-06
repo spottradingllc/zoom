@@ -1,40 +1,27 @@
 define(
     [
         'knockout',
-        'jquery',
+        'service',
+        'jquery'
     ],
-    function(ko, $) {
+    function(ko, service, $) {
         return function pillarApiModel(pillarModel) {
             var self = this;
             var pillarURI = "api/pillar/";
 
-            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project) {
+            // Updates data for a node - either the entire node or adding a project
+            self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project){
                 var update_phrase = "";
-                var key = "";
-                var val = "";
                 if (data_type === 'project') {
                     update_phrase = "Created project " + pillarModel.new_project();
-                    key = pillarModel.new_project();
-                }
-                else if (data_type === 'key') {
-                    update_phrase = "Created key: " + pillarModel.new_key() + " with value: " + pillarModel.new_value();
-                    key = pillarModel.new_key();
-                    val = pillarModel.new_value();
-                }
-                else if (data_type === 'value') {
-                    update_phrase = "Updated key: " + pillarModel.selectedKey() + " with value: " + pillarModel.edit_value();
-                    key = pillarModel.selectedKey();
-                    val = pillarModel.edit_value();
                 }
                 else if (data_type === 'wholeTable') {
-                    update_phrase = "Updated pillar: " + _assoc.pillar;
-                    key = "";
-                    val = "";
+                    update_phrase = "Updated pillar: " + _assoc.pillar();
                 }
 
                 var _projdata = {
                     "minion": _assoc.name,
-                    "data": _assoc.edit_pillar,
+                    "data": _assoc.edit_pillar(),
                     "username": pillarModel.login.elements.username(),
                     "update_phrase": update_phrase
                 };
@@ -52,7 +39,7 @@ define(
                         self.updateChecked();
 
                         if (update_salt) {
-                            pillarModel.saltModel.updateMinion(array_to_update, false, 'update', data_type, project);
+                            pillarModel.saltModel.updateMinion(array_to_update, 'update', data_type, project);
                         }
                     });
             };
@@ -74,11 +61,14 @@ define(
                         swal("failed to create", JSON.stringify(data), 'error');
                     })
                     .done(function(data) {
-                        pillarModel.saltModel.updateMinion(node, true, 'postCreate', 'node', null);
-                        pillarModel.loadServers();
+                        var singleItem = "";
+                        singleItem = node;
+                        pillarModel.saltModel.updateMinion(singleItem, 'postCreate', 'node', null);
+                        self.loadServers();
                     });
             };
 
+            // Deletes either projects or keys from a node.
             self.api_delete = function(level_to_delete, _proj, key) {
                 var num_left = _proj.hasProject.length;
                 var del_phrase = "";
@@ -110,7 +100,7 @@ define(
                             // if the last one, notify on it only
                             if (num_left === 1) {
                                 swal("Success", "Successfully deleted", 'success');
-                                pillarModel.saltModel.updateMinion(_proj.hasProject, false, 'delete', level_to_delete, _proj.proj_name);
+                                pillarModel.saltModel.updateMinion(_proj.hasProject, 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
 
@@ -119,6 +109,8 @@ define(
                 });
             };
 
+
+            // Deletes the ZKnode for the selected server
             self.delPillar = function() {
                 swal({
                         title: "Confirm",
@@ -150,7 +142,9 @@ define(
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
                                             pillarModel.loadServers();
-                                            pillarModel.saltModel.updateMinion(this.args, true, 'delete', 'node', null);
+                                            var singleItemArr = [];
+                                            singleItemArr.push(this.args);
+                                            pillarModel.saltModel.updateMinion(singleItemArr, 'delete', 'node', null);
                                         }
                                         left--;
                                     });
@@ -159,6 +153,7 @@ define(
                     });
             };
 
+            // Makes sure that the checked nodes are updated with the latest data after a change
             self.updateChecked = function() {
                 ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_alloc) {
                     $.ajax({
@@ -177,26 +172,53 @@ define(
                             }
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
-                                _alloc.pillar = data;
-
+                                _alloc.pillar(data);
+                                pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                pillarModel.refreshTable(_alloc);
+                                //pillarModel.refreshTable(_alloc);
                             }
-
                         });
                 });
-
+                ko.utils.arrayForEach(pillarModel.editingNodes(), function(_alloc) {
+                    $.ajax({
+                        url: pillarURI + _alloc.name,
+                        type: "GET"
+                    })
+                        .fail(function(data) {
+                            swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
+                        })
+                        .done(function(data) {
+                            // does_not_exist is set, returned from the API, makes sure that we delete
+                            // when a minion no longer exists.
+                            if (data.DOES_NOT_EXIST) {
+                                pillarModel.allNodes.remove(_alloc);
+                                pillarModel.editingNodes.remove(_alloc);
+                            }
+                            else {
+                                var index = pillarModel.allNodes.indexOf(_alloc);
+                                _alloc.pillar(data);
+                                pillarModel.createObjForProjects(_alloc);
+                                pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
+                                //pillarModel.refreshTable(_alloc);
+                            }
+                        });
+                });
+                pillarModel.allNodes.valueHasMutated();
             };
 
+            // objOrName is either the name of the node to retrieve or the _assoc object
             self.getPillar = function(objOrName, create_new) {
                 var uri;
+                var name;
+                var _assoc;
                 if (create_new) {
-                    uri = pillarURI + objOrName;
+                    name = objOrName;
+                    uri = pillarURI + name;
                 }
                 else {
-                    uri = pillarURI + objOrName.name;
+                    _assoc = objOrName;
+                    uri = pillarURI + _assoc.name;
                 }
-
                 $.get(uri, function() {
                 })
                     .fail(function(data) {
@@ -204,23 +226,71 @@ define(
                     })
                     .done(function(data) {
                         if (create_new) {
-                            var entry = new pillarModel._assoc(objOrName, data);
+                            var entry = new pillarModel._assoc(name, data);
                             pillarModel.createObjForProjects(entry);
                             pillarModel.allNodes.push(entry);
                         }
                         else {
-                            var indexAll = pillarModel.allNodes.indexOf(objOrName);
-                            var indexChecked = pillarModel.checkedNodes.indexOf(objOrName);
-                            objOrName.pillar = data;
-                            pillarModel.createObjForProjects(objOrName);
-                            pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], objOrName);
+                            var indexAll = pillarModel.allNodes.indexOf(_assoc);
+                            var indexChecked = pillarModel.checkedNodes.indexOf(_assoc);
+                            _assoc.pillar(data);
+                            pillarModel.createObjForProjects(_assoc);
+                            pillarModel.allNodes.replace(pillarModel.allNodes()[indexAll], _assoc);
                             if (indexChecked !== -1) {
-                                pillarModel.checkedNodes.replace(pillarModel.checkedNodes()[indexChecked], objOrName);
+                                pillarModel.checkedNodes.replace(pillarModel.checkedNodes()[indexChecked], _assoc);
                             }
                         }
                     });
             };
 
+            var updateAllAdditions = function() {
+                pillarModel.nodeNames.forEach(function (server_name) {
+                    var serverAlreadyExists = false;
+                    ko.utils.arrayForEach(pillarModel.allNodes(), function (_assoc) {
+                        if (server_name === _assoc.name) {
+                            self.getPillar(_assoc, false);
+                            serverAlreadyExists = true;
+                        }
+                    });
+                    if (serverAlreadyExists === false){
+                        self.getPillar(server_name, true);
+                    }
+                });
+            };
+
+            var updateAllDeletions = function() {
+                ko.utils.arrayForEach(pillarModel.allNodes(), function (_assoc) {
+                    var serverAlreadyExists = false;
+                    if (typeof _assoc !== "undefined"){
+                        pillarModel.nodeNames.forEach(function (name) {
+                            if (_assoc.name === name)
+                                serverAlreadyExists = true;
+                        });
+                        if (!serverAlreadyExists) {
+                            pillarModel.allNodes.remove(_assoc);
+                        }
+                    }
+                });
+            };
+
+            var onSuccess = function (data) {
+                // get all server data
+                pillarModel.nodeNames = data;
+                // update anything that was added, create new as necessary
+                updateAllAdditions();
+                // remove if any nodes are now gone
+                updateAllDeletions();
+                // update what is shown
+                self.updateChecked();
+            };
+
+            var onFailure = function() {
+                console.log('failed to get list of servers');
+            };
+
+            self.loadServers = function () {
+                service.get('api/pillar/list_servers/', onSuccess, onFailure);
+            };
         };
     }
 );

@@ -17,12 +17,17 @@ define(
             },
             update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var editing = ko.unwrap(valueAccessor());
-                var pillarModel = bindingContext.$parents[2];
-
+                if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
+                    var pillarModel = bindingContext.$parents[2];
+                }
+                else {
+                    var pillarModel = bindingContext.$parents[3];
+                }
                 if (editing) {
                     pillarModel.tableEditing = true;
                 }
-                var index = pillarModel.checkedNodes.indexOf(bindingContext.$parent);
+                var hasProjectIndex = pillarModel.checkedNodes.indexOf(bindingContext.$parent);
+                var assocIndex = pillarModel.queriedNodes().indexOf(bindingContext.$parent);
                 // only update if the project exists!
                 if (!editing && element.value !== "Project Does Not Exist" && element.value !== "Select a project") {
                     var project = bindingContext.$parents[1].proj_name;
@@ -38,9 +43,15 @@ define(
                         }
                     }
                     // keep it at null if nothing is there 
-                    if (element.value !== "") {
-                        pillarModel.checkedNodes()[index].edit_pillar[project][key] = parsed;            
+                    if (element.value !== "" && hasProjectIndex !== -1) {
+                        pillarModel.checkedNodes()[hasProjectIndex].edit_pillar()[project][key] = parsed;
                     }
+                    if (element.value !== "" && assocIndex !== -1) {
+                        pillarModel.queriedNodes()[assocIndex].edit_pillar()[project][key] = parsed;
+                    }
+
+
+
                 }
                 if (!editing && pillarModel.tableEditing) {
                     // tell all others that we're done editing
@@ -56,16 +67,19 @@ define(
                 var edit = ko.unwrap(valueAccessor());
                 // check what getvalues returns first
                 // equiv of the pillarModel
-                var pillarModel = bindingContext.$parents[2];
+                if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
+                    var pillarModel = bindingContext.$parents[2];
+                }
+                else {
+                    var pillarModel = bindingContext.$parents[3];
+                }
                 element.text = pillarModel.getValues(bindingContext.$parent, bindingContext.$parents[1], bindingContext.$data);
                 if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                     var project = bindingContext.$parents[1].proj_name;
                     var key = bindingContext.$data;
-                    $(element).text(JSON.stringify(bindingContext.$parent.edit_pillar[project][key]));
+                    $(element).text(JSON.stringify(bindingContext.$parent.edit_pillar()[project][key]));
                 }
             }
         };
     }
 );
-
-
