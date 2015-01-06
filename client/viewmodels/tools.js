@@ -5,11 +5,13 @@ define(
         'service',
         'jquery',
         'model/toolsModel',
+        'model/loginModel',
         'bindings/radio',
         'bindings/tooltip'
     ],
-    function(app, ko, service, $, toolsModel) {
-        self.toolsModel = new toolsModel();
+    function(app, ko, service, $, toolsModel, login) {
+        self.login = login;
+        self.toolsModel = new toolsModel(self.login);
 
         return {
             toolsModel: self.toolsModel

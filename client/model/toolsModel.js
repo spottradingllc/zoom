@@ -7,15 +7,15 @@ define( [
         'bindings/uppercase'
     ],
     function(ko, service, $) {
-        return function toolsModel() {
+        return function toolsModel(login) {
             var self = this;
+            self.login = login;
             self.oldPath = ko.observable('');
             self.newPath = ko.observable('/spot/software/state/application/');
 
             self.setOldPath = function(path){
                 self.oldPath(path)
             };
-
 
             self.showPaths = function() {
                 var paths_dict = {
@@ -55,6 +55,7 @@ define( [
                                         });
                                     },
                                     error: function(data) {
+                                        console.log(data)
                                         swal({
                                             title:"Error!",
                                             text: data.responseJSON.errorText,
@@ -69,8 +70,9 @@ define( [
                 }
             };
 
+            // function for creating a string with a list
             self.path_message = function(path_dict){
-                message = 'Replaced for paths: \n';
+                var message = 'Replaced for paths: \n';
                 ko.utils.arrayForEach(path_dict, function(path)  {
                     message = message + path + '\n';
                 });
