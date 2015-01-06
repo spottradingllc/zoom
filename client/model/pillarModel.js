@@ -311,8 +311,14 @@ define( [
                     }
                     else return true;
                 };
-                // check if validate worked
-                if (typeof single === 'undefined') {
+                if (single === true) {
+                    doesNotAlreadyExist(self.selectedAssoc());
+                    JSONcreateProject(self.selectedAssoc(), project_name);
+                    var singleItemArr = [];
+                    singleItemArr.push(self.selectedAssoc());
+                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
+                }
+                else {
                     ko.utils.arrayForEach(self.checkedNodes(), function (_assoc) {
                         if (doesNotAlreadyExist(_assoc, left)) {
                             // only refresh salt after the last one is updated
@@ -324,13 +330,6 @@ define( [
                             self.pillarApiModel.api_post_json(_assoc, refresh_salt, self.checkedNodes(), 'project', project_name);
                         }
                     });
-                }
-                else {
-                    doesNotAlreadyExist(self.selectedAssoc());
-                    JSONcreateProject(self.selectedAssoc(), project_name);
-                    var singleItemArr = [];
-                    singleItemArr.push(self.selectedAssoc());
-                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
                 }
             };
 

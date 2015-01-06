@@ -152,7 +152,7 @@
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                     <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, 'groupExistingModal')}">
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, false, 'groupExistingModal')}">
                         Create
                     </button>
                 </div>
@@ -179,7 +179,7 @@
                         <!-- /ko-->
                         <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                         <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project())}">Create</button>
+                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), false, 'groupNewModal')}">Create</button>
                     </div>
                 </div>
             </div>
@@ -201,7 +201,7 @@
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                     <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, true)}">Create</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, true, 'existingModal')}">Create</button>
                 </div>
             </div>
         </div>
@@ -224,7 +224,7 @@
                         <!-- /ko-->
                         <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                         <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), true)}">Create</button>
+                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), true, 'newModal')}">Create</button>
                     </div>
                 </div>
             </div>
