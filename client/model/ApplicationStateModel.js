@@ -477,6 +477,7 @@ define(
                         row.lastCommand(update.last_command);
                         row.pdDisabled(update.pd_disabled);
                         row.grayed(update.grayed);
+                        row.platform(update.platform);
                     }
                     else {
                         // add new item to array
