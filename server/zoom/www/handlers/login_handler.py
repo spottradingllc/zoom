@@ -17,11 +17,7 @@ class LoginHandler(tornado.web.RequestHandler):
         """
         :rtype: list
         """
-        # return self.application.configuration.read_write_groups
-        return [
-            "CN=IT All,CN=Users,DC=spottrading,DC=com",
-            "CN=Deployment Accounts,OU=Deployment,OU=Development,OU=Users,OU=Chicago,OU=Production,OU=Spot Trading,DC=spottrading,DC=com"
-            ],
+        return self.application.configuration.read_write_groups
 
     @property
     def ldap_url(self):
@@ -107,8 +103,6 @@ class LoginHandler(tornado.web.RequestHandler):
                 logging.error(e)
 
         except Exception as e:
-            import traceback
-            print traceback.format_exc()
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write({'errorText': e.message['desc'] })
             logging.exception(e)
