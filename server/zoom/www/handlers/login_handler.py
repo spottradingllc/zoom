@@ -17,7 +17,11 @@ class LoginHandler(tornado.web.RequestHandler):
         """
         :rtype: list
         """
-        return self.application.configuration.read_write_groups
+        # return self.application.configuration.read_write_groups
+        return [
+            "CN=IT All,CN=Users,DC=spottrading,DC=com",
+            "CN=Deployment Accounts,OU=Deployment,OU=Development,OU=Users,OU=Chicago,OU=Production,OU=Spot Trading,DC=spottrading,DC=com"
+            ],
 
     @property
     def ldap_url(self):
@@ -83,10 +87,16 @@ class LoginHandler(tornado.web.RequestHandler):
                 self.write({'message': "Login successful"})
                 logging.info('successful login')
 
-        except ldap.INVALID_CREDENTIALS:
+        except ldap.INVALID_CREDENTIALS as e:
+            # http://primalcortex.wordpress.com/2007/11/28/active-directory-ldap-errors/
+            if 'data 530' in e.message['info']:
+                reason = 'Invalid logon hours'
+            else:
+                reason = 'Invalid username or password'
+
             self.set_status(httplib.UNAUTHORIZED)
-            self.write({'errorText': 'Invalid username or password'})
-            logging.error('Invalid username or password')
+            self.write({'errorText': reason})
+            logging.error(reason)
 
         except ldap.LDAPError as e:
             if isinstance(e.message, dict) and 'desc' in e.message:
@@ -97,6 +107,8 @@ class LoginHandler(tornado.web.RequestHandler):
                 logging.error(e)
 
         except Exception as e:
+            import traceback
+            print traceback.format_exc()
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
             self.write({'errorText': e.message['desc'] })
             logging.exception(e)
