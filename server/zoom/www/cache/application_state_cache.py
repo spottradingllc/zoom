@@ -157,7 +157,8 @@ class ApplicationStateCache(object):
                 login_user=data.get('login_user', 'Zoom'),
                 last_command=self._get_last_command(data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
-                grayed=self._get_existing_attribute(path, 'grayed')
+                grayed=self._get_existing_attribute(path, 'grayed'),
+                platform=data.get('platform', 'unknown')
             )
 
         # ephemeral node
@@ -187,7 +188,8 @@ class ApplicationStateCache(object):
                 login_user=parent_data.get('login_user', 'Zoom'),
                 last_command=self._get_last_command(parent_data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
-                grayed=self._get_existing_attribute(path, 'grayed')
+                grayed=self._get_existing_attribute(path, 'grayed'),
+                platform=parent_data.get('platform', 'unknown')
             )
         return application_state
 

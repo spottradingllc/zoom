@@ -1,5 +1,5 @@
 define(['jquery', 'model/constants'], function($, constants) {
-    return function GraphiteModel(environment, host, configPath) {
+    return function GraphiteModel(environment, host, configPath, platform) {
         var self = this;
 
         self.modalShow = function(urls) {
@@ -50,7 +50,13 @@ define(['jquery', 'model/constants'], function($, constants) {
 
         self.cpuURL = function() {
             var url = self.baseURL;
-            url = url + '&target=alias(' + host + '.cpuload.avg1,"CPU avg1 Load")';
+            if (platform === constants.platform.windows) {
+                url = url + '&target=alias(' + host + '.cputotals.sys,"CPU Totals sys")';
+                url = url + '&target=alias(' + host + '.cputotals.user,"CPU Totals user")';
+            }
+            else {
+                url = url + '&target=alias(' + host + '.cpuload.avg1,"CPU avg1 Load")';
+            }
             url = url + '&yRight=0';
             url = url + '&title=' + host + '\'s CPU';
             url = url + '&vtitle=Load';
@@ -59,8 +65,13 @@ define(['jquery', 'model/constants'], function($, constants) {
 
         self.memoryURL = function() {
             var url = self.baseURL;
-            url = url + '&target=alias(' + host + '.meminfo.tot, "Total Memory")';
-            url = url + '&target=alias(' + host + '.meminfo.used, "Memory Usage")';
+            if (platform === constants.platform.windows) {
+                url = url + '&target=alias(' + host + '.memory.available_bytes,"Available Mem in Bytes")';
+            }
+            else {
+                url = url + '&target=alias(' + host + '.meminfo.tot, "Total Memory")';
+                url = url + '&target=alias(' + host + '.meminfo.used, "Memory Usage")';
+            }
             url = url + '&title=' + host + '\'s Memory';
             url = url + '&vtitle=Bytes';
             return encodeURI(url);
@@ -77,8 +88,13 @@ define(['jquery', 'model/constants'], function($, constants) {
 
         self.diskSpaceURL = function() {
             var url = self.baseURL;
-            url = url + '&target=' + host + '.diskinfo.opt.total_bytes';
-            url = url + '&target=' + host + '.diskinfo.opt.used_bytes';
+            if (platform === constants.platform.windows) {
+                url = url + '&target=alias(' + host + '.diskinfo.c.available_bytes,"Available disk in Bytes")';
+            }
+            else {
+                url = url + '&target=' + host + '.diskinfo.opt.total_bytes';
+                url = url + '&target=' + host + '.diskinfo.opt.used_bytes';
+            }
             url = url + '&title=' + host + '\'s Disk Space';
             url = url + '&vtitle= Bytes of Disk Space';
             return encodeURI(url);

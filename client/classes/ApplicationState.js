@@ -24,13 +24,15 @@ define(
             self.errorState = ko.observable(data.error_state);
             self.mode = ko.observable(data.local_mode);
             self.mtime = Date.now();
-            self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHostShort(), self.configurationPath);
+            self.platform = ko.observable(data.platform);
+            self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHostShort(), self.configurationPath, self.platform());
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);
             self.lastCommand = ko.observable(data.last_command);
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
+
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
