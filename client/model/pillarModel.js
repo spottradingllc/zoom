@@ -68,7 +68,7 @@ define( [
                 self.proj_name = name;
                 self.keys = ko.observableArray([]);
                 self.edit_keys = ko.observableArray([]);
-                self.hasProject = [];
+                self.hasProject = ko.observableArray([]);
                 self.new_key = ko.observable("");
                 self.editing = ko.observable(false);
                 // need a way of keeping track of the number of servers
@@ -179,7 +179,7 @@ define( [
                 var ret = "";
                 try {
                     ret = JSON.stringify(_assoc.projects[_proj.proj_name]()[field]);
-                    if (_proj.hasProject.indexOf(_assoc) === -1)
+                    if (_proj.hasProject().indexOf(_assoc) === -1)
                         _proj.hasProject.push(_assoc);
                 } catch(err) {
                     if (err.name === 'TypeError') {
@@ -259,7 +259,7 @@ define( [
                             swal("Error", "Project keys must be alphanumeric", 'error');
                             return;
                         }
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             _assoc.edit_pillar()[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
@@ -267,7 +267,7 @@ define( [
                 }
                 else if (update_type === 'delete') {
                     if (data_type === 'key') {
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             delete _assoc.edit_pillar()[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
@@ -275,7 +275,7 @@ define( [
                         _proj.edit_keys.splice(i, 1);
                     }
                     else if (data_type === 'project') {
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             delete _assoc.edit_pillar()[_proj.proj_name];
                         });
                     }
@@ -336,12 +336,12 @@ define( [
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (_proj.hasProject.length < self.checkedNodes()) {
-                    alertText = "Only " + _proj.has_project().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
+                if (_proj.hasProject().length < self.checkedNodes()) {
+                    alertText = "Only " + _proj.hasProject().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " servers?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " servers?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -359,12 +359,12 @@ define( [
                         }
                         else {
                             var refresh_salt = false;
-                            for (var each in _proj.hasProject) {
+                            for (var each in _proj.hasProject()) {
                                 // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
-                                if (each === (_proj.hasProject.length-1).toString()) {
+                                if (each === (_proj.hasProject().length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
+                                self.pillarApiModel.api_post_json(_proj.hasProject()[each], refresh_salt, _proj.hasProject(), data_type);
                             }
                         }
                     }
@@ -414,6 +414,10 @@ define( [
                         self.checkedNodes.push(_assoc);
                         _assoc.prior = true;
                         self.createObjForProjects(_assoc);
+                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                            if (_proj.hasProject().indexOf(_assoc) === -1)
+                                _proj.hasProject.push(_assoc);
+                        });
                     }
                     else if (_assoc.prior){
                         self.checkedNodes.remove(_assoc);

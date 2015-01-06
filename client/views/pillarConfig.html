@@ -70,7 +70,7 @@
                             </tr>
                             </thead>
 
-                            <tbody data-bind="foreach: $parent.checkedNodes()">
+                            <tbody data-bind="foreach: hasProject()">
                             <tr>
                                 <td data-bind="text: name"></td>
                                 <!-- ko foreach: $parent.keys() -->
@@ -115,8 +115,6 @@
                                     <input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                         style="width: 100%;">
                                 </td>
-
-<!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
                                 <!-- /ko -->
                             </tr>
                             </tbody>
@@ -426,8 +424,6 @@
                                     <input data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                         style="width: 100%;">
                                 </td>
-
-<!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
                                 <!-- /ko -->
                             </tr>
                             </tbody>

@@ -70,9 +70,9 @@ define(
 
             // Deletes either projects or keys from a node.
             self.api_delete = function(level_to_delete, _proj, key) {
-                var num_left = _proj.hasProject.length;
+                var num_left = _proj.hasProject().length;
                 var del_phrase = "";
-                _proj.hasProject.forEach(function(_assoc) {
+                _proj.hasProject().forEach(function(_assoc) {
                     var uri = pillarURI + _assoc.name;
                     if (level_to_delete === "project") {
                         uri += "/" + _proj.proj_name;
@@ -100,7 +100,7 @@ define(
                             // if the last one, notify on it only
                             if (num_left === 1) {
                                 swal("Success", "Successfully deleted", 'success');
-                                pillarModel.saltModel.updateMinion(_proj.hasProject, 'delete', level_to_delete, _proj.proj_name);
+                                pillarModel.saltModel.updateMinion(_proj.hasProject(), 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
 
