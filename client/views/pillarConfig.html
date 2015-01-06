@@ -24,19 +24,25 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title"> Create Mapping </h4>
-                    <h4 class="modal-dialog"> Create a targetable mapping for a specific host.</h4>
+                    <small style="color: white"> Create a deployment-targetable mapping for a specific host. </small>
 
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="height: auto;">
                     <h4> Enter a unique hostname. Domain will be added to create the FQDN. </h4>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: pillarModel.newNodeName">
-                    </div>
-                    <span> .spottrading.com </span>
-                    <button class="btn btn-default"
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="Hostname" class="sr-only">Hostname</label>
+                            <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: pillarModel.newNodeName">
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only">Hostname</label>
+                            <p class="form-control-static">.spottrading.com</p>
+                        </div>
+                        <button class="btn btn-default"
                             data-bind="click:  function() { pillarModel.saltModel.validate(pillarModel.newNodeName(), null, 'preCreate',
                             'node', null) }, visible: pillarModel.newNodeName()">Create
-                    </button>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -89,7 +95,7 @@
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th>
                                     <span data-bind="text: $data"></span>
-                                    <button
+                                    <button class="btn btn-default"
                                             data-bind="click: function () { $parents[1].visualUpdate('delete', 'key', $parent,  $data) }">
                                         Delete
                                     </button>
@@ -98,7 +104,7 @@
                                 <td>
                                     <div data-bind="visible: $data.editing">
                                         <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
-                                        <button
+                                        <button class="btn btn-default"
                                                 data-bind="click: function () { $parent.visualUpdate('create', 'key', $data) }">
                                             Add Key</button>
                                     </div>
@@ -123,10 +129,10 @@
                         </table>
 
                         <div class="container" data-bind="visible: $data.editing">
-                            <button data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}">
+                            <button class="btn btn-default" data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}">
                                 Send updated table data
                             </button>
-                            <button data-bind="click: function() { $parent.cancelEditing($data, true) }">Cancel Editing</button>
+                            <button class="btn btn-default" data-bind="click: function() { $parent.cancelEditing($data, true) }">Cancel Editing</button>
                         </div>
                     </div>
                     <!-- end of existing project tab-->
@@ -135,7 +141,7 @@
         </div>
     </div>
     <div id="groupExistingModal" class="modal fade">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Multiple Servers</h3>
@@ -146,8 +152,8 @@
                     <select data-bind="options: allProjects, optionsText: function(item) { return item.proj_name }, value: selectedProject"></select>
                     <!-- ko foreach: new_pairs() -->
                     <div class="row">
-                        <input type="text" placeholder="Key" data-bind="textInput: key">
-                        <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                        <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
+                        <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
                     </div>
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
@@ -161,7 +167,7 @@
     </div>
 
     <div id="groupNewModal" class="modal fade">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Multiple Servers</h3>
@@ -173,8 +179,8 @@
                         <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
                         <!-- ko foreach: new_pairs() -->
                         <div class="row">
-                            <input type="text" placeholder="Key" data-bind="textInput: key">
-                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                            <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
+                            <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
                         </div>
                         <!-- /ko-->
                         <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
@@ -185,8 +191,8 @@
             </div>
         </div>
     </div>
-        <div id="existingModal" class="modal fade">
-        <div class="modal-dialog modal-lg">
+    <div id="existingModal" class="modal fade">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                 </div>
@@ -208,7 +214,7 @@
     </div>
 
     <div id="newModal" class="modal fade">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                 </div>
@@ -356,10 +362,10 @@
                     <div id="eachProject" data-bind="foreach: projArray">
 
                                 <div data-bind="visible: $index() == 0 && $data.editing()">
-                                    <button data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
+                                    <button class="btn btn-default" data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
                                         Send updated table data
                                     </button>
-                                    <button data-bind="click: function() { $parents[1].cancelEditing($parent) }">Cancel Editing</button>
+                                    <button class="btn btn-default" data-bind="click: function() { $parents[1].cancelEditing($parent) }">Cancel Editing</button>
                                 </div>
 
 
@@ -393,7 +399,7 @@
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th class="col-sm-1">
                                     <span data-bind="text: $data"></span>
-                                    <button
+                                    <button class="btn btn-default"
                                             data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
                                         Delete
                                     </button>
@@ -402,7 +408,7 @@
                                 <td class="col-sm-1">
                                     <div data-bind="visible: $data.editing">
                                         <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
-                                        <button
+                                        <button class="btn btn-default"
                                                 data-bind="click: function () { $parents[1].visualUpdate('create', 'key', $data) }">
                                             Add Key</button>
                                     </div>
