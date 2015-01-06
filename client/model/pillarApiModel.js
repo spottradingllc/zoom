@@ -175,7 +175,7 @@ define(
                                 _alloc.pillar(data);
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                pillarModel.refreshTable(_alloc);
+                                //pillarModel.refreshTable(_alloc);
                             }
                         });
                 });
@@ -199,7 +199,7 @@ define(
                                 _alloc.pillar(data);
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                pillarModel.refreshTable(_alloc);
+                                //pillarModel.refreshTable(_alloc);
                             }
                         });
                 });
@@ -272,10 +272,6 @@ define(
                     }
                 });
             };
-
-            var updateAllProjects = function() {
-                pillModel.allProjects.push()
-            }
 
             var onSuccess = function (data) {
                 // get all server data

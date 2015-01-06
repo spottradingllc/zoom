@@ -231,11 +231,19 @@ define( [
             };
 
             self.showModal = function(modal_id) {
+                getAllProjects();
                 $('#'+modal_id).modal('show');
             };
 
-            self.cancelEditing = function(html_proj) {
-                html_proj.editing(false);
+            self.cancelEditing = function(obj, group) {
+                if (group !== true) {
+                    ko.utils.arrayForEach(obj.projArray(), function (_proj) {
+                        _proj.editing(false);
+                    });
+                }
+                else {
+                    obj.editing(false);
+                }
             };
 
             self.visualUpdate = function(update_type, data_type, _proj, key) {
@@ -284,9 +292,13 @@ define( [
                 _assoc.edit_pillar()[project_name] = pairs;
             };
 
-            self.projectWrapper = function(project_name, single) {
+            self.projectWrapper = function(project_name, single, modalToHide) {
                 var left = self.checkedNodes().length;
                 var refresh_salt = false;
+
+                if (typeof modalToHide !== "undefined") {
+                    $("#"+modalToHide).modal('hide');
+                }
 
                 // validate once, even if multiple servers since using the same data.
                 if (validateNewProject(project_name) === false) return;
@@ -425,7 +437,6 @@ define( [
             self.handleAction = function(_assoc, action_type) {
                 self.selectedAssoc(_assoc);
                 if (action_type === 'existing') {
-                    getAllProjects();
                     self.showModal('existingModal');
                 }
                 else if (action_type === 'new') {
@@ -433,8 +444,11 @@ define( [
                 }
             };
 
-            self.toggleEdit = function(_assoc) {
-                if (_assoc.projArray().length === 0) {
+            self.toggleEdit = function(_assoc, refresh) {
+                if ((_assoc.projArray().length === 0) || refresh) {
+                    if (refresh) {
+                        _assoc.projArray([]);
+                    }
                     $.each(_assoc.pillar(), function(projects, keyVals) {
                         var new_proj = new self._proj(projects);
                         $.each(keyVals, function(key) {
@@ -448,6 +462,12 @@ define( [
                     self.editingNodes.remove(_assoc);
                     _assoc.projArray([]);
                 }
+            };
+
+            self.refreshEdit = function() {
+                ko.utils.arrayForEach(self.editingNodes(), function(_assoc) {
+                    self.toggleEdit(_assoc, true);
+                });
             };
 
             self.queriedNodes= ko.computed(function() {

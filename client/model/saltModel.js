@@ -195,6 +195,8 @@ define([
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
 
+                        pillarModel.refreshEdit();
+
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
                         }

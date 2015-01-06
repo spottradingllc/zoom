@@ -126,7 +126,7 @@
                             <button data-bind="click: function() {$parent.updateProjectWrapper('update', 'wholeTable', $data)}">
                                 Send updated table data
                             </button>
-                            <button data-bind="click: function() { $parent.cancelEditing($data) }">Cancel Editing</button>
+                            <button data-bind="click: function() { $parent.cancelEditing($data, true) }">Cancel Editing</button>
                         </div>
                     </div>
                     <!-- end of existing project tab-->
@@ -152,7 +152,9 @@
                     <!-- /ko-->
                     <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
                     <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name)}">Create</button>
+                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, 'groupExistingModal')}">
+                        Create
+                    </button>
                 </div>
             </div>
         </div>
@@ -318,7 +320,7 @@
                     </thead>
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
-                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data) }">
+                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data, false) }">
 
                             </td>
                             <td data-bind="text: $parent.projectList($data)"></td>
@@ -357,7 +359,7 @@
                                     <button data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
                                         Send updated table data
                                     </button>
-                                    <button data-bind="click: function() { $parents[1].cancelEditing($data) }">Cancel Editing</button>
+                                    <button data-bind="click: function() { $parents[1].cancelEditing($parent) }">Cancel Editing</button>
                                 </div>
 
 
