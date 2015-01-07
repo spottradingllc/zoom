@@ -14,26 +14,16 @@ define([
             var onSuccess = function(data) {
                 try {
                     saltParams = data.salt;
-                    if (environment.env().toLowerCase() === environment.envType.stg) {
-                        saltMaster = saltParams.staging;
-                    }
-                    // UAT and Production both point to the Production Salt Master
-                    else if (environment.env().toLowerCase() === environment.envType.uat ||
-                        environment.env().toLowerCase() === environment.envType.prod) {
-                        saltMaster = saltParams.production;
-                    }
-                    else {
-                        swal("Error", "Environment not set", 'error');
-                    }
+                    saltMaster = saltParams.uri;
                 } catch(err) {
                     swal("Error", "Unable to parse Salt API parameters", 'error');
                 }
-            }
+            };
 
             var onFailure = function(data) {
                 swal("Error", "Unable to retrieve Salt API parameters", 'error');
                 console.log(data);
-            }
+            };
                 
             service.get('api/saltmaster/', onSuccess, onFailure);
 
