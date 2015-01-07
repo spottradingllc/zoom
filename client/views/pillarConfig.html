@@ -144,27 +144,46 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 style="color:white" class="modal-title">Add Existing Project/Service/Application</h3>
-                    <small style="color: white">To ALL selected hosts. Blank values will be null. Use JSON format.</small>
+                    <small style="color: white">To ALL selected hosts. Blank values will be null. Use
+                        <a href="http://json.org/example" target="_blank" style="color: orange; text-decoration: underline">
+                            JSON
+                        </a>
+                        format for values, plaintext for keys.
+                    </small>
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
                     <select data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'Select a project' ">
                        </select>
-                    <form class="form-inline" style="margin-top: 20px; margin-bottom: 20px;">
+                    <form class="form-inline text-center" style="margin-top: 20px; margin-bottom: 20px;">
+                        <div class="row">
+                            <div class="col-md-3"></div>
+                            <div class="col-md-3">
+                                Key
+                            </div>
+                            <div class="col-md-3">
+                                Value
+                            </div>
+                        </div>
                         <!-- ko foreach: new_pairs() -->
                         <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
-                        </div>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                            <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
+                            <input class="form-control mt" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
                         </div>
                         <!-- /ko -->
+                        <div class="form-group">
+                            <button class="btn btn-danger mt mr" data-bind="click: function() { removePair() }">Remove a key-value pair</button>
+                            <button class="btn btn-primary mt" data-bind="click: function() { addPair() }">Add key-value pair</button>
+                        </div>
+
                     </form>
-                    <button class="btn btn-primary" data-bind="click: function() {addPair()}">Add key-value pair</button>
-                    <button class="btn btn-danger" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-success" data-bind="click: function() {projectWrapper(selectedProject().proj_name, false, 'groupExistingModal')}"
-                            style="float: right">
+
+                    <div class="row">
+                    <button class="btn btn-default" style="float: left; margin-left:15px" data-bind="click: function() { closeModal('groupExistingModal') }">Cancel</button>
+                    <button class="btn btn-success" data-bind="click: function() { projectWrapper(selectedProject().proj_name, false, 'groupExistingModal') }"
+                          style="float:right; margin-right:15px">
                         Create
                     </button>
+                        </div>
                 </div>
             </div>
         </div>
@@ -330,7 +349,8 @@
                     </thead>
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
-                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data, false) }">
+                            <td data-bind="text: name, click: function() { $parent.toggleEdit($data, false) }"
+                                    style="cursor:pointer">
 
                             </td>
                             <td data-bind="text: $parent.projectList($data)"></td>
@@ -361,7 +381,7 @@
                             </td>
                             </tr>
                                 <!-- Main div for each project!!! -->
-                            <tr data-bind="visible: projArray().length > 0">
+                            <tr data-bind="visible: projArray().length > 0" style="background-color: lightpink">
                             <td colspan="3">
                     <div id="eachProject" data-bind="foreach: projArray">
 
@@ -396,7 +416,7 @@
                         </table>
 
                         <table class="table table-striped table-bordered edit" id="editTable"
-                               data-bind="visible: $data.editing" style="margin-bottom: 20px; ">
+                               data-bind="visible: $data.editing" style="margin-bottom: 20px;">
                             <thead>
                             <tr>
                                 <th class="col-sm-1">Project</th>

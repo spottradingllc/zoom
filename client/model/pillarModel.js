@@ -246,6 +246,10 @@ define( [
                 $('#'+modal_id).modal('show');
             };
 
+            self.closeModal = function(modal_id) {
+                $('#'+modal_id).modal('hide');
+            };
+
             self.cancelEditing = function(obj, group) {
                 if (group !== true) {
                     ko.utils.arrayForEach(obj.projArray(), function (_proj) {
