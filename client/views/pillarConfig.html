@@ -23,20 +23,19 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"> Create Mapping </h4>
-                    <small style="color: white"> Create a deployment-targetable mapping for a specific host. </small>
+                    <h3 class="modal-title"> Create Mapping </h3>
+                    <small class="modal-subtitle-pillar"> Create a deployment-targetable mapping for a specific host. </small>
 
                 </div>
                 <div class="modal-body" style="height: auto;">
                     <h4> Enter a unique hostname. Domain will be added to create the FQDN. </h4>
                     <form class="form-inline">
                         <div class="form-group">
-                            <label for="Hostname" class="sr-only">Hostname</label>
-                            <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: pillarModel.newNodeName">
-                        </div>
-                        <div class="form-group">
-                            <label class="sr-only">Hostname</label>
-                            <p class="form-control-static">.spottrading.com</p>
+                            <div class="input-group">
+                                <label for="Hostname" class="sr-only">Hostname</label>
+                                <input type="text" class="form-control" placeholder="hostname" data-bind="textInput: pillarModel.newNodeName">
+                                <div class="input-group-addon">.spottrading.com</div>
+                            </div>
                         </div>
                         <button class="btn btn-default"
                             data-bind="click:  function() { pillarModel.saltModel.validate(pillarModel.newNodeName(), null, 'preCreate',
@@ -144,21 +143,26 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">Edit Multiple Servers</h3>
+                    <h3 style="color:white" class="modal-title">Add Existing Project/Service/Application</h3>
+                    <small style="color: white">To ALL selected hosts. Blank values will be null. Use JSON format.</small>
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
-                    <h3> Add project <small> For ALL selected servers. Blank values will be null </small> </h3>
-                    <span> Select an existing project: </span>
-                    <select data-bind="options: allProjects, optionsText: function(item) { return item.proj_name }, value: selectedProject"></select>
-                    <!-- ko foreach: new_pairs() -->
-                    <div class="row">
-                        <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
-                        <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
-                    </div>
-                    <!-- /ko-->
-                    <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, false, 'groupExistingModal')}">
+                    <select data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'Select a project' ">
+                       </select>
+                    <form class="form-inline" style="margin-top: 20px; margin-bottom: 20px;">
+                        <!-- ko foreach: new_pairs() -->
+                        <div class="form-group">
+                            <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                        </div>
+                        <!-- /ko -->
+                    </form>
+                    <button class="btn btn-primary" data-bind="click: function() {addPair()}">Add key-value pair</button>
+                    <button class="btn btn-danger" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                    <button class="btn btn-success" data-bind="click: function() {projectWrapper(selectedProject().proj_name, false, 'groupExistingModal')}"
+                            style="float: right">
                         Create
                     </button>
                 </div>

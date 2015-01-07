@@ -285,7 +285,7 @@ define(
             };
 
             var onFailure = function() {
-                console.log('failed to get list of servers');
+                swal("Error", "failed to get list of servers", 'error');
             };
 
             self.loadServers = function () {

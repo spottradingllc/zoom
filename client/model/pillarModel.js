@@ -85,6 +85,17 @@ define( [
                 });
             };
 
+            self.updateSelected = ko.computed({
+                read: function() {
+                    return self.selectedProject;
+                },
+                write: function(newVal) {
+                    if (newVal) {
+                        self.selectedProject(newVal);
+                    }
+                }
+            });
+
             self.checkAll = function() {
                 if (self.queriedNodes().length > 8){
                     swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
@@ -312,11 +323,12 @@ define( [
                     else return true;
                 };
                 if (single === true) {
-                    doesNotAlreadyExist(self.selectedAssoc());
-                    JSONcreateProject(self.selectedAssoc(), project_name);
-                    var singleItemArr = [];
-                    singleItemArr.push(self.selectedAssoc());
-                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
+                    if (doesNotAlreadyExist(self.selectedAssoc())){
+                        JSONcreateProject(self.selectedAssoc(), project_name);
+                        var singleItemArr = [];
+                        singleItemArr.push(self.selectedAssoc());
+                        self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
+                    }
                 }
                 else {
                     ko.utils.arrayForEach(self.checkedNodes(), function (_assoc) {
