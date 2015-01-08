@@ -60,6 +60,7 @@ class Configuration(object):
             self._pagerduty_api_token = pagerduty_settings.get('pagerduty_api_token')
             self._pagerduty_subdomain = pagerduty_settings.get('pagerduty_subdomain')
             self._pagerduty_enabled_environments = pagerduty_settings.get('pagerduty_enabled_environments')
+            self._pagerduty_alert_footer = pagerduty_settings.get('pagerduty_footer', '')
 
             # database
             db_settings = config.get('database')
@@ -176,6 +177,10 @@ class Configuration(object):
     @property
     def pagerduty_enabled_environments(self):
         return self._pagerduty_enabled_environments
+
+    @property
+    def pagerduty_alert_footer(self):
+        return self._pagerduty_alert_footer
 
     @property
     def db_type(self):
