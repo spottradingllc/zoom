@@ -144,10 +144,10 @@ define([
                 if (left.grayed()) { return 1; } // if app is disabled, push to bottom
                 else if (left.applicationStatus() === right.applicationStatus()) {
                     if (left.dependencyModel.requirementsAreUp() === right.dependencyModel.requirementsAreUp()) {
-                        if (left.configurationPath < right.configurationPath) {
+                        if (left.configurationPath.toLowerCase() < right.configurationPath.toLowerCase()) {
                             return -1;
                         }
-                        else if (left.configurationPath > right.configurationPath) {
+                        else if (left.configurationPath.toLowerCase() > right.configurationPath.toLowerCase()) {
                             return 1;
                         }
                         else {
