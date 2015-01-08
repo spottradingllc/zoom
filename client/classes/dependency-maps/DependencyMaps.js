@@ -42,9 +42,9 @@ define([
 
         self.createRequirementsDict = function(appState) {
             var name = appState.configurationPath.substring(appState.configurationPath.indexOf('application/') + 'application/'.length);
-            // this is either an app that requires nothing or
-            // a fake app state created from outside the ../state/application tree (doesn't have all the needed attributes of a real state)
-            if (typeof appState.dependencyModel === 'undefined' || appState.dependencyModel.requires().length === 0) {
+            // This is a fake app state created from outside the ../state/application tree
+            // (doesn't have all the needed attributes of a real state)
+            if (typeof appState.dependencyModel === 'undefined') {
                 return {
                     name: name,
                     status: appState.applicationStatus(),
