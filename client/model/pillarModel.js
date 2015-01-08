@@ -472,6 +472,7 @@ define( [
                         _assoc.projArray.push(new_proj);
                     });
                     self.editingNodes.push(_assoc);
+                    self.showEditInline(_assoc);
                 }
                 else {
                     self.editingNodes.remove(_assoc);

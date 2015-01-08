@@ -16,13 +16,24 @@
        background-color: #FFF;
 }
 
+/* margin-top correction */
 .mt {
        margin-top: 10px;
 }
 
+/* margin right correction */
 .mr {
        margin-right: 10px;
 }
 
+.mb {
+       margin-bottom: 5px;
+}
 
+/* Delete minus sign next to each key */
+.del {
+       float: right;
+       color: #d9534f;
+       cursor: pointer;
+}
 

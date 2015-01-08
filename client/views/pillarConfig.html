@@ -381,61 +381,42 @@
                             </td>
                             </tr>
                                 <!-- Main div for each project!!! -->
-                            <tr data-bind="visible: projArray().length > 0" style="background-color: lightpink">
+                            <tr data-bind="visible: projArray().length > 0" style="background-color: #9bc2cf">
                             <td colspan="3">
                     <div id="eachProject" data-bind="foreach: projArray">
 
-                                <div data-bind="visible: $index() == 0 && $data.editing()">
-                                    <button class="btn btn-default" data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
-                                        Send updated table data
+                                <div class="mb" data-bind="visible: $index() == 0 && $data.editing()">
+                                    <button class="btn btn-info" data-bind="click: function() { $parents[1].toggleEdit($parent) }">
+                                        Discard changes
                                     </button>
-                                    <button class="btn btn-default" data-bind="click: function() { $parents[1].cancelEditing($parent) }">Cancel Editing</button>
+                                    <button style="float:right" class="btn btn-success" data-bind="click: function() {$parents[1].updateProjectWrapper('update', 'wholeTable', $data)}">
+                                        Save and apply changes
+                                    </button>
                                 </div>
 
-
-                        <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; cursor: pointer;"
-                            data-bind="visible: !$data.editing(), click: function () {$parents[1].showEditInline($parent)}">
-                            <thead>
-                            <tr>
-                                <th class="col-sm-1">Project</th>
-                                <!-- ko foreach: $data.keys() -->
-                                <th class="col-sm-1" data-bind="text: $data"></th>
-                                <!-- /ko -->
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            <tr>
-                                <td class="col-sm-1" data-bind="text: proj_name"></td>
-                                <!-- ko foreach: keys -->
-                                <td class="col-sm-1" data-bind="text: $parents[2].getValues($parents[1], $parent, $data)"></td>
-                                <!-- /ko -->
-                            </tr>
-                            </tbody>
-
-                        </table>
-
                         <table class="table table-striped table-bordered edit" id="editTable"
-                               data-bind="visible: $data.editing" style="margin-bottom: 20px;">
+                               visible="$data.editing()" style="margin-bottom: 20px;">
                             <thead>
                             <tr>
                                 <th class="col-sm-1">Project</th>
                                 <!-- ko foreach: $data.edit_keys() -->
                                 <th class="col-sm-1">
                                     <span data-bind="text: $data"></span>
-                                    <button class="btn btn-default"
+                                    <span class="glyphicon glyphicon-minus del"
                                             data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
-                                        Delete
-                                    </button>
+                                    </span>
                                 </th>
                                 <!-- /ko -->
                                 <td class="col-sm-1">
-                                    <div data-bind="visible: $data.editing">
-                                        <input type="text" placeholder="New Key Name" data-bind="textInput: new_key">
-                                        <button class="btn btn-default"
-                                                data-bind="click: function () { $parents[1].visualUpdate('create', 'key', $data) }">
-                                            Add Key</button>
-                                    </div>
+                                    <form class="form-inline" data-bind="visible: $data.editing">
+                                        <div class="form-group">
+                                            <input class="form-control" type="text" placeholder="New Key Name" data-bind="textInput: new_key">
+                                            <button class="btn btn-default"
+                                                    data-bind="click: function () { $parents[1].visualUpdate('create', 'key', $data) }">
+                                                Add Key
+                                            </button>
+                                        </div>
+                                    </form>
                                 </td>
                                 <td class="col-sm-1">
                                     <div data-bind="visible: $data.editing">
@@ -453,11 +434,10 @@
 
                                 <!-- ko foreach: $parent.edit_keys() -->
                                 <td class="col-sm-1">
-                                    <input data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
+                                    <input class="form-control" data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                         style="width: 100%;">
                                 </td>
 
-<!--                                <td data-bind="visible: !$parent.editable(), text: $parents[2].getValues($parent, $parents[1], $data), click: function () { $parents[2].makeEditable($parent) }, updateLatest: $parent.editable"></td> -->
                                 <!-- /ko -->
                             </tr>
                             </tbody>
@@ -466,10 +446,6 @@
 
                     </div>
                     <!-- end of existing project tab-->
-                            <!--
-                            <span data-bind="template: {name: 'individual-host-template'}"></span>
-                            -->
-
                             </td>
                         </tr>
                     </tbody>
@@ -477,7 +453,7 @@
             </div>
         
             <div id="mainPane" class="col-md-8"> 
-                <div data-bind="visible: checkedNodes().length > 0 && selectedOption() == 'Delete Pillar(s)'">
+                <div data-bind="visible: checkedNodes().length > 0">
                     <span> Selected servers: </span>
                     <div data-bind="foreach: checkedNodes">
                         <table>
