@@ -2,8 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<CodeLanguage>CPPLX</CodeLanguage>
-		<DeployXmlCM>deployLX.xml</DeployXmlCM>	
+		<DeployXmlCM>deployLX.xml</DeployXmlCM>
 		<ProductName>Zoom</ProductName>	
 		<JiraKey>ZOOM</JiraKey>
 	</PropertyGroup>
