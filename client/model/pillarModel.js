@@ -41,8 +41,10 @@ define( [
             self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.new_project = ko.observable("");
+            self.keyProject = ko.observable("");
             self.selectedProject = ko.observable("");
             self.selectedAssoc = ko.observable("");
+            self.successAlert = ko.observable(false);
 
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
@@ -241,8 +243,11 @@ define( [
                 });
             };
 
-            self.showModal = function(modal_id) {
+            self.showModal = function(modal_id, _proj) {
                 getAllProjects();
+                if (modal_id === 'addKey') {
+                    self.keyProject(_proj);
+                }
                 $('#'+modal_id).modal('show');
             };
 
@@ -278,6 +283,7 @@ define( [
                             _assoc.edit_pillar()[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
+                        self.closeModal('addKey');
                     }
                 }
                 else if (update_type === 'delete') {

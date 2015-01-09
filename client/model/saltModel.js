@@ -193,6 +193,13 @@ define([
                         else if (showSuccess) {
                             swal("Success", "External pillar zookeeper node created.", 'success');
                         }
+                        else {
+                            // Show a successful confirmation for 1.5 seconds
+                            $('#successAlert').show();
+                            setTimeout(function() {
+                                $('#successAlert').hide();
+                            }, 1500);
+                        }
                     });
             };
 
