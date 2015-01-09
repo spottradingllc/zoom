@@ -5,6 +5,7 @@
 		<DeployXmlCM>deployLX.xml</DeployXmlCM>
 		<ProductName>Zoom</ProductName>	
 		<JiraKey>ZOOM</JiraKey>
+        <BinFolder>$(MSBuildProjectDirectory)</BinFolder>
 	</PropertyGroup>
 
 	<Import Project="$(DEV_SHARED)\Production\Build\Latest\Spot.Build.Targets.xml"/>	
