@@ -14,6 +14,7 @@ if [[ $1 == $RELEASE_ARG && $2 != '' ]]; then
 	echo "Arg1 = "$1"; BuildNumber = "$2"; BranchName = "$BranchName"; JiraVersion = "$JiraVersion
 
 	echo "*** Copy binaries and dependencies to drop folder"
+	SHARED_DRIVE_PRODUCTION_FOLDER_VERSION=${DEV_SHARED}/Production/${PRODUCT_PATH}/${PRODUCT_NAME}/${BuildNumber}-${BranchName}
 	mkdir -pv $SHARED_DRIVE_PRODUCTION_FOLDER_VERSION
 	cp -rv * $SHARED_DRIVE_PRODUCTION_FOLDER_VERSION
 	rm -v $SHARED_DRIVE_PRODUCTION_FOLDER_VERSION/build.*
