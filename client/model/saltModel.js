@@ -195,9 +195,9 @@ define([
                         }
                         else {
                             // Show a successful confirmation for 1.5 seconds
-                            $('#successAlert').show();
+                            $('#successAlert').fadeIn(250);
                             setTimeout(function() {
-                                $('#successAlert').hide();
+                                $('#successAlert').fadeOut(250);
                             }, 1500);
                         }
                     });

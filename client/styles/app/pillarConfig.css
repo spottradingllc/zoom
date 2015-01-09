@@ -41,3 +41,22 @@
        color: white;
 }
 
+.overlay {
+       z-index: 2000;
+       position: fixed;
+       width: 10%;
+       min-width: 200px;
+       margin-left: 45%;
+       margin-top: 1%;
+}
+
+/* Allows display of second modal over the first when necessary
+// Credit: http://bit.ly/1FAsS9t
+*/
+.modal-backdrop.fade.in:nth-child(2){
+       z-index: 1060 !important;
+}
+
+.second {
+       z-index: 1061 !important
+}
