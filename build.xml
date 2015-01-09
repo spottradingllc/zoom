@@ -2,8 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<DeployXmlCM>deploy.xml</DeployXmlCM>
-		<ProductName>Zoom</ProductName>	
+		<ProductName>Zoom</ProductName>
 		<JiraKey>ZOOM</JiraKey>
         <BinFolder>$(MSBuildProjectDirectory)</BinFolder>
         <ProductPath>DEVOPS\Zoom</ProductPath>
