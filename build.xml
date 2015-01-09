@@ -6,6 +6,7 @@
 		<ProductName>Zoom</ProductName>	
 		<JiraKey>ZOOM</JiraKey>
         <BinFolder>$(MSBuildProjectDirectory)</BinFolder>
+        <ProductPath>DEVOPS\Zoom</ProductPath>
 	</PropertyGroup>
 
 	<Import Project="$(DEV_SHARED)\Production\Build\Latest\Spot.Build.Targets.xml"/>	
