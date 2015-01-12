@@ -135,6 +135,8 @@ define([
                             }
                             else { // create or delete a node
                                 if (this.args.type === 'preCreate') {
+                                    // hide the modal
+                                    pillarModel.closeModal('addModal');
                                     // check if the ping is true
                                     if (!dataset[this.args.list]){
                                         validationFailure = true;
@@ -221,7 +223,12 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        if (update_type !== 'delete' && data_type !== 'node') {
+                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        }
+                        else {
+                            pillar_lookup[_assoc.name] = "";
+                        }
                     });
                 }
                 // Creating node, no _assoc

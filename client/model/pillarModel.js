@@ -45,6 +45,7 @@ define( [
             self.selectedProject = ko.observable("");
             self.selectedAssoc = ko.observable("");
             self.successAlert = ko.observable(false);
+            self.groupAction = ko.observable(false);
 
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
@@ -243,8 +244,14 @@ define( [
                 });
             };
 
-            self.showModal = function(modal_id, _proj) {
+            self.showModal = function(modal_id, _proj, groupAction) {
                 getAllProjects();
+                self.groupAction(false);
+                if (typeof groupAction !== 'undefined'){
+                    if (groupAction){
+                        self.groupAction(true);
+                    }
+                }
                 if (modal_id === 'addKey') {
                     self.keyProject(_proj);
                 }
@@ -317,12 +324,12 @@ define( [
                 var left = self.checkedNodes().length;
                 var refresh_salt = false;
 
+                // validate once, even if multiple servers since using the same data.
+                if (validateNewProject(project_name) === false) return;
+
                 if (typeof modalToHide !== "undefined") {
                     $("#"+modalToHide).modal('hide');
                 }
-
-                // validate once, even if multiple servers since using the same data.
-                if (validateNewProject(project_name) === false) return;
 
                 var doesNotAlreadyExist = function(_assoc, num_remaining) {
                     if (typeof _assoc.projects[project_name] !== "undefined") {
@@ -458,10 +465,10 @@ define( [
             self.handleAction = function(_assoc, action_type) {
                 self.selectedAssoc(_assoc);
                 if (action_type === 'existing') {
-                    self.showModal('existingModal');
+                    self.showModal('existingModal', null, true);
                 }
                 else if (action_type === 'new') {
-                    self.showModal('newModal');
+                    self.showModal('newModal', null, true);
                 }
             };
 

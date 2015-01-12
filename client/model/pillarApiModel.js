@@ -141,7 +141,7 @@ define(
                                     .done(function(data) {
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
-                                            pillarModel.loadServers();
+                                            self.loadServers();
                                             var singleItemArr = [];
                                             singleItemArr.push(this.args);
                                             pillarModel.saltModel.updateMinion(singleItemArr, 'delete', 'node', null);

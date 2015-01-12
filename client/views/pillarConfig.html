@@ -10,7 +10,7 @@
             </div>
         </div>
     </div>
-   <div id="validateVisual" class="modal fade">
+    <div id="validateVisual" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -25,7 +25,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title contrast"> Create Mapping </h3>
-                    <small class="modal-subtitle-pillar"> Create a deployment-targetable mapping for a specific host. </small>
+                    <small class="modal-subtitle-pillar contrast"> Create a deployment-targetable mapping for a specific host. </small>
 
                 </div>
                 <div class="modal-body" style="height: auto;">
@@ -38,15 +38,54 @@
                                 <div class="input-group-addon">.spottrading.com</div>
                             </div>
                         </div>
-                        <button class="btn btn-default"
-                            data-bind="click:  function() { pillarModel.saltModel.validate(pillarModel.newNodeName(), null, 'preCreate',
-                            'node', null) }, visible: pillarModel.newNodeName()">Create
-                        </button>
+                        <div class="row mt">
+                            <button class="btn btn-default" style="float: left; margin-left: 15px; "data-bind="click: function() { pillarModel.closeModal('addModal') }">
+                                Cancel
+                            </button>
+                            <button class="btn btn-success" style="float: right; margin-right: 15px;"
+                                data-bind="click:  function() { pillarModel.saltModel.validate(pillarModel.newNodeName(), null, 'preCreate',
+                                'node', null) }, visible: pillarModel.newNodeName()">Create
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="delModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title contrast"> Delete Host Mappings </h3>
+                    <small class="modal-subtitle-pillar contrast"> Delete host(s) from mapping including ALL data. </small>
+
+                </div>
+                <div class="modal-body" style="height: auto;" data-bind="with: pillarModel">
+
+                    <div data-bind="visible: checkedNodes().length > 0">
+                        <table class="table table-striped table-bordered edit">
+                            <tbody data-bind="foreach: checkedNodes()">
+                            <tr>
+                                <td data-bind="text: $data.name"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <button class="btn btn-default" data-bind="click: closeModal('delModal')" style="float: left; margin-left: 15px;">
+                            Cancel
+                        </button>
+                        <button class="btn btn-danger" data-bind="click: function() { pillarApiModel.delPillar() }" style="float: right; margin-right: 15px;">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="addKey" class="modal fade second">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -56,7 +95,7 @@
                 <div class="modal-body">
                     Add a new key:
                     <input class="form-control" type="text" placeholder="New Key Name" data-bind="textInput: pillarModel.keyProject().new_key">
-                    <button class="btn btn-success" data-bind="click: function() { pillarModel.visualUpdate('create', 'key', pillarModel.keyProject()) }">
+                    <button class="btn btn-success mt" data-bind="click: function() { pillarModel.visualUpdate('create', 'key', pillarModel.keyProject()) }">
                         Add Key
                     </button>
                 </div>
@@ -159,7 +198,7 @@
             </div>
         </div>
     </div>
-    <div id="groupExistingModal" class="modal fade">
+    <div id="existingModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -172,9 +211,12 @@
                     </small>
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
-                    <select data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'Select a project' ">
-                       </select>
-                    <form class="form-inline text-center" style="margin-top: 20px; margin-bottom: 20px;">
+                    <form class="form-inline text-center" style="margin-top: 10px; margin-bottom: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            Select an existing application:
+                            <select data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'None Selected' ">
+                            </select>
+                        </div>
                         <div class="row">
                             <div class="col-md-3"></div>
                             <div class="col-md-3">
@@ -197,60 +239,23 @@
 
                     </form>
 
-                    <div class="row">
-                    <button class="btn btn-default" style="float: left; margin-left:15px" data-bind="click: function() { closeModal('groupExistingModal') }">Cancel</button>
-                    <button class="btn btn-success" data-bind="click: function() { projectWrapper(selectedProject().proj_name, false, 'groupExistingModal') }"
-                          style="float:right; margin-right:15px">
-                        Create
-                    </button>
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="groupNewModal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title contrast">Edit Multiple Servers</h3>
-                </div>
-                <div class="modal-body" data-bind="with: pillarModel">
-                     <div>
-                        <h3>Create project <small> For ALL selected servers. Blank values will be null </small> </h3>
-                        <span> Project name: </span>
-                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
-                        <!-- ko foreach: new_pairs() -->
-                        <div class="row">
-                            <input class="form-control" type="text" placeholder="Key" data-bind="textInput: key">
-                            <input class="form-control" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
-                        </div>
-                        <!-- /ko-->
-                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), false, 'groupNewModal')}">Create</button>
+                    <div data-bind="visible: checkedNodes().length > 0">
+                        Changes will affect ALL of the following servers.
+                        <table class="table table-striped table-bordered edit">
+                            <tbody data-bind="foreach:checkedNodes()">
+                                <tr>
+                                    <td data-bind="text: $data.name"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="existingModal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                </div>
-                <div class="modal-body" data-bind="with: pillarModel">
-                    <span> Select an existing project: </span>
-                    <select data-bind="options: allProjects, optionsText: function(item) { return item.proj_name }, value: selectedProject"></select>
-                    <!-- ko foreach: new_pairs() -->
                     <div class="row">
-                        <input type="text" placeholder="Key" data-bind="textInput: key">
-                        <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                        <button class="btn btn-default" style="float: left; margin-left:15px" data-bind="click: function() { closeModal('existingModal') }">Cancel</button>
+                        <button class="btn btn-success" data-bind="click: function() { projectWrapper(selectedProject().proj_name, groupAction(), 'existingModal') }"
+                              style="float:right; margin-right:15px">
+                            Create
+                        </button>
                     </div>
-                    <!-- /ko-->
-                    <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                    <button class="btn btn-default" data-bind="click: function() {projectWrapper(selectedProject().proj_name, true, 'existingModal')}">Create</button>
                 </div>
             </div>
         </div>
@@ -260,26 +265,37 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h3 class="modal-title contrast">Add New Project/Service/Application</h3>
+                    <small class="contrast">To ALL selected hosts. Blank values will be null. Use
+                        <a href="http://json.org/example" target="_blank" style="color: orange; text-decoration: underline">
+                            JSON
+                        </a>
+                        format for values, plaintext for keys.
+                    </small>
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
                      <div>
-                        <span> Project name: </span>
-                        <input type="text" placeholder="Project Name" data-bind="textInput: new_project">
-                        <!-- ko foreach: new_pairs() -->
-                        <div class="row">
-                            <input type="text" placeholder="Key" data-bind="textInput: key">
-                            <input type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
-                        </div>
-                        <!-- /ko-->
-                        <button class="btn btn-default" data-bind="click: function() {addPair()}">Add another key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                        <button class="btn btn-default" data-bind="click: function() {projectWrapper(new_project(), true, 'newModal')}">Create</button>
+                         <form class="form-inline text-center">
+                             <span> Project name: </span>
+                             <input class="form-control" type="text" placeholder="Project Name" data-bind="textInput: new_project">
+                             <!-- ko foreach: new_pairs() -->
+                             <div class="form-group">
+                                 <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
+                                 <input class="form-control mt" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                             </div>
+                             <!-- /ko-->
+                             <button class="btn btn-danger mt mr" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                             <button class="btn btn-primary mt" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                         </form>
+                         <div class="row">
+                             <button class="btn btn-default" style="float: left; margin-left:15px" data-bind="click: function() { closeModal('existingModal') }">Cancel</button>
+                             <button class="btn btn-success" style="float: right; margin-right:15px" data-bind="click: function() {projectWrapper(new_project(), groupAction(), 'newModal')}">Create</button>
+                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
         <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
@@ -293,39 +309,46 @@
 
             <div class="row view-tabs">
                 <div class="col-md-6 text-left">
-                    <h1> Pillar Value Editor<small> v0.3 </small></h1>
+                    <h1 style="margin-top: 5px"> Pillar Value Editor<small> v0.3 </small></h1>
                     <button class="btn btn-default" data-bind="click: function() { showModal('addModal') }" type="button" title="Add Host to Map project to">
                         <span class="glyphicon glyphicon-plus"></span>
                         Add Server for Mapping
                     </button>
                 </div>
                 <div class="col-md-6 text-right"  >
-                    <h4 style="margin-right: 120px"> Group Actions: </h4>
-                    <div class="btn-group pull-right">
-                         <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
-                            <span class="glyphicon glyphicon-edit"></span>
-                            Edit
-                         </button>
-                        <button class="btn btn-default" data-bind="click: function() { showModal('groupExistingModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
-                            <span class="glyphicon glyphicon-edit"></span>
-                            Add Existing App
-                        </button>
-                        <button class="btn btn-default" data-bind="click: function() { showModal('groupNewModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
-                            <span class="glyphicon glyphicon-edit"></span>
-                            Add New App
-                        </button>
-                    </div>
+                    <form class="form-inline">
+                        <label>
+                            Group Actions
+                        </label>
+                        <div class="btn-group">
+                            <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                                <span class="glyphicon glyphicon-edit"></span>
+                                Edit
+                             </button>
+                            <button class="btn btn-default" data-bind="click: function() { showModal('existingModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                                <span class="glyphicon glyphicon-edit"></span>
+                                Add Existing App
+                            </button>
+                            <button class="btn btn-default" data-bind="click: function() { showModal('newModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                                <span class="glyphicon glyphicon-edit"></span>
+                                Add New App
+                            </button>
+                            <button class="btn btn-danger" data-bind="click: function() { showModal('delModal') }, visible: adminModel.enabled(), disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Delete Host Mapping">
+                                <span class="glyphicon glyphicon-minus"></span>
+                                Delete Mapping
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
         <div class="page-body">
-            <!--sidebar-->
             <div class="row">
                 <div id="searchPane" class="col-md-6 text-left" data-bind="visible: selectedOption() != 'Create Pillar'">
                     <div class="input-group" style="margin-bottom: 20px;">
                         <input style="min-width: 200px;" type="text"  id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
-                         valueUpdate:'afterkeydown'" placeholder="Server or project name..." autofocus="">
+                         valueUpdate:'afterkeydown'" placeholder="Server or application name..." autofocus="">
                         <span class="input-group-btn">
                             <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button"
                                     title="Clear search">
@@ -354,7 +377,7 @@
                     <thead>
                         <tr>
                             <th>
-                                Host Name (Click to View and Edit Projects)
+                                Host Name (Click to View and Edit)
                             </th>
                             <th>
                                 Projects/Services/Applications
@@ -370,8 +393,8 @@
                                     style="cursor:pointer">
 
                             </td>
-                            <td data-bind="text: $parent.projectList($data)"></td>
-                            <td>
+                            <td data-bind="text: $parent.projectList($data), click: function() { $parent.toggleEdit($data, false) }" style="cursor: pointer"></td>
+                            <td class="text-center">
                                 <div class="btn-group btn-group-xs">
                                     <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">
                                         <span data-bind="attr: { class: star }"></span>
@@ -467,20 +490,6 @@
                     </tbody>
                 </table>
             </div>
-        
-            <div id="mainPane" class="col-md-8"> 
-                <div data-bind="visible: checkedNodes().length > 0">
-                    <span> Selected servers: </span>
-                    <div data-bind="foreach: checkedNodes">
-                        <table>
-                            <tr data-bind="text: name"></tr>
-                        </table>
-                    </div>
-                    <button type="button" class="btn btn-danger"
-                            data-bind="click: function() { pillarApiModel.delPillar() }">Delete</button>
-                </div>
-            </div>
-        <!-- end main pane-->
         </div>
   
     </div>
