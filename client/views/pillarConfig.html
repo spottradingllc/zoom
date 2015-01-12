@@ -130,7 +130,7 @@
                             <caption> Click to edit </caption>
                             <thead>
                                 <tr>
-                                    <th>Server</th>
+                                    <th>Host</th>
                                     <!-- ko foreach: $data.keys() -->
                                     <th data-bind="text: $data"></th>
                                     <!-- /ko -->
@@ -152,11 +152,11 @@
                                data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
                             <thead>
                                 <tr>
-                                    <th>Server</th>
+                                    <th>Host</th>
                                     <!-- ko foreach: $data.edit_keys() -->
                                     <th>
                                         <span data-bind="text: $data"></span>
-                                        <span class="glyphicon glyphicon-minus del"
+                                        <span class="glyphicon glyphicon-minus del" title="Delete key-value pair"
                                             data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
                                         </span>
                                     </th>
@@ -240,7 +240,7 @@
                     </form>
 
                     <div data-bind="visible: checkedNodes().length > 0">
-                        Changes will affect ALL of the following servers.
+                        Changes will affect ALL of the following hosts.
                         <table class="table table-striped table-bordered edit">
                             <tbody data-bind="foreach:checkedNodes()">
                                 <tr>
@@ -276,8 +276,8 @@
                 <div class="modal-body" data-bind="with: pillarModel">
                      <div>
                          <form class="form-inline text-center">
-                             <span> Project name: </span>
-                             <input class="form-control" type="text" placeholder="Project Name" data-bind="textInput: new_project">
+                             <span> Application name: </span>
+                             <input class="form-control" type="text" placeholder="Application Name" data-bind="textInput: new_project">
                              <!-- ko foreach: new_pairs() -->
                              <div class="form-group">
                                  <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
@@ -303,8 +303,8 @@
 
     <div class="container-fluid" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
-            <div id="successAlert" class="alert alert-success overlay" role="alert" data-bind="visible: false">
-               <strong style="font-size: 30;"> Update Successful </strong>
+            <div id="successAlert" class="alert alert-success overlay text-center" role="alert" data-bind="visible: false">
+               <strong style="font-size: 20px;"> Update Successful </strong>
             </div>
 
             <div class="row view-tabs">
@@ -312,7 +312,7 @@
                     <h1 style="margin-top: 5px"> Pillar Value Editor<small> v0.3 </small></h1>
                     <button class="btn btn-default" data-bind="click: function() { showModal('addModal') }" type="button" title="Add Host to Map project to">
                         <span class="glyphicon glyphicon-plus"></span>
-                        Add Server for Mapping
+                        Add Host for Mapping
                     </button>
                 </div>
                 <div class="col-md-6 text-right"  >
@@ -321,15 +321,15 @@
                             Group Actions
                         </label>
                         <div class="btn-group">
-                            <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <button class="btn btn-default" data-bind="click: function() { showModal('groupEditModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Host Data">
                                 <span class="glyphicon glyphicon-edit"></span>
                                 Edit
                              </button>
-                            <button class="btn btn-default" data-bind="click: function() { showModal('existingModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <button class="btn btn-default" data-bind="click: function() { showModal('existingModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Host Data">
                                 <span class="glyphicon glyphicon-edit"></span>
                                 Add Existing App
                             </button>
-                            <button class="btn btn-default" data-bind="click: function() { showModal('newModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Server Data">
+                            <button class="btn btn-default" data-bind="click: function() { showModal('newModal') }, disable: pillarModel.checkedNodes().length == 0" data-placement="top" type="button" title="Group Edit Host Data">
                                 <span class="glyphicon glyphicon-edit"></span>
                                 Add New App
                             </button>
@@ -348,7 +348,7 @@
                 <div id="searchPane" class="col-md-6 text-left" data-bind="visible: selectedOption() != 'Create Pillar'">
                     <div class="input-group" style="margin-bottom: 20px;">
                         <input style="min-width: 200px;" type="text"  id="searchBox" class="form-control" data-bind="value: searchVal, text: searchVal,
-                         valueUpdate:'afterkeydown'" placeholder="Server or application name..." autofocus="">
+                         valueUpdate:'afterkeydown'" placeholder="Host or application name..." autofocus="">
                         <span class="input-group-btn">
                             <button class="btn btn-default" data-bind="click: function() {removeQuery()}" type="button"
                                     title="Clear search">
@@ -356,12 +356,12 @@
                                 Clear Query
                             </button>
                             <button class="btn btn-default" data-bind="click: function() {checkAll()}" type="button"
-                                    title="Select all visible servers, with a maximum of 8 at a time">
+                                    title="Select all visible hosts, with a maximum of 8 at a time">
                                 <span class="glyphicon glyphicon-check"></span>
                                 Check All
                             </button>
                             <button class="btn btn-default" data-bind="click: function() {uncheckAll()}" type="button"
-                                    title="Unselect ALL selected servers, not just visible ones">
+                                    title="Unselect ALL selected hosts, not just visible ones">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 Uncheck All
                                 <span class="badge" data-bind="text: checkedNodes().length"></span>
@@ -390,10 +390,11 @@
                     <tbody data-bind="foreach: queriedNodes">
                         <tr>
                             <td data-bind="text: name, click: function() { $parent.toggleEdit($data, false) }"
-                                    style="cursor:pointer">
-
+                                style="cursor:pointer" title="Click to view and edit">
                             </td>
-                            <td data-bind="text: $parent.projectList($data), click: function() { $parent.toggleEdit($data, false) }" style="cursor: pointer"></td>
+                            <td data-bind="text: $parent.projectList($data), click: function() { $parent.toggleEdit($data, false) }"
+                                style="cursor: pointer" title="Click to view and edit">
+                            </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-xs">
                                     <button class="btn btn-default" type="button" data-bind="click: function() { $parent.handleSelect($data) }">
@@ -439,11 +440,11 @@
                                            visible="$data.editing()" style="margin-bottom: 20px;">
                                         <thead>
                                             <tr>
-                                                <th class="col-sm-1">Project</th>
+                                                <th class="col-sm-1">Application</th>
                                                 <!-- ko foreach: $data.edit_keys() -->
                                                 <th class="col-sm-1">
                                                     <span data-bind="text: $data"></span>
-                                                    <span class="glyphicon glyphicon-minus del"
+                                                    <span class="glyphicon glyphicon-minus del" title="Delete key-value pair"
                                                             data-bind="click: function () { $parents[2].visualUpdate('delete', 'key', $parent,  $data) }">
                                                     </span>
                                                 </th>

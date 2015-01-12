@@ -101,7 +101,7 @@ define( [
 
             self.checkAll = function() {
                 if (self.queriedNodes().length > 8){
-                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
+                    swal("Sorry", "Please narrow-down your search results to less than 8 visible hosts.", 'error');
                     return;
                 }
                 ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
@@ -366,11 +366,11 @@ define( [
                 var alertText = "";
                 var alertTitle = "";
                 if (_proj.hasProject.length < self.checkedNodes()) {
-                    alertText = "Only " + _proj.has_project().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
+                    alertText = "Only " + _proj.has_project().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " servers?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " hosts?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -381,6 +381,7 @@ define( [
                 },
                 function(isConfirm){
                     if (isConfirm) {
+                        self.closeModal('groupEditModal');
                         if (update_type === 'delete') {
                             // need to update the edit_pillar first!
                             self.visualUpdate(update_type, data_type, _proj, key);
