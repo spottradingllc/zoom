@@ -4,8 +4,9 @@
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
 LOGTIME=`date +%H%M%S`
-APPPATH="/opt/spot/zoom/server"
-VENV_PATH="/opt/spot/zoom/venv"
+PROJ_PATH="/opt/spot/zoom"
+APPPATH="${PROJ_PATH}/server"
+VENV_PATH="${PROJ_PATH}/venv"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
 RUNLOG=$APPPATH/logs/web_stdout
@@ -99,6 +100,15 @@ function dostop()
     /bin/echo "Killed $APP"
 }
 
+function getversion () {
+    if [ -f ${PROJ_PATH}/version.txt ];
+    then
+        /usr/bin/head -n1 ${PROJ_PATH}/version.txt;
+    else
+        /bin/echo "0-Unknown";
+    fi;
+}
+
 
 case "$1" in
     start)
@@ -114,8 +124,11 @@ case "$1" in
     status)
         getstatus
     ;;
+    version)
+        getversion
+    ;;
     *)
-    echo $"Usage: $0 {start|stop|restart|status}"
+    echo $"Usage: $0 {start|stop|restart|status|version}"
     exit 1
 
 esac
