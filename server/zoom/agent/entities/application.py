@@ -356,7 +356,7 @@ class Application(object):
         """
         if self._running and \
                 not self.zkclient.exists(self._paths['zk_state_base']):
-            self.zkclient.create(self._paths['zk_state_base'])
+            self.zkclient.create(self._paths['zk_state_base'], makepath=True)
 
         data, stat = self.zkclient.get(self._paths['zk_state_base'])
 
