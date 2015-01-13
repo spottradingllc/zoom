@@ -45,7 +45,7 @@ define( [
             self.selectedProject = ko.observable("");
             self.selectedAssoc = ko.observable("");
             self.successAlert = ko.observable(false);
-            self.groupAction = ko.observable(false);
+            self.indivAction = ko.observable(false);
 
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
@@ -138,7 +138,7 @@ define( [
             };
 
             self.removePair = function() {
-                if (self.new_pairs().length > 2) {
+                if (self.new_pairs().length > 0) {
                     var remove = self.new_pairs.pop();
                     self.new_pairs.remove(remove);
                 }
@@ -244,12 +244,12 @@ define( [
                 });
             };
 
-            self.showModal = function(modal_id, _proj, groupAction) {
+            self.showModal = function(modal_id, _proj, indivAction) {
                 getAllProjects();
-                self.groupAction(false);
-                if (typeof groupAction !== 'undefined'){
-                    if (groupAction){
-                        self.groupAction(true);
+                self.indivAction(false);
+                if (typeof indivAction !== 'undefined'){
+                    if (indivAction === true){
+                        self.indivAction(true);
                     }
                 }
                 if (modal_id === 'addKey') {
