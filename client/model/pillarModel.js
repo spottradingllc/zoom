@@ -191,6 +191,15 @@ define( [
                 return ret;
             };
 
+            self.populateProjects = function(_assoc, _proj) {
+                try {
+                    _assoc.projects[_proj.proj_name]();
+                    if (_proj.hasProject().indexOf(_assoc) === -1)
+                        _proj.hasProject.push(_assoc);
+                } catch(err) {
+                }
+            };
+
             self.makeEditable = function (_assoc) {
                 // find this _assoc in checked servers...
                 var index = self.checkedNodes.indexOf(_assoc);
@@ -414,10 +423,9 @@ define( [
                         self.checkedNodes.push(_assoc);
                         _assoc.prior = true;
                         self.createObjForProjects(_assoc);
-                 /*       ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
-                            if (_proj.hasProject().indexOf(_assoc) === -1)
-                                _proj.hasProject.push(_assoc);
-                        });*/
+                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                            self.populateProjects(_assoc, _proj);
+                        });
                     }
                     else if (_assoc.prior){
                         self.checkedNodes.remove(_assoc);
@@ -425,6 +433,10 @@ define( [
                         self.selectedProjects([]);
                         ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                             addProjects(_assoc, self.selectedProjects);
+                        });
+                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                            _proj.hasProject([]);
+                            self.populateProjects(_assoc, _proj);
                         });
 
                         _assoc.prior = false;
