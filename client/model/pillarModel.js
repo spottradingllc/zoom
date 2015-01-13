@@ -414,10 +414,10 @@ define( [
                         self.checkedNodes.push(_assoc);
                         _assoc.prior = true;
                         self.createObjForProjects(_assoc);
-                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                 /*       ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
                             if (_proj.hasProject().indexOf(_assoc) === -1)
                                 _proj.hasProject.push(_assoc);
-                        });
+                        });*/
                     }
                     else if (_assoc.prior){
                         self.checkedNodes.remove(_assoc);
