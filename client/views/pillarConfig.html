@@ -116,7 +116,7 @@
                 </div>
                 <div class="modal-body" data-bind="with: pillarModel">
                     <!-- Main div for each project!!! -->
-                    <div id="eachProject" data-bind="foreach: selectedProjects()">
+                    <div data-bind="foreach: selectedProjects()">
                         <h2 data-bind="text: $data.proj_name"></h2>
                         <div data-bind="visible: $data.editing">
                             <button type="button" class="btn btn-danger"
@@ -125,7 +125,7 @@
                             </button>
                         </div>
 
-                        <table class="table table-striped table-bordered" id="mainTable" style="margin-bottom: 20px; margin-top: 20px; cursor: pointer;"
+                        <table class="table table-striped table-bordered" style="margin-bottom: 20px; margin-top: 20px; cursor: pointer;"
                             data-bind="visible: !$data.editing(), click: function () {$parent.showEdit($data)}">
                             <caption> Click to edit </caption>
                             <thead>
@@ -148,7 +148,7 @@
 
                         </table>
 
-                        <table class="table table-striped table-bordered edit" id="editTable"
+                        <table class="table table-striped table-bordered edit"
                                data-bind="visible: $data.editing" style="margin-bottom: 20px; margin-top: 20px;">
                             <thead>
                                 <tr>
@@ -435,7 +435,7 @@
                         <tr data-bind="visible: projArray().length > 0" style="background-color: #9bc2cf">
                             <td colspan="3">
                                 <!-- Main div for each project!!! -->
-                                <div id="eachProject" data-bind="foreach: projArray">
+                                <div data-bind="foreach: projArray">
 
                                     <div class="mb" data-bind="visible: $index() == 0 && $data.editing()">
                                         <button class="btn btn-default" data-bind="click: function() { $parents[1].toggleEdit($parent) }">
@@ -446,7 +446,7 @@
                                         </button>
                                     </div>
 
-                                    <table class="table table-striped table-bordered edit" id="editTable"
+                                    <table class="table table-striped table-bordered edit"
                                            visible="$data.editing()" style="margin-bottom: 20px;">
                                         <thead>
                                             <tr>

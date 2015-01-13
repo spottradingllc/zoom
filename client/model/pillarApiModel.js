@@ -61,9 +61,7 @@ define(
                         swal("failed to create", JSON.stringify(data), 'error');
                     })
                     .done(function(data) {
-                        var singleItem = "";
-                        singleItem = node;
-                        pillarModel.saltModel.updateMinion(singleItem, 'postCreate', 'node', null);
+                        pillarModel.saltModel.updateMinion(node, 'postCreate', 'node', null);
                         self.loadServers();
                     });
             };
