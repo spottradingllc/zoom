@@ -126,6 +126,10 @@ define([
                                             validationFailure = true;
                                             errorMsg = "Salt pillar and updated pillar do not match, manual refresh required";
                                         }
+                                        // Override validation failure of empty object if that's what we expect
+                                        if ($.isEmptyObject(expected_pillar) && $.isEmptyObject(zkPillar)) {
+                                            validationFailure = false;
+                                        }
                                     }
                                 }
                             }
@@ -150,6 +154,7 @@ define([
                                             validationFailure = true;
                                             errorMsg = "ZK Pillar was not deleted";
                                         }
+                                        else validationFailure = false;
                                     }
                                 }
                                 else if (this.args.type === 'postCreate') {
@@ -180,6 +185,8 @@ define([
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
 
+                        pillarModel.refreshEdit();
+
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
                         }
@@ -189,18 +196,14 @@ define([
                     });
             };
 
-            self.updateMinion = function(array_to_update, single_update, update_type, data_type, project) {
+            self.updateMinion = function(array_to_update, update_type, data_type, project) {
                 var all = "";
                 var first = true;
 
                 var pillar_lookup = {};
 
-                // creating a single node...
-                if (single_update) {
-                    all = array_to_update;
-                }
-                else {
-                    array_to_update.forEach(function(_assoc) {
+                if (typeof array_to_update !== 'string') {
+                    array_to_update.forEach(function (_assoc) {
                         // create a salt-readable list for sending through the API
                         if (!first) {
                             all += "," + _assoc.name;
@@ -211,8 +214,12 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        pillar_lookup[_assoc.name] = _assoc.edit_pillar;
+                        pillar_lookup[_assoc.name] = _assoc.edit_pillar();
                     });
+                }
+                // Creating node, no _assoc
+                else {
+                    all = array_to_update;
                 }
 
                 $('#loadVisual').modal('show');
@@ -233,6 +240,7 @@ define([
                     headers: {'Accept': 'application/json'}
                 })
                     .fail(function(data) {
+                        console.log(data);
                         $('#loadVisual').modal('hide');
                         swal("Critical", "Salt was not able to update - pillar will not be applied", 'error');
                     })
