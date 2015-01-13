@@ -16,5 +16,47 @@
        background-color: #FFF;
 }
 
+/* margin-top correction */
+.mt {
+       margin-top: 10px;
+}
 
+/* margin right correction */
+.mr {
+       margin-right: 10px;
+}
 
+.mb {
+       margin-bottom: 5px;
+}
+
+/* Delete minus sign next to each key */
+.del {
+       float: right;
+       color: #d9534f;
+       cursor: pointer;
+}
+
+.contrast {
+       color: white;
+}
+
+.overlay {
+       z-index: 2000;
+       position: fixed;
+       width: 10%;
+       min-width: 200px;
+       margin-left: 41%;
+       margin-top: 1%;
+}
+
+/* Allows display of second modal over the first when necessary
+// Credit: http://bit.ly/1FAsS9t
+*/
+.modal-backdrop.fade.in:nth-child(2){
+       z-index: 1060 !important;
+}
+
+.second {
+       z-index: 1061 !important
+}
