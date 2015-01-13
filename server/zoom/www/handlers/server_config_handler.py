@@ -1,8 +1,8 @@
 import json
 import logging
-import os
 import tornado.ioloop
 import tornado.web
+
 from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 
@@ -62,7 +62,6 @@ class ServerConfigHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, server):
         logging.info('Searching for server {0}'.format(server))
-        server = server.upper()
         path = zk_path_join(self.agent_configuration_path, server)
 
         # get tuple (value, ZnodeStat) if the node exists

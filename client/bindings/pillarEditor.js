@@ -3,7 +3,16 @@ define(
         'knockout',
         'jquery'
     ], 
-    function(ko, $) { 
+    function(ko, $) {
+        var getPillarModel = function(bindingContext) {
+            if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
+                return bindingContext.$parents[2];
+            }
+            else {
+                return bindingContext.$parents[3];
+            }
+        };
+
         ko.bindingHandlers.updateEdit = {
             init: function(element, valueAccessor, allBindings) {
                 $(element).focus(function() {
@@ -17,12 +26,7 @@ define(
             },
             update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var editing = ko.unwrap(valueAccessor());
-                if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
-                    var pillarModel = bindingContext.$parents[2];
-                }
-                else {
-                    var pillarModel = bindingContext.$parents[3];
-                }
+                var pillarModel = getPillarModel(bindingContext);
                 if (editing) {
                     pillarModel.tableEditing = true;
                 }
@@ -50,8 +54,6 @@ define(
                         pillarModel.queriedNodes()[assocIndex].edit_pillar()[project][key] = parsed;
                     }
 
-
-
                 }
                 if (!editing && pillarModel.tableEditing) {
                     // tell all others that we're done editing
@@ -65,14 +67,8 @@ define(
             update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
                 // have to use the valueaccessor in order for update to be called
                 var edit = ko.unwrap(valueAccessor());
-                // check what getvalues returns first
-                // equiv of the pillarModel
-                if (bindingContext.$parents[2].constructor.name === 'pillarModel') {
-                    var pillarModel = bindingContext.$parents[2];
-                }
-                else {
-                    var pillarModel = bindingContext.$parents[3];
-                }
+                var pillarModel = getPillarModel(bindingContext);
+
                 element.text = pillarModel.getValues(bindingContext.$parent, bindingContext.$parents[1], bindingContext.$data);
                 if (element.text !== "Project Does Not Exist" && element.text !== "Select a project") {
                     var project = bindingContext.$parents[1].proj_name;

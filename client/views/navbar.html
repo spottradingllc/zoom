@@ -22,10 +22,18 @@
                             <strong class="caret"></strong>
                         </a>
                         <div class="dropdown-menu navbar-drop" aria-labelledby="adminDropDown">
-                            <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success"> 
+                            <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success">
                                 Disable Admin </button>
                             <button data-bind="click: function() { admin.enable() }, visible: !admin.enabled()" class="btn btn-danger"> 
                                 Enable Admin </button>
+                             <button data-bind="click: function(){ router.navigate('#tools', {trigger: true })}"
+                                     class="btn btn-success"
+                                     style="margin-top: 10px">
+                                ZK Tools
+                             </button>
+
+
+
                         </div>
                     </li>
                     <li class="dropdown">
@@ -65,7 +73,7 @@
                                         style="width: 200px"
                                         type="password"
                                         placeholder="password"
-                                        class="form-control" rel="popover" data-content="Incorrect Password" data-placement="bottom">
+                                        class="form-control" rel="popover" data-placement="left">
 
                                 </div>
                                 <div style="padding: 5px 5px 5px 5px">

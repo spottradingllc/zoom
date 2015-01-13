@@ -129,29 +129,28 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                if (self.groupControl().length > 1) {
-                    if (self.options.com === 'restart' && !self.forceRestart()) {
-                        // dep_restart
-                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
-                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
-                        self.checkDown();
-                    }
-                    else {
-                        self.executeGroupControl(self.options);
-                    }
-                }
                 // Command send to single server
-                else {
+                if (!self.groupMode()){
                     if (self.options.com === 'restart' && !self.forceRestart()) {
                         // dep_restart
                         self.executeSingleControl({'com': 'ignore', 'clear_group': true});
                         self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                        self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
+                        self.checkStopped();
                     }
                     else {
                         self.executeSingleControl(self.options);
                     }
-
+                }
+                else {
+                    if (self.options.com === 'restart' && !self.forceRestart()) {
+                        // dep_restart
+                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
+                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
+                        self.checkStopped();
+                    }
+                    else {
+                        self.executeGroupControl(self.options);
+                    }
                 }
 
                 $('#groupCheckModal').modal('hide');
@@ -224,14 +223,40 @@ define(
 
             // Checks if all groupControl services are down. Used in self.determineAndExecute
             var interval = 0;
-            self.checkDown = function() {
+            self.checkStopped = function() {
                 clearInterval(interval);
-                var alldown = ko.utils.arrayFirst(self.groupControl(), function(item) {
-                    return item.applicationStatus() !== 'stopped';
-                });
-                if (alldown) {
-                    interval = setInterval(self.checkDown, 5000);
+
+                if (!self.groupMode()) {
+                    var clickedAppState = self.getClickedAppState()
+                    // true if app is not stopped and false if app is stopped
+                    appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
+                }
+                else{
+                    var appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
+                        return item.applicationStatus() !== 'stopped';
+                    });
+                }
+
+                if (appsNotStopped) {
+                    interval = setInterval(self.checkStopped, 5000);
                 } else {
+                    // all selected apps stopped
+                    self.sendDepRestart()
+                }
+            };
+
+            self.sendDepRestart = function() {
+                // needs to sleep so that stop command gets put into the agent's queue first
+                // TODO: a better alternative to ensure stop gets called first
+                self.sleep(500)
+                if (!self.groupMode()){
+                    self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
+                }
+                // no need to send swal alert for single service. Just send dep_restart right away
+                else if (self.groupControl().length === 1){
+                     self.executeGroupControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
+                }
+                else{
                     swal('Dependency Restart', 'All selected applications are now shut down. These applications will react to changes in ZooKeeper and start up organically.');
                     self.executeGroupControl({'com': 'dep_restart', 'arg': false, 'clear_group': true});
                 }
@@ -245,6 +270,20 @@ define(
                     }
                 }
             };
+
+            // Returns the Application State of the single service to check if the status is down
+            // before sending a dep_restart to avoid race condition
+            self.getClickedAppState = function() {
+                var clickedAppState
+                ko.utils.arrayForEach(self.applicationStateArray(), function(item){
+                    if (item.componentId == self.clickedApp().componentId){
+                        clickedAppState = item
+                    }
+                })
+                // TODO: if clickedAppState is empty
+                return clickedAppState
+            };
+
 
             self.clearGroupControl = function() {
                 ko.utils.arrayForEach(self.applicationStateArray(), function(applicationState) {
@@ -438,6 +477,7 @@ define(
                         row.lastCommand(update.last_command);
                         row.pdDisabled(update.pd_disabled);
                         row.grayed(update.grayed);
+                        row.platform(update.platform);
                     }
                     else {
                         // add new item to array

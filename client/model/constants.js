@@ -59,6 +59,11 @@ define([], function () {
         zkPaths: {
             statePath: '/spot/software/state/',
             appStatePath: '/spot/software/state/application/'
+        },
+
+        platform: {
+            linux: 0,
+            windows: 1
         }
     };
 });

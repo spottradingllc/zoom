@@ -42,9 +42,9 @@ define([
 
         self.createRequirementsDict = function(appState) {
             var name = appState.configurationPath.substring(appState.configurationPath.indexOf('application/') + 'application/'.length);
-            // this is either an app that requires nothing or
-            // a fake app state created from outside the ../state/application tree (doesn't have all the needed attributes of a real state)
-            if (typeof appState.dependencyModel === 'undefined' || appState.dependencyModel.requires().length === 0) {
+            // This is a fake app state created from outside the ../state/application tree
+            // (doesn't have all the needed attributes of a real state)
+            if (typeof appState.dependencyModel === 'undefined') {
                 return {
                     name: name,
                     status: appState.applicationStatus(),
@@ -144,10 +144,10 @@ define([
                 if (left.grayed()) { return 1; } // if app is disabled, push to bottom
                 else if (left.applicationStatus() === right.applicationStatus()) {
                     if (left.dependencyModel.requirementsAreUp() === right.dependencyModel.requirementsAreUp()) {
-                        if (left.configurationPath < right.configurationPath) {
+                        if (left.configurationPath.toLowerCase() < right.configurationPath.toLowerCase()) {
                             return -1;
                         }
-                        else if (left.configurationPath > right.configurationPath) {
+                        else if (left.configurationPath.toLowerCase() > right.configurationPath.toLowerCase()) {
                             return 1;
                         }
                         else {

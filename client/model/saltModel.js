@@ -14,26 +14,16 @@ define([
             var onSuccess = function(data) {
                 try {
                     saltParams = data.salt;
-                    if (environment.env().toLowerCase() === environment.envType.stg) {
-                        saltMaster = saltParams.staging;
-                    }
-                    // UAT and Production both point to the Production Salt Master
-                    else if (environment.env().toLowerCase() === environment.envType.uat ||
-                        environment.env().toLowerCase() === environment.envType.prod) {
-                        saltMaster = saltParams.production;
-                    }
-                    else {
-                        swal("Error", "Environment not set", 'error');
-                    }
+                    saltMaster = saltParams.uri;
                 } catch(err) {
                     swal("Error", "Unable to parse Salt API parameters", 'error');
                 }
-            }
+            };
 
             var onFailure = function(data) {
                 swal("Error", "Unable to retrieve Salt API parameters", 'error');
                 console.log(data);
-            }
+            };
                 
             service.get('api/saltmaster/', onSuccess, onFailure);
 
@@ -145,6 +135,8 @@ define([
                             }
                             else { // create or delete a node
                                 if (this.args.type === 'preCreate') {
+                                    // hide the modal
+                                    pillarModel.closeModal('addModal');
                                     // check if the ping is true
                                     if (!dataset[this.args.list]){
                                         validationFailure = true;
@@ -203,6 +195,13 @@ define([
                         else if (showSuccess) {
                             swal("Success", "External pillar zookeeper node created.", 'success');
                         }
+                        else {
+                            // Show a successful confirmation for 1.5 seconds
+                            $('#successAlert').fadeIn(250);
+                            setTimeout(function() {
+                                $('#successAlert').fadeOut(250);
+                            }, 1500);
+                        }
                     });
             };
 
@@ -224,7 +223,12 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        if (update_type !== 'delete' && data_type !== 'node') {
+                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        }
+                        else {
+                            pillar_lookup[_assoc.name] = "";
+                        }
                     });
                 }
                 // Creating node, no _assoc

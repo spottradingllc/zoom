@@ -41,8 +41,11 @@ define( [
             self.newNodeName= ko.observable("").extend({uppercase: true});
             self.selectedOption = ko.observable("Modify Pillar(s)").extend({rateLimit: 100});
             self.new_project = ko.observable("");
+            self.keyProject = ko.observable("");
             self.selectedProject = ko.observable("");
             self.selectedAssoc = ko.observable("");
+            self.successAlert = ko.observable(false);
+            self.indivAction = ko.observable(false);
 
             self.pillarApiModel = new pillarApiModel(self);
             self.saltModel = new saltModel(self);
@@ -85,9 +88,20 @@ define( [
                 });
             };
 
+            self.updateSelected = ko.computed({
+                read: function() {
+                    return self.selectedProject;
+                },
+                write: function(newVal) {
+                    if (newVal) {
+                        self.selectedProject(newVal);
+                    }
+                }
+            });
+
             self.checkAll = function() {
                 if (self.queriedNodes().length > 8){
-                    swal("Sorry", "Please narrow-down your search results to less than 8 visible servers.", 'error');
+                    swal("Sorry", "Please narrow-down your search results to less than 8 visible hosts.", 'error');
                     return;
                 }
                 ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
@@ -124,7 +138,7 @@ define( [
             };
 
             self.removePair = function() {
-                if (self.new_pairs().length > 2) {
+                if (self.new_pairs().length > 0) {
                     var remove = self.new_pairs.pop();
                     self.new_pairs.remove(remove);
                 }
@@ -239,9 +253,22 @@ define( [
                 });
             };
 
-            self.showModal = function(modal_id) {
+            self.showModal = function(modal_id, _proj, indivAction) {
                 getAllProjects();
+                self.indivAction(false);
+                if (typeof indivAction !== 'undefined'){
+                    if (indivAction === true){
+                        self.indivAction(true);
+                    }
+                }
+                if (modal_id === 'addKey') {
+                    self.keyProject(_proj);
+                }
                 $('#'+modal_id).modal('show');
+            };
+
+            self.closeModal = function(modal_id) {
+                $('#'+modal_id).modal('hide');
             };
 
             self.cancelEditing = function(obj, group) {
@@ -272,6 +299,7 @@ define( [
                             _assoc.edit_pillar()[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
+                        self.closeModal('addKey');
                     }
                 }
                 else if (update_type === 'delete') {
@@ -305,12 +333,12 @@ define( [
                 var left = self.checkedNodes().length;
                 var refresh_salt = false;
 
+                // validate once, even if multiple servers since using the same data.
+                if (validateNewProject(project_name) === false) return;
+
                 if (typeof modalToHide !== "undefined") {
                     $("#"+modalToHide).modal('hide');
                 }
-
-                // validate once, even if multiple servers since using the same data.
-                if (validateNewProject(project_name) === false) return;
 
                 var doesNotAlreadyExist = function(_assoc, num_remaining) {
                     if (typeof _assoc.projects[project_name] !== "undefined") {
@@ -321,11 +349,12 @@ define( [
                     else return true;
                 };
                 if (single === true) {
-                    doesNotAlreadyExist(self.selectedAssoc());
-                    JSONcreateProject(self.selectedAssoc(), project_name);
-                    var singleItemArr = [];
-                    singleItemArr.push(self.selectedAssoc());
-                    self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
+                    if (doesNotAlreadyExist(self.selectedAssoc())){
+                        JSONcreateProject(self.selectedAssoc(), project_name);
+                        var singleItemArr = [];
+                        singleItemArr.push(self.selectedAssoc());
+                        self.pillarApiModel.api_post_json(self.selectedAssoc(), true, singleItemArr, 'project', project_name);
+                    }
                 }
                 else {
                     ko.utils.arrayForEach(self.checkedNodes(), function (_assoc) {
@@ -345,12 +374,12 @@ define( [
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (_proj.hasProject().length < self.checkedNodes()) {
-                    alertText = "Only " + _proj.hasProject().length + " server(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
+                if (_proj.hasProject.length < self.checkedNodes()) {
+                    alertText = "Only " + _proj.has_project().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " servers?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " hosts?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -361,6 +390,7 @@ define( [
                 },
                 function(isConfirm){
                     if (isConfirm) {
+                        self.closeModal('groupEditModal');
                         if (update_type === 'delete') {
                             // need to update the edit_pillar first!
                             self.visualUpdate(update_type, data_type, _proj, key);
@@ -452,10 +482,10 @@ define( [
             self.handleAction = function(_assoc, action_type) {
                 self.selectedAssoc(_assoc);
                 if (action_type === 'existing') {
-                    self.showModal('existingModal');
+                    self.showModal('existingModal', null, true);
                 }
                 else if (action_type === 'new') {
-                    self.showModal('newModal');
+                    self.showModal('newModal', null, true);
                 }
             };
 
@@ -472,6 +502,7 @@ define( [
                         _assoc.projArray.push(new_proj);
                     });
                     self.editingNodes.push(_assoc);
+                    self.showEditInline(_assoc);
                 }
                 else {
                     self.editingNodes.remove(_assoc);

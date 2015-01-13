@@ -8,7 +8,20 @@ from xml.etree import ElementTree
 from zoom.common.types import PlatformType
 
 
-def setup_logging():
+def parse_args():
+    ap = ArgumentParser()
+    ap.add_argument('-v', '--verbose', action='store_true',
+                    help='Enable verbose logging.')
+    ap.add_argument('-p', '--port', type=int, default=9000,
+                    help='Which port the REST server should listen on. '
+                         'Default=9000')
+    return ap.parse_args()
+
+
+def setup_logging(verbose=False):
+    """
+    :type verbose: bool
+    """
     if not os.path.exists('logs'):
         os.mkdir('logs')
 
@@ -20,10 +33,8 @@ def setup_logging():
     handler.setFormatter(fmt)
 
     logger = logging.getLogger('')
-    ap = ArgumentParser()
-    ap.add_argument('-v', '--verbose', action='store_true')
-    args = ap.parse_args()
-    if args.verbose:
+
+    if verbose:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)

@@ -1,6 +1,5 @@
 import logging
 import json
-import os.path
 
 from threading import Thread
 from kazoo.exceptions import NoNodeError, SessionExpiredError

@@ -6,17 +6,20 @@ class PagerDuty(object):
     """
     Create or resolve PagerDuty alerts.
     """
-    def __init__(self, subdomain, organization_token, default_svc_key):
+    def __init__(self, subdomain, organization_token, default_svc_key,
+                 alert_footer=''):
         """
         :type subdomain: str
         :type organization_token: str
         :type default_svc_key: str
+        :type alert_footer: str
         """
         self._log = logging.getLogger('pagerduty')
         self._pager = pygerduty.PagerDuty(subdomain,
                                           api_token=organization_token)
         self._org_token = organization_token
         self._default_svc_key = default_svc_key  # Zoom Service api key
+        self._alert_footer = alert_footer
 
     def trigger(self, svc_key, incident_key, description, details):
         """
@@ -25,6 +28,7 @@ class PagerDuty(object):
         :type description: str
         :type details: str
         """
+        full_details = details + '\n' + self._alert_footer
         try:
             if svc_key is None:
                 svc_key = self._default_svc_key
@@ -34,7 +38,7 @@ class PagerDuty(object):
             self._pager.trigger_incident(service_key=svc_key,
                                          incident_key=incident_key,
                                          description=description,
-                                         details=details)
+                                         details=full_details)
         except Exception as ex:
             self._log.error('An Exception occurred trying to trigger incident '
                             'with key {0}: {1}'.format(incident_key, ex))

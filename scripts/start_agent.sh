@@ -19,8 +19,9 @@
 APP="ZKagent"
 LOGDATE=`date +%C%y%m%d`
 LOGTIME=`date +%H%M%S`
-APPPATH="/opt/spot/zoom/server"
-VENV_PATH="/opt/spot/zoom/venv"
+PROJ_PATH="/opt/spot/zoom"
+APPPATH="${PROJ_PATH}/server"
+VENV_PATH="${PROJ_PATH}/venv"
 STARTCMD="python sentinel.py"
 TIMEOUT=30
 RUNLOG=$APPPATH/logs/stdout
@@ -126,6 +127,16 @@ function post () {
     fi;
 }
 
+function getversion () {
+    if [ -f ${PROJ_PATH}/version.txt ];
+    then
+        /usr/bin/head -n1 ${PROJ_PATH}/version.txt;
+    else
+        /bin/echo "0-Unknown";
+    fi;
+}
+
+
 case "$1" in
     start)
 	dostart
@@ -150,8 +161,11 @@ case "$1" in
     ignore)
         post "ignore"
     ;;
+    version)
+        getversion
+    ;;
     *)
-    echo $"Usage: $0 {start|startv|stop|restart|status|react|ignore}"
+    echo $"Usage: $0 {start|startv|stop|restart|status|react|ignore|version}"
     exit 1
 
 esac

@@ -27,9 +27,11 @@ class DataStore(object):
         self._task_server = task_server
         self._alert_exceptions = list()
 
-        self._pd = PagerDuty(self._configuration.pagerduty_subdomain,
-                             self._configuration.pagerduty_api_token,
-                             self._configuration.pagerduty_default_svc_key)
+        self._pd = \
+            PagerDuty(self._configuration.pagerduty_subdomain,
+                      self._configuration.pagerduty_api_token,
+                      self._configuration.pagerduty_default_svc_key,
+                      alert_footer=self._configuration.pagerduty_alert_footer)
 
         self._alert_manager = AlertManager(configuration.alert_path,
                                            zoo_keeper, self._pd,

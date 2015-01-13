@@ -38,7 +38,6 @@ class PredicateHealth(SimplePredicate):
         if self._started is False:
             self._log.debug('Starting {0}'.format(self))
             self._started = True
-            self._log.info('Starting {0}'.format(self))
             self._thread.start()
         else:
             self._log.debug('Already started {0}'.format(self))

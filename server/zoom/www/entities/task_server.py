@@ -72,7 +72,7 @@ class TaskServer(object):
         try:
             data, stat = self._zookeeper.get(event.path)
             task = Task.from_json(data)
-            if task.result == ApplicationState.OK:
+            if task.result is not None:
                 self._remove(task, event.path)
                 self._submit_next(task.host)
 

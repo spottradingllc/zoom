@@ -61,9 +61,7 @@ define(
                         swal("failed to create", JSON.stringify(data), 'error');
                     })
                     .done(function(data) {
-                        var singleItem = "";
-                        singleItem = node;
-                        pillarModel.saltModel.updateMinion(singleItem, 'postCreate', 'node', null);
+                        pillarModel.saltModel.updateMinion(node, 'postCreate', 'node', null);
                         self.loadServers();
                     });
             };
@@ -141,7 +139,7 @@ define(
                                     .done(function(data) {
                                         if (left === 1) {
                                             swal("Delete successful", "Pillar(s) deleted", 'success');
-                                            pillarModel.loadServers();
+                                            self.loadServers();
                                             var singleItemArr = [];
                                             singleItemArr.push(this.args);
                                             pillarModel.saltModel.updateMinion(singleItemArr, 'delete', 'node', null);
@@ -285,7 +283,7 @@ define(
             };
 
             var onFailure = function() {
-                console.log('failed to get list of servers');
+                swal("Error", "failed to get list of servers", 'error');
             };
 
             self.loadServers = function () {

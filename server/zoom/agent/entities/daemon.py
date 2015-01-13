@@ -33,13 +33,15 @@ from zoom.agent.util.helpers import get_system
 
 
 class SentinelDaemon(object):
-    def __init__(self):
+    def __init__(self, port):
         """
         Read config and spawn child processes.
+        :type port: int
         """
         self._log = logging.getLogger('sent.daemon')
         self._log.info('Creating Sentinel')
 
+        self._port = port
         self.children = dict()
         self._settings = ThreadSafeObject(dict())
         self._system = get_system()
@@ -73,7 +75,7 @@ class SentinelDaemon(object):
 
     def __enter__(self):
         logging.info('Starting Sentinel')
-        self._rest_server.listen('9000')
+        self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
 
     def __exit__(self, exc_type, exc_val, exc_tb):

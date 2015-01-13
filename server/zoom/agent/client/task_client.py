@@ -1,5 +1,5 @@
 import logging
-import platform
+import socket
 import time
 
 from kazoo.exceptions import NoNodeError
@@ -14,13 +14,13 @@ class TaskClient(object):
         """
         :type children: dict
         :type zkclient: kazoo.client.KazooClient
-        :type settings: dict
+        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self._log = logging.getLogger('sent.task_client')
         self._children = children
         self.zkclient = zkclient
         self._settings = settings
-        self._host = platform.node()
+        self._host = socket.getfqdn()
 
         # this is to handle a race condition
         while not settings.get('ZK_TASK_PATH'):

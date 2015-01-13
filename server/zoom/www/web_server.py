@@ -4,7 +4,6 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
@@ -25,6 +24,7 @@ from zoom.www.handlers.service_info_handler import ServiceInfoHandler
 from zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
 from zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
+from zoom.www.handlers.tools_refactor_paths import ToolsRefactorPathHandler
 
 
 
@@ -77,6 +77,8 @@ class WebServer(tornado.web.Application):
             (r"/api/saltmaster/", SaltMasterHandler),
             # zookeeper data
             (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
+            # zookeeper tools
+            (r"/tools/refactor_path/", ToolsRefactorPathHandler),
             # tornado-specific
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": ""}),
             (r'/front-end/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.client_path}),

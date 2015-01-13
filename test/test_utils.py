@@ -19,6 +19,7 @@ class ConfigurationMock:
         self.pagerduty_subdomain = "sub"
         self.pagerduty_api_token = "token"
         self.pagerduty_default_svc_key = "key"
+        self.pagerduty_alert_footer = "footer"
         self.alert_path = "/path"
 
 
