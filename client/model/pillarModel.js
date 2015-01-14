@@ -61,7 +61,6 @@ define( [
                 self.projects = {};
                 self.projArray = ko.observableArray([]);
                 self.star = ko.observable(constants.glyphs.emptyStar);
-                self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
                 self.prior = false;
             };
@@ -74,15 +73,11 @@ define( [
                 self.hasProject = ko.observableArray([]);
                 self.new_key = ko.observable("");
                 self.editing = ko.observable(false);
-                // need a way of keeping track of the number of servers
-                // which have that project, when it reaches zero: remove
-                self.freq = 0;
             };
 
             self.uncheckAll = function() {
                 self.checkedNodes([]);
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
-                    _assoc.checked(false);
                     _assoc.star(constants.glyphs.emptyStar);
                     _assoc.prior = false;
                 });
@@ -415,13 +410,11 @@ define( [
                     var found = false;
                     for (var i in koArray()) {
                         if (koArray()[i].proj_name === proj_name) {
-                            koArray()[i].freq++;
                             found = true;
                         }
                     }
                     if (!found) {
                         var new_proj = new self._proj(proj_name);
-                        new_proj.freq = 1;
                         $.each(keyVals, function(key) {
                             new_proj.keys.push(key);
                         });
@@ -447,36 +440,36 @@ define( [
             };
 
             self.handleSelect = function(_assoc) {
-                    if (!_assoc.prior){
+                if (!_assoc.prior){
+                    addProjects(_assoc, self.selectedProjects);
+                    _assoc.star(constants.glyphs.filledStar);
+                    self.checkedNodes.push(_assoc);
+                    _assoc.prior = true;
+                    self.createObjForProjects(_assoc);
+                    ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                        self.populateProjects(_assoc, _proj);
+                    });
+                }
+                else if (_assoc.prior){
+                    self.checkedNodes.remove(_assoc);
+                    //TODO: significant performance hit
+                    self.selectedProjects([]);
+                    ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                         addProjects(_assoc, self.selectedProjects);
-                        _assoc.star(constants.glyphs.filledStar);
-                        self.checkedNodes.push(_assoc);
-                        _assoc.prior = true;
-                        self.createObjForProjects(_assoc);
-                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
-                            self.populateProjects(_assoc, _proj);
-                        });
-                    }
-                    else if (_assoc.prior){
-                        self.checkedNodes.remove(_assoc);
-                        //TODO: significant performance hit
-                        self.selectedProjects([]);
-                        ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                            addProjects(_assoc, self.selectedProjects);
-                        });
-                        ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
-                            _proj.hasProject([]);
-                            self.populateProjects(_assoc, _proj);
-                        });
+                    });
+                    ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                        _proj.hasProject([]);
+                        self.populateProjects(_assoc, _proj);
+                    });
 
-                        _assoc.prior = false;
-                        // if this is the last to be un-checked, reset all fields
-                        if (self.checkedNodes().length === 0){
-                            resetFields();
-                        }
-                        _assoc.star(constants.glyphs.emptyStar);
-
+                    _assoc.prior = false;
+                    // if this is the last to be un-checked, reset all fields
+                    if (self.checkedNodes().length === 0){
+                        resetFields();
                     }
+                    _assoc.star(constants.glyphs.emptyStar);
+
+                }
             };
 
             self.handleAction = function(_assoc, action_type) {

@@ -66,7 +66,7 @@ define([
                         run_func = "pillar.items";
                     }
                     else if (update_type === 'delete') {
-                        run_func = "pillar.items"
+                        run_func = "pillar.items";
                     }
                 }
 
@@ -223,12 +223,13 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        if (update_type !== 'delete' && data_type !== 'node') {
-                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
-                        }
-                        else {
+                        if (update_type === 'delete' && data_type === 'node'){
                             pillar_lookup[_assoc.name] = "";
                         }
+                        else {
+                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        }
+
                     });
                 }
                 // Creating node, no _assoc

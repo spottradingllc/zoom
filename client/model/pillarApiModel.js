@@ -97,7 +97,6 @@ define(
                         .done(function(data) {
                             // if the last one, notify on it only
                             if (num_left === 1) {
-                                swal("Success", "Successfully deleted", 'success');
                                 pillarModel.saltModel.updateMinion(_proj.hasProject(), 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
@@ -153,7 +152,7 @@ define(
 
             // Makes sure that the checked nodes are updated with the latest data after a change
             self.updateChecked = function() {
-                ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_alloc) {
+                ko.utils.arrayForEach(pillarModel.allNodes(), function(_alloc) {
                     $.ajax({
                         url: pillarURI + _alloc.name,
                         type: "GET"
@@ -177,32 +176,19 @@ define(
                             }
                         });
                 });
-                ko.utils.arrayForEach(pillarModel.editingNodes(), function(_alloc) {
-                    $.ajax({
-                        url: pillarURI + _alloc.name,
-                        type: "GET"
-                    })
-                        .fail(function(data) {
-                            swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
-                        })
-                        .done(function(data) {
-                            // does_not_exist is set, returned from the API, makes sure that we delete
-                            // when a minion no longer exists.
-                            if (data.DOES_NOT_EXIST) {
-                                pillarModel.allNodes.remove(_alloc);
-                                pillarModel.editingNodes.remove(_alloc);
-                            }
-                            else {
-                                var index = pillarModel.allNodes.indexOf(_alloc);
-                                _alloc.pillar(data);
-                                pillarModel.createObjForProjects(_alloc);
-                                pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                //pillarModel.refreshTable(_alloc);
-                            }
-                        });
-                });
-                pillarModel.allNodes.valueHasMutated();
+                var copy = [];
+                $.extend(true, copy, pillarModel.checkedNodes());
+                for(var i in copy) {
+                //ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_assoc) {
+                    copy[i].pillar(copy[i].edit_pillar());
+                    pillarModel.handleSelect(copy[i]);
+                    copy[i].prior = false;
+                    pillarModel.handleSelect(copy[i]);
+                }
+                pillarModel.checkedNodes([]);
+                pillarModel.checkedNodes(copy);
             };
+
 
             // objOrName is either the name of the node to retrieve or the _assoc object
             self.getPillar = function(objOrName, create_new) {

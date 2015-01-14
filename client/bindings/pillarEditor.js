@@ -46,12 +46,17 @@ define(
                             return;
                         }
                     }
-                    // keep it at null if nothing is there 
-                    if (element.value !== "" && hasProjectIndex !== -1) {
-                        pillarModel.checkedNodes()[hasProjectIndex].edit_pillar()[project][key] = parsed;
-                    }
-                    if (element.value !== "" && assocIndex !== -1) {
-                        pillarModel.queriedNodes()[assocIndex].edit_pillar()[project][key] = parsed;
+
+                    try {
+                        // keep it at null if nothing is there
+                        if (element.value !== "" && hasProjectIndex !== -1) {
+                            pillarModel.checkedNodes()[hasProjectIndex].edit_pillar()[project][key] = parsed;
+                        }
+                        if (element.value !== "" && assocIndex !== -1) {
+                            pillarModel.queriedNodes()[assocIndex].edit_pillar()[project][key] = parsed;
+                        }
+                    }catch (err) {
+                        //TODO: ignore - may not be updated
                     }
 
                 }
