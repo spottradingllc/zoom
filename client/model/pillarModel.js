@@ -76,11 +76,10 @@ define( [
             };
 
             self.uncheckAll = function() {
-                self.checkedNodes([]);
-                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
-                    _assoc.star(constants.glyphs.emptyStar);
-                    _assoc.prior = false;
+                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
+                    self.handleSelect(_assoc, true);
                 });
+                self.checkedNodes([]);
             };
 
             self.updateSelected = ko.computed({
@@ -109,13 +108,19 @@ define( [
                 $.each(_assoc.pillar(), function(proj_name) {
                     project_list.push(proj_name);
                 });
-                return project_list.join(", ");
+                if (project_list.length === 0) {
+                    return "NO APPLICATIONS - add app to edit.";
+                }
+                else {
+                    return project_list.join(", ");
+                }
             };
 
             var resetFields = function () {
                 self.new_project("");
                 self.allKeys([]);
                 self.checkedNodes([]);
+                self.selectedProjects([]);
             };
 
             self.refreshTable = function(_assoc) {
@@ -369,12 +374,12 @@ define( [
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (_proj.hasProject.length < self.checkedNodes()) {
-                    alertText = "Only " + _proj.has_project().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
+                if (_proj.hasProject().length < self.checkedNodes().length) {
+                    alertText = "Only " + _proj.hasProject().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " hosts?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " host(s)?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -406,21 +411,25 @@ define( [
             };
 
             var addProjects = function(_assoc, koArray) {
-                $.each(_assoc.pillar(), function(proj_name, keyVals) {
-                    var found = false;
-                    for (var i in koArray()) {
-                        if (koArray()[i].proj_name === proj_name) {
-                            found = true;
+                try {
+                    $.each(_assoc.pillar(), function (proj_name, keyVals) {
+                        var found = false;
+                        for (var i in koArray()) {
+                            if (koArray()[i].proj_name === proj_name) {
+                                found = true;
+                            }
                         }
-                    }
-                    if (!found) {
-                        var new_proj = new self._proj(proj_name);
-                        $.each(keyVals, function(key) {
-                            new_proj.keys.push(key);
-                        });
-                        koArray.push(new_proj);
-                    }
-                });
+                        if (!found) {
+                            var new_proj = new self._proj(proj_name);
+                            $.each(keyVals, function (key) {
+                                new_proj.keys.push(key);
+                            });
+                            koArray.push(new_proj);
+                        }
+                    });
+                }catch(err) {
+                    console.log(_assoc.name + " is improperly formatted");
+                }
             };
 
             // Determine all projects available before showing the modal
@@ -439,11 +448,13 @@ define( [
                 }
             };
 
-            self.handleSelect = function(_assoc) {
+            self.handleSelect = function(_assoc, toggle) {
                 if (!_assoc.prior){
                     addProjects(_assoc, self.selectedProjects);
                     _assoc.star(constants.glyphs.filledStar);
-                    self.checkedNodes.push(_assoc);
+                    if (!toggle) {
+                        self.checkedNodes.push(_assoc);
+                    }
                     _assoc.prior = true;
                     self.createObjForProjects(_assoc);
                     ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
@@ -451,20 +462,24 @@ define( [
                     });
                 }
                 else if (_assoc.prior){
-                    self.checkedNodes.remove(_assoc);
-                    //TODO: significant performance hit
-                    self.selectedProjects([]);
-                    ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                        addProjects(_assoc, self.selectedProjects);
-                    });
+                    if (!toggle) {
+                        self.checkedNodes.remove(_assoc);
+                    }
+                    var _projRemove = [];
                     ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
-                        _proj.hasProject([]);
-                        self.populateProjects(_assoc, _proj);
+                        _proj.hasProject.remove(_assoc);
+                        if (_proj.hasProject().length === 0) {
+                            _projRemove.push(_proj);
+                        }
+                    });
+
+                    _projRemove.forEach(function(_proj) {
+                        self.selectedProjects.remove(_proj);
                     });
 
                     _assoc.prior = false;
                     // if this is the last to be un-checked, reset all fields
-                    if (self.checkedNodes().length === 0){
+                    if (self.checkedNodes().length === 0 && !toggle){
                         resetFields();
                     }
                     _assoc.star(constants.glyphs.emptyStar);
@@ -504,7 +519,7 @@ define( [
             };
 
             self.refreshEdit = function() {
-                ko.utils.arrayForEach(self.editingNodes(), function(_assoc) {
+                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                     self.toggleEdit(_assoc, true);
                 });
             };

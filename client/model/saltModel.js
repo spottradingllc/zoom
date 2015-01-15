@@ -27,13 +27,14 @@ define([
                 
             service.get('api/saltmaster/', onSuccess, onFailure);
 
-            var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
+            var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, _assocArray) {
                 var self = this;
                 self.list = update_list;
                 self.pillar = pillar_lookup;
                 self.type = update_type;
                 self.data = data_type;
                 self.project = project;
+                self._assocArray = _assocArray;
             };
 
             var checkObjContents = function(obj1, obj2) {
@@ -52,7 +53,7 @@ define([
                 return ret;
             };
 
-            self.validate = function(update_list, pillar_lookup, update_type, data_type, project) {
+            self.validate = function(update_list, pillar_lookup, update_type, data_type, project, _assocArray) {
                 var target = update_list;
                 var run_func = "";
                 var domain = ".spottrading.com";
@@ -74,7 +75,7 @@ define([
                     run_func = "pillar.items";
                 }
                 
-                var _pass = new _valdata(target, pillar_lookup, update_type, data_type, project);
+                var _pass = new _valdata(target, pillar_lookup, update_type, data_type, project, _assocArray);
 
                 $('#validateVisual').modal('show');
                 var cmds = {
@@ -187,7 +188,7 @@ define([
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
 
-                        pillarModel.refreshEdit();
+                        pillarModel.pillarApiModel.updateChecked(_assocArray);
 
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
@@ -210,10 +211,12 @@ define([
                 var first = true;
 
                 var pillar_lookup = {};
+                var refreshArray = ko.observableArray([]);
 
                 if (typeof array_to_update !== 'string') {
                     array_to_update.forEach(function (_assoc) {
                         // create a salt-readable list for sending through the API
+                        refreshArray = array_to_update;
                         if (!first) {
                             all += "," + _assoc.name;
                         }
@@ -261,7 +264,7 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        self.validate(all, pillar_lookup, update_type, data_type, project);
+                        self.validate(all, pillar_lookup, update_type, data_type, project, refreshArray);
                     });
 
             };

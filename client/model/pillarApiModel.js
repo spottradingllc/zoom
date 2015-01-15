@@ -36,8 +36,6 @@ define(
                         swal("Error", "The data failed to update. Error message: " + data, 'error');
                     })
                     .success(function(data) {
-                        self.updateChecked();
-
                         if (update_salt) {
                             pillarModel.saltModel.updateMinion(array_to_update, 'update', data_type, project);
                         }
@@ -100,8 +98,6 @@ define(
                                 pillarModel.saltModel.updateMinion(_proj.hasProject(), 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
-
-                            self.updateChecked();
                         });
                 });
             };
@@ -151,16 +147,25 @@ define(
             };
 
             // Makes sure that the checked nodes are updated with the latest data after a change
-            self.updateChecked = function() {
-                ko.utils.arrayForEach(pillarModel.allNodes(), function(_alloc) {
+            self.updateChecked = function(_assocArray) {
+                var left = (pillarModel.allNodes().length).toString();
+                if (typeof _assocArray !== 'undefined' && _assocArray.length > 0) {
+                    _assocArray.forEach( function (_assoc) {
+                        var index = pillarModel.allNodes.indexOf(_assoc);
+                        pillarModel.allNodes.replace(pillarModel.allNodes()[index], _assoc);
+                        //pillarModel.allNodes()[index].pillar(_assoc.edit_pillar());
+                    });
+                }
+                ko.utils.arrayForEach(pillarModel.allNodes(), function (_alloc) {
                     $.ajax({
                         url: pillarURI + _alloc.name,
                         type: "GET"
                     })
-                        .fail(function(data) {
+                        .fail(function (data) {
                             swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
                         })
-                        .done(function(data) {
+                        .done(function (data) {
+                            left--;
                             // does_not_exist is set, returned from the API, makes sure that we delete
                             // when a minion no longer exists.
                             if (data.DOES_NOT_EXIST) {
@@ -170,25 +175,30 @@ define(
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
                                 _alloc.pillar(data);
+                                _alloc.edit_pillar(data);
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                //pillarModel.refreshTable(_alloc);
+                                pillarModel.allNodes.valueHasMutated();
+                            }
+                            if (left === 0) {
+                                copyChecked();
                             }
                         });
                 });
+
+            };
+
+            var copyChecked = function() {
                 var copy = [];
                 $.extend(true, copy, pillarModel.checkedNodes());
                 for(var i in copy) {
-                //ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_assoc) {
                     copy[i].pillar(copy[i].edit_pillar());
-                    pillarModel.handleSelect(copy[i]);
+                    pillarModel.handleSelect(copy[i], true);
                     copy[i].prior = false;
-                    pillarModel.handleSelect(copy[i]);
+                    pillarModel.handleSelect(copy[i], true);
                 }
-                pillarModel.checkedNodes([]);
-                pillarModel.checkedNodes(copy);
+                pillarModel.refreshEdit();
             };
-
 
             // objOrName is either the name of the node to retrieve or the _assoc object
             self.getPillar = function(objOrName, create_new) {
