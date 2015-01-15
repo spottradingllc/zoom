@@ -94,7 +94,7 @@ class AlertManager(object):
         """
         try:
             return zk_path_join(key.split('/')[1:-1]) in self._exceptions
-        except IndexError:
+        except (AttributeError, IndexError):
             return False
 
     def _clean_up_threads(self):

@@ -137,13 +137,13 @@
                                 </tr>
                             </thead>
 
-                            <tbody data-bind="foreach: $parent.checkedNodes()">
-                                <tr>
-                                    <td data-bind="text: name"></td>
-                                    <!-- ko foreach: $parent.keys() -->
-                                    <td data-bind="text: $parents[2].getValues($parent, $parents[1], $data)"></td>
-                                    <!-- /ko -->
-                                </tr>
+                            <tbody data-bind="foreach: hasProject()">
+                            <tr>
+                                <td data-bind="text: name"></td>
+                                <!-- ko foreach: $parent.keys() -->
+                                <td data-bind="text: $parents[2].getValues($parent, $parents[1], $data)"></td>
+                                <!-- /ko -->
+                            </tr>
                             </tbody>
 
                         </table>
@@ -172,7 +172,7 @@
                                 </tr>
                             </thead>
 
-                            <tbody data-bind="foreach: $parent.checkedNodes()">
+                            <tbody data-bind="foreach: hasProject()">
                             <tr>
                                 <td data-bind="text: name"></td>
 
@@ -319,7 +319,7 @@
 
             <div class="row view-tabs">
                 <div class="col-md-6 text-left">
-                    <h1 style="margin-top: 5px"> Pillar Value Editor<small> v0.3 </small></h1>
+                    <h1 style="margin-top: 5px"> Pillar Editor<small> v0.4 </small></h1>
                     <button class="btn btn-default" data-bind="click: function() { showModal('addModal') }" type="button" title="Add Host to Map project to">
                         <span class="glyphicon glyphicon-plus"></span>
                         Add Host for Mapping

@@ -27,13 +27,14 @@ define([
                 
             service.get('api/saltmaster/', onSuccess, onFailure);
 
-            var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, zk) {
+            var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, _assocArray) {
                 var self = this;
                 self.list = update_list;
                 self.pillar = pillar_lookup;
                 self.type = update_type;
                 self.data = data_type;
                 self.project = project;
+                self._assocArray = _assocArray;
             };
 
             var checkObjContents = function(obj1, obj2) {
@@ -52,7 +53,7 @@ define([
                 return ret;
             };
 
-            self.validate = function(update_list, pillar_lookup, update_type, data_type, project) {
+            self.validate = function(update_list, pillar_lookup, update_type, data_type, project, _assocArray) {
                 var target = update_list;
                 var run_func = "";
                 var domain = ".spottrading.com";
@@ -66,7 +67,7 @@ define([
                         run_func = "pillar.items";
                     }
                     else if (update_type === 'delete') {
-                        run_func = "pillar.items"
+                        run_func = "pillar.items";
                     }
                 }
 
@@ -74,7 +75,7 @@ define([
                     run_func = "pillar.items";
                 }
                 
-                var _pass = new _valdata(target, pillar_lookup, update_type, data_type, project);
+                var _pass = new _valdata(target, pillar_lookup, update_type, data_type, project, _assocArray);
 
                 $('#validateVisual').modal('show');
                 var cmds = {
@@ -105,7 +106,6 @@ define([
                         var dataset = data.return[0];
                         var zk = "zookeeper_pillar";
                         var zkPillar;
-                        var showSuccess = false;
 
                         // check if we get an empty object - failure!!
                         if ($.isEmptyObject(dataset)) {
@@ -148,6 +148,7 @@ define([
                                     }
                                 }
                                 else if (this.args.type === 'delete') {
+                                    pillarModel.checkedNodes([]);
                                     // make sure zkpillar is gone
                                     for (var server in dataset) { 
                                         // external pillar will not be completely gone from salts perspective
@@ -164,9 +165,6 @@ define([
                                     if (typeof (dataset[this.args.list][zk]) === "undefined") {
                                         validationFailure = true;
                                         errorMsg = "ZK Pillar does not exist";
-                                    }
-                                    else {
-                                        showSuccess = true;
                                     }
                                 }
 
@@ -187,13 +185,10 @@ define([
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
 
-                        pillarModel.refreshEdit();
+                        pillarModel.pillarApiModel.updateChecked(_assocArray);
 
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
-                        }
-                        else if (showSuccess) {
-                            swal("Success", "External pillar zookeeper node created.", 'success');
                         }
                         else {
                             // Show a successful confirmation for 1.5 seconds
@@ -210,10 +205,12 @@ define([
                 var first = true;
 
                 var pillar_lookup = {};
+                var refreshArray = ko.observableArray([]);
 
                 if (typeof array_to_update !== 'string') {
                     array_to_update.forEach(function (_assoc) {
                         // create a salt-readable list for sending through the API
+                        refreshArray = array_to_update;
                         if (!first) {
                             all += "," + _assoc.name;
                         }
@@ -223,12 +220,13 @@ define([
                         }
                         // we need a way of determining if the pillar is updated and has the correct
                         // data in salt!
-                        if (update_type !== 'delete' && data_type !== 'node') {
-                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
-                        }
-                        else {
+                        if (update_type === 'delete' && data_type === 'node'){
                             pillar_lookup[_assoc.name] = "";
                         }
+                        else {
+                            pillar_lookup[_assoc.name] = _assoc.edit_pillar();
+                        }
+
                     });
                 }
                 // Creating node, no _assoc
@@ -260,7 +258,7 @@ define([
                     })
                     .done(function(data) {
                         $('#loadVisual').modal('hide');
-                        self.validate(all, pillar_lookup, update_type, data_type, project);
+                        self.validate(all, pillar_lookup, update_type, data_type, project, refreshArray);
                     });
 
             };

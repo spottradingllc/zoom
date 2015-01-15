@@ -61,7 +61,6 @@ define( [
                 self.projects = {};
                 self.projArray = ko.observableArray([]);
                 self.star = ko.observable(constants.glyphs.emptyStar);
-                self.checked = ko.observable(false);
                 self.editable = ko.observable(false);
                 self.prior = false;
             };
@@ -71,21 +70,16 @@ define( [
                 self.proj_name = name;
                 self.keys = ko.observableArray([]);
                 self.edit_keys = ko.observableArray([]);
-                self.hasProject = [];
+                self.hasProject = ko.observableArray([]);
                 self.new_key = ko.observable("");
                 self.editing = ko.observable(false);
-                // need a way of keeping track of the number of servers
-                // which have that project, when it reaches zero: remove
-                self.freq = 0;
             };
 
             self.uncheckAll = function() {
-                self.checkedNodes([]);
-                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
-                    _assoc.checked(false);
-                    _assoc.star(constants.glyphs.emptyStar);
-                    _assoc.prior = false;
+                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
+                    self.handleSelect(_assoc, true);
                 });
+                self.checkedNodes([]);
             };
 
             self.updateSelected = ko.computed({
@@ -111,16 +105,26 @@ define( [
 
             self.projectList = function(_assoc) {
                 var project_list = [];
-                $.each(_assoc.pillar(), function(proj_name) {
-                    project_list.push(proj_name);
-                });
-                return project_list.join(", ");
+                try {
+                    $.each(_assoc.pillar(), function (proj_name) {
+                        project_list.push(proj_name);
+                    });
+                } catch(err) {
+                    console.log("Error parsing " + _assoc.name);
+                }
+                if (project_list.length === 0) {
+                    return "NO APPLICATIONS - add app to edit.";
+                }
+                else {
+                    return project_list.join(", ");
+                }
             };
 
             var resetFields = function () {
                 self.new_project("");
                 self.allKeys([]);
                 self.checkedNodes([]);
+                self.selectedProjects([]);
             };
 
             self.refreshTable = function(_assoc) {
@@ -193,7 +197,7 @@ define( [
                 var ret = "";
                 try {
                     ret = JSON.stringify(_assoc.projects[_proj.proj_name]()[field]);
-                    if (_proj.hasProject.indexOf(_assoc) === -1)
+                    if (_proj.hasProject().indexOf(_assoc) === -1)
                         _proj.hasProject.push(_assoc);
                 } catch(err) {
                     if (err.name === 'TypeError') {
@@ -203,6 +207,15 @@ define( [
                         ret = "An unexpected error occured";
                 }
                 return ret;
+            };
+
+            self.populateProjects = function(_assoc, _proj) {
+                try {
+                    _assoc.projects[_proj.proj_name]();
+                    if (_proj.hasProject().indexOf(_assoc) === -1)
+                        _proj.hasProject.push(_assoc);
+                } catch(err) {
+                }
             };
 
             self.makeEditable = function (_assoc) {
@@ -286,7 +299,7 @@ define( [
                             swal("Error", "Project keys must be alphanumeric", 'error');
                             return;
                         }
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             _assoc.edit_pillar()[_proj.proj_name][new_key] = null;
                         });
                         _proj.edit_keys.push(new_key);
@@ -295,7 +308,7 @@ define( [
                 }
                 else if (update_type === 'delete') {
                     if (data_type === 'key') {
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             delete _assoc.edit_pillar()[_proj.proj_name][key];
                         });
                         var i = _proj.edit_keys.indexOf(key);
@@ -303,7 +316,7 @@ define( [
                         _proj.edit_keys.splice(i, 1);
                     }
                     else if (data_type === 'project') {
-                        _proj.hasProject.forEach(function(_assoc) {
+                        ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
                             delete _assoc.edit_pillar()[_proj.proj_name];
                         });
                     }
@@ -328,7 +341,7 @@ define( [
                 if (validateNewProject(project_name) === false) return;
 
                 if (typeof modalToHide !== "undefined") {
-                    $("#"+modalToHide).modal('hide');
+                    self.closeModal(modalToHide);
                 }
 
                 var doesNotAlreadyExist = function(_assoc, num_remaining) {
@@ -365,12 +378,12 @@ define( [
             self.updateProjectWrapper = function(update_type, data_type, _proj, key) {
                 var alertText = "";
                 var alertTitle = "";
-                if (_proj.hasProject.length < self.checkedNodes()) {
-                    alertText = "Only " + _proj.has_project().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
+                if (_proj.hasProject().length < self.checkedNodes().length) {
+                    alertText = "Only " + _proj.hasProject().length + " host(s) have the " + data_type + ", proceed to " + update_type + " anyway?";
                     alertTitle = "Hmm...";
                 }
                 else {
-                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject.length + " hosts?";
+                    alertText = "Are you sure you want to " + update_type + " the " + data_type + " on " +  _proj.hasProject().length + " host(s)?";
                     alertTitle = "Confirm";
                 }
                 swal({
@@ -389,12 +402,12 @@ define( [
                         }
                         else {
                             var refresh_salt = false;
-                            for (var each in _proj.hasProject) {
+                            for (var each in _proj.hasProject()) {
                                 // ONLY send the salt refresh command after the last post has been made, to avoid spamming the salt master
-                                if (each === (_proj.hasProject.length-1).toString()) {
+                                if (each === (_proj.hasProject().length-1).toString()) {
                                     refresh_salt = true;
                                 }
-                                self.pillarApiModel.api_post_json(_proj.hasProject[each], refresh_salt, _proj.hasProject, data_type);
+                                self.pillarApiModel.api_post_json(_proj.hasProject()[each], refresh_salt, _proj.hasProject(), data_type);
                             }
                         }
                     }
@@ -402,23 +415,25 @@ define( [
             };
 
             var addProjects = function(_assoc, koArray) {
-                $.each(_assoc.pillar(), function(proj_name, keyVals) {
-                    var found = false;
-                    for (var i in koArray()) {
-                        if (koArray()[i].proj_name === proj_name) {
-                            koArray()[i].freq++;
-                            found = true;
+                try {
+                    $.each(_assoc.pillar(), function (proj_name, keyVals) {
+                        var found = false;
+                        for (var i in koArray()) {
+                            if (koArray()[i].proj_name === proj_name) {
+                                found = true;
+                            }
                         }
-                    }
-                    if (!found) {
-                        var new_proj = new self._proj(proj_name);
-                        new_proj.freq = 1;
-                        $.each(keyVals, function(key) {
-                            new_proj.keys.push(key);
-                        });
-                        koArray.push(new_proj);
-                    }
-                });
+                        if (!found) {
+                            var new_proj = new self._proj(proj_name);
+                            $.each(keyVals, function (key) {
+                                new_proj.keys.push(key);
+                            });
+                            koArray.push(new_proj);
+                        }
+                    });
+                }catch(err) {
+                    console.log(_assoc.name + " is improperly formatted");
+                }
             };
 
             // Determine all projects available before showing the modal
@@ -437,30 +452,43 @@ define( [
                 }
             };
 
-            self.handleSelect = function(_assoc) {
-                    if (!_assoc.prior){
-                        addProjects(_assoc, self.selectedProjects);
-                        _assoc.star(constants.glyphs.filledStar);
+            self.handleSelect = function(_assoc, toggle) {
+                if (!_assoc.prior){
+                    addProjects(_assoc, self.selectedProjects);
+                    _assoc.star(constants.glyphs.filledStar);
+                    if (!toggle) {
                         self.checkedNodes.push(_assoc);
-                        _assoc.prior = true;
-                        self.createObjForProjects(_assoc);
                     }
-                    else if (_assoc.prior){
+                    _assoc.prior = true;
+                    self.createObjForProjects(_assoc);
+                    ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                        self.populateProjects(_assoc, _proj);
+                    });
+                }
+                else if (_assoc.prior){
+                    if (!toggle) {
                         self.checkedNodes.remove(_assoc);
-                        //TODO: significant performance hit
-                        self.selectedProjects([]);
-                        ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                            addProjects(_assoc, self.selectedProjects);
-                        });
-
-                        _assoc.prior = false;
-                        // if this is the last to be un-checked, reset all fields
-                        if (self.checkedNodes().length === 0){
-                            resetFields();
-                        }
-                        _assoc.star(constants.glyphs.emptyStar);
-
                     }
+                    var _projRemove = [];
+                    ko.utils.arrayForEach(self.selectedProjects(), function(_proj) {
+                        _proj.hasProject.remove(_assoc);
+                        if (_proj.hasProject().length === 0) {
+                            _projRemove.push(_proj);
+                        }
+                    });
+
+                    _projRemove.forEach(function(_proj) {
+                        self.selectedProjects.remove(_proj);
+                    });
+
+                    _assoc.prior = false;
+                    // if this is the last to be un-checked, reset all fields
+                    if (self.checkedNodes().length === 0 && !toggle){
+                        resetFields();
+                    }
+                    _assoc.star(constants.glyphs.emptyStar);
+
+                }
             };
 
             self.handleAction = function(_assoc, action_type) {
@@ -478,13 +506,17 @@ define( [
                     if (refresh) {
                         _assoc.projArray([]);
                     }
-                    $.each(_assoc.pillar(), function(projects, keyVals) {
-                        var new_proj = new self._proj(projects);
-                        $.each(keyVals, function(key) {
+                    try {
+                        $.each(_assoc.pillar(), function (projects, keyVals) {
+                            var new_proj = new self._proj(projects);
+                            $.each(keyVals, function (key) {
                                 new_proj.keys.push(key);
+                            });
+                            _assoc.projArray.push(new_proj);
                         });
-                        _assoc.projArray.push(new_proj);
-                    });
+                    }catch(err) {
+                        console.log("Issue with formatting of " + _assoc.name);
+                    }
                     self.editingNodes.push(_assoc);
                     self.showEditInline(_assoc);
                 }
@@ -495,7 +527,7 @@ define( [
             };
 
             self.refreshEdit = function() {
-                ko.utils.arrayForEach(self.editingNodes(), function(_assoc) {
+                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
                     self.toggleEdit(_assoc, true);
                 });
             };

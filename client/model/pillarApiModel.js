@@ -36,8 +36,6 @@ define(
                         swal("Error", "The data failed to update. Error message: " + data, 'error');
                     })
                     .success(function(data) {
-                        self.updateChecked();
-
                         if (update_salt) {
                             pillarModel.saltModel.updateMinion(array_to_update, 'update', data_type, project);
                         }
@@ -68,9 +66,9 @@ define(
 
             // Deletes either projects or keys from a node.
             self.api_delete = function(level_to_delete, _proj, key) {
-                var num_left = _proj.hasProject.length;
+                var num_left = _proj.hasProject().length;
                 var del_phrase = "";
-                _proj.hasProject.forEach(function(_assoc) {
+                _proj.hasProject().forEach(function(_assoc) {
                     var uri = pillarURI + _assoc.name;
                     if (level_to_delete === "project") {
                         uri += "/" + _proj.proj_name;
@@ -97,12 +95,9 @@ define(
                         .done(function(data) {
                             // if the last one, notify on it only
                             if (num_left === 1) {
-                                swal("Success", "Successfully deleted", 'success');
-                                pillarModel.saltModel.updateMinion(_proj.hasProject, 'delete', level_to_delete, _proj.proj_name);
+                                pillarModel.saltModel.updateMinion(_proj.hasProject(), 'delete', level_to_delete, _proj.proj_name);
                             }
                             num_left--;
-
-                            self.updateChecked();
                         });
                 });
             };
@@ -118,6 +113,7 @@ define(
                     },
                     function(isConfirm) {
                         if (isConfirm) {
+                            pillarModel.closeModal('delModal');
                             var left = pillarModel.checkedNodes().length;
                             ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_assoc) {
                                 var uri = pillarURI + _assoc.name;
@@ -131,14 +127,13 @@ define(
                                     url: uri,
                                     type: "DELETE",
                                     data: JSON.stringify(_deldata),
-                                    args: _assoc.name
+                                    args: _assoc
                                 })
                                     .fail(function(data) {
                                         swal("Delete Failed", "Failed to delete pillar(s)", 'error');
                                     })
                                     .done(function(data) {
                                         if (left === 1) {
-                                            swal("Delete successful", "Pillar(s) deleted", 'success');
                                             self.loadServers();
                                             var singleItemArr = [];
                                             singleItemArr.push(this.args);
@@ -152,16 +147,25 @@ define(
             };
 
             // Makes sure that the checked nodes are updated with the latest data after a change
-            self.updateChecked = function() {
-                ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_alloc) {
+            self.updateChecked = function(_assocArray) {
+                var left = (pillarModel.allNodes().length).toString();
+                if (typeof _assocArray !== 'undefined' && _assocArray.length > 0) {
+                    _assocArray.forEach( function (_assoc) {
+                        var index = pillarModel.allNodes.indexOf(_assoc);
+                        pillarModel.allNodes.replace(pillarModel.allNodes()[index], _assoc);
+                        //pillarModel.allNodes()[index].pillar(_assoc.edit_pillar());
+                    });
+                }
+                ko.utils.arrayForEach(pillarModel.allNodes(), function (_alloc) {
                     $.ajax({
                         url: pillarURI + _alloc.name,
                         type: "GET"
                     })
-                        .fail(function(data) {
+                        .fail(function (data) {
                             swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
                         })
-                        .done(function(data) {
+                        .done(function (data) {
+                            left--;
                             // does_not_exist is set, returned from the API, makes sure that we delete
                             // when a minion no longer exists.
                             if (data.DOES_NOT_EXIST) {
@@ -171,37 +175,29 @@ define(
                             else {
                                 var index = pillarModel.allNodes.indexOf(_alloc);
                                 _alloc.pillar(data);
+                                _alloc.edit_pillar(data);
                                 pillarModel.createObjForProjects(_alloc);
                                 pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                //pillarModel.refreshTable(_alloc);
+                                pillarModel.allNodes.valueHasMutated();
+                            }
+                            if (left === 0) {
+                                copyChecked();
                             }
                         });
                 });
-                ko.utils.arrayForEach(pillarModel.editingNodes(), function(_alloc) {
-                    $.ajax({
-                        url: pillarURI + _alloc.name,
-                        type: "GET"
-                    })
-                        .fail(function(data) {
-                            swal("Error", "There was an error retrieving SELECTED pillar data", 'error');
-                        })
-                        .done(function(data) {
-                            // does_not_exist is set, returned from the API, makes sure that we delete
-                            // when a minion no longer exists.
-                            if (data.DOES_NOT_EXIST) {
-                                pillarModel.allNodes.remove(_alloc);
-                                pillarModel.editingNodes.remove(_alloc);
-                            }
-                            else {
-                                var index = pillarModel.allNodes.indexOf(_alloc);
-                                _alloc.pillar(data);
-                                pillarModel.createObjForProjects(_alloc);
-                                pillarModel.allNodes.replace(pillarModel.allNodes()[index], _alloc);
-                                //pillarModel.refreshTable(_alloc);
-                            }
-                        });
-                });
-                pillarModel.allNodes.valueHasMutated();
+
+            };
+
+            var copyChecked = function() {
+                var copy = [];
+                $.extend(true, copy, pillarModel.checkedNodes());
+                for(var i in copy) {
+                    copy[i].pillar(copy[i].edit_pillar());
+                    pillarModel.handleSelect(copy[i], true);
+                    copy[i].prior = false;
+                    pillarModel.handleSelect(copy[i], true);
+                }
+                pillarModel.refreshEdit();
             };
 
             // objOrName is either the name of the node to retrieve or the _assoc object
