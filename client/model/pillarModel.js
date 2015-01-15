@@ -105,9 +105,13 @@ define( [
 
             self.projectList = function(_assoc) {
                 var project_list = [];
-                $.each(_assoc.pillar(), function(proj_name) {
-                    project_list.push(proj_name);
-                });
+                try {
+                    $.each(_assoc.pillar(), function (proj_name) {
+                        project_list.push(proj_name);
+                    });
+                } catch(err) {
+                    console.log("Error parsing " + _assoc.name);
+                }
                 if (project_list.length === 0) {
                     return "NO APPLICATIONS - add app to edit.";
                 }
@@ -502,13 +506,17 @@ define( [
                     if (refresh) {
                         _assoc.projArray([]);
                     }
-                    $.each(_assoc.pillar(), function(projects, keyVals) {
-                        var new_proj = new self._proj(projects);
-                        $.each(keyVals, function(key) {
+                    try {
+                        $.each(_assoc.pillar(), function (projects, keyVals) {
+                            var new_proj = new self._proj(projects);
+                            $.each(keyVals, function (key) {
                                 new_proj.keys.push(key);
+                            });
+                            _assoc.projArray.push(new_proj);
                         });
-                        _assoc.projArray.push(new_proj);
-                    });
+                    }catch(err) {
+                        console.log("Issue with formatting of " + _assoc.name);
+                    }
                     self.editingNodes.push(_assoc);
                     self.showEditInline(_assoc);
                 }
