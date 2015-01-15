@@ -113,6 +113,7 @@ define(
                     },
                     function(isConfirm) {
                         if (isConfirm) {
+                            pillarModel.closeModal('delModal');
                             var left = pillarModel.checkedNodes().length;
                             ko.utils.arrayForEach(pillarModel.checkedNodes(), function(_assoc) {
                                 var uri = pillarURI + _assoc.name;
@@ -126,14 +127,13 @@ define(
                                     url: uri,
                                     type: "DELETE",
                                     data: JSON.stringify(_deldata),
-                                    args: _assoc.name
+                                    args: _assoc
                                 })
                                     .fail(function(data) {
                                         swal("Delete Failed", "Failed to delete pillar(s)", 'error');
                                     })
                                     .done(function(data) {
                                         if (left === 1) {
-                                            swal("Delete successful", "Pillar(s) deleted", 'success');
                                             self.loadServers();
                                             var singleItemArr = [];
                                             singleItemArr.push(this.args);

@@ -106,7 +106,6 @@ define([
                         var dataset = data.return[0];
                         var zk = "zookeeper_pillar";
                         var zkPillar;
-                        var showSuccess = false;
 
                         // check if we get an empty object - failure!!
                         if ($.isEmptyObject(dataset)) {
@@ -149,6 +148,7 @@ define([
                                     }
                                 }
                                 else if (this.args.type === 'delete') {
+                                    pillarModel.checkedNodes([]);
                                     // make sure zkpillar is gone
                                     for (var server in dataset) { 
                                         // external pillar will not be completely gone from salts perspective
@@ -165,9 +165,6 @@ define([
                                     if (typeof (dataset[this.args.list][zk]) === "undefined") {
                                         validationFailure = true;
                                         errorMsg = "ZK Pillar does not exist";
-                                    }
-                                    else {
-                                        showSuccess = true;
                                     }
                                 }
 
@@ -192,9 +189,6 @@ define([
 
                         if (validationFailure) {
                             swal("Fatal", "Validation error: " + errorMsg, 'error');
-                        }
-                        else if (showSuccess) {
-                            swal("Success", "External pillar zookeeper node created.", 'success');
                         }
                         else {
                             // Show a successful confirmation for 1.5 seconds

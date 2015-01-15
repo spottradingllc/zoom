@@ -341,7 +341,7 @@ define( [
                 if (validateNewProject(project_name) === false) return;
 
                 if (typeof modalToHide !== "undefined") {
-                    $("#"+modalToHide).modal('hide');
+                    self.closeModal(modalToHide);
                 }
 
                 var doesNotAlreadyExist = function(_assoc, num_remaining) {
