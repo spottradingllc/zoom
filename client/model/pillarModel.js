@@ -506,19 +506,24 @@ define( [
                     if (refresh) {
                         _assoc.projArray([]);
                     }
-                    try {
-                        $.each(_assoc.pillar(), function (projects, keyVals) {
-                            var new_proj = new self._proj(projects);
-                            $.each(keyVals, function (key) {
-                                new_proj.keys.push(key);
-                            });
-                            _assoc.projArray.push(new_proj);
-                        });
-                    }catch(err) {
-                        console.log("Issue with formatting of " + _assoc.name);
+                    else if(!refresh) {
+                        self.editingNodes.push(_assoc);
                     }
-                    self.editingNodes.push(_assoc);
-                    self.showEditInline(_assoc);
+                    if (self.editingNodes.indexOf(_assoc) !== -1) {
+                        try {
+                            $.each(_assoc.pillar(), function (projects, keyVals) {
+                                var new_proj = new self._proj(projects);
+                                $.each(keyVals, function (key) {
+                                    new_proj.keys.push(key);
+                                });
+                                _assoc.projArray.push(new_proj);
+                            });
+                        } catch (err) {
+                            console.log("Issue with formatting of " + _assoc.name);
+                        }
+
+                        self.showEditInline(_assoc);
+                    }
                 }
                 else {
                     self.editingNodes.remove(_assoc);
@@ -527,7 +532,7 @@ define( [
             };
 
             self.refreshEdit = function() {
-                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
+                ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
                     self.toggleEdit(_assoc, true);
                 });
             };
