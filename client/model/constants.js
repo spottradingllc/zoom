@@ -38,7 +38,9 @@ define([], function () {
         errorStates: {
             ok: 'ok',
             starting: 'starting',
+            started: 'started',
             stopping: 'stopping',
+            stopped: 'stopped',
             error: 'error',
             notify: 'notify',
             configErr: 'config_error',

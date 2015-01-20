@@ -232,9 +232,9 @@ class ApplicationStateCache(object):
         :type data: dict
         :rtype: str
         """
-        if data.get('state', 'Unknown') == 'starting':
+        if data.get('state', 'Unknown') in ['starting', 'started']:
             return "Start"
-        elif data.get('state', 'Unknown') == 'stopping':
+        elif data.get('state', 'Unknown') in ['stopping', 'stopped']:
             return "Stop"
         else:
             return ''

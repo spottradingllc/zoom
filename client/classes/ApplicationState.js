@@ -84,6 +84,12 @@ define(
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
                     return constants.glyphs.thumpsUp;
                 }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
+                    return constants.glyphs.thumpsUp;
+                }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
+                    return constants.glyphs.thumpsUp;
+                }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
                     return constants.glyphs.startingRetweet;
                 }
@@ -118,6 +124,12 @@ define(
 
                     return constants.colors.successTrans;
                 }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
+                    return constants.colors.successTrans;
+                }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
+                    return constants.colors.successTrans;
+                }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
                     return constants.colors.actionBlue;
                 }
@@ -140,6 +152,18 @@ define(
 
             self.triggerTimeTitle = ko.computed(function() {
                 return 'Last Command: ' + self.lastCommand() + '\nTriggered by: ' + self.loginUser();
+            });
+
+            self.errorStateTitle = ko.computed(function() {
+                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
+                    return constants.errorStates.ok;
+                }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
+                    return constants.errorStates.ok;
+                }
+                else {
+                    return self.errorState()
+                }
             });
 
             // Creates group for sending commands
