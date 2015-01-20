@@ -225,6 +225,7 @@ class PillarHandler(tornado.web.RequestHandler):
             pass
         except ValueError:
             logging.warning('Data at path {0} is invalid JSON.'.format(path))
+            data_dict = {'INVALID_JSON': 'true'}
         finally:
             return data_dict
 

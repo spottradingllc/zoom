@@ -16,7 +16,7 @@ define(
                     update_phrase = "Created project " + pillarModel.new_project();
                 }
                 else if (data_type === 'wholeTable') {
-                    update_phrase = "Updated pillar: " + _assoc.pillar();
+                    update_phrase = "Updated entire pillar ";
                 }
 
                 var _projdata = {
