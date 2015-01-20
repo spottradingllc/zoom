@@ -19,7 +19,9 @@ class ApplicationState():
     ERROR = "error"
     CONFIG_ERROR = "config_error"
     STARTING = "starting"
+    STARTED = "started"
     STOPPING = "stopping"
+    STOPPED = "stopped"
     NOTIFY = "notify"
 
 

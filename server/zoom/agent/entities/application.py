@@ -151,7 +151,7 @@ class Application(object):
                 # reset restart counters, etc
                 self._proc_client.reset_counters()
 
-                self._state.set_value(ApplicationState.OK)
+                self._state.set_value(ApplicationState.STARTED)
                 self._update_agent_node_with_app_details()
 
     @catch_exception(NoNodeError)
@@ -214,7 +214,7 @@ class Application(object):
             self._run_check_mode = False
 
         if result == 0:
-            self._state.set_value(ApplicationState.OK)
+            self._state.set_value(ApplicationState.STARTED)
         else:
             self._state.set_value(ApplicationState.ERROR)
             if pd_enabled:
@@ -249,7 +249,7 @@ class Application(object):
         if result != 0 and kwargs.get('argument', 'false') == 'false':
             self._state.set_value(ApplicationState.ERROR)
         else:
-            self._state.set_value(ApplicationState.OK)
+            self._state.set_value(ApplicationState.STOPPED)
 
         sleep(5)  # give everything time to catch up
         self._update_agent_node_with_app_details()
