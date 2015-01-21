@@ -34,48 +34,68 @@ source ${VENV_DIR}/bin/activate || exit 1
 
 linux_version=`awk 'NR==1{print $(NF-1)}' /etc/issue`
 
-if [ $(echo "$linux_version < 6" | bc) -eq 1 ]
-then
-    echo 'Linux version less than 6'
 
-    for PACKAGE in tornado-3.1.1.tar.gz \
-            kazoo-1.3.1dev.tar.gz \
-            setproctitle-1.1.8.tar.gz \
-            requests-2.2.1.tar.gz \
-            nose-1.3.0.tar.gz \
-            mox-0.5.3.tar.gz \
-            coverage-3.6.tar.gz \
-            psutil-1.2.1.tar.gz \
-            zope.interface-4.0.5.tar.gz \
-            pygerduty-0.23-py2.7.egg
+function install_package () {
+# $1 = package name
+    FULLPATH=${PY_3RDPARTY}/$1
+    /bin/echo -n "## Installing ${FULLPATH}...";
+    easy_install ${FULLPATH} > /dev/null 2>&1 || exit 2;
+    /bin/echo "Done";
+}
+
+for PACKAGE in tornado-3.1.1.tar.gz \
+        kazoo-1.3.1dev.tar.gz \
+        setproctitle-1.1.8.tar.gz \
+        requests-2.2.1.tar.gz \
+        nose-1.3.0.tar.gz \
+        mox-0.5.3.tar.gz \
+        coverage-3.6.tar.gz \
+        psutil-1.2.1.tar.gz \
+        zope.interface-4.0.5.tar.gz \
+        pygerduty-0.23-py2.7.egg
+
     do
-        FULLPATH=${PY_3RDPARTY}/${PACKAGE}
-        /bin/echo "## Installing ${FULLPATH} ##";
-        easy_install ${FULLPATH} || exit 2;
-        /bin/echo "## Done with $PACKAGE ##";
+        install_package ${PACKAGE};
     done
 
-else
-    echo 'Linux version equal or greater than 6'
+# these packages do not install correctly on CentOS 5.x machines
+if [ $(echo "$linux_version >= 6" | bc) -eq 1 ]; then
+    echo
+    echo 'Linux version equal or greater than 6. Installing additional packages.'
 
     for PACKAGE in python-ldap-2.4.10.tar.gz \
-            tornado-3.1.1.tar.gz \
-            kazoo-1.3.1dev.tar.gz \
-            setproctitle-1.1.8.tar.gz \
-            requests-2.2.1.tar.gz \
-            pyodbc-3.0.6-py2.7-linux-x86_64.egg \
-            nose-1.3.0.tar.gz \
-            mox-0.5.3.tar.gz \
-            coverage-3.6.tar.gz \
-            psutil-1.2.1.tar.gz \
-            zope.interface-4.0.5.tar.gz \
-            pygerduty-0.23-py2.7.egg
+        pyodbc-3.0.6-py2.7-linux-x86_64.egg
 
     do
-        FULLPATH=${PY_3RDPARTY}/${PACKAGE}
-        /bin/echo "## Installing ${FULLPATH} ##";
-        easy_install ${FULLPATH} || exit 2;
-        /bin/echo "## Done with $PACKAGE ##";
+        install_package ${PACKAGE};
     done
 
+fi
+
+# set up softlinks to startup scripts
+SENTINEL_INITD=/etc/init.d/sentinel
+ZOOM_INITD=/etc/init.d/zoom
+
+if [ -h ${SENTINEL_INITD} ];
+then
+    echo "Deleting existing softlink ${SENTINEL_INITD}"
+    rm -f ${SENTINEL_INITD};
+fi
+
+if [ -h ${ZOOM_INITD} ];
+then
+    echo "Deleting existing softlink ${ZOOM_INITD}"
+    rm -f ${ZOOM_INITD};
+fi
+
+# RPM Path
+if [ -f /opt/spot/zoom/scripts/start_agent.sh ]; then
+    echo "Creating softlinks for zoom and sentinel to /opt/spot/zoom/scripts"
+    ln -s /opt/spot/zoom/scripts/start_agent.sh ${SENTINEL_INITD};
+    ln -s /opt/spot/zoom/scripts/start_web.sh ${ZOOM_INITD};
+# Bamboo Deploy PAth
+elif [ -f /opt/spot/zoom/current/scripts/start_agent.sh ]; then
+    echo "Creating softlinks for zoom and sentinel to /opt/spot/zoom/current/scripts"
+    ln -s /opt/spot/zoom/current/scripts/start_agent.sh ${SENTINEL_INITD};
+    ln -s /opt/spot/zoom/current/scripts/start_web.sh ${ZOOM_INITD};
 fi
