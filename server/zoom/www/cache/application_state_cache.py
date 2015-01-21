@@ -127,6 +127,9 @@ class ApplicationStateCache(object):
         """
         data, stat = self._get_app_details(path)
 
+        logging.info('### App details are: {0}'.format(data))
+
+
         # persistent node
         if stat.ephemeralOwner == 0:
             # watch node to see if children are created
@@ -155,6 +158,7 @@ class ApplicationStateCache(object):
                 error_state=data.get('state', 'unknown'),
                 local_mode=data.get('mode', 'unknown'),
                 login_user=data.get('login_user', 'Zoom'),
+                read_only=data.get('read_only', False),
                 last_command=self._get_last_command(data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed'),
@@ -186,6 +190,7 @@ class ApplicationStateCache(object):
                 error_state=parent_data.get('state', 'unknown'),
                 local_mode=parent_data.get('mode', 'unknown'),
                 login_user=parent_data.get('login_user', 'Zoom'),
+                read_only=parent_data.get('read_only', False),
                 last_command=self._get_last_command(parent_data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed'),

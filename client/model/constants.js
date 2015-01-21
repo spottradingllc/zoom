@@ -26,7 +26,8 @@ define([], function () {
             modeManual: 'glyphicon glyphicon-eye-close',
             configErr: 'glyphicon glyphicon-resize-small',
             grayed: 'glyphicon glyphicon-user',
-            pdWrench: 'glyphicon glyphicon-wrench'
+            pdWrench: 'glyphicon glyphicon-wrench',
+            readOnly: 'glyphicon glyphicon-road'
         },
 
         applicationStatuses: {

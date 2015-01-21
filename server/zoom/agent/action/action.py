@@ -34,13 +34,13 @@ class Action(object):
         :type pd_enabled: bool
         """
         self.name = name
-        self._log = logging.getLogger('sent.{0}.act'.format(component_name))
+        self.disabled = disabled
         self.component_name = component_name
+        self._log = logging.getLogger('sent.{0}.act'.format(component_name))
         self._action = action
         self._action_queue = action_q
         self._mode_controlled = mode_controlled
         self._mode = mode
-        self._disabled = disabled
         self._pd_enabled = pd_enabled
         self._acquire_lock = ThreadSafeObject(True)
 
@@ -82,7 +82,7 @@ class Action(object):
         self._log.info('Callback triggered for {0}:\n{1}'
                        .format(self, self._predicate))
 
-        if self._disabled:
+        if self.disabled:
             self._log.info('Not running action {0}. It is disabled.'
                            .format(self.name))
             return

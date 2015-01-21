@@ -474,6 +474,7 @@ define(
                         row.mode(update.local_mode);
                         row.mtime = Date.now();
                         row.loginUser(update.login_user);
+                        row.readOnly(update.read_only);
                         row.lastCommand(update.last_command);
                         row.pdDisabled(update.pd_disabled);
                         row.grayed(update.grayed);

@@ -29,6 +29,7 @@ define(
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);
+            self.readOnly = ko.observable(data.read_only);
             self.lastCommand = ko.observable(data.last_command);
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
@@ -112,6 +113,11 @@ define(
 
             self.pdDisabledClass = ko.computed(function() {
                 if (self.pdDisabled()) { return constants.glyphs.pdWrench; }
+                else { return ""; }
+            });
+
+            self.readOnlyClass = ko.computed(function() {
+                if (self.readOnly()) { return constants.glyphs.readOnly; }
                 else { return ""; }
             });
 
