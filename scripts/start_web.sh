@@ -4,9 +4,15 @@
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
 LOGTIME=`date +%H%M%S`
-PROJ_PATH="/opt/spot/zoom"
+
+if [ -d /opt/spot/zoom/server ]; then
+    PROJ_PATH="/opt/spot/zoom";
+elif [ -d /opt/spot/zoom/current/server ]; then
+    PROJ_PATH="/opt/spot/zoom/current";
+fi
+
 APPPATH="${PROJ_PATH}/server"
-VENV_PATH="${PROJ_PATH}/venv"
+VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python $APPPATH/zoom.py"
 TIMEOUT=30
 RUNLOG=$APPPATH/logs/web_stdout
