@@ -274,14 +274,14 @@ class Application(object):
 
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()
-        self._action_queue.append(Task('start_if_ready', pipe=False))
+        self._action_queue.append(Task('start_if_ready', kwargs=kwargs, pipe=False))
 
-    def start_if_ready(self):
+    def start_if_ready(self, **kwargs):
         if self._action_is_ready('start'):
-            self.start()
+            self.start(**kwargs)
         # if start action doesn't exist, a.k.a. read only
         elif self._actions.get('start', None) is None:
-            self.start()
+            self.start(**kwargs)
         else:
             self._action_queue.append(Task('react', pipe=False))
 
