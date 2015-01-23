@@ -13,18 +13,20 @@ class PredicateTime(SimplePredicate):
     Predicate for comparing current time to start/stop times.
     It will set the 'met' value based on start > current_time > stop.
     """
-    def __init__(self, comp_name, settings,
-                 start=None, stop=None, weekdays=None, parent=None, interval=5):
+    def __init__(self, comp_name, settings, start=None, stop=None,
+                 weekdays=None, operational=False, parent=None, interval=5):
         """
         :type comp_name: str
         :type settings: ThreadSafeObject
         :type start: str or None
         :type stop: str or None
         :type weekdays: str or None
+        :type operational: bool
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings,
+                                 operational=operational, parent=parent)
         self.start_time = self.get_datetime_object(start)
         self.stop_time = self.get_datetime_object(stop)
         self.day_range = self.parse_range(weekdays)
@@ -193,7 +195,7 @@ class PredicateTime(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, start="{3}", '
-                'stop="{4}", days={5}, started={6}, met={7})'
+                'stop="{4}", days={5}, started={6}, operational={7}, met={8})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
@@ -201,6 +203,7 @@ class PredicateTime(SimplePredicate):
                         self.stop_time,
                         self.day_range,
                         self.started,
+                        self._operational,
                         self._met))
 
     def __eq__(self, other):

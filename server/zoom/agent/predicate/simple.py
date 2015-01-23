@@ -2,15 +2,17 @@ import logging
 
 
 class SimplePredicate(object):
-    def __init__(self, comp_name, settings, parent=None):
+    def __init__(self, comp_name, settings, operational=False, parent=None):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type operational: bool
         :type parent: str or None
         """
         self._met = None
         self._parent = parent
         self._comp_name = comp_name
+        self._operational = operational
         self._callbacks = list()
         self._started = False
         self._log = logging.getLogger('sent.{0}.pred'.format(comp_name))
@@ -20,6 +22,10 @@ class SimplePredicate(object):
     @property
     def met(self):
         return self._met
+
+    @property
+    def operationally_relevant(self):
+        return self._operational
 
     @property
     def started(self):
@@ -79,10 +85,11 @@ class SimplePredicate(object):
         self._started = False
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, met={3})'
+        return ('{0}(component={1}, parent={2}, operational={3}, met={4})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
+                        self._operational,
                         self.met)
                 )
 

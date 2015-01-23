@@ -20,6 +20,10 @@ class PredicateNot(SimplePredicate):
         return not self.dependency.met
 
     @property
+    def operationally_relevant(self):
+        return self.dependency.operationally_relevant
+
+    @property
     def started(self):
         return all([self._started, self.dependency.started])
 

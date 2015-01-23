@@ -9,14 +9,17 @@ from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateWeekend(SimplePredicate):
-    def __init__(self, comp_name, settings, parent=None, interval=10):
+    def __init__(self, comp_name, settings,
+                 operational=False, parent=None, interval=10):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type operational: bool
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings,
+                                 operational=operational, parent=parent)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.weekend'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
@@ -62,11 +65,13 @@ class PredicateWeekend(SimplePredicate):
         self.set_met(self.weekday in [Weekdays.SATURDAY, Weekdays.SUNDAY])
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, started={3}, met={4})'
+        return ('{0}(component={1}, parent={2}, started={3}, '
+                'operational={4}, met={5})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.started,
+                        self._operational,
                         self._met))
 
     def __eq__(self, other):

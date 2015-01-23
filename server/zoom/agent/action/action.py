@@ -12,7 +12,7 @@ class Action(object):
                  staggerpath=None, staggertime=None, mode_controlled=False,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
                  system=None, pred_list=None, settings=None, disabled=False,
-                 pd_enabled=True):
+                 pd_enabled=True, op_action=None):
         """
         :type name: str
         :type component_name: str
@@ -32,6 +32,7 @@ class Action(object):
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type disabled: bool
         :type pd_enabled: bool
+        :type op_action: types.FunctionType or None
         """
         self.name = name
         self.disabled = disabled
@@ -42,6 +43,7 @@ class Action(object):
         self._mode_controlled = mode_controlled
         self._mode = mode
         self._pd_enabled = pd_enabled
+        self._op_action = op_action
         self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
@@ -95,6 +97,16 @@ class Action(object):
         elif not self._predicate.met:
             self._log.debug('Not triggering action for {0}. '
                             'Predicate not met.'.format(self))
+
+            # check if there are operational dependencies involved.
+            # If so, run the operational action. This defaults to 'stop'.
+            if self._predicate.operationally_relevant and \
+                            self._op_action is not None:
+                self._log.info('Operational relevancy detected. '
+                               'Triggering operation action.')
+                self._action_queue.append_unique(Task(self.name,
+                                                      func=self._op_action),
+                                                 sender=str(self))
             return
 
         elif self._action is not None:
