@@ -279,6 +279,9 @@ class Application(object):
     def start_if_ready(self):
         if self._action_is_ready('start'):
             self.start()
+        # if start action doesn't exist, a.k.a. read only
+        elif self._actions.get('start', None) is None:
+            self.start()
         else:
             self._action_queue.append(Task('react', pipe=False))
 
@@ -356,7 +359,6 @@ class Application(object):
         Register app data with the agent in the state tree.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        self._log.info('### updating agent node: {0}'.format(self.app_details()))
         if self._running and \
                 not self.zkclient.exists(self._paths['zk_state_base']):
             self.zkclient.create(self._paths['zk_state_base'], makepath=True)

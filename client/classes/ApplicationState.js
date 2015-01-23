@@ -127,13 +127,18 @@ define(
                     if (self.mode() !== parent.globalMode.current()) {
                         return constants.colors.warnOrange;
                     }
-
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
+                    if (self.mode() !== parent.globalMode.current()) {
+                        return constants.colors.warnOrange;
+                    }
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
+                    if (self.mode() !== parent.globalMode.current()) {
+                        return constants.colors.warnOrange;
+                    }
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {
