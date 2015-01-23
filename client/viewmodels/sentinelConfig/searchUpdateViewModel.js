@@ -2,29 +2,29 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
     function($, ko, AlertsViewModel, TreeViewModel, constants) {
 
         /******* SEARCH AND UPDATE VIEW MODEL *******/
-        return function SearchUpdateViewModel(ServerConfigViewModel) {
+        return function SearchUpdateViewModel(SentinelConfigViewModel) {
             var self = this;
 
-            self.serverConfig = ko.observable('');
+            self.sentinelConfig = ko.observable('');
             self.visible = ko.computed(function() {
-                return self.serverConfig() !== '';
+                return self.sentinelConfig() !== '';
             });
             self.treeViewModel = new TreeViewModel(self);
-            self.parent = ServerConfigViewModel;
+            self.parent = SentinelConfigViewModel;
 
             self.search = function() {
-                if (ServerConfigViewModel.serverName() === '') {
+                if (SentinelConfigViewModel.serverName() === '') {
                     AlertsViewModel.displayError('You must enter a server name!');
                 }
                 else {
                     // get XML configuration, catch callback message (allow editing on success)
-                    $.get('/api/config/' + ServerConfigViewModel.serverName(), function(data) {
+                    $.get('/api/config/' + SentinelConfigViewModel.serverName(), function(data) {
                         if (data !== 'Node does not exist.') {
                             self.setXML(data);
                         }
                         else {
-                            AlertsViewModel.displayError('Node ' + ServerConfigViewModel.serverName() + ' does not exist!');
-                            ServerConfigViewModel.serverList.remove(ServerConfigViewModel.serverName());
+                            AlertsViewModel.displayError('Node ' + SentinelConfigViewModel.serverName() + ' does not exist!');
+                            SentinelConfigViewModel.serverList.remove(SentinelConfigViewModel.serverName());
                         }
                     }).fail(function(data) {
                         swal('Failed Get Config', data.responseText, 'error');
@@ -33,7 +33,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             };
 
             self.setXML = function(data) {
-                self.serverConfig(vkbeautify.xml(data));
+                self.sentinelConfig(vkbeautify.xml(data));
                 self.treeViewModel.loadXML();
             };
 
@@ -42,7 +42,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                 // update existing config
                 swal({
                     title: 'Config Change!',
-                    text: 'Are you sure you want to push the configuration for ' + ServerConfigViewModel.serverName() + '?',
+                    text: 'Are you sure you want to push the configuration for ' + SentinelConfigViewModel.serverName() + '?',
                     type: 'warning',
                     confirmButtonText: 'Push it real good!',
                     confirmButtonColor: constants.colors.confirmgreen,
@@ -54,17 +54,17 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                 }, function (isConfirm) {
                     if (isConfirm) {
                         var params = {
-                            'XML': self.serverConfig(),
-                            'serverName': ServerConfigViewModel.serverName()
+                            'XML': self.sentinelConfig(),
+                            'serverName': SentinelConfigViewModel.serverName()
                         };
                         $.ajax(
                             {
-                                url: '/api/config/' + ServerConfigViewModel.serverName(),
+                                url: '/api/config/' + SentinelConfigViewModel.serverName(),
                                 type: 'PUT',
                                 data: JSON.stringify(params),
                                 success: function (returnData) {
                                     if (returnData === 'Node successfully updated.') {
-                                        AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully updated!');
+                                        AlertsViewModel.displaySuccess('Node ' + SentinelConfigViewModel.serverName() + ' was successfully updated!');
                                     }
                                     else {
                                         AlertsViewModel.displayError(returnData);
@@ -82,7 +82,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             self.validateXML = function() {
                 // parse XML doc and see if it has parsing errors
                 var XMLParser = new DOMParser();
-                var XMLDoc = XMLParser.parseFromString(self.serverConfig(), 'text/xml');
+                var XMLDoc = XMLParser.parseFromString(self.sentinelConfig(), 'text/xml');
 
                 if (XMLDoc.getElementsByTagName('parsererror').length > 0) {
                     var XMLString = new XMLSerializer().serializeToString(XMLDoc.documentElement);
@@ -96,7 +96,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             self.deleteConfig = function() {
                 swal({
                     title: 'Config Delete!',
-                    text: 'Are you sure you want to delete the configuration for ' + ServerConfigViewModel.serverName() + '?',
+                    text: 'Are you sure you want to delete the configuration for ' + SentinelConfigViewModel.serverName() + '?',
                     type: 'warning',
                     confirmButtonText: 'Delete it!',
                     confirmButtonColor: constants.colors.errorRed,
@@ -107,14 +107,14 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                     allowOutsideClick: true
                 }, function (isConfirm) {
                     if (isConfirm) {
-                        // attempt to delete the server configuration, catch callback message
+                        // attempt to delete the sentinel configuration, catch callback message
                         $.ajax({
-                            url: '/api/config/' + ServerConfigViewModel.serverName(),
+                            url: '/api/config/' + SentinelConfigViewModel.serverName(),
                             type: 'DELETE',
                             success: function (data) {
                                 if (data === 'Node successfully deleted.') {
-                                    AlertsViewModel.displaySuccess('Node ' + ServerConfigViewModel.serverName() + ' was successfully deleted!');
-                                    ServerConfigViewModel.getAllServerNames();
+                                    AlertsViewModel.displaySuccess('Node ' + SentinelConfigViewModel.serverName() + ' was successfully deleted!');
+                                    SentinelConfigViewModel.getAllServerNames();
                                 }
                                 else {
                                     AlertsViewModel.displayError(data);
@@ -126,8 +126,8 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             };
 
             self.editedConfig = function() {
-                var serverConfigDiv = document.getElementsByName('server-config')[0];
-                var newConfig = serverConfigDiv.textContent;
+                var sentinelConfigDiv = document.getElementsByName('server-config')[0];
+                var newConfig = sentinelConfigDiv.textContent;
 
                 self.setXML(newConfig);
             };
@@ -137,7 +137,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             };
 
             self.tearDown = function() {
-                self.serverConfig('');
+                self.sentinelConfig('');
             };
 
             self.setDefault = function() {

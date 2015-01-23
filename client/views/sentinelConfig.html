@@ -1,7 +1,7 @@
 <section xmlns="http://www.w3.org/1999/html">
     <div class="container-fluid">
         <div class="page-header" style="margin-top: 85px">
-            <h1>Server Configuration Agent</h1>
+            <h1>Sentinel Configuration</h1>
             <div class="row">
                 <div class="col-md-6">
                     <div class="input-group">
@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <!-- panel for searching and editing server configurations -->
+        <!-- panel for searching and editing sentinel configurations -->
         <div class="panel panel-default"
              data-bind="with: searchUpdateViewModel, visible: searchUpdateViewModel.visible">
             <div class="panel-heading">
@@ -57,14 +57,14 @@
                     </div>
                 </div>
                 <h4>XML:</h4>
-                <pre data-bind="text: serverConfig, value: serverConfig, event: {mouseout: editedConfig, click: closeAlerts}"
+                <pre data-bind="text: sentinelConfig, value: sentinelConfig, event: {mouseout: editedConfig, click: closeAlerts}"
                      name="server-config" id="server-config" contenteditable="true"></pre>
             </div>
         </div>
 
     </div>
 
-    <!-- templates for adding server configurations -->
+    <!-- templates for adding sentinel configurations -->
     <!-- Component -->
     <script type="text/html" id="component-template">
         <div class="panel panel-default success">

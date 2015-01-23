@@ -14,12 +14,6 @@ define(['jquery', 'model/constants'], function($, constants) {
             $('#graphiteModal').modal('show');
         };
 
-        self.serverConfigURL = function() {
-            var url = '#config';
-            url = url + '/';
-            url = url + host;
-        };
-
         self.applicationURL = function() {
             var url = 'http://graphite' + environment + '/render?';
             var appName = configPath.replace(constants.zkPaths.statePath, '');

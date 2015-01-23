@@ -9,7 +9,7 @@ from kazoo.exceptions import NoNodeError
 from zoom.common.decorators import TimeThis
 from zoom.agent.util.helpers import zk_path_join
 
-class ServerConfigHandler(tornado.web.RequestHandler):
+class SentinelConfigHandler(tornado.web.RequestHandler):
     @property
     def agent_configuration_path(self):
         """

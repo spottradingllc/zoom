@@ -237,7 +237,7 @@ define(
             };
 
             var deleteFromConfig = function() {
-                // try to remove component from server config
+                // try to remove component from sentinel config
                 $.get('/api/config/' + self.applicationHost(), function(data) {
                     if (data !== 'Node does not exist.') {
                         var parser = new DOMParser();
