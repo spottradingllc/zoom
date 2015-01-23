@@ -127,9 +127,6 @@ class ApplicationStateCache(object):
         """
         data, stat = self._get_app_details(path)
 
-        logging.info('### App details are: {0}'.format(data))
-
-
         # persistent node
         if stat.ephemeralOwner == 0:
             # watch node to see if children are created

@@ -721,6 +721,13 @@
                 title="Filter services that have PD disabled.">
             <span class="glyphicon glyphicon glyphicon-wrench"></span>
         </button>
+        <button data-bind="click: function(){setSearchTerm('readOnly')},
+                           attr: {class : ('btn btn-default' + ((searchTerm() == 'readOnly') ? ' active' : ''))}"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Filter services that are read only.">
+            <span class="glyphicon glyphicon glyphicon-eye-open"></span>
+        </button>
     </div>
 </script>
 
