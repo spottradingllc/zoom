@@ -63,7 +63,7 @@ define(
 
             };
 
-            self.showServerConfig = function(hostname) {
+            self.showSentinelConfig = function(hostname) {
                 router.navigate('#config/' + hostname(), {trigger: true });
             };
 

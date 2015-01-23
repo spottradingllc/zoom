@@ -474,14 +474,14 @@
                             <div class="dropdown-toggle" 
                                 tabindex="-1"
                                 href="#"
-                                title="View server config and metrics for this host."
+                                title="View sentinel config and metrics for this host."
                                 data-toggle="dropdown" >
                                 <span data-bind="text: applicationHostShort" class="cursor-pointer"/>
                             </div>
                             <ul class="dropdown-menu" role=menu >
                                 <li role="presentation">
                                     <a role="menuitem" tabindex="-1" href='#'
-                                        data-bind="click: function(){$parent.appStateModel.showServerConfig(applicationHost)}">Go to Server Config</a></li>
+                                        data-bind="click: function(){$parent.appStateModel.showSentinelConfig(applicationHost)}">Go to Sentinel Config</a></li>
                                     
                                 <li role="presentation" class="divider"></li>    
                                 <li role="presentation">
@@ -780,7 +780,7 @@
 
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showServerConfig($data.applicationHost)}" title="Click to jump to this server config" >
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.applicationHost)}" title="Click to jump to this sentinel config" >
         <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
         <span class="cursor-pointer" data-bind="text: $data.configurationPath"></span>
     </li>

@@ -76,11 +76,11 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
                 var footer = '</Automation></Application>';
                 XML = XML.concat(footer);
 
-                parent.serverConfig(vkbeautify.xml(XML));
+                parent.sentinelConfig(vkbeautify.xml(XML));
             };
 
             self.loadXML = function() {
-                var data = parent.serverConfig();
+                var data = parent.sentinelConfig();
                 self.clear();
                 var parser = new DOMParser();
                 var xmlDoc = parser.parseFromString(data, 'text/xml');
