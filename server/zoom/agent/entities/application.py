@@ -84,6 +84,7 @@ class Application(object):
         self._run_check_mode = False
         self._pd_svc_key = verify_attribute(config, 'pagerduty_service',
                                             none_allowed=True)
+        self._read_only = False
 
         self._paths = self._init_paths(self.config, settings, application_type)
 
@@ -113,7 +114,8 @@ class Application(object):
                 'mode': self._mode.value,
                 'state': self._state.value,
                 'trigger_time': self._trigger_time,
-                'login_user': self._login_user}
+                'login_user': self._login_user,
+                'read_only': self._read_only}
 
     def run(self):
         """
@@ -276,6 +278,9 @@ class Application(object):
 
     def start_if_ready(self):
         if self._action_is_ready('start'):
+            self.start()
+        # if start action doesn't exist, a.k.a. read only
+        elif self._actions.get('start', None) is None:
             self.start()
         else:
             self._action_queue.append(Task('react', pipe=False))
@@ -447,7 +452,22 @@ class Application(object):
                                        system=self._system,
                                        pred_list=self._predicates,
                                        settings=settings)
-        return action_factory.create(self.config)
+
+        actions = action_factory.create(self.config)
+
+        self._determine_read_only(actions)
+
+        return actions
+
+    def _determine_read_only(self, actions):
+        start_action = actions.get('start', None)
+
+        if start_action is None:
+            self._read_only = True
+        elif start_action.disabled is True:
+            self._read_only = True
+        else:
+            self._read_only = False
 
     def _init_work_manager(self, queue, pipe):
         """

@@ -22,7 +22,8 @@ define(['jquery', 'knockout'], function($, ko) {
             stopping: 'stopping',
             error: 'error',
             pdDisabled: 'pdDisabled',
-            grayed: 'grayed'
+            grayed: 'grayed',
+            readOnly: 'readOnly'
         };
 
         // member variables and getters/setters
@@ -103,7 +104,8 @@ define(['jquery', 'knockout'], function($, ko) {
                     }
                     else if (self.parameter() === self.parameters.errorState) {
                         // these are separate variables (do not map to errorState) but they are visible in the 'Status' column
-                        if (self.searchTerm() === self.searchTerms.pdDisabled || self.searchTerm() === self.searchTerms.grayed) {
+                        if (self.searchTerm() === self.searchTerms.pdDisabled || self.searchTerm() === self.searchTerms.grayed ||
+                            self.searchTerm() === self.searchTerms.readOnly) {
                             self.applyBoolFilter(self.searchTerm(), appState);
                         }
                         else {

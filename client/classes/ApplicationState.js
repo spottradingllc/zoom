@@ -29,6 +29,7 @@ define(
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
             self.loginUser = ko.observable(data.login_user);
+            self.readOnly = ko.observable(data.read_only);
             self.lastCommand = ko.observable(data.last_command);
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
@@ -115,19 +116,29 @@ define(
                 else { return ""; }
             });
 
+            self.readOnlyClass = ko.computed(function() {
+                if (self.readOnly()) { return constants.glyphs.readOnly; }
+                else { return ""; }
+            });
+
             self.errorStateBg = ko.computed(function() {
                 if (self.grayed()) { return constants.colors.disabledGray; }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.ok) {
                     if (self.mode() !== parent.globalMode.current()) {
                         return constants.colors.warnOrange;
                     }
-
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
+                    if (self.mode() !== parent.globalMode.current()) {
+                        return constants.colors.warnOrange;
+                    }
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
+                    if (self.mode() !== parent.globalMode.current()) {
+                        return constants.colors.warnOrange;
+                    }
                     return constants.colors.successTrans;
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.starting) {

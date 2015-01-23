@@ -513,6 +513,7 @@
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass, title : errorStateTitle}"></span>
                         <span data-bind="attr : {class : modeClass, title : mode}"></span>
+                        <span data-bind="attr : {class : readOnlyClass}"  title="Read Only"></span>
                         <span data-bind="attr : {class : pdDisabledClass, title: pdDisabled() ? 'PD alerts disabled' : ''}"></span>
                     </td>
                     <!-- Control -->
@@ -719,6 +720,13 @@
                 data-placement="top"
                 title="Filter services that have PD disabled.">
             <span class="glyphicon glyphicon glyphicon-wrench"></span>
+        </button>
+        <button data-bind="click: function(){setSearchTerm('readOnly')},
+                           attr: {class : ('btn btn-default' + ((searchTerm() == 'readOnly') ? ' active' : ''))}"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Filter services that are read only.">
+            <span class="glyphicon glyphicon glyphicon-eye-open"></span>
         </button>
     </div>
 </script>

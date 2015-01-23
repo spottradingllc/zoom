@@ -22,11 +22,12 @@ define([], function () {
             notifyExclamation: 'glyphicon glyphicon-exclamation-sign',
             filledStar: 'glyphicon glyphicon-star',
             emptyStar: 'glyphicon glyphicon-star-empty',
-            modeAuto: 'glyphicon glyphicon-eye-open',
-            modeManual: 'glyphicon glyphicon-eye-close',
+            modeAuto: 'glyphicon glyphicon-sort-by-attributes',
+            modeManual: 'glyphicon glyphicon-pause',
             configErr: 'glyphicon glyphicon-resize-small',
             grayed: 'glyphicon glyphicon-user',
-            pdWrench: 'glyphicon glyphicon-wrench'
+            pdWrench: 'glyphicon glyphicon-wrench',
+            readOnly: 'glyphicon glyphicon-eye-open'
         },
 
         applicationStatuses: {

@@ -17,6 +17,7 @@ class TestApplicationState(TestCase):
                                       last_command="12",
                                       pd_disabled=False,
                                       grayed=True,
+                                      read_only=True,
                                       platform=0)
 
     def test_to_dictionary(self):
@@ -35,6 +36,7 @@ class TestApplicationState(TestCase):
                 'last_command': "12",
                 'pd_disabled': False,
                 'grayed': True,
+                'read_only': True,
                 'platform': 0
             },
             self.state.to_dictionary()

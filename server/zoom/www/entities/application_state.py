@@ -8,8 +8,8 @@ class ApplicationState(object):
                  application_status=None, application_host=None,
                  completion_time=None, trigger_time=None, error_state=None,
                  local_mode=None, delete=False, login_user=None,
-                 last_command=None, grayed=None, pd_disabled=None,
-                 platform=None):
+                 last_command=None, read_only=None, grayed=None,
+                 pd_disabled=None, platform=None):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -21,6 +21,7 @@ class ApplicationState(object):
         self._delete = delete
         self._login_user = login_user
         self._last_command = last_command
+        self._read_only = read_only
         self._grayed = grayed
         self._pd_disabled = pd_disabled
         self._platform = platform
@@ -91,6 +92,7 @@ class ApplicationState(object):
             'local_mode': self._local_mode,
             'login_user': self._login_user,
             'last_command': self._last_command,
+            'read_only': self._read_only,
             'grayed': self._grayed,
             'pd_disabled': self._pd_disabled,
             'platform': self._platform
