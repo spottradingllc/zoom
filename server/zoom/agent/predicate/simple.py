@@ -25,7 +25,7 @@ class SimplePredicate(object):
 
     @property
     def operationally_relevant(self):
-        return self._operational
+        return self._operational and not self._met
 
     @property
     def started(self):

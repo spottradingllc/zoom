@@ -21,7 +21,7 @@ class PredicateNot(SimplePredicate):
 
     @property
     def operationally_relevant(self):
-        return self.dependency.operationally_relevant
+        return self.dependency.operationally_relevant and self.dependency.met
 
     @property
     def started(self):
