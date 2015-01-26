@@ -1,11 +1,10 @@
 import logging
-import os.path
 
 from xml.etree import ElementTree
-
 from kazoo.exceptions import NoNodeError
 
 from zoom.agent.predicate.pred_time import PredicateTime
+from zoom.agent.util.helpers import verify_attribute
 from zoom.common.decorators import connected_with_return
 from zoom.common.types import PredicateType, Weekdays
 from zoom.www.messages.application_dependencies \
@@ -148,20 +147,26 @@ class ApplicationDependencyCache(object):
         for predicate in action.iter('Predicate'):
             pred_type = predicate.get('type').lower()
             pred_path = predicate.get('path', None)
+            # pred_oper = predicate.get('operational', False)
+            pred_oper = bool(verify_attribute(predicate, 'operational',
+                                              none_allowed=True))
             if pred_type == PredicateType.ZOOKEEPERHASCHILDREN:
                 dependencies.append({'type': pred_type,
-                                     'path': pred_path})
+                                     'path': pred_path,
+                                     'operational': pred_oper})
                 prev_was_not = False
             if pred_type == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
                 dependencies.append({'type': pred_type,
-                                     'path': pred_path})
+                                     'path': pred_path,
+                                     'operational': pred_oper})
                 prev_was_not = False
             if pred_type == PredicateType.ZOOKEEPERGOODUNTILTIME:
                 if len(pred_path.split('gut/')) > 1:
                     dependencies.append(
                         {'type': pred_type,
                          'path': ("I should be up between: {0}"
-                                  .format(pred_path.split("gut/")[1]))})
+                                  .format(pred_path.split("gut/")[1])),
+                         'operational': pred_oper})
                 else:
                     logging.debug('Invalid GUT path: {0}'.format(pred_path))
                 prev_was_not = False
@@ -169,13 +174,15 @@ class ApplicationDependencyCache(object):
                 dependencies.append(
                     {'type': pred_type,
                      'path': ("Does NOT run on holidays" if prev_was_not
-                              else "Runs on holidays")})
+                              else "Runs on holidays"),
+                     'operational': pred_oper})
                 prev_was_not = False
             if pred_type == PredicateType.WEEKEND:
                 dependencies.append(
                     {'type': pred_type,
                      'path': ("Does NOT run on weekends" if prev_was_not
-                              else "Runs on weekends")})
+                              else "Runs on weekends"),
+                     'operational': pred_oper})
                 prev_was_not = False
             if pred_type == PredicateType.TIME:
                 start = predicate.get('start', None)
@@ -188,7 +195,8 @@ class ApplicationDependencyCache(object):
                     msg += 'until: {0}'.format(stop)
                 # only send dependency if there is something to send
                 if start is not None or stop is not None:
-                    dependencies.append({'type': pred_type, 'path': msg})
+                    dependencies.append({'type': pred_type, 'path': msg,
+                                         'operational': pred_oper})
 
                 # pretend this is a weekend predicate for convenience
                 if weekdays is not None:
@@ -200,7 +208,8 @@ class ApplicationDependencyCache(object):
                         wk_msg = 'Does NOT run on weekends'
 
                     dependencies.append({'type': PredicateType.WEEKEND,
-                                         'path': wk_msg})
+                                         'path': wk_msg,
+                                         'operational': pred_oper})
 
             if pred_type == PredicateType.NOT:
                 prev_was_not = True

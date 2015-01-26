@@ -56,11 +56,14 @@ class PredicateFactory(object):
             root = xmlpart
 
         ptype = verify_attribute(root, 'type').lower()
+        operational = bool(verify_attribute(root, 'operational',
+                                            none_allowed=True))
 
         if ptype == 'simple':
             return self._ensure_new(
                 SimplePredicate(self._component_name,
                                 self._settings,
+                                operational=operational,
                                 parent=self._parent),
                 callback=callback
             )
@@ -70,6 +73,7 @@ class PredicateFactory(object):
                                     self._settings,
                                     self.zkclient,
                                     verify_attribute(root, 'path'),
+                                    operational=operational,
                                     parent=self._parent),
                 callback=callback
             )
@@ -79,6 +83,7 @@ class PredicateFactory(object):
                                      self._settings,
                                      self.zkclient,
                                      verify_attribute(root, 'path'),
+                                     operational=operational,
                                      parent=self._parent),
                 callback=callback
             )
@@ -88,6 +93,7 @@ class PredicateFactory(object):
                                           self._settings,
                                           self.zkclient,
                                           verify_attribute(root, 'path'),
+                                          operational=operational,
                                           parent=self._parent),
                 callback=callback
             )
@@ -97,6 +103,7 @@ class PredicateFactory(object):
                                        self._settings,
                                        self.zkclient,
                                        verify_attribute(root, 'path'),
+                                       operational=operational,
                                        parent=self._parent),
                 callback=callback
             )
@@ -106,6 +113,7 @@ class PredicateFactory(object):
                                  self._settings,
                                  self._proc_client,
                                  verify_attribute(root, 'interval', cast=float),
+                                 operational=operational,
                                  parent=self._parent),
                 callback=callback
             )
@@ -116,6 +124,7 @@ class PredicateFactory(object):
                                 verify_attribute(root, 'command'),
                                 verify_attribute(root, 'interval', cast=float),
                                 self._system,
+                                operational=operational,
                                 parent=self._parent),
                 callback=callback
             )
@@ -123,12 +132,14 @@ class PredicateFactory(object):
             return self._ensure_new(PredicateHoliday(self._component_name,
                                                      self._settings,
                                                      self.zkclient,
+                                                     operational=operational,
                                                      parent=self._parent),
                                     callback=callback
             )
         elif ptype == PredicateType.WEEKEND:
             return self._ensure_new(PredicateWeekend(self._component_name,
                                                      self._settings,
+                                                     operational=operational,
                                                      parent=self._parent),
                                     callback=callback
             )
@@ -142,6 +153,7 @@ class PredicateFactory(object):
                                                     none_allowed=True),
                               weekdays=verify_attribute(root, 'weekdays',
                                                         none_allowed=True),
+                              operational=operational,
                               parent=self._parent),
                 callback=callback
             )

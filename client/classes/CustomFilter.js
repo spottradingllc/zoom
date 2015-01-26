@@ -162,7 +162,7 @@ define(['jquery', 'knockout'], function($, ko) {
         self.applyDependencyFilter = function(appState) {
             if (self.parameter() === self.parameters.requires && !self.inversed()) {
                 ko.utils.arrayForEach(appState.dependencyModel.requires(), function(requirement) {
-                    if (requirement.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
+                    if (requirement.state.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
                         self.pushMatchedItem(appState);
                     }
                 });
@@ -177,7 +177,7 @@ define(['jquery', 'knockout'], function($, ko) {
             else if (self.parameter() === self.parameters.requires && self.inversed()) {
                 // generate an array of the config paths of each requirement
                 var requirementConfigPaths = ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
-                    return requirement.configurationPath;
+                    return requirement.state.configurationPath;
                 });
 
                 // check if any required config path contains the search term

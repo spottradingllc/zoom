@@ -276,6 +276,15 @@
                                 <li><a data-bind="text: $data, click: function(){ $parent.path($data) }"></a></li>
                             </ul>
                         </span>
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="operational dependency"
+                                   data-toggle="dropdown" data-bind="tooltip, value: operational, text: operational"
+                                   data-toggle="tooltip" data-placement="top" title="operational dependency">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){operational('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){operational('False')}">False</a></li>
+                                </ul>
+                        </span>
                     </div>
                 </form>
             </div>
