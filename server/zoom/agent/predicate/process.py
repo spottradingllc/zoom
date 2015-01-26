@@ -8,15 +8,18 @@ from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateProcess(SimplePredicate):
-    def __init__(self, comp_name, settings, proc_client, interval, parent=None):
+    def __init__(self, comp_name, settings, proc_client, interval,
+                 operational=False, parent=None):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type proc_client: zoom.agent.client.process_client.ProcessClient
         :type interval: int or float
+        :type operational: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings,
+                                 operational=operational, parent=parent)
         self._log = logging.getLogger('sent.{0}.pred.process'.format(comp_name))
         self._proc_client = proc_client
 
@@ -67,12 +70,13 @@ class PredicateProcess(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, interval={3}, started={4}, '
-                'met={5})'
+                'operational={5}, met={6})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.interval,
                         self.started,
+                        self._operational,
                         self._met)
                 )
 

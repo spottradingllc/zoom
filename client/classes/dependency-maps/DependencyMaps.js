@@ -58,7 +58,7 @@ define([
                 return {
                     name: name,
                     children: ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
-                        return self.createRequirementsDict(requirement);
+                        return self.createRequirementsDict(requirement.state);
                     }),
                     status: appState.applicationStatus(),
                     grayed: appState.grayed(),

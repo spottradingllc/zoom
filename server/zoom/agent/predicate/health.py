@@ -11,16 +11,19 @@ from zoom.agent.predicate.simple import SimplePredicate
 
 
 class PredicateHealth(SimplePredicate):
-    def __init__(self, comp_name, settings, command, interval, system, parent=None):
+    def __init__(self, comp_name, settings, command, interval, system,
+                 operational=False, parent=None):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type command: str
         :type interval: int or float
         :type system: zoom.common.types.PlatformType
+        :type operational: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings,
+                                 operational=operational, parent=parent)
         self._log = logging.getLogger('sent.{0}.pred.health'.format(comp_name))
         self.interval = interval
         self.rawcmd = command
@@ -104,13 +107,14 @@ class PredicateHealth(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, cmd="{3}", interval={4} '
-                'started={5}, met={6})'
+                'started={5}, operational={6}, met={7})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.rawcmd,
                         self.interval,
                         self.started,
+                        self._operational,
                         self._met))
     
     def __eq__(self, other):

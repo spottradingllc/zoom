@@ -39,12 +39,13 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                 var neverFound = true;
                 var predType = entry.type;
                 var path = entry.path;
+                var operational = entry.operational;
 
                 // if path = /foo, match both /foo/bar and /foo/baz
                 if (predType === constants.predicateTypes.ZooKeeperHasGrandChildren) {
                     ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) === path) {
-                            self.requires.push(applicationState);
+                            self.requires.push({'state': applicationState, 'operational': operational});
                             neverFound = false;
                         }
                     });
@@ -55,13 +56,13 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     });
                     if (applicationState) {
                         neverFound = false;
-                        self.requires.push(applicationState);
+                        self.requires.push({'state': applicationState, 'operational': operational});
                     }
                 }
                 // if this predicate type exists in arrayMapping
                 else if (typeof arrayMapping[predType] !== 'undefined') {
                     // push path to appropriate array based on predicate type
-                    arrayMapping[predType].push(path);
+                    arrayMapping[predType].push({'state': path, 'operational': operational});
                     neverFound = false;
                 }
                 else {
@@ -83,7 +84,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         'requires': ko.observableArray([]),
                         'errorState': ko.observable(constants.errorStates.unknown)
                     };
-                    self.requires.push(showAsMissing);
+                    self.requires.push({'state': showAsMissing, 'operational': operational});
                 }
             });
         };
@@ -91,7 +92,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         self.requirementsAreUp = ko.computed(function() {
             if (self.requires().length > 0) {
                 for (var i = 0; i < self.requires().length; i++) {
-                    if (self.requires()[i].applicationStatus() === constants.applicationStatuses.stopped) {
+                    if (self.requires()[i].state.applicationStatus() === constants.applicationStatuses.stopped) {
                         return false;
                     }
                 }

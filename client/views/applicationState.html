@@ -783,14 +783,15 @@
 
 <!--Template for Displaying other predicates-->
 <script type="text/html" id="other-predicates-template">
-    <span data-bind="text: $data"></span>
+    <span data-bind="text: $data.state"></span>
 </script>
 
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.applicationHost)}" title="Click to jump to this sentinel config" >
-        <span data-bind="attr : {class : $data.applicationStatusClass}" style="padding: 4px"></span>
-        <span class="cursor-pointer" data-bind="text: $data.configurationPath"></span>
+    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.state.applicationHost)}"
+        title="Click to jump to this sentinel config" >
+        <span data-bind="attr : {class : $data.state.applicationStatusClass}" style="padding: 4px"></span>
+        <span class="cursor-pointer" data-bind="text: $data.state.configurationPath + ($data.operational ? '***' : '')"></span>
     </li>
 </script>
 

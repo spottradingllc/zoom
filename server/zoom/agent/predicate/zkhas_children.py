@@ -5,17 +5,19 @@ from zoom.common.decorators import connected
 
 
 class ZookeeperHasChildren(SimplePredicate):
-    def __init__(self, comp_name, settings, zkclient, nodepath, met_on_delete=False,
-                 parent=None):
+    def __init__(self, comp_name, settings, zkclient, nodepath,
+                 met_on_delete=False, operational=False, parent=None):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type met_on_delete: bool
+        :type operational: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, settings, parent=parent)
+        SimplePredicate.__init__(self, comp_name, settings,
+                                 operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._met_on_delete = met_on_delete
@@ -50,12 +52,13 @@ class ZookeeperHasChildren(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
-                'met={5})'
+                'operational={5}, met={6})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.node,
                         self.started,
+                        self._operational,
                         self.met))
 
     def __eq__(self, other):

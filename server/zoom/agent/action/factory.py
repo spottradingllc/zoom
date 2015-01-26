@@ -45,6 +45,7 @@ class ActionFactory(object):
         actions = dict()
         for element in root.iter('Action'):
             func = verify_attribute(element, 'func', none_allowed=True)
+            op_func = verify_attribute(element, 'op_func', none_allowed=True)
             name = verify_attribute(element, 'id').lower()
             staggerpath = verify_attribute(element, 'staggerpath',
                                            none_allowed=True)
@@ -65,6 +66,12 @@ class ActionFactory(object):
             else:
                 action = getattr(self._comp, name, None)
 
+            if op_func is None:
+                # default operational dependency action to 'stop'
+                op_action = getattr(self._comp, 'stop', None)
+            else:
+                op_action = getattr(self._comp, op_func, None)
+
             if action is not None:
                 actions[name] = Action(name, self._comp.name, action, element,
                                        action_q=self._action_q,
@@ -78,7 +85,8 @@ class ActionFactory(object):
                                        pred_list=self._pred_list,
                                        settings=self._settings,
                                        disabled=bool(disabled),
-                                       pd_enabled=pagerduty_enabled)
+                                       pd_enabled=pagerduty_enabled,
+                                       op_action=op_action)
                 self._log.info('Registered {0}.'.format(actions[name]))
             else:
                 self._log.error('Invalid action ID or func specified: '

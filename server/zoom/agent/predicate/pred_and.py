@@ -21,6 +21,10 @@ class PredicateAnd(SimplePredicate):
         return all([d.met for d in self.dependencies])
 
     @property
+    def operationally_relevant(self):
+        return any([d.operationally_relevant for d in self.dependencies])
+
+    @property
     def started(self):
         return all([
             self._started,
