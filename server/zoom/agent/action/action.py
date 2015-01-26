@@ -101,12 +101,17 @@ class Action(object):
             # check if there are operational dependencies involved.
             # If so, run the operational action. This defaults to 'stop'.
             if self._predicate.operationally_relevant and \
-                            self._op_action is not None:
+                            self._op_action is not None and \
+                    self._mode != ApplicationMode.MANUAL:
                 self._log.info('Operational relevancy detected. '
                                'Triggering operation action.')
                 self._action_queue.append_unique(Task(self.name,
                                                       func=self._op_action),
                                                  sender=str(self))
+            else:
+                self._log.debug('Operation dep={0}, Mode={1}'
+                                .format(self._predicate.operationally_relevant,
+                                        self._mode))
             return
 
         elif self._action is not None:
