@@ -81,6 +81,7 @@ class Application(object):
         self._state = ThreadSafeObject(ApplicationState.OK)
         self._trigger_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
+        self._user_set_in_react = False
         self._run_check_mode = False
         self._pd_svc_key = verify_attribute(config, 'pagerduty_service',
                                             none_allowed=True)
@@ -205,7 +206,10 @@ class Application(object):
         pd_enabled = kwargs.get('pd_enabled', True)
 
         self._trigger_time = self._get_current_time()
-        self._login_user = kwargs.get('login_user', 'Zoom')
+
+        # set login user if not set in react
+        if not self._user_set_in_react:
+            self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STARTING)
         self._update_agent_node_with_app_details()
 
@@ -256,6 +260,9 @@ class Application(object):
         sleep(5)  # give everything time to catch up
         self._update_agent_node_with_app_details()
 
+        # reset this value back to False
+        self._user_set_in_react = False
+
         return result
 
     def restart(self, **kwargs):
@@ -274,16 +281,16 @@ class Application(object):
 
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()
-        self._action_queue.append(Task('start_if_ready', pipe=False))
+        self._action_queue.append(Task('start_if_ready', kwargs=kwargs, pipe=False))
 
-    def start_if_ready(self):
+    def start_if_ready(self, **kwargs):
         if self._action_is_ready('start'):
-            self.start()
+            self.start(**kwargs)
         # if start action doesn't exist, a.k.a. read only
         elif self._actions.get('start', None) is None:
-            self.start()
+            self.start(**kwargs)
         else:
-            self._action_queue.append(Task('react', pipe=False))
+            self._action_queue.append(Task('react', kwargs=kwargs, pipe=False))
 
     @time_this
     @connected
@@ -305,6 +312,10 @@ class Application(object):
         self._mode.set_value(ApplicationMode.AUTO)
         self._log.info('Mode is now "{0}"'.format(self._mode))
         self._update_agent_node_with_app_details()
+
+        # when react is called through "restart with dependencies" command
+        self._user_set_in_react = True
+        self._login_user = kwargs.get('login_user', 'Zoom')
         return 0
 
     @time_this
