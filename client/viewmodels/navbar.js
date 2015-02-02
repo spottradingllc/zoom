@@ -10,9 +10,10 @@
         'model/environmentModel',
         'model/pillarModel',
         'model/toolsModel',
+        'model/kibanaModel',
         'bootstrap'
     ],
-    function(router, app, $, ko, service, login, admin, environment, pillar, tools) {
+    function(router, app, $, ko, service, login, admin, environment, pillar, tools, kibana) {
         var self = this;
         self.connection = {};
 
@@ -39,6 +40,7 @@
             environment: environment,
             pillar: pillar,
             tools: tools,
+            kibana: kibana,
             connection: self.connection,
             isFAQ: function(title) {
                 return title.search('FAQ') !== -1;
@@ -56,4 +58,6 @@
                 return router.activate();
             }
         };
+
+
     });

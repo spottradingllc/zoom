@@ -3,6 +3,7 @@ define(['jquery', 'model/constants'], function($, constants) {
         var self = this;
 
         self.modalShow = function(urls) {
+            console.log(urls)
             $('#graphiteBody').empty();
 
             for (var i = 0; i < urls.length; ++i) {
@@ -102,5 +103,14 @@ define(['jquery', 'model/constants'], function($, constants) {
             url = url + '&vtitle= Errors';
             return encodeURI(url);
         }();
+
+        self.kibanaURL = function() {
+            var form = document.createElement("form");
+            form.method = "GET";
+            form.action = "http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Errors";
+            form.target = "_blank";
+//            document.body.appendChild(form);
+            form.submit();
+        };
     };
 });

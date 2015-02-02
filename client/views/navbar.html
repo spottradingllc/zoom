@@ -16,26 +16,33 @@
                     <li class="loader" data-bind="css: { active: router.isNavigating }">
                         <i class="fa fa-spinner fa-spin fa-2x"></i>
                     </li>
+
                     <li class="dropdown" data-bind="visible: login.elements.authenticated">
                         <a class="dropdown-toggle" href="#" id="adminDropDown" data-toggle="dropdown">
                             <span>Admin</span>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu navbar-drop" aria-labelledby="adminDropDown">
-                            <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success">
-                                Disable Admin </button>
-                            <button data-bind="click: function() { admin.enable() }, visible: !admin.enabled()" class="btn btn-danger"> 
-                                Enable Admin </button>
-                             <button data-bind="click: function(){ router.navigate('#tools', {trigger: true })}"
-                                     class="btn btn-success"
-                                     style="margin-top: 10px">
-                                ZK Tools
-                             </button>
-
-
-
+                        <div class="dropdown-menu navbar-drop" role=menu>
+                            <a data-bind="click: function() { admin.disable() }, visible: admin.enabled()">Disable Admin</a>
+                            <a data-bind="click: function() { admin.enable() }, visible: !admin.enabled()">Enable Admin</a></p>
+                            <a data-bind="click: function() { router.navigate('#tools', {trigger: true })}">ZK Tools</a></p>
                         </div>
                     </li>
+
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" id="kibana" data-toggle="dropdown">
+                            <span>Kibana</span>
+                            <strong class="caret"></strong>
+                        </a>
+                        <div class="dropdown-menu navbar-drop" role=menu>
+                            <a data-bind="click: function() { kibana.ProdErrorsURL()}">Production Errors</a></p>
+                            <a data-bind="click: function() { kibana.ProdStatsURL()}">Production Stats</a></p>
+                            <a data-bind="click: function() { kibana.StagingStatsURL()}">Staging Stats</a>
+                        </div>
+                    </li>
+
+
+
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="#" id="faqDropDown" data-toggle="dropdown">
                             <span>FAQ</span>
