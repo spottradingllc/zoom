@@ -16,7 +16,6 @@
                     <li class="loader" data-bind="css: { active: router.isNavigating }">
                         <i class="fa fa-spinner fa-spin fa-2x"></i>
                     </li>
-
                     <li class="dropdown" data-bind="visible: login.elements.authenticated">
                         <a class="dropdown-toggle" href="#" id="adminDropDown" data-toggle="dropdown">
                             <span>Admin</span>
@@ -28,7 +27,6 @@
                             <a data-bind="click: function() { router.navigate('#tools', {trigger: true })}">ZK Tools</a>
                         </div>
                     </li>
-
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="#" id="kibana" data-toggle="dropdown">
                             <span>Kibana</span>
@@ -40,9 +38,6 @@
                             <a data-bind="click: function() { kibana.StagingStatsURL()}">Staging Stats</a>
                         </div>
                     </li>
-
-
-
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="#" id="faqDropDown" data-toggle="dropdown">
                             <span>FAQ</span>

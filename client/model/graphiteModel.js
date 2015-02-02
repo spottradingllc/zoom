@@ -3,7 +3,6 @@ define(['jquery', 'model/constants'], function($, constants) {
         var self = this;
 
         self.modalShow = function(urls) {
-            console.log(urls)
             $('#graphiteBody').empty();
 
             for (var i = 0; i < urls.length; ++i) {

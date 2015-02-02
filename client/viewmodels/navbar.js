@@ -58,6 +58,4 @@
                 return router.activate();
             }
         };
-
-
     });

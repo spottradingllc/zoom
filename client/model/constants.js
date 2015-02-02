@@ -74,7 +74,5 @@ define([], function () {
             prodStats: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Zoom_Production_stats',
             stagingStats: 'http://kibanastaging:9292/index.html#/dashboard/elasticsearch/Zoom_Staging_stats'
         }
-
-
     };
 });
