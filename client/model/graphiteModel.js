@@ -104,13 +104,5 @@ define(['jquery', 'model/constants'], function($, constants) {
             return encodeURI(url);
         }();
 
-        self.kibanaURL = function() {
-            var form = document.createElement("form");
-            form.method = "GET";
-            form.action = "http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Errors";
-            form.target = "_blank";
-//            document.body.appendChild(form);
-            form.submit();
-        };
     };
 });
