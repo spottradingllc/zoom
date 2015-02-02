@@ -102,6 +102,5 @@ define(['jquery', 'model/constants'], function($, constants) {
             url = url + '&vtitle= Errors';
             return encodeURI(url);
         }();
-
     };
 });
