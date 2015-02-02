@@ -33,9 +33,9 @@
                             <strong class="caret"></strong>
                         </a>
                         <div class="dropdown-menu navbar-drop" role=menu>
-                            <a data-bind="click: function() { kibana.ProdErrorsURL()}">Production Errors</a></p>
-                            <a data-bind="click: function() { kibana.ProdStatsURL()}">Production Stats</a></p>
-                            <a data-bind="click: function() { kibana.StagingStatsURL()}">Staging Stats</a>
+                            <a data-bind="click: function() { kibana.ProdErrorsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Errors</a>
+                            <a data-bind="click: function() { kibana.ProdStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Stats</a>
+                            <a data-bind="click: function() { kibana.StagingStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.stg">Staging Stats</a>
                         </div>
                     </li>
                     <li class="dropdown">

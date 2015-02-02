@@ -38,6 +38,15 @@ define(['knockout', 'service' ], function(ko, service) {
         }
     });
 
+    environment.envTextColor = ko.computed(function() {
+        switch (environment.env().toLowerCase()) {
+            case environment.envType.prod:
+                return envColor.prodText;
+            default:
+                return envColor.stagText;
+        }
+    });
+
     var onSuccess = function(data) {
         environment.env(data.environment);
         var stylename = data.environment.toLowerCase().concat('_style');
