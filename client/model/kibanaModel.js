@@ -4,10 +4,16 @@ define(['jquery',
     function($, constants) {
         var kibana = {};
 
+        var url = {
+            prodErrors: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Errors',
+            prodStats: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Zoom_Production_stats',
+            stagingStats: 'http://kibanastaging:9292/index.html#/dashboard/elasticsearch/Zoom_Staging_stats'
+         }
+
         kibana.ProdErrorsURL = function() {
             var form = document.createElement("form");
             form.method = "GET";
-            form.action = constants.kibana.prodErrors;
+            form.action = url.prodErrors;
             form.target = "_blank";
             form.submit();
         };
@@ -15,7 +21,7 @@ define(['jquery',
         kibana.ProdStatsURL = function() {
             var form = document.createElement("form");
             form.method = "GET";
-            form.action = constants.kibana.prodStats;
+            form.action = url.prodStats;
             form.target = "_blank";
             form.submit();
         };
@@ -23,7 +29,7 @@ define(['jquery',
         kibana.StagingStatsURL = function() {
             var form = document.createElement("form");
             form.method = "GET";
-            form.action = constants.kibana.stagingStats;
+            form.action = url.stagingStats;
             form.target = "_blank";
             form.submit();
         };

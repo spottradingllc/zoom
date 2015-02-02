@@ -67,12 +67,6 @@ define([], function () {
         platform: {
             linux: 0,
             windows: 1
-        },
-
-        kibana: {
-            prodErrors: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Errors',
-            prodStats: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Zoom_Production_stats',
-            stagingStats: 'http://kibanastaging:9292/index.html#/dashboard/elasticsearch/Zoom_Staging_stats'
         }
     };
 });
