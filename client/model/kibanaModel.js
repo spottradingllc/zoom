@@ -5,7 +5,6 @@ define(['jquery',
         var kibana = {};
 
         kibana.ProdErrorsURL = function() {
-            console.log("Checkpoint 1");
             var form = document.createElement("form");
             form.method = "GET";
             form.action = constants.kibana.prodErrors;
@@ -14,7 +13,6 @@ define(['jquery',
         };
 
         kibana.ProdStatsURL = function() {
-            console.log("Checkpoint 1");
             var form = document.createElement("form");
             form.method = "GET";
             form.action = constants.kibana.prodStats;
@@ -23,7 +21,6 @@ define(['jquery',
         };
 
         kibana.StagingStatsURL = function() {
-            console.log("Checkpoint 1");
             var form = document.createElement("form");
             form.method = "GET";
             form.action = constants.kibana.stagingStats;
