@@ -3,7 +3,6 @@
         <div id="App State FAQ" class="container-fluid" style="margin-top: 40px">
             <div class="page-header">
                 <h1>
-                    Application State Agent
                     <small>
                       <span>(live # of services)</span> total services
                     </small>
@@ -46,7 +45,6 @@
                                 <div class="btn-group">
                                     <button class="btn btn-default active" data-toggle="tooltip"data-placement="top">
                                         Update
-                                        <span class="glyphicon glyphicon-refresh" data-bind="visible: applicationState.customFilters.filterByTime()"/>
                                     </button>
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top"
                                             title="Set Zoom to normal operation">Normal
@@ -114,15 +112,9 @@
                         <div class="btn-group" >
                             <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top"
                                     title="Stop the starred services."><span class="glyphicon glyphicon-stop"></span>
-                                Stop
                             </button>
                             <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top"
                                     title="Restart the starred services."> <span class="glyphicon glyphicon-retweet"></span>
-                                Restart
-                            </button>
-                            <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top"
-                                    title="Restart the starred services."><span class="glyphicon glyphicon-retweet"></span>
-                                w/ Dependencies
                             </button>
                             <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top"
                                     title="Command the starred agents to ignore Zookeeper changes.">
@@ -144,7 +136,7 @@
                                 <span class="badge"></span><span class="glyphicon glyphicon-remove"></span>
                             </button>
                             <div style="font-size:0.9em">Group Controls: <br>
-                            w/ Dependencies, Ignore, and React all refer to an application's dependency config,<br>
+                            Ignore, and React all refer to an application's dependency config,<br>
                             i.e. setting React will tell the app to turn on/off based on it's dependencies
                             </div>
                         </div>
@@ -183,11 +175,8 @@
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by host.">
                                         Host
                                     </button>
-                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by trigger time.">
-                                        Trigger Time
-                                    </button>
-                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by completion time.">
-                                        Completion Time
+                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by weekend.">
+                                        Weekend
                                     </button>
                                     <button class="btn btn-default active" data-toggle="tooltip" data-placement="top" title="Filter by error state.">
                                         Status
@@ -211,6 +200,15 @@
                                     </button>
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter services whose status is unknown.">
                                         <span class="glyphicon glyphicon-question-sign"></span>
+                                    </button>
+                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter services that are grayed out.">
+                                        <span class="glyphicon glyphicon-user"></span>
+                                    </button>
+                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter services that have PD disabled.">
+                                        <span class="glyphicon glyphicon glyphicon-wrench"></span>
+                                    </button>
+                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter services that are read only.">
+                                        <span class="glyphicon glyphicon glyphicon-eye-open"></span>
                                     </button>
                                 </div>
                             </div>
@@ -241,11 +239,8 @@
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by host.">
                                         Host
                                     </button>
-                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by trigger time.">
-                                        Trigger Time
-                                    </button>
-                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by Completion time.">
-                                        Completion Time
+                                    <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by weekend.">
+                                        Weekend
                                     </button>
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Filter by error state.">
                                         Status
@@ -255,7 +250,7 @@
                                     </button>
                                 </div>
                                 <span class="form-inline">
-                                    <input type="text" data-bind="value: searchTerm, valueUpdate: 'keyup'" class="form-control">
+                                    <input type="text" class="form-control">
                                 </span>
                                 <div class="btn-group">
                                     <button class="btn btn-default" data-toggle="tooltip" data-placement="top"
@@ -322,9 +317,9 @@
                                 <span >/spot/example/faq/app/that/is/running</span>
                                 <span class="caret"></span>
                                 <small><span>(click to toggle showing)</span></small>
-                                <span class="glyphicon glyphicon-info-sign pull-right" data-bind="click: appInfo.toggle"></span>
-                                <span data-bind="visible: requires().length > 0 && showDependencies"><br>I require:</span>
-                                <ul data-bind="foreach: requires, visible: showDependencies" style="list-style-type: none">
+                                <span class="glyphicon glyphicon-info-sign pull-right" ></span>
+                                <span ><br>I require:</span>
+                                <ul style="list-style-type: none">
                                     <li>
                                         <span class="glyphicon glyphicon-ok-circle btn-lg"></span>
                                         <span>/some/other/app/alive</span>
@@ -361,7 +356,7 @@
                                 <span class="glyphicon glyphicon-thumbs-up btn-lg"/>
                             </td>
                             <td class="text-center" >
-                                <div class="btn-group" >
+                                <div class="btn-group btn-group-xs" >
                                     <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="top"
                                             title="Star the agent to add it to group control.">
                                         <span class="glyphicon glyphicon-star-empty"></span>
