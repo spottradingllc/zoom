@@ -56,6 +56,7 @@ function getstatus()
         /bin/echo "$APP is running with pid $pid.";
     else
         /bin/echo "$APP is stopped.";
+        exit 1
     fi;
 }
 
