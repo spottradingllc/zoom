@@ -121,13 +121,27 @@ define(['jquery', 'knockout'], function($, ko) {
         });
 
         self.applyLogicalFilter = function(appParameter, appState) {
-            if (appParameter.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
-                self.pushMatchedItem(appState);
+            if (typeof self.searchTerm() == 'string'){
+                if (appParameter.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
+                    self.pushMatchedItem(appState);
+                }
+                else if (appParameter.indexOf(self.searchTerm()) === -1 && self.inversed()) {
+                    self.pushMatchedItem(appState);
+                }
             }
-            else if (appParameter.indexOf(self.searchTerm()) === -1 && self.inversed()) {
-                self.pushMatchedItem(appState);
+            else{
+                // array passed in for 'ok' filter
+                for (var i = 0; i < self.searchTerm().length; i++) {
+                    if (appParameter.indexOf(self.searchTerm()[i]) > -1 && !self.inversed()) {
+                        self.pushMatchedItem(appState);
+                    }
+                    else if (appParameter.indexOf(self.searchTerm()[i]) === -1 && self.inversed()) {
+                        self.pushMatchedItem(appState);
+                    }
+                }
             }
         };
+
 
         self.applyWeekendFilter = function(appState) {
             var push = false;

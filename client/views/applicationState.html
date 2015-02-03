@@ -672,8 +672,8 @@
 
 <script type="text/html" id="error-filter-template">
     <div class="btn-group">
-        <button data-bind="click: function(){setSearchTerm('ok')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'ok') ? ' active' : ''))}"
+        <button data-bind="click: function(){setSearchTerm(['ok', 'started', 'stopped'])},
+                           attr: {class : ('btn btn-default' + ((searchTerm() == ['ok', 'started', 'stopped']) ? ' active' : ''))}"
                 data-toggle="tooltip"
                 data-placement="top"
                 title="Filter services whose status is ok.">
