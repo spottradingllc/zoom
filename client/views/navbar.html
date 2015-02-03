@@ -21,19 +21,21 @@
                             <span>Admin</span>
                             <strong class="caret"></strong>
                         </a>
-                        <div class="dropdown-menu navbar-drop" aria-labelledby="adminDropDown">
-                            <button data-bind="click: function() { admin.disable() }, visible: admin.enabled()" class="btn btn-success">
-                                Disable Admin </button>
-                            <button data-bind="click: function() { admin.enable() }, visible: !admin.enabled()" class="btn btn-danger"> 
-                                Enable Admin </button>
-                             <button data-bind="click: function(){ router.navigate('#tools', {trigger: true })}"
-                                     class="btn btn-success"
-                                     style="margin-top: 10px">
-                                ZK Tools
-                             </button>
-
-
-
+                        <div class="dropdown-menu navbar-drop" role=menu>
+                            <a data-bind="click: function() { admin.disable() }, visible: admin.enabled()">Disable Admin</a>
+                            <a data-bind="click: function() { admin.enable() }, visible: !admin.enabled()">Enable Admin</a></p>
+                            <a data-bind="click: function() { router.navigate('#tools', {trigger: true })}">ZK Tools</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" id="kibana" data-toggle="dropdown">
+                            <span>Kibana</span>
+                            <strong class="caret"></strong>
+                        </a>
+                        <div class="dropdown-menu navbar-drop" role=menu>
+                            <a data-bind="click: function() { kibana.ProdErrorsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Errors</a>
+                            <a data-bind="click: function() { kibana.ProdStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Stats</a>
+                            <a data-bind="click: function() { kibana.StagingStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.stg">Staging Stats</a>
                         </div>
                     </li>
                     <li class="dropdown">
