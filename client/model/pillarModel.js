@@ -51,7 +51,7 @@ define( [
             self.saltModel = new saltModel(self);
 
             self.tableEditing = false;
-            var alphaNum = /^[a-zA-Z0-9]+$/;
+            var alphaNum = /^[a-zA-Z0-9\-\_]+$/;
 
             self._assoc = function(server_name, pillar_data) {
                 var self = this;
@@ -150,7 +150,7 @@ define( [
 
             ko.computed( function() {
                 if (self.new_project() !== "" && !alphaNum.test(self.new_project())) {
-                    swal("Error", "Your project name cannot contain non-alphnumerics", 'error');
+                    swal("Error", "Your project name can only contain alphanumerics, '-', and '_'", 'error');
                     self.new_project(self.new_project().replace(/[\W_]+/g, ""));
                     return false;
                 }
@@ -175,7 +175,7 @@ define( [
                 $.extend(true, [], self.new_pairs());
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
                     if (pair.key !== "" && !alphaNum.test(pair.key)){
-                        swal("Error", "Your key cannot contain non-alphanumerics", 'error');
+                        swal("Error", "Your key can only contain alphanumerics, '-', and '_'", 'error');
                         pair.key = "";
                         ret = false;
                     }
@@ -296,7 +296,7 @@ define( [
                             return;
                         }
                         else if (!alphaNum.test(_proj.new_key())) {
-                            swal("Error", "Project keys must be alphanumeric", 'error');
+                            swal("Error", "Your key can only contain alphanumerics, '-', and '_'", 'error');
                             return;
                         }
                         ko.utils.arrayForEach(_proj.hasProject(), function(_assoc) {
