@@ -60,7 +60,7 @@ class LoginHandler(tornado.web.RequestHandler):
                 # synchronous bind
                 ldap_object.simple_bind_s(username, password)
 
-                base_dn = "OU=Production,OU=Spot Trading,DC=spottrading,DC=com"
+                base_dn = "OU=User Accounts and Groups,DC=spottrading,DC=com"
                 results = ldap_object.search_s(
                     base_dn,
                     ldap.SCOPE_SUBTREE,
