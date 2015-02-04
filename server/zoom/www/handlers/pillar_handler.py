@@ -184,7 +184,7 @@ class PillarHandler(tornado.web.RequestHandler):
 
         regex = ('(?P<minion>[\w|\-]+.spottrading.com)'
                  '(\/(?P<project>[\w|\-|\_]+))?'
-                 '(\/(?P<data_key>\w+))?'
+                 '(\/(?P<data_key>[\w|\-|\_]+))?'
                  '(\/(?P<data_val>[\w|\-|\_|\.]+))?')
 
         match = re.search(regex, data)
