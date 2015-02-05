@@ -155,12 +155,12 @@ class ApplicationDependencyCache(object):
                                      'path': pred_path,
                                      'operational': pred_oper})
                 prev_was_not = False
-            if pred_type == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
+            elif pred_type == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
                 dependencies.append({'type': pred_type,
                                      'path': pred_path,
                                      'operational': pred_oper})
                 prev_was_not = False
-            if pred_type == PredicateType.ZOOKEEPERGOODUNTILTIME:
+            elif pred_type == PredicateType.ZOOKEEPERGOODUNTILTIME:
                 if len(pred_path.split('gut/')) > 1:
                     dependencies.append(
                         {'type': pred_type,
@@ -170,21 +170,21 @@ class ApplicationDependencyCache(object):
                 else:
                     logging.debug('Invalid GUT path: {0}'.format(pred_path))
                 prev_was_not = False
-            if pred_type == PredicateType.HOLIDAY:
+            elif pred_type == PredicateType.HOLIDAY:
                 dependencies.append(
                     {'type': pred_type,
                      'path': ("Does NOT run on holidays" if prev_was_not
                               else "Runs on holidays"),
                      'operational': pred_oper})
                 prev_was_not = False
-            if pred_type == PredicateType.WEEKEND:
+            elif pred_type == PredicateType.WEEKEND:
                 dependencies.append(
                     {'type': pred_type,
                      'path': ("Does NOT run on weekends" if prev_was_not
                               else "Runs on weekends"),
                      'operational': pred_oper})
                 prev_was_not = False
-            if pred_type == PredicateType.TIME:
+            elif pred_type == PredicateType.TIME:
                 start = predicate.get('start', None)
                 stop = predicate.get('stop', None)
                 weekdays = predicate.get('weekdays', None)
@@ -211,7 +211,7 @@ class ApplicationDependencyCache(object):
                                          'path': wk_msg,
                                          'operational': pred_oper})
 
-            if pred_type == PredicateType.NOT:
+            elif pred_type == PredicateType.NOT:
                 prev_was_not = True
 
         return dependencies
