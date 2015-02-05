@@ -93,7 +93,8 @@ class AlertManager(object):
         :rtype: bool
         """
         try:
-            return zk_path_join(key.split('/')[1:-1]) in self._exceptions
+            app_id = '/'.join(key.split('/')[1:-1])
+            return app_id in self._exceptions
         except (AttributeError, IndexError):
             return False
 
