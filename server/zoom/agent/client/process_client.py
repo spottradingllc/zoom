@@ -269,7 +269,7 @@ class ProcessClient(object):
                     self._log.warning(
                         '{0} command resulted in a zombie process. '
                         'Returning with 0'.format(cmd))
-		    return_code = 0
+					return_code = 0
                     break
                 elif self._cancel_flag == True:
                     p.terminate()
