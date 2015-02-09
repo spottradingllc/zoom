@@ -268,7 +268,8 @@ class ProcessClient(object):
                 elif p.status == psutil.STATUS_ZOMBIE:
                     self._log.warning(
                         '{0} command resulted in a zombie process. '
-                        'Returning with -1'.format(cmd))
+                        'Returning with 0'.format(cmd))
+                    return_code = 0
                     break
                 elif self._cancel_flag == True:
                     p.terminate()
