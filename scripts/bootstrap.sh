@@ -71,31 +71,3 @@ if [ $(echo "$linux_version >= 6" | bc) -eq 1 ]; then
     done
 
 fi
-
-# set up softlinks to startup scripts
-SENTINEL_INITD=/etc/init.d/sentinel
-ZOOM_INITD=/etc/init.d/zoom
-
-if [ -h ${SENTINEL_INITD} ];
-then
-    echo "Deleting existing softlink ${SENTINEL_INITD}"
-    rm -f ${SENTINEL_INITD};
-fi
-
-if [ -h ${ZOOM_INITD} ];
-then
-    echo "Deleting existing softlink ${ZOOM_INITD}"
-    rm -f ${ZOOM_INITD};
-fi
-
-# RPM Path
-if [ -f /opt/spot/zoom/scripts/start_agent.sh ]; then
-    echo "Creating softlinks for zoom and sentinel to /opt/spot/zoom/scripts"
-    ln -s /opt/spot/zoom/scripts/start_agent.sh ${SENTINEL_INITD};
-    ln -s /opt/spot/zoom/scripts/start_web.sh ${ZOOM_INITD};
-# Bamboo Deploy PAth
-elif [ -f /opt/spot/zoom/current/scripts/start_agent.sh ]; then
-    echo "Creating softlinks for zoom and sentinel to /opt/spot/zoom/current/scripts"
-    ln -s /opt/spot/zoom/current/scripts/start_agent.sh ${SENTINEL_INITD};
-    ln -s /opt/spot/zoom/current/scripts/start_web.sh ${ZOOM_INITD};
-fi
