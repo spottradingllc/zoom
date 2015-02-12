@@ -45,12 +45,10 @@ define([
                             ret = checkObjContents(obj1[each], obj2[each]);
                         }
                         else if (obj1[each] !== obj2[each]) { 
-                            return false;
+                            ret = false;
                         }
                     }
-                    else {
-                        return false;
-                    }
+                    else ret = false;
                 }
                 return ret;
             };
