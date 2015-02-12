@@ -76,10 +76,14 @@ define( [
             };
 
             self.uncheckAll = function() {
-                ko.utils.arrayForEach(self.checkedNodes(), function(_assoc) {
-                    self.handleSelect(_assoc, true);
+
+                $('#loadAlert').fadeIn(100, function() {
+                    ko.utils.arrayForEach(self.checkedNodes(), function (_assoc) {
+                        self.handleSelect(_assoc, true);
+                    });
+                    self.checkedNodes([]);
+                    $('#loadAlert').fadeOut(100);
                 });
-                self.checkedNodes([]);
             };
 
             self.updateSelected = ko.computed({
@@ -94,12 +98,11 @@ define( [
             });
 
             self.checkAll = function() {
-                if (self.queriedNodes().length > 8){
-                    swal("Sorry", "Please narrow-down your search results to less than 8 visible hosts.", 'error');
-                    return;
-                }
-                ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
-                    self.handleSelect(_assoc);
+                $('#loadAlert').fadeIn(100, function() {
+                    ko.utils.arrayForEach(self.queriedNodes(), function(_assoc) {
+                        self.handleSelect(_assoc);
+                    });
+                    $('#loadAlert').fadeOut(100);
                 });
             };
 
@@ -487,7 +490,6 @@ define( [
                         resetFields();
                     }
                     _assoc.star(constants.glyphs.emptyStar);
-
                 }
             };
 

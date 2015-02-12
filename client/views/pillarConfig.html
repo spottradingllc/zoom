@@ -307,14 +307,17 @@
         </div>
     </div>
 
-    <div data-bind="visible: pillarModel.login.elements.authenticated() == false">
-        <h3 style="margin-top: 85px"> Please log-in to use the pillar editor </h3>
+    <div class="container-fluid" data-bind="visible: pillarModel.login.elements.authenticated() == false">
+        <h3 style="margin-top: 85px"> Please login to use the pillar editor </h3>
     </div>
 
     <div class="container-fluid" data-bind="with: pillarModel, visible: pillarModel.login.elements.authenticated() == true">
         <div class="page-header" style="margin-top: 85px">
             <div id="successAlert" class="alert alert-success overlay text-center" role="alert" data-bind="visible: false">
                <strong style="font-size: 20px;"> Update Successful </strong>
+            </div>
+            <div id="loadAlert" class="alert alert-info overlay text-center" role="alert" data-bind="visible: false">
+                <strong style="font-size: 20px;"> Loading </strong>
             </div>
 
             <div class="row view-tabs">
@@ -365,7 +368,7 @@
                                 <span class="glyphicon glyphicon-remove"></span>
                                 Clear Query
                             </button>
-                            <button class="btn btn-default" data-bind="click: function() {checkAll()}" type="button"
+                            <button id="checkall" class="btn btn-default" data-bind="click: function() {checkAll()}" type="button"
                                     title="Select all visible hosts, with a maximum of 8 at a time">
                                 <span class="glyphicon glyphicon-check"></span>
                                 Check All
