@@ -31,8 +31,21 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
                 async: true
             });
 
+            var parseXMLforComponent = function(data) {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(data, 'text/xml');
+                var comps = xmlDoc.getElementsByTagName('Component');
+                for (var i = 0; i < comps.length; i++) {
+                    var comp = new Component(self);
+                    comp.loadXML(comps[i]);
+                    self.components.unshift(comp);  // add to front of array
+                }
+            };
+
             self.addComponent = function() {
-                self.components.unshift(new Component(self));  // add to front of array
+                // set default component to have the actions we care about
+                var data = '<Component id="" type="application" script="" ><Actions><Action id="start" mode_controlled="True" ><Dependency><Predicate type="and"><Predicate type="not"><Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate><Predicate type="not"><Predicate type="process" interval="5" /></Predicate></Predicate></Dependency></Action><Action id="stop" mode_controlled="True"><Dependency><Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Dependency></Action><Action id="register"><Dependency><Predicate type="process" interval="5" /></Dependency></Action><Action id="unregister"><Dependency><Predicate type="not"> <Predicate type="process" interval="5" /></Predicate></Dependency></Action><Action id="notify"><Dependency><Predicate type="and"><Predicate type="Time" start="08:30:00" stop="15:15:00" weekdays="0-4" ></Predicate><Predicate type="not"><Predicate type="process" interval="5" /></Predicate></Predicate></Dependency></Action></Actions></Component>';
+                parseXMLforComponent(data)
             };
 
             self.clear = function() {
@@ -82,14 +95,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
             self.loadXML = function() {
                 var data = parent.sentinelConfig();
                 self.clear();
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(data, 'text/xml');
-                var comps = xmlDoc.getElementsByTagName('Component');
-                for (var i = 0; i < comps.length; i++) {
-                    var comp = new Component(self);
-                    comp.loadXML(comps[i]);
-                    self.components.push(comp);
-                }
+                parseXMLforComponent(data)
             };
 
         };

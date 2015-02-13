@@ -142,7 +142,8 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
 
             self.setDefault = function() {
                 // TODO: Move this string to its own file?
-                self.setXML('<?xml version="1.0" encoding="UTF-8"?> <Application> <Automation> <Component id="" type="application" script="" > <Actions> <Action id="start" mode_controlled="True" > <Dependency> <Predicate type="and"> <Predicate type="not"> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /></Predicate> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate>  </Predicate> </Dependency> </Action> <Action id="stop" mode_controlled="True"> <Dependency> <Predicate type="ZookeeperNodeExists" path="/spot/software/signal/killall" /> </Dependency> </Action> <Action id="register"> <Dependency> <Predicate type="process" interval="5" /> </Dependency> </Action> <Action id="unregister"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action> <Action id="notify"> <Dependency> <Predicate type="not"> <Predicate type="process" interval="5" /></Predicate> </Dependency> </Action></Actions> </Component> </Automation> </Application>');
+                self.setXML('<?xml version="1.0" encoding="UTF-8"?><Application><Automation></Automation></Application>');
+                self.treeViewModel.addComponent()
             };
         };
     });
