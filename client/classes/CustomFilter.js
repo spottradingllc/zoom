@@ -111,7 +111,6 @@ define(['jquery', 'knockout'], function($, ko) {
                         else {
                             self.applyLogicalFilter(appState.errorState().toLowerCase(), appState);
                         }
-
                     }
                     else { // perform dependency filtering
                         self.applyDependencyFilter(appState);
@@ -130,18 +129,15 @@ define(['jquery', 'knockout'], function($, ko) {
                 }
             }
             else{
-                // array passed in for 'ok' filter
-                for (var i = 0; i < self.searchTerm().length; i++) {
-                    if (appParameter.indexOf(self.searchTerm()[i]) > -1 && !self.inversed()) {
-                        self.pushMatchedItem(appState);
-                    }
-                    else if (appParameter.indexOf(self.searchTerm()[i]) === -1 && self.inversed()) {
-                        self.pushMatchedItem(appState);
-                    }
+                // array passed in for 'ok' filter as searchTerm
+                if (self.searchTerm().indexOf(appParameter) > -1 && !self.inversed()) {
+                    self.pushMatchedItem(appState);
+                }
+                else if (self.searchTerm().indexOf(appParameter) === -1 && self.inversed()) {
+                    self.pushMatchedItem(appState);
                 }
             }
         };
-
 
         self.applyWeekendFilter = function(appState) {
             var push = false;
