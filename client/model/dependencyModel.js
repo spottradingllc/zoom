@@ -76,6 +76,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     // on having these attributes, at a minimum. We just want to display the missing app
                     // so this should be OK - but not ideal
                     var showAsMissing = {
+                        'componentId': path,
                         'configurationPath': path,
                         'applicationStatusClass': constants.glyphs.unknownQMark,
                         'applicationStatusBg': constants.colors.unknownGray,
