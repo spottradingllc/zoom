@@ -417,7 +417,7 @@
                     <td data-toggle="tooltip"
                         data-placement="top">
                         <span title="Toggle the display of dependencies." class="cursor-pointer" 
-                            data-bind="text: configurationPath, click: dependencyModel.toggleDependencies, 
+                            data-bind="text: componentId, click: dependencyModel.toggleDependencies,
                             style: {cursor: dependencyModel.dependencyPointer}">
                         </span>
                         <span data-bind="attr : {class : dependencyModel.dependencyClass}"></span>
@@ -428,16 +428,16 @@
                         <div data-bind="visible: dependencyModel.dependencyVisible">
                             
                             <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
-                            <ul class="dep-list" 
+                            <ul class="dep-list"
                                 data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0">
                                 <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
                             
-                            <span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>
-                            <ul class="dep-list" 
-                                data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0">
-                                <span data-bind="template: {name : 'dependencies-template'}"></span>
-                            </ul>
+                            <!--<span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>-->
+                            <!--<ul class="dep-list" -->
+                                <!--data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0">-->
+                                <!--<span data-bind="template: {name : 'dependencies-template'}"></span>-->
+                            <!--</ul>-->
 
                             <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
                             <ul class="dep-list"
@@ -788,10 +788,10 @@
 
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.state.applicationHost)}"
+    <li data-bind="style : {backgroundColor : $data.state.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.state.applicationHost)}"
         title="Click to jump to this sentinel config" >
         <span data-bind="attr : {class : $data.state.applicationStatusClass}" style="padding: 4px"></span>
-        <span class="cursor-pointer" data-bind="text: $data.state.configurationPath + ($data.operational ? '***' : '')"></span>
+        <span class="cursor-pointer" data-bind="text: $data.state.componentId + ($data.operational ? '***' : '')"></span>
     </li>
 </script>
 

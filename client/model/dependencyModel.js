@@ -110,7 +110,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     dependencies.push(applicationState);
                 }
             });
-
+            dependencies.sort();
             return dependencies().slice();
         }).extend({rateLimit: 2000});
 
