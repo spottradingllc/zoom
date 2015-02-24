@@ -122,7 +122,6 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.dependencyClass = ko.computed(function() {
             if (self.requires().length === 0 &&
-                self.requiredBy().length === 0 &&
                 self.holiday().length === 0 &&
                 self.weekend().length === 0 &&
                 self.zookeepergooduntiltime().length === 0) {
@@ -139,7 +138,6 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         self.dependencyVisible = ko.computed(function () {
             return ((
                     self.requires().length > 0 ||
-                    self.requiredBy().length > 0 ||
                     self.zookeepergooduntiltime().length > 0 ||
                     self.weekend().length > 0 ||
                     self.holiday().length > 0
