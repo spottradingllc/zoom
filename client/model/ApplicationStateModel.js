@@ -37,7 +37,7 @@ define(
 
             self.headers = [
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
-                {title: 'Configuration Path', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
+                {title: 'Application ID', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
                 {title: 'Trigger Time', sortPropertyName: 'triggerTime', asc: ko.observable(false)},
                 {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},

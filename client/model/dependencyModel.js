@@ -76,6 +76,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     // on having these attributes, at a minimum. We just want to display the missing app
                     // so this should be OK - but not ideal
                     var showAsMissing = {
+                        'componentId': path,
                         'configurationPath': path,
                         'applicationStatusClass': constants.glyphs.unknownQMark,
                         'applicationStatusBg': constants.colors.unknownGray,
@@ -105,18 +106,22 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.requiredBy = ko.computed(function() {
             var dependencies = ko.observableArray([]);
+            // HATE HATE HATE this double loop. Need to move this processing to the server side.
             ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
-                if (applicationState.dependencyModel.requires().indexOf(parentAppState) > -1) {
-                    dependencies.push(applicationState);
+                for (var i = 0; i < applicationState.dependencyModel.requires().length; i++) {
+                    if (applicationState.dependencyModel.requires()[i].state == parentAppState) {
+                        dependencies.push(applicationState);
+                        break;
+                    }
                 }
             });
 
+            dependencies.sort();
             return dependencies().slice();
         }).extend({rateLimit: 2000});
 
         self.dependencyClass = ko.computed(function() {
             if (self.requires().length === 0 &&
-                self.requiredBy().length === 0 &&
                 self.holiday().length === 0 &&
                 self.weekend().length === 0 &&
                 self.zookeepergooduntiltime().length === 0) {
@@ -133,7 +138,6 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         self.dependencyVisible = ko.computed(function () {
             return ((
                     self.requires().length > 0 ||
-                    self.requiredBy().length > 0 ||
                     self.zookeepergooduntiltime().length > 0 ||
                     self.weekend().length > 0 ||
                     self.holiday().length > 0
