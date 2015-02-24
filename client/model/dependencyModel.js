@@ -105,7 +105,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.requiredBy = ko.computed(function() {
             var dependencies = ko.observableArray([]);
-            // HATE HATE HATE this double loop. Need to move this processing to the server side. 
+            // HATE HATE HATE this double loop. Need to move this processing to the server side.
             ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                 for (var i = 0; i < applicationState.dependencyModel.requires().length; i++) {
                     if (applicationState.dependencyModel.requires()[i].state == parentAppState) {
