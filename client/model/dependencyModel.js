@@ -105,11 +105,16 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.requiredBy = ko.computed(function() {
             var dependencies = ko.observableArray([]);
+            // HATE HATE HATE this double loop. Need to move this processing to the server side. 
             ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
-                if (applicationState.dependencyModel.requires().indexOf(parentAppState) > -1) {
-                    dependencies.push(applicationState);
+                for (var i = 0; i < applicationState.dependencyModel.requires().length; i++) {
+                    if (applicationState.dependencyModel.requires()[i].state == parentAppState) {
+                        dependencies.push(applicationState);
+                        break;
+                    }
                 }
             });
+
             dependencies.sort();
             return dependencies().slice();
         }).extend({rateLimit: 2000});
