@@ -452,6 +452,14 @@ define(
                 return new ApplicationState(data, self);
             };
 
+            var updateIfChanged = function(stateObj, attribute, data) {
+                // only change data when it is different.
+                // This should stop unnecessary callback propagation for computed observables
+                if (stateObj[attribute]() !== data) {
+                    stateObj[attribute](data)
+                }
+            };
+
             // handle updates from web server
             self.handleApplicationStatusUpdate = function(update) {
                 // Search the array for row with matching path
@@ -466,19 +474,19 @@ define(
                         return currentRow.configurationPath === update.configuration_path;
                     });
                     if (row) {
-                        row.applicationStatus(update.application_status);
-                        row.completionTime(update.completion_time);
-                        row.triggerTime(update.trigger_time);
-                        row.applicationHost(update.application_host);
-                        row.errorState(update.error_state);
-                        row.mode(update.local_mode);
+                        updateIfChanged(row, 'applicationStatus', update.application_status);
+                        updateIfChanged(row, 'completionTime', update.completion_time);
+                        updateIfChanged(row, 'triggerTime', update.trigger_time);
+                        updateIfChanged(row, 'applicationHost', update.application_host);
+                        updateIfChanged(row, 'errorState', update.error_state);
+                        updateIfChanged(row, 'mode', update.local_mode);
+                        updateIfChanged(row, 'loginUser', update.login_user);
+                        updateIfChanged(row, 'readOnly', update.read_only);
+                        updateIfChanged(row, 'lastCommand', update.last_command);
+                        updateIfChanged(row, 'pdDisabled', update.pd_disabled);
+                        updateIfChanged(row, 'grayed', update.grayed);
+                        updateIfChanged(row, 'platform', update.platform);
                         row.mtime = Date.now();
-                        row.loginUser(update.login_user);
-                        row.readOnly(update.read_only);
-                        row.lastCommand(update.last_command);
-                        row.pdDisabled(update.pd_disabled);
-                        row.grayed(update.grayed);
-                        row.platform(update.platform);
                     }
                     else {
                         // add new item to array
