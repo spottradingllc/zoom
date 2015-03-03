@@ -138,6 +138,13 @@ class PredicateTimeTest(TestCase):
                           'minute': 4, 'month': None}
         self.assertEqual(exp_time2_dict, result)
 
+        # test timestamp with single-digit hour, minutes
+        time_test3 = '5:06'
+        result = PredicateTime.create_datetime_dict(time_test3)
+        exp_time3_dict = {'second': None, 'hour': 5, 'year': None, 'day': None,
+                          'minute': 6, 'month': None}
+        self.assertEqual(exp_time3_dict, result)
+
     def test_get_datetime_object(self):
         """
         Test get_datetime_object method creates proper datetime.datetime or
@@ -160,6 +167,12 @@ class PredicateTimeTest(TestCase):
         exp_tm_obj2 = datetime.time(3, 4)
         result = PredicateTime.get_datetime_object(time_test2)
         self.assertEqual(exp_tm_obj2, result)
+
+        # test timestamp with single-digit hour, minutes
+        time_test3 = '5:06'
+        exp_tm_obj3 = datetime.time(5, 6)
+        result = PredicateTime.get_datetime_object(time_test3)
+        self.assertEqual(exp_tm_obj3, result)
 
     def test_parse_range(self):
         """
