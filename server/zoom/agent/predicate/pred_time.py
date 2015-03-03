@@ -147,7 +147,7 @@ class PredicateTime(SimplePredicate):
         """
         datetime_regex = (
             "^((?P<year>\d{4})\-(?P<month>\d{2})\-(?P<day>\d{2})\s)?"
-            "(?P<hour>\d{2}):(?P<minute>\d{2})(:(?P<second>\d{2}))?"
+            "(?P<hour>\d{1,2}):(?P<minute>\d{2})(:(?P<second>\d{2}))?"
         )
         regex_dict = dict()
         match = re.search(datetime_regex, datetime_string)
