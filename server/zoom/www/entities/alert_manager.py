@@ -2,7 +2,11 @@ import logging
 import json
 
 from threading import Thread
-from kazoo.exceptions import NoNodeError, SessionExpiredError
+from kazoo.exceptions import (
+    NoNodeError,
+    SessionExpiredError,
+    ConnectionClosedError
+)
 
 from zoom.common.types import AlertActionType
 from zoom.agent.util.helpers import zk_path_join
@@ -37,7 +41,14 @@ class AlertManager(object):
         """
         # TODO: sort by ctime? Could there be a race condition here?
         self._clean_up_threads()
-        alerts = self._zk.get_children(self._path, watch=self._handle_alerts)
+
+        try:
+            alerts = self._zk.get_children(self._path, watch=self._handle_alerts)
+        except (SessionExpiredError, ConnectionClosedError):
+            logging.info('Session with ZK has expired. Will not process alerts '
+                         'until reconnect.')
+            return
+
         for alert in alerts:
             path = zk_path_join(self._path, alert)
             try:
@@ -80,9 +91,6 @@ class AlertManager(object):
             except NoNodeError:
                 logging.info('No node at {0}. Skipping alert.'.format(path))
                 continue
-            except SessionExpiredError:
-                logging.info('Session with ZK has expired. Will not process '
-                             'alerts until reconnect.')
             except ValueError:
                 logging.warning('Node at {0} has invalid JSON.'.format(path))
                 continue

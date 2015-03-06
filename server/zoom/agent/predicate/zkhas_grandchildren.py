@@ -1,10 +1,11 @@
 import logging
 import os.path
+from kazoo.exceptions import NoNodeError
 
 from zoom.agent.predicate.simple import SimplePredicate
 from zoom.agent.predicate.zkhas_children \
     import ZookeeperHasChildren
-from zoom.common.decorators import connected
+from zoom.common.decorators import connected, catch_exception
 
 
 class ZookeeperHasGrandChildren(SimplePredicate):
@@ -55,6 +56,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
                 self._log.debug('{0}: About to run callback.'.format(self))
                 cb()
 
+    @catch_exception(NoNodeError, msg='A node has been removed during walk.')
     @connected
     def _walk(self, node):
         """
