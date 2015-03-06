@@ -1,11 +1,9 @@
-import os.path
 import logging
 
 from zoom.agent.entities.task import Task
 from zoom.agent.entities.unique_queue import UniqueQueue
-from zoom.common.types import ApplicationState
+from zoom.common.decorators import connected_with_return
 from kazoo.exceptions import NoNodeError
-from zoom.common.types import CommandType
 from kazoo.retry import KazooRetry
 from zoom.agent.util.helpers import zk_path_join
 
@@ -34,6 +32,7 @@ class TaskServer(object):
         host_q.append_unique(task, sender=task.host)
         self._submit_task(task)
 
+    @connected_with_return(None)
     def clear_all_tasks(self):
         self._task_queue.clear()
         children = self._zookeeper.get_children(self._configuration.task_path)

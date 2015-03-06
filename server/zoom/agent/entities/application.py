@@ -11,6 +11,7 @@ from time import sleep
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.handlers.threading import SequentialThreadingHandler
+from kazoo.interfaces import IHandler
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import ZK_CONN_STRING
@@ -118,6 +119,9 @@ class Application(object):
                 'login_user': self._login_user,
                 'read_only': self._read_only}
 
+    @catch_exception(
+        IHandler.timeout_exception,
+        msg='The connection to Zookeeper has timed out. Cannot run.')
     def run(self):
         """
         - Start the zookeeper client
