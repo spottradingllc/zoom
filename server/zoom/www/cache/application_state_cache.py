@@ -112,7 +112,7 @@ class ApplicationStateCache(object):
 
         data = {}
 
-        if rawData != '':
+        if rawData:  # if '' or None
             try:
                 data = json.loads(rawData)
             except ValueError:
