@@ -110,7 +110,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
             {'recurse': 'False'}
         :type path: str
         """
-        ret = {"method": 'PUT', "path": path, "code": httplib.OK,
+        ret = {"method": 'DELETE', "path": path, "code": httplib.OK,
                "data": None, "error": None}
         recurse = self._check_bool_str(self.request.headers.get('recurse', 'False'))
 
