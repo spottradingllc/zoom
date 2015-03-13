@@ -38,13 +38,13 @@ linux_version=`awk 'NR==1{print $(NF-1)}' /etc/issue`
 function install_package () {
 # $1 = package name
     FULLPATH=${PY_3RDPARTY}/$1
-    /bin/echo -n "## Installing ${FULLPATH}...";
+    /bin/echo -n "Installing ${FULLPATH}...";
     easy_install ${FULLPATH} > /dev/null 2>&1 || exit 2;
     /bin/echo "Done";
 }
 
 for PACKAGE in tornado-3.1.1.tar.gz \
-        kazoo-1.3.1dev.tar.gz \
+        kazoo-2.0.zip \
         setproctitle-1.1.8.tar.gz \
         requests-2.2.1.tar.gz \
         nose-1.3.0.tar.gz \
