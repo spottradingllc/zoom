@@ -19,8 +19,8 @@ define(
             self.applicationHostShort = ko.computed(function() {
                 return self.applicationHost().split('.')[0].toUpperCase();
             });
-            self.triggerTime = ko.observable(data.trigger_time);
-            self.completionTime = ko.observable(data.completion_time);
+            self.startStopTime = ko.observable(data.start_stop_time);
+            self.lastUpdate = ko.observable(data.last_update);
             self.errorState = ko.observable(data.error_state);
             self.mode = ko.observable(data.local_mode);
             self.mtime = Date.now();
@@ -161,7 +161,7 @@ define(
                 }
             }, self);
 
-            self.triggerTimeTitle = ko.computed(function() {
+            self.startStopTimeTitle = ko.computed(function() {
                 return 'Last Command: ' + self.lastCommand() + '\nTriggered by: ' + self.loginUser();
             });
 

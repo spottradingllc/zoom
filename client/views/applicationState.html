@@ -507,9 +507,9 @@
                             </ul>
                         </div>
                     <td class="text-left">
-                        <span data-bind="text: triggerTime, attr: {title : triggerTimeTitle}"></span>
+                        <span data-bind="text: startStopTime, attr: {title : startStopTimeTitle}"></span>
                     </td>
-                    <td data-bind="text: completionTime"></td>
+                    <td data-bind="text: lastUpdate"></td>
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass, title : errorStateTitle}"></span>
                         <span data-bind="attr : {class : modeClass, title : mode}"></span>
@@ -621,11 +621,11 @@
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "triggerTime" -->
+    <!-- ko if: parameter() == "startStopTime" -->
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "completionTime" -->
+    <!-- ko if: parameter() == "lastUpdate" -->
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 

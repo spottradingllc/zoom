@@ -80,7 +80,7 @@ class Application(object):
         self._action_queue = queue
         self._mode = ApplicationMode(ApplicationMode.MANUAL)
         self._state = ThreadSafeObject(ApplicationState.OK)
-        self._trigger_time = ''     # Default to empty string for comparison
+        self._start_stop_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
         self._user_set_in_react = False
         self._run_check_mode = False
@@ -115,7 +115,7 @@ class Application(object):
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
-                'trigger_time': self._trigger_time,
+                'start_stop_time': self._start_stop_time,
                 'login_user': self._login_user,
                 'read_only': self._read_only}
 
@@ -206,7 +206,7 @@ class Application(object):
             self.ignore()
         pd_enabled = kwargs.get('pd_enabled', True)
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
 
         # set login user if not set in react
         if not self._user_set_in_react:
@@ -246,7 +246,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
         self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STOPPING)
         self._update_agent_node_with_app_details()

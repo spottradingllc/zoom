@@ -6,7 +6,7 @@ from zoom.common.types import ApplicationStatus
 class ApplicationState(object):
     def __init__(self, application_name=None, configuration_path=None,
                  application_status=None, application_host=None,
-                 completion_time=None, trigger_time=None, error_state=None,
+                 last_update=None, start_stop_time=None, error_state=None,
                  local_mode=None, delete=False, login_user=None,
                  last_command=None, read_only=None, grayed=None,
                  pd_disabled=None, platform=None):
@@ -14,8 +14,8 @@ class ApplicationState(object):
         self._configuration_path = configuration_path
         self._application_status = application_status
         self._application_host = application_host
-        self._completion_time = completion_time
-        self._trigger_time = trigger_time
+        self._last_update = last_update
+        self._start_stop_time = start_stop_time
         self._error_state = error_state
         self._local_mode = local_mode
         self._delete = delete
@@ -71,11 +71,11 @@ class ApplicationState(object):
         return ""
 
     @property
-    def completion_time(self):
-        if self._completion_time is not None and \
+    def last_update(self):
+        if self._last_update is not None and \
                 self._error_state not in ('starting', 'stopping'):
             return datetime.fromtimestamp(
-                self._completion_time).strftime('%Y-%m-%d %H:%M:%S')
+                self._last_update).strftime('%Y-%m-%d %H:%M:%S')
 
         return ""
 
@@ -85,8 +85,8 @@ class ApplicationState(object):
             'configuration_path': self.configuration_path,
             'application_status': self.application_status,
             'application_host': self.application_host,
-            'completion_time': self.completion_time,
-            'trigger_time': self._trigger_time,
+            'last_update': self.last_update,
+            'start_stop_time': self._start_stop_time,
             'error_state': self._error_state,
             'delete': self._delete,
             'local_mode': self._local_mode,
