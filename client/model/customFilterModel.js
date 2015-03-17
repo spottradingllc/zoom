@@ -104,7 +104,7 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         downFilter.parameter(downFilter.parameters.applicationStatus);
         downFilter.searchTerm(downFilter.searchTerms.stopped);
         self.defaultFilters.push(downFilter);
-        self.all.push(downFilter);
+        self.all.push(downFilter);  // enable this by default
 
         var errorFilter = new CustomFilter(self, parent);
         errorFilter.filterName('Error');
