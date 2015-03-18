@@ -39,8 +39,8 @@ define(
                 {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
                 {title: 'Application ID', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
-                {title: 'Trigger Time', sortPropertyName: 'triggerTime', asc: ko.observable(false)},
-                {title: 'Completion Time', sortPropertyName: 'completionTime', asc: ko.observable(false)},
+                {title: 'Start/Stop Time', sortPropertyName: 'startStopTime', asc: ko.observable(false)},
+                {title: 'Last Update', sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
                 {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
                 {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
                 {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
@@ -467,8 +467,8 @@ define(
                     });
                     if (row) {
                         row.applicationStatus(update.application_status);
-                        row.completionTime(update.completion_time);
-                        row.triggerTime(update.trigger_time);
+                        row.lastUpdate(update.last_update);
+                        row.startStopTime(update.start_stop_time);
                         row.applicationHost(update.application_host);
                         row.errorState(update.error_state);
                         row.mode(update.local_mode);

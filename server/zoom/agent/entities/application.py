@@ -11,7 +11,6 @@ from time import sleep
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.handlers.threading import SequentialThreadingHandler
-from kazoo.interfaces import IHandler
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import ZK_CONN_STRING
@@ -78,8 +77,12 @@ class Application(object):
         # tool-like attributes
         self.listener_lock = Lock()
         self._action_queue = queue
-        self._mode = ApplicationMode(ApplicationMode.MANUAL)
-        self._state = ThreadSafeObject(ApplicationState.OK)
+        self._mode = ApplicationMode(
+            ApplicationMode.MANUAL,
+            callback=self._update_agent_node_with_app_details)
+        self._state = ThreadSafeObject(
+            ApplicationState.OK,
+            callback=self._update_agent_node_with_app_details)
         self._trigger_time = ''     # Default to empty string for comparison
         self._login_user = 'Zoom'   # Default to Zoom
         self._user_set_in_react = False
@@ -115,7 +118,7 @@ class Application(object):
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
-                'trigger_time': self._trigger_time,
+                'start_stop_time': self._start_stop_time,
                 'login_user': self._login_user,
                 'read_only': self._read_only}
 
@@ -156,7 +159,6 @@ class Application(object):
                 self._proc_client.reset_counters()
 
                 self._state.set_value(ApplicationState.STARTED)
-                self._update_agent_node_with_app_details()
 
     @catch_exception(NoNodeError)
     @connected
@@ -206,13 +208,12 @@ class Application(object):
             self.ignore()
         pd_enabled = kwargs.get('pd_enabled', True)
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
 
         # set login user if not set in react
         if not self._user_set_in_react:
             self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STARTING)
-        self._update_agent_node_with_app_details()
 
         result = self._proc_client.start()
 
@@ -230,8 +231,6 @@ class Application(object):
             else:
                 self._log.debug('PD is disabled, not sending alert.')
 
-        self._update_agent_node_with_app_details()
-
         return result
 
     @time_this
@@ -246,19 +245,18 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
         self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STOPPING)
-        self._update_agent_node_with_app_details()
 
         result = self._proc_client.stop(**kwargs)
 
         if result != 0 and kwargs.get('argument', 'false') == 'false':
-            self._state.set_value(ApplicationState.ERROR)
+            self._state.set_value(ApplicationState.ERROR, run_callback=False)
         else:
-            self._state.set_value(ApplicationState.STOPPED)
+            self._state.set_value(ApplicationState.STOPPED, run_callback=False)
 
-        sleep(5)  # give everything time to catch up
+        sleep(5)  # give everything time to catch up, not sure why anymore...
         self._update_agent_node_with_app_details()
 
         # reset this value back to False
@@ -301,7 +299,6 @@ class Application(object):
         """
         self._mode.set_value(ApplicationMode.MANUAL)
         self._log.info('Mode is now "{0}"'.format(self._mode))
-        self._update_agent_node_with_app_details()
         return 0
 
     @time_this
@@ -312,7 +309,6 @@ class Application(object):
         """
         self._mode.set_value(ApplicationMode.AUTO)
         self._log.info('Mode is now "{0}"'.format(self._mode))
-        self._update_agent_node_with_app_details()
 
         # when react is called through "restart with dependencies" command
         self._user_set_in_react = True
@@ -338,7 +334,6 @@ class Application(object):
         if not self._proc_client.restart_logic.ran_stop:
             # the application has crashed
             self._state.set_value(ApplicationState.NOTIFY)
-            self._update_agent_node_with_app_details()
             if pd_enabled:
                 self._create_alert_node(AlertActionType.TRIGGER,
                                         AlertReason.CRASHED)
@@ -388,7 +383,8 @@ class Application(object):
             self._log.error('There is a config conflict with {0}. Updates '
                             'will no longer be sent until it is resolved.'
                             .format(other_host))
-            self._state.set_value(ApplicationState.CONFIG_ERROR)
+            self._state.set_value(ApplicationState.CONFIG_ERROR,
+                                  run_callback=False)
 
         # make sure data is the most recent
         if self.app_details() != agent_apps:
@@ -518,7 +514,6 @@ class Application(object):
                            format(modepath))
             self._mode.set_value(str(j.get(u'mode', ApplicationMode.MANUAL)))
             self._log.info('Setting mode to "{0}"'.format(self._mode))
-            self._update_agent_node_with_app_details()
         except NoNodeError:
             self._log.info('ZK path {0} does not exist. Assuming mode "manual"'
                            .format(modepath))
