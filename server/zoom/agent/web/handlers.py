@@ -1,4 +1,5 @@
 import json
+import logging
 import tornado.web
 
 from zoom.agent.entities.task import Task
@@ -68,3 +69,20 @@ class LogHandler(BaseHandler):
 
     def get(self):
         self.render('templates/log.html', data=self.application.get_log())
+
+
+class LogVerbosityHandler(BaseHandler):
+
+    def post(self, level):
+        logger = logging.getLogger('')
+        level = level.lower()
+        if level == 'debug':
+            logger.setLevel(logging.DEBUG)
+        elif level == 'info':
+            logger.setLevel(logging.INFO)
+        elif level == 'warning':
+            logger.setLevel(logging.WARNING)
+        else:
+            return
+
+        logging.info('Changed log level to {0}'.format(level))

@@ -1,9 +1,12 @@
 class ThreadSafeObject(object):
-    def __init__(self, value):
+    def __init__(self, value, callback=None):
         self.value = value
+        self._callback = callback
 
-    def set_value(self, value):
+    def set_value(self, value, run_callback=True):
         self.value = value
+        if self._callback is not None and run_callback:
+            self._callback()
 
     def get(self, key, default=None):
         if isinstance(self.value, dict):
@@ -28,5 +31,5 @@ class ApplicationMode(ThreadSafeObject):
     AUTO = "auto"
     MANUAL = "manual"
 
-    def __init__(self, val):
-        ThreadSafeObject.__init__(self, val)
+    def __init__(self, val, callback=None):
+        ThreadSafeObject.__init__(self, val, callback=callback)
