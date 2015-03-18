@@ -211,9 +211,9 @@ class Configuration(object):
     def throttle_interval(self):
         return self._throttle_interval
 
-    # @property
-    # def override_node(self):
-    #     return self._override_node
+    @property
+    def override_node(self):
+        return self._override_node
 
     @property
     def graphite_host(self):
