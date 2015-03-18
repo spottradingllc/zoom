@@ -1,4 +1,3 @@
-#pylint: disable = all
 import logging
 import os.path
 import json

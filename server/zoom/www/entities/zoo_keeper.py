@@ -1,4 +1,3 @@
-#pylint: disable=all
 import logging
 from kazoo.client import KazooClient
 from zoom.common.constants import ZK_CONN_STRING
