@@ -183,9 +183,9 @@ define([
         self.views.push(self.dependencyDrawer);
         self.parent.views.push(self.dependencyDrawer);
 
-        self.partitionChart = new PartitionChart(d3, ko, self, 'partition-chart');
-        self.views.push(self.partitionChart);
-        self.parent.views.push(self.partitionChart);
+//        self.partitionChart = new PartitionChart(d3, ko, self, 'partition-chart');
+//        self.views.push(self.partitionChart);
+//        self.parent.views.push(self.partitionChart);
 
         self.showView = function(newView) {
             self.closeAllViews();
