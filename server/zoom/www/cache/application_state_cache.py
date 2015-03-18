@@ -295,6 +295,7 @@ class ApplicationStateCache(object):
         """
         
         existing_obj = self._cache._application_states.get(path, None)
+        _override = {}
 
         try:
             _data, _unused = self._zoo_keeper.get(self._configuration.override_node)
