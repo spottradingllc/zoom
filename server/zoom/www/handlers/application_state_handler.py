@@ -50,6 +50,8 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
             request = json.loads(self.request.body)
             key = request.get('key', None)
             value = request.get('value', None)
+            logging.debug('Raw request: {0}'.format(request))
+
             if path is not None:
                 self.application_state_cache.manual_update(path, key, value)
                 self.set_status(httplib.OK)
