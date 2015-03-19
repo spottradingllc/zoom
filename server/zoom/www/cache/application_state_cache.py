@@ -108,7 +108,8 @@ class ApplicationStateCache(object):
 
         state = self._cache._application_states.get(path, None)
         if state is not None:
-            self._update_override_info(path, key, value)
+            if key in ['grayed', 'pd_disabled']:
+                self._update_override_info(path, key, value)
             message = ApplicationStatesMessage()
             state[key] = value
             message.update({path: state})
