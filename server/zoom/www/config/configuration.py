@@ -52,6 +52,7 @@ class Configuration(object):
             self._global_mode_path = zookeeper_settings.get('global_mode_path')
             self._pillar_path = zookeeper_settings.get('pillar_path')
             self._alert_path = zookeeper_settings.get('alert_path')
+            self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override/override_node')
             self._zookeeper_host = ZK_CONN_STRING
 
             #pagerduty
@@ -209,6 +210,10 @@ class Configuration(object):
     @property
     def throttle_interval(self):
         return self._throttle_interval
+
+    @property
+    def override_node(self):
+        return self._override_node
 
     @property
     def graphite_host(self):

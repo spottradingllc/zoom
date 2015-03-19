@@ -3,10 +3,9 @@
 .cproject
 .pydevproject
 *.pyc
-s*.swp
+*.sw*
 *.autosave
 venv/
-*.swo
 core.*
 cover/
 *.coverage

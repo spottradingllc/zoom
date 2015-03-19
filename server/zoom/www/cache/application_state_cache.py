@@ -62,14 +62,54 @@ class ApplicationStateCache(object):
             self._cache.application_states)
         self._cache.remove_deletes()
 
+    def _build_default_override_store(self, override_nodename):
+        logging.debug('Override storage node not found, creating')
+        _template = {}
+        _template['grayed'] = {}
+        _template['pd_disabled'] = {}
+        self._zoo_keeper.create(override_nodename, json.dumps(_template), makepath=True)
+
+    def _update_override_info(self, path, override_key, override_value):
+        """
+        Update zookeeper with override values passed in
+        """
+        logging.debug("_update_override_info: path: {0}, override_key: {1} override_value: {2}"
+                      .format(path, override_key, override_value))
+        try:
+            _state, _unused = self._zoo_keeper.get(self._configuration.override_node)
+            if _state:
+                try:
+                    # grab current state object
+                    _current_state = json.loads(_state)
+                    _d = {}
+                    if override_value:
+                        _d[path] = override_value
+                    else:
+                        _current_state[override_key].pop(path)
+                    _current_state[override_key].update(_d)
+                    self._zoo_keeper.set(self._configuration.override_node,
+                                        json.dumps(_current_state))
+                except (TypeError, ValueError) as err:
+                    logging.critical(err)
+            else:
+                pass
+        except NoNodeError as err:
+            logging.debug('Unable to find ')
+            self._build_default_override_store(self._configuration.override_node)
+            self._update_override_info(path, override_key, override_value)
+
     def manual_update(self, path, key, value):
         """
         Manual override from client of specific value
         :type path: str
         :param key: str
         """
+        # Set the permanent storage
+
         state = self._cache._application_states.get(path, None)
         if state is not None:
+            if key in ['grayed', 'pd_disabled']:
+                self._update_override_info(path, key, value)
             message = ApplicationStatesMessage()
             state[key] = value
             message.update({path: state})
@@ -142,8 +182,10 @@ class ApplicationStateCache(object):
                             watch=self._on_agent_state_update)):
                 data['state'] = 'unknown'
                 data['mode'] = 'unknown'
+                logging.debug("Persistent node detected: {0}".format(host))
             else:
                 self._path_to_host_mapping[host] = path
+                logging.debug("Persistent node (path) detected: {0}".format(path))
 
             application_state = ApplicationState(
                 application_name=data.get('name', os.path.basename(path)),
@@ -169,6 +211,7 @@ class ApplicationStateCache(object):
                                           watch=self._on_update)
 
             host = os.path.basename(path)
+            logging.debug('Ephermeral node detected: {0}'.format(host))
             # if it is running, path = /app/path/HOSTNAME
             # need to convert to /app/path to get the app_details
             config_path = os.path.dirname(path)
@@ -193,6 +236,7 @@ class ApplicationStateCache(object):
                 grayed=self._get_existing_attribute(path, 'grayed'),
                 platform=parent_data.get('platform', 'unknown')
             )
+            logging.debug('application_state: {0}'.format(application_state))
         return application_state
 
     def _on_update(self, event):
@@ -250,10 +294,28 @@ class ApplicationStateCache(object):
         :param default: the default value to return if the state dict or the
             key (attr) does not exist
         """
+        
         existing_obj = self._cache._application_states.get(path, None)
+        _override = {}
+
+        try:
+            _data, _unused = self._zoo_keeper.get(self._configuration.override_node)
+            # I don't like grabbing the entire override object, but what can you do?
+            _override = json.loads(_data)
+            grayed_out = _override.get('grayed')
+            pd_disabled = _override.get('pd_disabled')
+        except (TypeError, ValueError) as err:
+            logging.critical(err)
+                
+        if path in _override[attr]: 
+            return _override[attr].get(path)
+        
         if existing_obj is None:
             existing = default
+            logging.debug('{0} did not exist, default: {1}'.format(path, default))
         else:
             existing = existing_obj.get(attr, default)
+            logging.debug('{0} existed: {1}'.format(path, existing))
 
         return existing
+
