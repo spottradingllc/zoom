@@ -427,10 +427,10 @@
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
                             
-                            <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
+                            I require:
                             <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0">
-                                <span data-bind="template: {name : 'dependencies-template'}"></span>
+                                data-bind="foreach: dependencyModel.newRequires">
+                                <li data-bind="text: path"></li>
                             </ul>
                             
                             <!--<span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>-->
@@ -788,10 +788,8 @@
 
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.state.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.state.applicationHost)}"
-        title="Click to jump to this sentinel config" >
-        <span data-bind="attr : {class : $data.state.applicationStatusClass}" style="padding: 4px"></span>
-        <span class="cursor-pointer" data-bind="text: $data.state.componentId + ($data.operational ? '***' : '')"></span>
+    <li>
+        <span class="cursor-pointer" data-bind="text: $data.path + ($data.operational ? '***' : '')"></span>
     </li>
 </script>
 
