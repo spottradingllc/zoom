@@ -118,7 +118,7 @@ class Application(object):
                 'platform': self._system,
                 'mode': self._mode.value,
                 'state': self._state.value,
-                'trigger_time': self._trigger_time,
+                'start_stop_time': self._start_stop_time,
                 'login_user': self._login_user,
                 'read_only': self._read_only}
 
@@ -208,7 +208,7 @@ class Application(object):
             self.ignore()
         pd_enabled = kwargs.get('pd_enabled', True)
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
 
         # set login user if not set in react
         if not self._user_set_in_react:
@@ -245,7 +245,7 @@ class Application(object):
         if kwargs.get('pause', False):
             self.ignore()
 
-        self._trigger_time = self._get_current_time()
+        self._start_stop_time = self._get_current_time()
         self._login_user = kwargs.get('login_user', 'Zoom')
         self._state.set_value(ApplicationState.STOPPING)
 
