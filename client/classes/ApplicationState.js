@@ -35,6 +35,9 @@ define(
             self.pdDisabled = ko.observable(data.pd_disabled);
 
 
+            // initially populate dependencies (async)
+            self.dependencyModel.populateDependencies();
+
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
 
@@ -305,10 +308,10 @@ define(
                 // delete an application row on the web page
                 // parses the config and deletes the component with a matching id
                 // deletes the path in zookeeper matching the configurationPath
-                if (self.dependencyModel.requiredBy().length > 0) {
+                if (self.dependencyModel.downstream().length > 0) {
                     var message = 'Are you sure?\n';
-                    ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
-                        message = message + applicationState.configurationPath + '\n';
+                    $.each(self.dependencyModel.downstream(), function(path) {
+                        message = message + path + '\n';
                     });
                     swal({
                         title: 'Someone depends on this!',

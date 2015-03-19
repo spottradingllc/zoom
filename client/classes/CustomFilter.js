@@ -9,7 +9,7 @@ define(['jquery', 'knockout'], function($, ko) {
             errorState: 'errorState',
             dependency: 'dependency',
             requires: 'requires',
-            requiredBy: 'requiredBy',
+            downstream: 'downstream',
             weekend: 'weekend'
         };
 
@@ -177,8 +177,8 @@ define(['jquery', 'knockout'], function($, ko) {
                     }
                 });
             }
-            else if (self.parameter() === self.parameters.requiredBy && !self.inversed()) {
-                ko.utils.arrayForEach(appState.dependencyModel.requiredBy(), function(dependent) {
+            else if (self.parameter() === self.parameters.downstream && !self.inversed()) {
+                ko.utils.arrayForEach(appState.dependencyModel.downstream(), function(dependent) {
                     if (dependent.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
                         self.pushMatchedItem(appState);
                     }
@@ -200,9 +200,9 @@ define(['jquery', 'knockout'], function($, ko) {
                     self.pushMatchedItem(appState);
                 }
             }
-            else { // (self.parameter() == 'requiredBy' && self.inversed()) case
+            else { // (self.parameter() == 'downstream' && self.inversed()) case
                 // generate an array of the config paths of each dependent
-                ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
+                ko.utils.arrayMap(appState.dependencyModel.downstream(), function(dependent) {
                     return dependent.configurationPath;
                 });
 

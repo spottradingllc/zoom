@@ -84,11 +84,9 @@
     </div>
 
     <div class="page-header">
-        <h1>
-            <small>
-              <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
-            </small>
-            <small class="pull-right">
+        <h3 style="color: gray">
+            <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
+            <span class="pull-right">
                 Zookeeper startup is :
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" data-bind="click: function(){mode.setGlobalMode('auto')},
@@ -102,51 +100,37 @@
                                           title="Set Zookeeper to ignore state changes.">Off</button>
                 </div>
                 <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'"/>
-
-                <small>
                 <span data-bind="text: mode.timingString, visible: mode.isOn()"/>
-                </small>
-            </small>
-        </h1>
+            </span>
+        </h3>
 
-        <!-- View Toggling -->
+        <!-- Diff Mode/ Reload Server Cache -->
         <div class="row view-tabs">
-            <div class="col-md-6 text-left">
-                <div class="btn-group" data-bind="foreach: appStateModel.views">
-                    <button class="btn btn-default" data-bind="radio: $parent.appStateModel.currentView">
-                        <span data-bind="text: name"></span>
+            <div class="pull-right">
+                Diff Mode :
+                <div class="btn-group">
+                    <button type="button"
+                            data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
+                                       attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
+                                              title: appStateModel.customFilters.timeToolTip}"
+                            data-toggle="tooltip"
+                            data-placement="top"> Update
+
+                        <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
+                    </button>
+                    <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
+                            attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
+                                          data-toggle="tooltip"
+                                          data-placement="top"
+                                          title="Set Zoom to normal operation">Normal
                     </button>
                 </div>
-            </div>
-            <div class="col-md-6 text-right">
-                <small class="pull-right">
-                    <div class="pull-right">
-                        Diff Mode :
-                        <div class="btn-group">
-                            <button type="button" 
-                                    data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
-                                               attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
-                                                      title: appStateModel.customFilters.timeToolTip}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"> Update
-
-                                <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
-                            </button>
-                            <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
-                                    attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
-                                                  data-toggle="tooltip"
-                                                  data-placement="top"
-                                                  title="Set Zoom to normal operation">Normal
-                            </button>
-                        </div>
-                        <button type="button" data-bind="click: function(){appStateModel.reloadCaches()}"
-                                              class="btn btn-default"
-                                              data-toggle="tooltip"
-                                              data-placement="top"
-                                              title="Reload Server Side Caches">Reload Server Cache
-                        </button>
-                    </div>
-                </small>
+                <button type="button" data-bind="click: function(){appStateModel.reloadCaches()}"
+                                      class="btn btn-default"
+                                      data-toggle="tooltip"
+                                      data-placement="top"
+                                      title="Reload Server Side Caches">Reload Server Cache
+                </button>
             </div>
         </div>
 
@@ -352,7 +336,7 @@
                                 <button data-bind="click: function(){setParameter('dependency')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || 
                                                        parameter() == 'requires' ||
-                                                       parameter() == 'requiredBy') ? ' active' : ''))}"
+                                                       parameter() == 'downstream') ? ' active' : ''))}"
                                         data-toggle="tooltip"
                                         data-placement="top"
                                         title="Filter by dependent on.">
@@ -372,7 +356,7 @@
     </div>
 
     <div class="page-body">
-        <table class="table table-bordered table-condensed" data-bind="visible: appStateModel.currentView() == appStateModel">
+        <table class="table table-bordered table-condensed" >
             <!-- Headers -->
             <thead>
                 <tr data-bind="foreach: appStateModel.headers">
@@ -426,38 +410,18 @@
                             data-bind="click: appInfo.toggle">
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
-                            
                             I require:
                             <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.newRequires">
-                                <li data-bind="text: path"></li>
+                                data-bind="foreach: dependencyModel.upstream">
+                                <li data-bind="text: (type == 'zookeeperhasgrandchildren') ? path + '/*' : path"></li>
                             </ul>
                             
-                            <!--<span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>-->
-                            <!--<ul class="dep-list" -->
-                                <!--data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0">-->
-                                <!--<span data-bind="template: {name : 'dependencies-template'}"></span>-->
-                            <!--</ul>-->
-
-                            <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
+                            <span data-bind="visible: dependencyModel.downstream().length > 0">I am required by:</span>
                             <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.zookeepergooduntiltime, 
-                                visible: dependencyModel.zookeepergooduntiltime().length > 0"> 
-                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                                data-bind="foreach: dependencyModel.downstream">
+                                <li data-bind="text: $data"></li>
                             </ul>
 
-                            <span data-bind="visible: dependencyModel.holiday().length > 0">Holiday:</span>
-                            <ul class="dep-list" 
-                                data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
-                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
-                            </ul> 
-
-                            <span data-bind="visible: dependencyModel.weekend().length > 0">Weekend:</span>
-                            <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0"> 
-                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
-                            </ul>
-                           
                         </div>
                         <div class="alert alert-info" role="alert" 
                              data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
@@ -594,11 +558,11 @@
             </tbody>
             <!-- END Rows -->
         </table>
-        <div data-bind="visible: appStateModel.filteredItems().length == appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+        <div data-bind="visible: appStateModel.filteredItems().length == appStateModel.appsToShow().length ">
             <p class="text-center"> No more services to show </p>
         </div>
 
-        <div class="page-body scroll-footer" data-bind="visible: appStateModel.filteredItems().length != appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+        <div class="page-body scroll-footer" data-bind="visible: appStateModel.filteredItems().length != appStateModel.appsToShow().length ">
                 Scroll down to load more 
         </div>
     </div>
@@ -633,7 +597,7 @@
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "dependency" || parameter() == "requires" || parameter() == "requiredBy"-->
+    <!-- ko if: parameter() == "dependency" || parameter() == "requires" || parameter() == "downstream"-->
     <span data-bind="template: {name:'dependency-filter-template'}"></span>
     <!-- /ko -->
 </script>
@@ -746,8 +710,8 @@
                 title="Filter by services that require the search term.">
             Requires
         </button>
-        <button data-bind="click: function(){setParameter('requiredBy')},
-                           attr: {class : ('btn btn-default' + ((parameter() == 'requiredBy') ? ' active' : ''))}"
+        <button data-bind="click: function(){setParameter('downstream')},
+                           attr: {class : ('btn btn-default' + ((parameter() == 'downstream') ? ' active' : ''))}"
                 data-toggle="tooltip"
                 data-placement="top"
                 title="Filter by services required by the search term.">
@@ -781,17 +745,6 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
-<!--Template for Displaying other predicates-->
-<script type="text/html" id="other-predicates-template">
-    <span data-bind="text: $data.state"></span>
-</script>
-
-<!-- Template for Displaying Dependencies -->
-<script type="text/html" id="dependencies-template">
-    <li>
-        <span class="cursor-pointer" data-bind="text: $data.path + ($data.operational ? '***' : '')"></span>
-    </li>
-</script>
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });

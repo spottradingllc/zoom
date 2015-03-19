@@ -11,11 +11,11 @@ define([
         self.parent = parent;
         self.colors = {green: '#64FF74', yellow: '#FFE033', red: '#E85923', purple: '#AC0CE8', gray: '#71707F'};
 
-        self.applicationStateArray = ko.computed(function() {
-            return self.parent.filteredItems().slice();
-        });
+//        self.applicationStateArray = ko.computed(function() {
+//            return self.parent.filteredItems().slice();
+//        });
 
-        self.createDependentsDict = function(appState) {
+//        self.createDependentsDict = function(appState) {
 //            var name = appState.configurationPath.substring(appState.configurationPath.indexOf('application/') + 'application/'.length);
 //            if (appState.dependencyModel.requiredBy().length === 0) {
 //                return {
@@ -38,9 +38,9 @@ define([
 //                    timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
 //                };
 //            }
-        };
+//        };
 
-        self.createRequirementsDict = function(appState) {
+//        self.createRequirementsDict = function(appState) {
 //            var name = appState.configurationPath.substring(appState.configurationPath.indexOf('application/') + 'application/'.length);
 //            // This is a fake app state created from outside the ../state/application tree
 //            // (doesn't have all the needed attributes of a real state)
@@ -67,42 +67,42 @@ define([
 //                    timeComponent: (appState.dependencyModel.zookeepergooduntiltime().length > 0)
 //                };
 //            }
-        };
+//        };
 
         // check if some appState's dependents contain a particular appState
-        self.dependentsContainAppState = function(parent, appState) {
-            var result;
-
-            if (parent.dependencyModel.requiredBy().indexOf(appState) !== -1 || parent === appState) {
-                return true;
-            }
-            else {
-                for (var i = 0; i < parent.dependencyModel.requiredBy().length; i++) {
-                    result = self.dependentsContainAppState(parent.dependencyModel.requiredBy()[i], appState);
-                    if (result) {
-                        return result;
-                    }
-                }
-                return false;
-            }
-        };
+//        self.dependentsContainAppState = function(parent, appState) {
+//            var result;
+//
+//            if (parent.dependencyModel.requiredBy().indexOf(appState) !== -1 || parent === appState) {
+//                return true;
+//            }
+//            else {
+//                for (var i = 0; i < parent.dependencyModel.requiredBy().length; i++) {
+//                    result = self.dependentsContainAppState(parent.dependencyModel.requiredBy()[i], appState);
+//                    if (result) {
+//                        return result;
+//                    }
+//                }
+//                return false;
+//            }
+//        };
 
         // maps the above function over an array of appStates
-        self.arrayDependentsContainAppState = function(arr, appState) {
-            if (arr.indexOf(appState) !== -1) {
-                return true;
-            }
-            else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (self.dependentsContainAppState(arr[i], appState)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        };
+//        self.arrayDependentsContainAppState = function(arr, appState) {
+//            if (arr.indexOf(appState) !== -1) {
+//                return true;
+//            }
+//            else {
+//                for (var i = 0; i < arr.length; i++) {
+//                    if (self.dependentsContainAppState(arr[i], appState)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//            return false;
+//        };
 
-        self.dependents = ko.computed(function() {
+//        self.dependents = ko.computed(function() {
 //            var dict = ko.observableArray([]);
 //
 //            // sort app states based on number of requirements
@@ -134,10 +134,10 @@ define([
 //            });
 //
 //            return {name: 'Zoom', children: dict.slice(), status: 'running', size: dict.length + 1};
-        }).extend({rateLimit: 2000});
+//        }).extend({rateLimit: 2000});
 
-        self.requirements = ko.computed(function() {
-            var dict = ko.observableArray([]);
+//        self.requirements = ko.computed(function() {
+//            var dict = ko.observableArray([]);
 //
 //            // sort app states based on status, then whether or not their requirements are up, then alphabetically
 //            var sortedAppStates = self.applicationStateArray().slice().sort(function(left, right) {
@@ -173,15 +173,15 @@ define([
 //                dict.push(self.createRequirementsDict(appState));
 //            });
 
-            return {name: 'Zoom', children: dict.slice(), status: 'running', errorState: 'ok'};
-        }).extend({rateLimit: 1000});
+//            return {name: 'Zoom', children: dict.slice(), status: 'running', errorState: 'ok'};
+//        }).extend({rateLimit: 1000});
 
         // VIEW OPERATIONS
         self.views = ko.observableArray([]);
 
-        self.dependencyDrawer = new IndentedDependencyTree(d3, ko, self, 'dependency-drawer');
-        self.views.push(self.dependencyDrawer);
-        self.parent.views.push(self.dependencyDrawer);
+//        self.dependencyDrawer = new IndentedDependencyTree(d3, ko, self, 'dependency-drawer');
+//        self.views.push(self.dependencyDrawer);
+//        self.parent.views.push(self.dependencyDrawer);
 
 //        self.partitionChart = new PartitionChart(d3, ko, self, 'partition-chart');
 //        self.views.push(self.partitionChart);
@@ -205,9 +205,9 @@ define([
         };
 
         // send live updates to the dependency drawer and partition chart
-        self.requirements.subscribe(function(newDict) {
-            self.dependencyDrawer.inputJSON(newDict);
-        });
+//        self.requirements.subscribe(function(newDict) {
+//            self.dependencyDrawer.inputJSON(newDict);
+//        });
 
 //        self.dependents.subscribe(function(newDict) {
 //            self.partitionChart.inputJSON(newDict);

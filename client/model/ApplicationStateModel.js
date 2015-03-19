@@ -10,11 +10,10 @@ define(
         'model/GlobalMode',
         'model/customFilterModel',
         'classes/ApplicationState',
-        'classes/applicationStateArray',
-        'classes/dependency-maps/DependencyMaps'
+        'classes/applicationStateArray'
     ],
     function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
-             CustomFilterModel, ApplicationState, ApplicationStateArray, DependencyMaps) {
+             CustomFilterModel, ApplicationState, ApplicationStateArray) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
@@ -424,28 +423,24 @@ define(
             $(window).resize($.throttle(300, self.numRows));
 
             self.showOnlyVisible = ko.computed(function () {
-                    self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
+                self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
             });
             
             self.autoLoad = $(document).bind('mousewheel', function() {
-                    if (self.currentView().constructor.name === self.constructor.name){
-                    var diff = $(window).scrollTop() + $(window).height() - $(document).height();
-                    // when zoomed, the diff can sometimes drift as far as 2 pixels off
-                    // root cause is not known - but likely a Chrome bug
-                    // http://bit.ly/1szF52q
-                    if (diff > -3) {
-                            // add a few rows
-                            var add_size = 3;
-                            var new_size = 0;
-                            new_size = self.displaySize() + add_size;
-                            self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
-                        }
+                if (self.currentView().constructor.name === self.constructor.name){
+                var diff = $(window).scrollTop() + $(window).height() - $(document).height();
+                // when zoomed, the diff can sometimes drift as far as 2 pixels off
+                // root cause is not known - but likely a Chrome bug
+                // http://bit.ly/1szF52q
+                if (diff > -3) {
+                        // add a few rows
+                        var add_size = 3;
+                        var new_size = 0;
+                        new_size = self.displaySize() + add_size;
+                        self.displaySize(Math.min(self.applicationStateArray().length, new_size));
                     }
+                }
             });
-
-
-            // dependency maps
-            self.dependencyMaps = new DependencyMaps(self);
 
             // create new app state
             self.createApplicationState = function(data) {
