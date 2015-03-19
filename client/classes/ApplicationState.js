@@ -34,7 +34,6 @@ define(
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
 
-
             // initially populate dependencies (async)
             self.dependencyModel.populateDependencies();
 
@@ -54,13 +53,26 @@ define(
                 return ret + ' cursor-pointer';
             }, self);
 
+            self.allChildrenUp = ko.computed(function() {
+                 var down = ko.utils.arrayFirst(self.dependencyModel.requires(), function(d) {
+                     return (d.applicationStatus().toLowerCase() == constants.applicationStatuses.stopped)
+                });
+
+                return !down
+            });
+
             self.applicationStatusBg = ko.computed(function() {
                 if (self.grayed()) { return constants.colors.disabledGray; }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
                     return constants.colors.successTrans;
                 }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
-                    return constants.colors.errorRed;
+                    if (self.allChildrenUp()) {
+                        return constants.colors.allDepsUpYellow
+                    }
+                    else {
+                        return constants.colors.errorRed;
+                    }
                 }
                 else {
                     return constants.colors.unknownGray;

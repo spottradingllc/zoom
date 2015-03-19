@@ -412,8 +412,9 @@
                         <div data-bind="visible: dependencyModel.dependencyVisible">
                             I require:
                             <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.upstream">
-                                <li data-bind="text: (type == 'zookeeperhasgrandchildren') ? path + '/*' : path"></li>
+                                data-bind="foreach: dependencyModel.requires">
+                                <!--<li data-bind="text: (type == 'zookeeperhasgrandchildren') ? path + '/*' : path"></li>-->
+                                <li data-bind="text: $data.componentId, style : {backgroundColor : $data.applicationStatusBg}"></li>
                             </ul>
                             
                             <span data-bind="visible: dependencyModel.downstream().length > 0">I am required by:</span>
