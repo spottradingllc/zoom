@@ -321,11 +321,6 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
-                                <button data-bind="click: function(){setParameter('weekend')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'weekend') ? ' active' : ''))}"
-                                        data-toggle="tooltip" data-placement="top" title="Filter by weekend.">
-                                    Weekend
-                                </button>
                                 <button data-bind="click: function(){setParameter('errorState')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
                                         data-toggle="tooltip"
@@ -411,10 +406,11 @@
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
                             I require:
-                            <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.requires">
-                                <!--<li data-bind="text: (type == 'zookeeperhasgrandchildren') ? path + '/*' : path"></li>-->
-                                <li data-bind="text: $data.componentId, style : {backgroundColor : $data.applicationStatusBg}"></li>
+                            <ul class="dep-list" data-bind="foreach: dependencyModel.requires">
+                                <li data-bind="style : {backgroundColor : applicationStatusBg}">
+                                    <span data-bind="attr : {class : applicationStatusClass}" style="padding: 4px"></span>
+                                    <span class="cursor-pointer" data-bind="text: componentId"></span>
+                                </li>
                             </ul>
                             
                             <span data-bind="visible: dependencyModel.downstream().length > 0">I am required by:</span>

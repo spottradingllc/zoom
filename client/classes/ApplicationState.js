@@ -67,7 +67,10 @@ define(
                     return constants.colors.successTrans;
                 }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
-                    if (self.allChildrenUp()) {
+                    if (self.dependencyModel.timeComponent()) {
+                        return constants.colors.timeComponentPurple
+                    }
+                    else if (self.allChildrenUp()) {
                         return constants.colors.allDepsUpYellow
                     }
                     else {

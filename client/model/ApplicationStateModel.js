@@ -35,21 +35,21 @@ define(
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
-                {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
-                {title: 'Application ID', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
-                {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
-                {title: 'Start/Stop Time', sortPropertyName: 'startStopTime', asc: ko.observable(false)},
-                {title: 'Last Update', sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
-                {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
-                {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
-                {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
+                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(true)},
+                {title: 'Application ID', sort: true, sortPropertyName: 'configurationPath', asc: ko.observable(true)},
+                {title: 'Host', sort: true, sortPropertyName: 'applicationHost', asc: ko.observable(true)},
+                {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
+                {title: 'Last Update', sort: true, sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
+                {title: 'Status', sort: true, sortPropertyName: 'errorStateClass', asc: ko.observable(true)},
+                {title: 'Control', sort: false, sortPropertyName: null, asc: ko.observable(true)},
+                {title: 'Admin', sort: false, sortPropertyName: null, asc: ko.observable(true)}
             ];
 
             // callback for groupCheckModal to set forcedRestart to false, password input to empty string,
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestart(false);
-                self.passwordConfirm('')
+                self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
             });
@@ -226,7 +226,7 @@ define(
                 clearInterval(interval);
 
                 if (!self.groupMode()) {
-                    var clickedAppState = self.getClickedAppState()
+                    var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
                     appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
                 }
@@ -247,7 +247,7 @@ define(
             self.sendDepRestart = function() {
                 // needs to sleep so that stop command gets put into the agent's queue first
                 // TODO: a better alternative to ensure stop gets called first
-                self.sleep(500)
+                self.sleep(500);
                 if (!self.groupMode()){
                     self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
@@ -273,12 +273,12 @@ define(
             // Returns the Application State of the single service to check if the status is down
             // before sending a dep_restart to avoid race condition
             self.getClickedAppState = function() {
-                var clickedAppState
+                var clickedAppState;
                 ko.utils.arrayForEach(self.applicationStateArray(), function(item){
                     if (item.componentId == self.clickedApp().componentId){
                         clickedAppState = item
                     }
-                })
+                });
                 // TODO: if clickedAppState is empty
                 return clickedAppState
             };
@@ -304,9 +304,7 @@ define(
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
             self.sort = function(header, initialRun) {
-                if (header.title === 'Control') {
-                    return;
-                }  // ignore sorting on Control header
+                if (!header.sort) { return; }  // only sort where configured
 
                 // initialRun == true if self.sort is called on page initialization
                 if (typeof initialRun === 'undefined' || typeof initialRun === 'object') {
@@ -435,8 +433,7 @@ define(
                 if (diff > -3) {
                         // add a few rows
                         var add_size = 3;
-                        var new_size = 0;
-                        new_size = self.displaySize() + add_size;
+                        var new_size = self.displaySize() + add_size;
                         self.displaySize(Math.min(self.applicationStateArray().length, new_size));
                     }
                 }

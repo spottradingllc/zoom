@@ -3,6 +3,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         var self = this;
 
         self.requires = ko.observableArray([]).extend({rateLimit: 2000});
+        self.timeComponent = ko.observable(false);
         self.other = ko.observableArray([]).extend({rateLimit: 2000});
 
         self.upstream = ko.observableArray([]).extend({rateLimit: 2000});  // currently unused
@@ -43,6 +44,10 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         neverFound = false;
                         self.requires.push(applicationState);
                     }
+                }
+                else if (predType === constants.predicateTypes.Time || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
+                    neverFound = false;
+                    self.timeComponent(true)
                 }
                 // if this predicate type exists in arrayMapping
                 else {

@@ -10,7 +10,7 @@ define([], function () {
             configErrPink: '#FF64DB',
             disabledGray: '#71707F',
             allDepsUpYellow: '#FFE977',
-            timeComponentPurple: '#AC0CE8'
+            timeComponentPurple: '#B45CE8'
         },
 
         glyphs: {
