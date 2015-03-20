@@ -75,7 +75,7 @@ class ApplicationStateCache(object):
         logging.debug("_update_override_info: path: {0}, override_key: {1} override_value: {2}"
                       .format(path, override_key, override_value))
         try:
-            _override_str = self._zoo_keeper.get(self._configuration.override_node)[0]
+            _override_str, stat = self._zoo_keeper.get(self._configuration.override_node)
             _state = json.loads(_override_str)
             # TODO Currently keys on the override_value being a bool
             if override_value:
@@ -292,13 +292,15 @@ class ApplicationStateCache(object):
         _override = {}
 
         try:
-            _override = json.loads(self._zoo_keeper.get(self._configuration.override_node)[0])
+            data, stat = self._zoo_keeper.get(self._configuration.override_node)
+            _override = json.loads(data)
         except (TypeError, ValueError) as err:
-            logging.critical('There was a problem returning values from the override cache: {0}'
-                             .format(err))
+            logging.critical('There was a problem returning values from the '
+                             'override cache: {0}'.format(err))
 
         try:
-            # If this lookup passes, we return the value, else we move along to existing_obj checks
+            # If this lookup passes, we return the value, else we move along
+            # to existing_obj checks
             _tmp = _override.get(attr).get(path)
             return _tmp
         except AttributeError as err:
