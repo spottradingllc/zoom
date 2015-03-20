@@ -1,4 +1,3 @@
-#pylint: disable=missing-docstring,logging-format-interpolation
 import logging
 import os.path
 import json
