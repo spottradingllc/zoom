@@ -6,7 +6,7 @@ from threading import Thread
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import LockTimeout
 
-from zoom.common.constants import ZK_CONN_STRING
+from zoom.common.constants import get_zk_conn_string
 
 
 class StaggerLock(object):
@@ -20,7 +20,7 @@ class StaggerLock(object):
         self._parent = parent
         self._thread = None
         self._prev_state = None
-        self._zk = KazooClient(hosts=ZK_CONN_STRING)
+        self._zk = KazooClient(hosts=get_zk_conn_string())
         self._zk.add_listener(self._zk_listener)
         self._log = logging.getLogger('sent.{0}.sl'.format(parent))
         self._counter = 0

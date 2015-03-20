@@ -8,7 +8,9 @@ define([], function () {
             unknownGray: '#F7EEDA',
             warnOrange: '#FFAE2F',
             configErrPink: '#FF64DB',
-            disabledGray: '#71707F'
+            disabledGray: '#71707F',
+            allDepsUpYellow: '#FFE977',
+            timeComponentPurple: '#B45CE8'
         },
 
         glyphs: {

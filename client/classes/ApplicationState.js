@@ -34,6 +34,8 @@ define(
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
 
+            // initially populate dependencies (async)
+            self.dependencyModel.populateDependencies();
 
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
@@ -51,13 +53,29 @@ define(
                 return ret + ' cursor-pointer';
             }, self);
 
+            self.allChildrenUp = ko.computed(function() {
+                 var down = ko.utils.arrayFirst(self.dependencyModel.requires(), function(d) {
+                     return (d.applicationStatus().toLowerCase() == constants.applicationStatuses.stopped)
+                });
+
+                return !down
+            });
+
             self.applicationStatusBg = ko.computed(function() {
                 if (self.grayed()) { return constants.colors.disabledGray; }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
                     return constants.colors.successTrans;
                 }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
-                    return constants.colors.errorRed;
+                    if (self.dependencyModel.timeComponent()) {
+                        return constants.colors.timeComponentPurple
+                    }
+                    else if (self.allChildrenUp()) {
+                        return constants.colors.allDepsUpYellow
+                    }
+                    else {
+                        return constants.colors.errorRed;
+                    }
                 }
                 else {
                     return constants.colors.unknownGray;
@@ -305,10 +323,10 @@ define(
                 // delete an application row on the web page
                 // parses the config and deletes the component with a matching id
                 // deletes the path in zookeeper matching the configurationPath
-                if (self.dependencyModel.requiredBy().length > 0) {
+                if (self.dependencyModel.downstream().length > 0) {
                     var message = 'Are you sure?\n';
-                    ko.utils.arrayForEach(self.dependencyModel.requiredBy(), function(applicationState) {
-                        message = message + applicationState.configurationPath + '\n';
+                    $.each(self.dependencyModel.downstream(), function(path) {
+                        message = message + path + '\n';
                     });
                     swal({
                         title: 'Someone depends on this!',

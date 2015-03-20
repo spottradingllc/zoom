@@ -22,7 +22,6 @@ define(
         var callbackObj = function() {
             this.callback = function() {
                 self.navbar.connection.onmessage = function (evt) {
-//                    console.log('websocket message: ' + evt.data);
                     var message = JSON.parse(evt.data);
 
                     if ('update_type' in message) {
@@ -62,7 +61,7 @@ define(
         self.attached = function() {
             self.appStateModel.loadApplicationStates();  // load initial data
             self.appStateModel.loadApplicationDependencies();  // load initial data
-            self.appStateModel.dependencyMaps.showView(self.appStateModel.currentView());
+//            self.appStateModel.dependencyMaps.showView(self.appStateModel.currentView());
             callbackInstance = new callbackObj;
             callbackInstance.callback();
         };
