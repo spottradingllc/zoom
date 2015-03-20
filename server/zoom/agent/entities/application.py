@@ -13,7 +13,7 @@ from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.handlers.threading import SequentialThreadingHandler
 
 from zoom.agent.action.factory import ActionFactory
-from zoom.common.constants import ZK_CONN_STRING
+from zoom.common.constants import get_zk_conn_string
 from zoom.agent.entities.thread_safe_object import (
     ApplicationMode,
     ThreadSafeObject
@@ -96,11 +96,11 @@ class Application(object):
         # clients
         if self._system == PlatformType.LINUX:
             self.zkclient = KazooClient(
-                hosts=ZK_CONN_STRING,
+                hosts=get_zk_conn_string(),
                 handler=SequentialThreadingHandler(),
                 logger=logging.getLogger('kazoo.app.{0}'.format(self.name)))
         elif self._system == PlatformType.WINDOWS:
-            self.zkclient = KazooClient(hosts=ZK_CONN_STRING,
+            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
                                         handler=SequentialThreadingHandler())
 
         self.zkclient.add_listener(self._zk_listener)

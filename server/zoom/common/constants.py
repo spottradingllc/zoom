@@ -2,6 +2,7 @@ import os
 
 
 __env_connections = {
+    "local": "localhost:2181",
     "Staging": ('ZooStaging01:2181,'
                 'ZooStaging02:2181,'
                 'ZooStaging03:2181,'
@@ -29,7 +30,13 @@ __env_connections = {
                    'ZooProduction05:2181')
 }
 
-__env = os.environ.get('EnvironmentToUse', 'Staging')
-ZK_CONN_STRING = __env_connections[__env]
+
 ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
 ZOOM_CONFIG = '/spot/software/config/application/zoom'
+
+def get_zk_conn_string(env=None):
+    default = os.environ.get('EnvironmentToUse', 'Staging')
+    if env and env in __env_connections:
+        return __env_connections.get(env)
+    else:
+        return __env_connections.get(default)
