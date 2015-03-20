@@ -104,10 +104,5 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                 });
         };
 
-        self.getDeps = ko.computed(function() {
-            if (self.showDependencies()) {
-                self.populateDependencies();  // do this?
-            }
-        });
     };
 });
