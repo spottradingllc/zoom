@@ -21,6 +21,7 @@ class ConfigurationMock:
         self.pagerduty_default_svc_key = "key"
         self.pagerduty_alert_footer = "footer"
         self.alert_path = "/path"
+        self.override_node = "/override_foo"
 
 
 class ApplicationStateMock:

@@ -62,14 +62,47 @@ class ApplicationStateCache(object):
             self._cache.application_states)
         self._cache.remove_deletes()
 
+    def _build_default_override_store(self):
+        logging.debug('Override storage node not found, creating')
+        _template = {}
+        self._zoo_keeper.create(self._configuration.override_node,
+                                json.dumps(_template), makepath=True)
+
+    def _update_override_info(self, path, override_key, override_value):
+        """
+        Update zookeeper with override values passed in
+        """
+        logging.debug("_update_override_info: path: {0}, override_key: {1} override_value: {2}"
+                      .format(path, override_key, override_value))
+        try:
+            _override_str, stat = self._zoo_keeper.get(self._configuration.override_node)
+            _state = json.loads(_override_str)
+            # TODO Currently keys on the override_value being a bool
+            if override_value:
+                _d = {}
+                _d[override_key] = {path:override_value}
+                _state.update(_d)
+            else:
+                _state[override_key].pop(path)
+
+            self._zoo_keeper.set(self._configuration.override_node, json.dumps(_state))
+        except NoNodeError as err:
+            logging.debug('Unable to find {0}, {1}'
+                          .format(self._configuration.override_node, err))
+            self._build_default_override_store()
+            self._update_override_info(path, override_key, override_value)
+
     def manual_update(self, path, key, value):
         """
         Manual override from client of specific value
         :type path: str
         :param key: str
         """
+        # Set the permanent storage
+
         state = self._cache._application_states.get(path, None)
         if state is not None:
+            self._update_override_info(path, key, value)
             message = ApplicationStatesMessage()
             state[key] = value
             message.update({path: state})
@@ -136,14 +169,16 @@ class ApplicationStateCache(object):
                                       host)
 
             # if the agent is down, update state and mode with unknown
-            if (host is None or 
+            if (host is None or
                     not self._zoo_keeper.exists(
                             agent_path,
                             watch=self._on_agent_state_update)):
                 data['state'] = 'unknown'
                 data['mode'] = 'unknown'
+                logging.debug("Persistent node detected: {0}".format(host))
             else:
                 self._path_to_host_mapping[host] = path
+                logging.debug("Persistent node (path) detected: {0}".format(path))
 
             application_state = ApplicationState(
                 application_name=data.get('name', os.path.basename(path)),
@@ -169,6 +204,7 @@ class ApplicationStateCache(object):
                                           watch=self._on_update)
 
             host = os.path.basename(path)
+            logging.debug('Ephermeral node detected: {0}'.format(host))
             # if it is running, path = /app/path/HOSTNAME
             # need to convert to /app/path to get the app_details
             config_path = os.path.dirname(path)
@@ -193,6 +229,7 @@ class ApplicationStateCache(object):
                 grayed=self._get_existing_attribute(path, 'grayed'),
                 platform=parent_data.get('platform', 'unknown')
             )
+            logging.debug('application_state: {0}'.format(application_state))
         return application_state
 
     def _on_update(self, event):
@@ -250,10 +287,31 @@ class ApplicationStateCache(object):
         :param default: the default value to return if the state dict or the
             key (attr) does not exist
         """
+
         existing_obj = self._cache._application_states.get(path, None)
+        _override = {}
+
+        try:
+            data, stat = self._zoo_keeper.get(self._configuration.override_node)
+            _override = json.loads(data)
+        except (TypeError, ValueError) as err:
+            logging.critical('There was a problem returning values from the '
+                             'override cache: {0}'.format(err))
+
+        try:
+            # If this lookup passes, we return the value, else we move along
+            # to existing_obj checks
+            _tmp = _override.get(attr).get(path)
+            return _tmp
+        except AttributeError as err:
+            pass # _override.get(attr) was None
+
         if existing_obj is None:
             existing = default
+            logging.debug('{0} did not exist, default: {1}'.format(path, default))
         else:
             existing = existing_obj.get(attr, default)
+            logging.debug('{0} existed: {1}'.format(path, existing))
 
         return existing
+
