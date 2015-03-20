@@ -59,6 +59,18 @@ class ZooKeeper(object):
     def exists(self, path, watch=None):
         return self.kazoo.exists(path=path, watch=watch)
 
+    def upsert(self, path, value, version=-1, watch=None,
+               ephemeral=False, sequence=False,makepath=False):
+        """
+        Update if exists, create if doesn't
+        """
+        # if exists, update
+        if self.exists(path=path, watch=watch):
+            self.set(path=path, value=value, version=version)
+        else:
+            self.create(path=path, value=value, ephemeral=ephemeral,
+                        sequence=sequence, makepath=makepath)
+
     def get(self, path, watch=None):
         return self.kazoo.get(path=path, watch=watch)
 
