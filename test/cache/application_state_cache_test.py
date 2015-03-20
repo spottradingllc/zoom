@@ -71,9 +71,15 @@ class ApplicationStateCacheTest(unittest.TestCase):
         cache = self._create_app_state_cache()
         cache._cache.update({path: state.to_dictionary()})
 
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
+        self.zoo_keeper.set(self.configuration.override_node, '{"application_host": {"/foo": "bar"}}')
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{"application_host": {"/foo": "bar"}}', None))
+        self.mox.ReplayAll()
+
         # test that the state's attribute actually changes
         cache.manual_update(path, 'application_host', bar)
         result = cache._get_existing_attribute(path, 'application_host')
+
         self.assertEqual(bar, result)
 
     def test_walk_no_children(self):
@@ -142,9 +148,11 @@ class ApplicationStateCacheTest(unittest.TestCase):
         stat.ephemeralOwner = 0
         stat.last_modified = 0
 
-        self.zoo_keeper.get(path, watch=mox.IgnoreArg()).AndReturn(("{}", stat))
-        self.zoo_keeper.get_children(path, watch=mox.IgnoreArg()).AndReturn([])
-        self.zoo_keeper.exists(test_unknown, watch=mox.IgnoreArg())
+        self.zoo_keeper.get(path, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
+        self.zoo_keeper.get_children(path, watch=mox.IgnoreArg()).InAnyOrder().AndReturn([])
+        self.zoo_keeper.exists(test_unknown, watch=mox.IgnoreArg()).InAnyOrder()
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
 
         self.mox.ReplayAll()
 
@@ -166,6 +174,8 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.zoo_keeper.get(foobarhead, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
         self.zoo_keeper.get(foobar, watch=mox.IgnoreArg()).InAnyOrder().AndReturn(("{}", stat))
         self.zoo_keeper.get_children(foobar, watch=mox.IgnoreArg()).InAnyOrder()
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
 
         self.mox.ReplayAll()
 
