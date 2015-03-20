@@ -1,3 +1,4 @@
+#pylint: disable=missing-docstring,logging-format-interpolation
 import logging
 import os.path
 import json
@@ -62,12 +63,11 @@ class ApplicationStateCache(object):
             self._cache.application_states)
         self._cache.remove_deletes()
 
-    def _build_default_override_store(self, override_nodename):
+    def _build_default_override_store(self):
         logging.debug('Override storage node not found, creating')
         _template = {}
-        _template['grayed'] = {}
-        _template['pd_disabled'] = {}
-        self._zoo_keeper.create(override_nodename, json.dumps(_template), makepath=True)
+        self._zoo_keeper.create(self._configuration.override_node,
+                                json.dumps(_template), makepath=True)
 
     def _update_override_info(self, path, override_key, override_value):
         """
@@ -76,26 +76,21 @@ class ApplicationStateCache(object):
         logging.debug("_update_override_info: path: {0}, override_key: {1} override_value: {2}"
                       .format(path, override_key, override_value))
         try:
-            _state, _unused = self._zoo_keeper.get(self._configuration.override_node)
-            if _state:
-                try:
-                    # grab current state object
-                    _current_state = json.loads(_state)
-                    _d = {}
-                    if override_value:
-                        _d[path] = override_value
-                    else:
-                        _current_state[override_key].pop(path)
-                    _current_state[override_key].update(_d)
-                    self._zoo_keeper.set(self._configuration.override_node,
-                                        json.dumps(_current_state))
-                except (TypeError, ValueError) as err:
-                    logging.critical(err)
+            _override_str = self._zoo_keeper.get(self._configuration.override_node)[0]
+            _state = json.loads(_override_str)
+            # TODO Currently keys on the override_value being a bool
+            if override_value:
+                _d = {}
+                _d[override_key] = {path:override_value}
+                _state.update(_d)
             else:
-                pass
+                _state[override_key].pop(path)
+
+            self._zoo_keeper.set(self._configuration.override_node, json.dumps(_state))
         except NoNodeError as err:
-            logging.debug('Unable to find ')
-            self._build_default_override_store(self._configuration.override_node)
+            logging.debug('Unable to find {0}, {1}'
+                          .format(self._configuration.override_node, err))
+            self._build_default_override_store()
             self._update_override_info(path, override_key, override_value)
 
     def manual_update(self, path, key, value):
@@ -108,8 +103,7 @@ class ApplicationStateCache(object):
 
         state = self._cache._application_states.get(path, None)
         if state is not None:
-            if key in ['grayed', 'pd_disabled']:
-                self._update_override_info(path, key, value)
+            self._update_override_info(path, key, value)
             message = ApplicationStatesMessage()
             state[key] = value
             message.update({path: state})
@@ -176,7 +170,7 @@ class ApplicationStateCache(object):
                                       host)
 
             # if the agent is down, update state and mode with unknown
-            if (host is None or 
+            if (host is None or
                     not self._zoo_keeper.exists(
                             agent_path,
                             watch=self._on_agent_state_update)):
@@ -294,22 +288,23 @@ class ApplicationStateCache(object):
         :param default: the default value to return if the state dict or the
             key (attr) does not exist
         """
-        
+
         existing_obj = self._cache._application_states.get(path, None)
         _override = {}
 
         try:
-            _data, _unused = self._zoo_keeper.get(self._configuration.override_node)
-            # I don't like grabbing the entire override object, but what can you do?
-            _override = json.loads(_data)
-            grayed_out = _override.get('grayed')
-            pd_disabled = _override.get('pd_disabled')
+            _override = json.loads(self._zoo_keeper.get(self._configuration.override_node)[0])
         except (TypeError, ValueError) as err:
-            logging.critical(err)
-                
-        if path in _override[attr]: 
-            return _override[attr].get(path)
-        
+            logging.critical('There was a problem returning values from the override cache: {0}'
+                             .format(err))
+
+        try:
+            # If this lookup passes, we return the value, else we move along to existing_obj checks
+            _tmp = _override.get(attr).get(path)
+            return _tmp
+        except AttributeError as err:
+            pass # _override.get(attr) was None
+
         if existing_obj is None:
             existing = default
             logging.debug('{0} did not exist, default: {1}'.format(path, default))
