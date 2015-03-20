@@ -83,8 +83,8 @@ class Application(object):
         self._state = ThreadSafeObject(
             ApplicationState.OK,
             callback=self._update_agent_node_with_app_details)
-        self._trigger_time = ''     # Default to empty string for comparison
-        self._login_user = 'Zoom'   # Default to Zoom
+        self._start_stop_time = ''  # Default to empty string for comparison
+        self._login_user = 'Zoom'  # Default to Zoom
         self._user_set_in_react = False
         self._run_check_mode = False
         self._pd_svc_key = verify_attribute(config, 'pagerduty_service',
