@@ -406,13 +406,19 @@
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
                             I require:
-                            <ul class="dep-list" data-bind="foreach: dependencyModel.requires">
+                            <ul class="dep-list" data-bind="foreach: dependencyModel.upstream">
                                 <li data-bind="style : {backgroundColor : applicationStatusBg}">
                                     <span data-bind="attr : {class : applicationStatusClass}" style="padding: 4px"></span>
                                     <span class="cursor-pointer" data-bind="text: componentId"></span>
                                 </li>
                             </ul>
-                            
+
+                            <span data-bind="visible: dependencyModel.timeComponent">Time:</span>
+                            <ul class="dep-list"
+                                data-bind="foreach: dependencyModel.time">
+                                <li data-bind="text: $data"></li>
+                            </ul>
+
                             <span data-bind="visible: dependencyModel.downstream().length > 0">I am required by:</span>
                             <ul class="dep-list"
                                 data-bind="foreach: dependencyModel.downstream">

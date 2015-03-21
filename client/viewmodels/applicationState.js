@@ -61,14 +61,12 @@ define(
         self.attached = function() {
             self.appStateModel.loadApplicationStates();  // load initial data
             self.appStateModel.loadApplicationDependencies();  // load initial data
-//            self.appStateModel.dependencyMaps.showView(self.appStateModel.currentView());
             callbackInstance = new callbackObj;
             callbackInstance.callback();
         };
 
         self.detached = function() {
             self.appStateModel.clearGroupControl();
-            self.appStateModel.dependencyMaps.closeAllViews();
         };
 
         return {

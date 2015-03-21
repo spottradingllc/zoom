@@ -34,9 +34,6 @@ define(
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
 
-            // initially populate dependencies (async)
-            self.dependencyModel.populateDependencies();
-
             self.applicationStatusClass = ko.computed(function() {
                 var ret;
 
@@ -54,7 +51,7 @@ define(
             }, self);
 
             self.allChildrenUp = ko.computed(function() {
-                 var down = ko.utils.arrayFirst(self.dependencyModel.requires(), function(d) {
+                 var down = ko.utils.arrayFirst(self.dependencyModel.upstream(), function(d) {
                      return (d.applicationStatus().toLowerCase() == constants.applicationStatuses.stopped)
                 });
 

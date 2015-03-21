@@ -147,8 +147,8 @@ define(['jquery', 'knockout'], function($, ko) {
         };
 
         self.applyDependencyFilter = function(appState) {
-            if (self.parameter() === self.parameters.requires && !self.inversed()) {
-                ko.utils.arrayForEach(appState.dependencyModel.requires(), function(requirement) {
+            if (self.parameter() === self.parameters.upstream && !self.inversed()) {
+                ko.utils.arrayForEach(appState.dependencyModel.upstream(), function(requirement) {
                     if (requirement.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
                         self.pushMatchedItem(appState);
                     }
@@ -161,9 +161,9 @@ define(['jquery', 'knockout'], function($, ko) {
                     }
                 });
             }
-            else if (self.parameter() === self.parameters.requires && self.inversed()) {
+            else if (self.parameter() === self.parameters.upstream && self.inversed()) {
                 // generate an array of the config paths of each requirement
-                var requirementConfigPaths = ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
+                var requirementConfigPaths = ko.utils.arrayMap(appState.dependencyModel.upstream(), function(requirement) {
                     return requirement.state.configurationPath;
                 });
 

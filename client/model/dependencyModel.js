@@ -2,12 +2,11 @@ define(['knockout', 'model/constants'], function(ko, constants) {
     return function DependencyModel(applicationStateArray, parentAppState) {
         var self = this;
 
-        self.requires = ko.observableArray([]).extend({rateLimit: 2000});
-        self.timeComponent = ko.observable(false);
+        self.upstream = ko.observableArray([]).extend({rateLimit: 2000});
+        self.downstream = ko.observableArray([]).extend({rateLimit: 2000});
+        self.time = ko.observableArray([]).extend({rateLimit: 2000});
         self.other = ko.observableArray([]).extend({rateLimit: 2000});
 
-        self.upstream = ko.observableArray([]).extend({rateLimit: 2000});  // currently unused
-        self.downstream = ko.observableArray([]).extend({rateLimit: 2000});
         self.showDependencies = ko.observable(false);
 
         // Dependency bubbling
@@ -16,9 +15,9 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         };
 
         self.handleUpdate = function(update) {
+            self.upstream.removeAll();
             parentAppState.mtime = Date.now();
             if (parentAppState.applicationHost() === '') { return; }
-            self.upstream(update.dependencies);  // currently unused
             self.downstream(update.downstream);
 
             update.dependencies.forEach(function(entry) {
@@ -31,7 +30,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                 if (predType === constants.predicateTypes.ZooKeeperHasGrandChildren) {
                     ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) === path) {
-                            self.requires.push(applicationState);
+                            self.upstream.push(applicationState);
                             neverFound = false;
                         }
                     });
@@ -42,12 +41,12 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     });
                     if (applicationState) {
                         neverFound = false;
-                        self.requires.push(applicationState);
+                        self.upstream.push(applicationState);
                     }
                 }
                 else if (predType === constants.predicateTypes.Time || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
                     neverFound = false;
-                    self.timeComponent(true)
+                    self.time.push(path);
                 }
                 // if this predicate type exists in arrayMapping
                 else {
@@ -72,10 +71,12 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         'requires': ko.observableArray([]),
                         'errorState': ko.observable(constants.errorStates.unknown)
                     };
-                    self.requires.push(showAsMissing);
+                    self.upstream.push(showAsMissing);
                 }
             });
         };
+
+        self.timeComponent = ko.computed(function() {return self.time().length > 0});
 
         self.dependencyClass = ko.computed(function() {
             if (typeof self.upstream() === 'undefined') {return ''} // not sure why this happens...
@@ -95,14 +96,6 @@ define(['knockout', 'model/constants'], function(ko, constants) {
             if (self.dependencyClass() !== '') { return 'pointer'; }
             else { return ''; }
         });
-
-        self.populateDependencies = function() {
-            $.getJSON('/api/application/dependencies' + parentAppState.configurationPath, function(data) {
-                    self.upstream(data.dependencies);
-                }).fail(function(data) {
-                    swal('Failed GET for populateDependencies.', JSON.stringify(data), 'error');
-                });
-        };
 
     };
 });
