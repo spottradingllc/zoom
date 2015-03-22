@@ -8,8 +8,8 @@ define(['jquery', 'knockout'], function($, ko) {
             applicationHost: 'applicationHost',
             errorState: 'errorState',
             dependency: 'dependency',
-            requires: 'requires',
-            downstream: 'downstream',
+            upstream: 'upstream',
+            downstream: 'downstream'
         };
 
         self.searchTerms = {

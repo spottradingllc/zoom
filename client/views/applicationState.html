@@ -330,7 +330,7 @@
                                 </button>
                                 <button data-bind="click: function(){setParameter('dependency')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || 
-                                                       parameter() == 'requires' ||
+                                                       parameter() == 'upstream' ||
                                                        parameter() == 'downstream') ? ' active' : ''))}"
                                         data-toggle="tooltip"
                                         data-placement="top"
@@ -600,7 +600,7 @@
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "dependency" || parameter() == "requires" || parameter() == "downstream"-->
+    <!-- ko if: parameter() == "dependency" || parameter() == "upstream" || parameter() == "downstream"-->
     <span data-bind="template: {name:'dependency-filter-template'}"></span>
     <!-- /ko -->
 </script>
@@ -706,8 +706,8 @@
 
 <script type="text/html" id="dependency-filter-template">
     <div class="btn-group">
-        <button data-bind="click: function(){setParameter('requires')},
-                           attr: {class : ('btn btn-default' + ((parameter() == 'requires') ? ' active' : ''))}"
+        <button data-bind="click: function(){setParameter('upstream')},
+                           attr: {class : ('btn btn-default' + ((parameter() == 'upstream') ? ' active' : ''))}"
                 data-toggle="tooltip"
                 data-placement="top"
                 title="Filter by services that require the search term.">

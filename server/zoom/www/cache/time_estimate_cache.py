@@ -3,6 +3,7 @@ import logging
 import requests
 
 from zoom.common.types import PredicateType
+from zoom.common.decorators import TimeThis
 from zoom.www.messages.timing_estimate import TimeEstimateMessage
 from zoom.www.messages.message_throttler import MessageThrottle
 
@@ -46,6 +47,7 @@ class TimeEstimateCache(object):
         self.dependencies.update(deps)
         self.load(send=True)
 
+    @TimeThis(__file__)
     def load(self, send=False):
         """
         :type send: bool

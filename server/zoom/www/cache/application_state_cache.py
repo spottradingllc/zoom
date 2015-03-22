@@ -4,7 +4,7 @@ import json
 
 from kazoo.exceptions import NoNodeError
 
-from zoom.common.decorators import connected_with_return
+from zoom.common.decorators import connected_with_return, TimeThis
 from zoom.common.types import ApplicationStatus
 from zoom.www.entities.application_state import ApplicationState
 from zoom.www.messages.application_states import ApplicationStatesMessage
@@ -51,6 +51,7 @@ class ApplicationStateCache(object):
         self._cache.clear()
         self._on_update_path(self._configuration.application_state_path)
 
+    @TimeThis(__file__)
     def _load(self):
         self._cache.clear()
 
@@ -305,10 +306,8 @@ class ApplicationStateCache(object):
 
         if existing_obj is None:
             existing = default
-            logging.debug('{0} did not exist, default: {1}'.format(path, default))
         else:
             existing = existing_obj.get(attr, default)
-            logging.debug('{0} existed: {1}'.format(path, existing))
 
         return existing
 
