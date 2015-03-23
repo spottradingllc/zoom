@@ -201,11 +201,11 @@ define(
                 self.buttonLabel('Send ' + options.com.toUpperCase() + ' command');
                 self.options = options;
 
-                if (options.com == "restart") {
-                    self.showRestartCheckbox(true)
+                if (options.com === "restart") {
+                    self.showRestartCheckbox(true);
                 }
                 else {
-                    self.showRestartCheckbox(false)
+                    self.showRestartCheckbox(false);
                 }
 
                 $('#groupCheckModal').modal('show');
@@ -224,14 +224,14 @@ define(
             var interval = 0;
             self.checkStopped = function() {
                 clearInterval(interval);
-
+                var appsNotStopped;
                 if (!self.groupMode()) {
                     var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
                     appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
                 }
                 else{
-                    var appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
+                    appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
                         return item.applicationStatus() !== 'stopped';
                     });
                 }
@@ -240,7 +240,7 @@ define(
                     interval = setInterval(self.checkStopped, 5000);
                 } else {
                     // all selected apps stopped
-                    self.sendDepRestart()
+                    self.sendDepRestart();
                 }
             };
 
@@ -275,8 +275,8 @@ define(
             self.getClickedAppState = function() {
                 var clickedAppState;
                 ko.utils.arrayForEach(self.applicationStateArray(), function(item){
-                    if (item.componentId == self.clickedApp().componentId){
-                        clickedAppState = item
+                    if (item.componentId === self.clickedApp().componentId){
+                        clickedAppState = item;
                     }
                 });
                 // TODO: if clickedAppState is empty
