@@ -16,6 +16,10 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.handleUpdate = function(update) {
             self.upstream.removeAll();
+            self.downstream.removeAll();
+            self.time.removeAll();
+            self.other.removeAll();
+
             parentAppState.mtime = Date.now();
             if (parentAppState.applicationHost() === '') { return; }
             self.downstream(update.downstream);
