@@ -174,7 +174,8 @@
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
                                        data-placement="top"
-                                       title="Open the default filter.">
+                                       title="Open the default filter."
+                                       style="cursor: pointer">
                                     </a>
                                 </li>
                             <!-- /ko -->
@@ -184,7 +185,8 @@
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
                                        data-placement="top"
-                                       title="Open the remote custom filter.">
+                                       title="Open the remote custom filter."
+                                       style="cursor: pointer">
                                     </a>
                                 </li>
                             <!-- /ko -->
@@ -193,13 +195,16 @@
                                 <a data-bind="click: appStateModel.customFilters.addCustomFilter"
                                    data-toggle="tooltip"
                                    data-placement="top"
-                                   title="Create a custom filter.">New Custom Filter</a>
+                                   title="Create a custom filter."
+                                   style="cursor: pointer">New Custom Filter</a>
+
                             </li>
                             <li role="presentation">
                                 <a data-bind="click: appStateModel.customFilters.clearAllFilters"
                                    data-toggle="tooltip"
                                    data-placement="top"
-                                   title="Clear all filters.">Clear All</a>
+                                   title="Clear all filters."
+                                   style="cursor: pointer">Clear All</a>
                             </li>
                         </ul>
                     </span>
@@ -447,12 +452,12 @@
                             </div>
                             <ul class="dropdown-menu" role=menu >
                                 <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href='#'
+                                    <a role="menuitem" style="cursor:pointer" tabindex="-1" href='#'
                                         data-bind="click: function(){$parent.appStateModel.showSentinelConfig(applicationHost)}">Go to Sentinel Config</a></li>
                                     
                                 <li role="presentation" class="divider"></li>    
                                 <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="#"
+                                    <a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
                                        data-bind="click: function(){graphite.modalShow([graphite.cpuURL,
                                                                                         graphite.networkURL,
                                                                                         graphite.memoryURL,
@@ -461,15 +466,15 @@
                                         All Metrics
                                     </a>
                                 </li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.cpuURL])}">CPU Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.memoryURL])}">Memory Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.networkURL])}">Network Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.diskSpaceURL])}">Disk Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.bufferErrorsURL])}">Buffer Errors</a></li>
                             </ul>
                         </div>
@@ -498,30 +503,30 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
-                                <a data-bind="click: function()
+                                <a style="cursor: pointer" data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Stop the service.">Stop</a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: function()
+                                <a style="cursor: pointer" data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Restart the service.">Restart</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Cancel running command.">Cancel</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                       {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
                                       'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
@@ -542,15 +547,15 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
-                                <a data-bind="click: deleteRow"
+                                <a style="cursor: pointer" data-bind="click: deleteRow"
                                    data-toggle="tooltip" data-placement="top" title="Permanently delete this application">Delete</a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: toggleGrayed, text: grayed() ? 'Un-Gray' : 'Gray-Out'"
+                                <a style="cursor: pointer" data-bind="click: toggleGrayed, text: grayed() ? 'Un-Gray' : 'Gray-Out'"
                                    data-toggle="tooltip" data-placement="top" title="Whether to Gray out the app."></a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: togglePDDisabled, text: pdDisabled() ? 'PD-Enable' : 'PD-Disable'"
+                                <a style="cursor: pointer" data-bind="click: togglePDDisabled, text: pdDisabled() ? 'PD-Enable' : 'PD-Disable'"
                                    data-toggle="tooltip" data-placement="top" title="Whether to disable PD alerts."></a>
                                 </li>
                            </ul>
