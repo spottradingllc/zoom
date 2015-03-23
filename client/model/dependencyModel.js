@@ -2,22 +2,12 @@ define(['knockout', 'model/constants'], function(ko, constants) {
     return function DependencyModel(applicationStateArray, parentAppState) {
         var self = this;
 
-        self.unknown = ko.observableArray([]).extend({rateLimit: 2000});
-        self.holiday = ko.observableArray([]).extend({rateLimit: 2000});
-        self.weekend = ko.observableArray([]).extend({rateLimit: 2000});
-        self.zookeepergooduntiltime = ko.observableArray([]).extend({rateLimit: 2000});
-        self.requires = ko.observableArray([]).extend({rateLimit: 2000});
-        self.showDependencies = ko.observable(false);
+        self.upstream = ko.observableArray([]).extend({rateLimit: 2000});
+        self.downstream = ko.observableArray([]).extend({rateLimit: 2000});
+        self.time = ko.observableArray([]).extend({rateLimit: 2000});
+        self.other = ko.observableArray([]).extend({rateLimit: 2000});
 
-        // maps a predicate type to an observable array
-        var arrayMapping = {
-            'holiday': self.holiday,
-            'weekend': self.weekend,
-            'zookeepergooduntiltime': self.zookeepergooduntiltime,
-            'time': self.zookeepergooduntiltime,
-            'zookeeperhaschildren': self.requires,
-            'zookeeperhasgrandchildren': self.requires
-        };
+        self.showDependencies = ko.observable(false);
 
         // Dependency bubbling
         self.toggleDependencies = function() {
@@ -25,15 +15,10 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         };
 
         self.handleUpdate = function(update) {
+            self.upstream.removeAll();
             parentAppState.mtime = Date.now();
             if (parentAppState.applicationHost() === '') { return; }
-
-            // clear all dependencies
-            for (var key in arrayMapping) {
-                if (arrayMapping.hasOwnProperty(key)) {
-                    arrayMapping[key].removeAll();
-                }
-            }
+            self.downstream(update.downstream);
 
             update.dependencies.forEach(function(entry) {
                 var neverFound = true;
@@ -45,7 +30,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                 if (predType === constants.predicateTypes.ZooKeeperHasGrandChildren) {
                     ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) === path) {
-                            self.requires.push({'state': applicationState, 'operational': operational});
+                            self.upstream.push(applicationState);
                             neverFound = false;
                         }
                     });
@@ -56,16 +41,17 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     });
                     if (applicationState) {
                         neverFound = false;
-                        self.requires.push({'state': applicationState, 'operational': operational});
+                        self.upstream.push(applicationState);
                     }
                 }
-                // if this predicate type exists in arrayMapping
-                else if (typeof arrayMapping[predType] !== 'undefined') {
-                    // push path to appropriate array based on predicate type
-                    arrayMapping[predType].push({'state': path, 'operational': operational});
+                else if (predType === constants.predicateTypes.Time || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
                     neverFound = false;
+                    self.time.push(path);
                 }
+                // if this predicate type exists in arrayMapping
                 else {
+                    // push path to appropriate array based on predicate type
+                    self.other.push(path);
                     neverFound = false;
                 }
 
@@ -85,72 +71,31 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         'requires': ko.observableArray([]),
                         'errorState': ko.observable(constants.errorStates.unknown)
                     };
-                    self.requires.push({'state': showAsMissing, 'operational': operational});
+                    self.upstream.push(showAsMissing);
                 }
             });
         };
 
-        self.requirementsAreUp = ko.computed(function() {
-            if (self.requires().length > 0) {
-                for (var i = 0; i < self.requires().length; i++) {
-                    if (self.requires()[i].state.applicationStatus() === constants.applicationStatuses.stopped) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else {
-                return true;
-            }
-        });
-
-        self.requiredBy = ko.computed(function() {
-            var dependencies = ko.observableArray([]);
-            // HATE HATE HATE this double loop. Need to move this processing to the server side.
-            ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
-                for (var i = 0; i < applicationState.dependencyModel.requires().length; i++) {
-                    if (applicationState.dependencyModel.requires()[i].state == parentAppState) {
-                        dependencies.push(applicationState);
-                        break;
-                    }
-                }
-            });
-
-            dependencies.sort();
-            return dependencies().slice();
-        }).extend({rateLimit: 2000});
+        self.timeComponent = ko.computed(function() {return self.time().length > 0});
 
         self.dependencyClass = ko.computed(function() {
-            if (self.requires().length === 0 &&
-                self.holiday().length === 0 &&
-                self.weekend().length === 0 &&
-                self.zookeepergooduntiltime().length === 0) {
-                return '';
-            }
-            else if (self.showDependencies()) {
-                return 'caret';
-            }
-            else {
-                return 'caret-left';
-            }
+            if (typeof self.upstream() === 'undefined') {return ''} // not sure why this happens...
+
+            if (self.upstream().length === 0) { return ''; }
+            else if (self.showDependencies()) { return 'caret'; }
+            else { return 'caret-left'; }
         });
 
         self.dependencyVisible = ko.computed(function () {
-            return ((
-                    self.requires().length > 0 ||
-                    self.zookeepergooduntiltime().length > 0 ||
-                    self.weekend().length > 0 ||
-                    self.holiday().length > 0
-                    ) && self.showDependencies());
+            if (typeof self.upstream() === 'undefined') {return ''} // not sure why this happens...
+
+            return (self.upstream().length > 0 && self.showDependencies());
         });
 
         self.dependencyPointer = ko.computed(function() {
-            if (self.dependencyClass() !== '') {
-                return 'pointer';
-            }
-            else {
-                return '';
-            }
+            if (self.dependencyClass() !== '') { return 'pointer'; }
+            else { return ''; }
         });
+
     };
 });

@@ -26,7 +26,7 @@ from zoom.agent.util.helpers import verify_attribute
 from zoom.agent.entities.child_process import ChildProcess
 from zoom.agent.client.task_client import TaskClient
 from zoom.common.constants import (
-    ZK_CONN_STRING,
+    get_zk_conn_string,
     ZK_AGENT_CONFIG,
 )
 from zoom.agent.util.helpers import get_system
@@ -50,11 +50,11 @@ class SentinelDaemon(object):
         self.listener_lock = Lock()
 
         if self._system == PlatformType.LINUX:
-            self.zkclient = KazooClient(hosts=ZK_CONN_STRING,
+            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
                                         handler=SequentialThreadingHandler(),
                                         logger=logging.getLogger('kazoo.daemon'))
         elif self._system == PlatformType.WINDOWS:
-            self.zkclient = KazooClient(hosts=ZK_CONN_STRING,
+            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
                                         handler=SequentialThreadingHandler())
 
         self.zkclient.add_listener(self._zk_listener)

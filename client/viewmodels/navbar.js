@@ -42,9 +42,7 @@
             tools: tools,
             kibana: kibana,
             connection: self.connection,
-            isFAQ: function(title) {
-                return title.search('FAQ') !== -1;
-            },
+            isFAQ: function(title) {return title.search('FAQ') !== -1;},
             activate: function() {
                 router.map([
                     { route: '', title: 'Application State', moduleId: 'viewmodels/applicationState', nav: true },
@@ -52,7 +50,7 @@
                     { route: 'pillar', title: 'Pillar Config', moduleId: 'viewmodels/pillarConfig', nav: true },
                     { route: 'tools', title: 'ZK Tools', moduleId: 'viewmodels/tools'},
                     { route: 'appFAQ', title: 'App State FAQ', moduleId: 'viewmodels/faq/applicationState', nav: true },
-                    { route: 'configFAQ', title: 'Sentinel Config FAQ', moduleId: 'viewmodels/faq/sentinelConfig', nav: true }
+//                    { route: 'configFAQ', title: 'Sentinel Config FAQ', moduleId: 'viewmodels/faq/sentinelConfig', nav: true }
                 ]).buildNavigationModel();
 
                 return router.activate();

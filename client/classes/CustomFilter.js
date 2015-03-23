@@ -8,9 +8,8 @@ define(['jquery', 'knockout'], function($, ko) {
             applicationHost: 'applicationHost',
             errorState: 'errorState',
             dependency: 'dependency',
-            requires: 'requires',
-            requiredBy: 'requiredBy',
-            weekend: 'weekend'
+            upstream: 'upstream',
+            downstream: 'downstream'
         };
 
         self.searchTerms = {
@@ -30,6 +29,7 @@ define(['jquery', 'knockout'], function($, ko) {
         self.filterName = ko.observable('');
         self.parameter = ko.observable('');
         self.searchTerm = ko.observable('');
+        self.searchTerm.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 500 } });
         self.enabled = ko.observable(false);
         self.inversed = ko.observable(false);
         self.matchedItems = ko.observableArray([]);
@@ -99,9 +99,6 @@ define(['jquery', 'knockout'], function($, ko) {
                         self.searchTerm(self.searchTerm().toUpperCase());
                         self.applyLogicalFilter(appState.applicationHost().toUpperCase(), appState);
                     }
-                    else if (self.parameter() === self.parameters.weekend) {
-                        self.applyWeekendFilter(appState);
-                    }
                     else if (self.parameter() === self.parameters.errorState) {
                         // these are separate variables (do not map to errorState) but they are visible in the 'Status' column
                         if (self.searchTerm() === self.searchTerms.pdDisabled || self.searchTerm() === self.searchTerms.grayed ||
@@ -139,26 +136,6 @@ define(['jquery', 'knockout'], function($, ko) {
             }
         };
 
-        self.applyWeekendFilter = function(appState) {
-            var push = false;
-            if (appState.dependencyModel.weekend().length > 0) {
-                // if the item doesn't have 'NOT' in it, and it's not inversed, match it
-                if (appState.dependencyModel.weekend()[0].indexOf('NOT') === -1 && !self.inversed()) {
-                    push = true;
-                }
-                // if the item does have 'NOT' in it, and IS inversed, match it
-                else if (appState.dependencyModel.weekend()[0].indexOf('NOT') > -1 && self.inversed()) {
-                    push = true;
-                }
-            }
-            else if (!self.inversed()) {  // if not specified, it can run on weekend
-                push = true;
-            }
-
-            if (push) { self.pushMatchedItem(appState); }
-
-        };
-
         self.applyBoolFilter = function (param, appState) {
             // assuming these are ko.observables that are booleans
             if (appState[param]() && !self.inversed()) {
@@ -170,23 +147,23 @@ define(['jquery', 'knockout'], function($, ko) {
         };
 
         self.applyDependencyFilter = function(appState) {
-            if (self.parameter() === self.parameters.requires && !self.inversed()) {
-                ko.utils.arrayForEach(appState.dependencyModel.requires(), function(requirement) {
-                    if (requirement.state.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
+            if (self.parameter() === self.parameters.upstream && !self.inversed()) {
+                ko.utils.arrayForEach(appState.dependencyModel.upstream(), function(requirement) {
+                    if (requirement.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
                         self.pushMatchedItem(appState);
                     }
                 });
             }
-            else if (self.parameter() === self.parameters.requiredBy && !self.inversed()) {
-                ko.utils.arrayForEach(appState.dependencyModel.requiredBy(), function(dependent) {
-                    if (dependent.configurationPath.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
+            else if (self.parameter() === self.parameters.downstream && !self.inversed()) {
+                ko.utils.arrayForEach(appState.dependencyModel.downstream(), function(dependent) {
+                    if (dependent.indexOf(self.searchTerm()) > -1 && !self.inversed()) {
                         self.pushMatchedItem(appState);
                     }
                 });
             }
-            else if (self.parameter() === self.parameters.requires && self.inversed()) {
+            else if (self.parameter() === self.parameters.upstream && self.inversed()) {
                 // generate an array of the config paths of each requirement
-                var requirementConfigPaths = ko.utils.arrayMap(appState.dependencyModel.requires(), function(requirement) {
+                var requirementConfigPaths = ko.utils.arrayMap(appState.dependencyModel.upstream(), function(requirement) {
                     return requirement.state.configurationPath;
                 });
 
@@ -200,9 +177,9 @@ define(['jquery', 'knockout'], function($, ko) {
                     self.pushMatchedItem(appState);
                 }
             }
-            else { // (self.parameter() == 'requiredBy' && self.inversed()) case
+            else { // (self.parameter() == 'downstream' && self.inversed()) case
                 // generate an array of the config paths of each dependent
-                ko.utils.arrayMap(appState.dependencyModel.requiredBy(), function(dependent) {
+                ko.utils.arrayMap(appState.dependencyModel.downstream(), function(dependent) {
                     return dependent.configurationPath;
                 });
 

@@ -1,14 +1,15 @@
 import logging
 from kazoo.client import KazooClient
-from zoom.common.constants import ZK_CONN_STRING
+from zoom.common.constants import get_zk_conn_string
 
 
 class ZooKeeper(object):
-    def __init__(self, zk_listener):
+    def __init__(self, zk_listener, env=None):
         """
         :type zk_listener: types.FunctionType
         """
         self.kazoo = None
+        self._env = env
         self._zk_listener = zk_listener
 
     @property
@@ -27,11 +28,11 @@ class ZooKeeper(object):
         Start KazooClient and add connection listener.
         """
         try:
-            self.kazoo = KazooClient(hosts=ZK_CONN_STRING)
+            self.kazoo = KazooClient(hosts=get_zk_conn_string(env=self._env))
             self.kazoo.add_listener(self._zk_listener)
             self.kazoo.start()
             logging.info("ZooKeeper client started against cluster <{0}>"
-                         .format(ZK_CONN_STRING))
+                         .format(get_zk_conn_string(env=self._env)))
 
         except Exception as e:
             logging.error(e)

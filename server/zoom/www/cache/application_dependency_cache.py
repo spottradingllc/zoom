@@ -5,7 +5,7 @@ from kazoo.exceptions import NoNodeError
 
 from zoom.agent.predicate.pred_time import PredicateTime
 from zoom.agent.util.helpers import verify_attribute
-from zoom.common.decorators import connected_with_return
+from zoom.common.decorators import connected_with_return, TimeThis
 from zoom.common.types import PredicateType, Weekdays
 from zoom.www.messages.application_dependencies \
     import ApplicationDependenciesMessage
@@ -55,6 +55,7 @@ class ApplicationDependencyCache(object):
         logging.info("Application dependency cache cleared")
         self._on_update_path(self._configuration.agent_configuration_path)
 
+    @TimeThis(__file__)
     def _load(self):
         """
         Walk full agent config path to get data. Load self._cache object

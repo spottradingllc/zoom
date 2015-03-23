@@ -10,11 +10,10 @@ define(
         'model/GlobalMode',
         'model/customFilterModel',
         'classes/ApplicationState',
-        'classes/applicationStateArray',
-        'classes/dependency-maps/DependencyMaps'
+        'classes/applicationStateArray'
     ],
     function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
-             CustomFilterModel, ApplicationState, ApplicationStateArray, DependencyMaps) {
+             CustomFilterModel, ApplicationState, ApplicationStateArray) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
@@ -36,21 +35,21 @@ define(
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
-                {title: 'Up/Down', sortPropertyName: 'applicationStatus', asc: ko.observable(true)},
-                {title: 'Application ID', sortPropertyName: 'configurationPath', asc: ko.observable(true)},
-                {title: 'Host', sortPropertyName: 'applicationHost', asc: ko.observable(true)},
-                {title: 'Start/Stop Time', sortPropertyName: 'startStopTime', asc: ko.observable(false)},
-                {title: 'Last Update', sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
-                {title: 'Status', sortPropertyName: 'errorState', asc: ko.observable(true)},
-                {title: 'Control', sortPropertyName: 'control', asc: ko.observable(true)},
-                {title: 'Admin', sortPropertyName: 'admin', asc: ko.observable(true)}
+                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(true)},
+                {title: 'Application ID', sort: true, sortPropertyName: 'configurationPath', asc: ko.observable(true)},
+                {title: 'Host', sort: true, sortPropertyName: 'applicationHost', asc: ko.observable(true)},
+                {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
+                {title: 'Last Update', sort: true, sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
+                {title: 'Status', sort: true, sortPropertyName: 'errorStateClass', asc: ko.observable(true)},
+                {title: 'Control', sort: false, sortPropertyName: null, asc: ko.observable(true)},
+                {title: 'Admin', sort: false, sortPropertyName: null, asc: ko.observable(true)}
             ];
 
             // callback for groupCheckModal to set forcedRestart to false, password input to empty string,
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestart(false);
-                self.passwordConfirm('')
+                self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
             });
@@ -202,11 +201,11 @@ define(
                 self.buttonLabel('Send ' + options.com.toUpperCase() + ' command');
                 self.options = options;
 
-                if (options.com == "restart") {
-                    self.showRestartCheckbox(true)
+                if (options.com === "restart") {
+                    self.showRestartCheckbox(true);
                 }
                 else {
-                    self.showRestartCheckbox(false)
+                    self.showRestartCheckbox(false);
                 }
 
                 $('#groupCheckModal').modal('show');
@@ -225,14 +224,14 @@ define(
             var interval = 0;
             self.checkStopped = function() {
                 clearInterval(interval);
-
+                var appsNotStopped;
                 if (!self.groupMode()) {
-                    var clickedAppState = self.getClickedAppState()
+                    var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
                     appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
                 }
                 else{
-                    var appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
+                    appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
                         return item.applicationStatus() !== 'stopped';
                     });
                 }
@@ -241,14 +240,14 @@ define(
                     interval = setInterval(self.checkStopped, 5000);
                 } else {
                     // all selected apps stopped
-                    self.sendDepRestart()
+                    self.sendDepRestart();
                 }
             };
 
             self.sendDepRestart = function() {
                 // needs to sleep so that stop command gets put into the agent's queue first
                 // TODO: a better alternative to ensure stop gets called first
-                self.sleep(500)
+                self.sleep(500);
                 if (!self.groupMode()){
                     self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
@@ -274,12 +273,12 @@ define(
             // Returns the Application State of the single service to check if the status is down
             // before sending a dep_restart to avoid race condition
             self.getClickedAppState = function() {
-                var clickedAppState
+                var clickedAppState;
                 ko.utils.arrayForEach(self.applicationStateArray(), function(item){
-                    if (item.componentId == self.clickedApp().componentId){
-                        clickedAppState = item
+                    if (item.componentId === self.clickedApp().componentId){
+                        clickedAppState = item;
                     }
-                })
+                });
                 // TODO: if clickedAppState is empty
                 return clickedAppState
             };
@@ -305,9 +304,7 @@ define(
             self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
             self.sort = function(header, initialRun) {
-                if (header.title === 'Control') {
-                    return;
-                }  // ignore sorting on Control header
+                if (!header.sort) { return; }  // only sort where configured
 
                 // initialRun == true if self.sort is called on page initialization
                 if (typeof initialRun === 'undefined' || typeof initialRun === 'object') {
@@ -424,28 +421,23 @@ define(
             $(window).resize($.throttle(300, self.numRows));
 
             self.showOnlyVisible = ko.computed(function () {
-                    self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
+                self.appsToShow(self.filteredItems().slice(0, self.displaySize()));
             });
             
             self.autoLoad = $(document).bind('mousewheel', function() {
-                    if (self.currentView().constructor.name === self.constructor.name){
-                    var diff = $(window).scrollTop() + $(window).height() - $(document).height();
-                    // when zoomed, the diff can sometimes drift as far as 2 pixels off
-                    // root cause is not known - but likely a Chrome bug
-                    // http://bit.ly/1szF52q
-                    if (diff > -3) {
-                            // add a few rows
-                            var add_size = 3;
-                            var new_size = 0;
-                            new_size = self.displaySize() + add_size;
-                            self.displaySize(Math.min(self.applicationStateArray().length, new_size)); 
-                        }
+                if (self.currentView().constructor.name === self.constructor.name){
+                var diff = $(window).scrollTop() + $(window).height() - $(document).height();
+                // when zoomed, the diff can sometimes drift as far as 2 pixels off
+                // root cause is not known - but likely a Chrome bug
+                // http://bit.ly/1szF52q
+                if (diff > -3) {
+                        // add a few rows
+                        var add_size = 3;
+                        var new_size = self.displaySize() + add_size;
+                        self.displaySize(Math.min(self.applicationStateArray().length, new_size));
                     }
+                }
             });
-
-
-            // dependency maps
-            self.dependencyMaps = new DependencyMaps(self);
 
             // create new app state
             self.createApplicationState = function(data) {

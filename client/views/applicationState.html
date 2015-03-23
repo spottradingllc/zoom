@@ -84,11 +84,9 @@
     </div>
 
     <div class="page-header">
-        <h1>
-            <small>
-              <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
-            </small>
-            <small class="pull-right">
+        <h3 style="color: gray">
+            <span data-bind="text: appStateModel.applicationStateArray().length"></span> total services
+            <span class="pull-right">
                 Zookeeper startup is :
                 <div class="btn-group" data-bind="visible: login.elements.authenticated">
                     <button type="button" data-bind="click: function(){mode.setGlobalMode('auto')},
@@ -102,51 +100,37 @@
                                           title="Set Zookeeper to ignore state changes.">Off</button>
                 </div>
                 <span data-bind="visible: !login.elements.authenticated(), text: mode.isOn() ? 'On' : 'Off'"/>
-
-                <small>
                 <span data-bind="text: mode.timingString, visible: mode.isOn()"/>
-                </small>
-            </small>
-        </h1>
+            </span>
+        </h3>
 
-        <!-- View Toggling -->
+        <!-- Diff Mode/ Reload Server Cache -->
         <div class="row view-tabs">
-            <div class="col-md-6 text-left">
-                <div class="btn-group" data-bind="foreach: appStateModel.views">
-                    <button class="btn btn-default" data-bind="radio: $parent.appStateModel.currentView">
-                        <span data-bind="text: name"></span>
+            <div class="pull-right">
+                Diff Mode :
+                <div class="btn-group">
+                    <button type="button"
+                            data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
+                                       attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
+                                              title: appStateModel.customFilters.timeToolTip}"
+                            data-toggle="tooltip"
+                            data-placement="top"> Update
+
+                        <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
+                    </button>
+                    <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
+                            attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
+                                          data-toggle="tooltip"
+                                          data-placement="top"
+                                          title="Set Zoom to normal operation">Normal
                     </button>
                 </div>
-            </div>
-            <div class="col-md-6 text-right">
-                <small class="pull-right">
-                    <div class="pull-right">
-                        Diff Mode :
-                        <div class="btn-group">
-                            <button type="button" 
-                                    data-bind="click: function(){appStateModel.customFilters.enableTimeFilter()},
-                                               attr: {class: ('btn btn-default' + (appStateModel.customFilters.filterByTime() ? ' active' : '')),
-                                                      title: appStateModel.customFilters.timeToolTip}"
-                                    data-toggle="tooltip"
-                                    data-placement="top"> Update
-
-                                <span class="glyphicon glyphicon-refresh" data-bind="visible: appStateModel.customFilters.filterByTime()"> </span>
-                            </button>
-                            <button type="button" data-bind="click: function(){appStateModel.customFilters.filterByTime(false)},
-                                    attr: {class: ('btn btn-default' + (!appStateModel.customFilters.filterByTime() ? ' active' : ''))}"
-                                                  data-toggle="tooltip"
-                                                  data-placement="top"
-                                                  title="Set Zoom to normal operation">Normal
-                            </button>
-                        </div>
-                        <button type="button" data-bind="click: function(){appStateModel.reloadCaches()}"
-                                              class="btn btn-default"
-                                              data-toggle="tooltip"
-                                              data-placement="top"
-                                              title="Reload Server Side Caches">Reload Server Cache
-                        </button>
-                    </div>
-                </small>
+                <button type="button" data-bind="click: function(){appStateModel.reloadCaches()}"
+                                      class="btn btn-default"
+                                      data-toggle="tooltip"
+                                      data-placement="top"
+                                      title="Reload Server Side Caches">Reload Server Cache
+                </button>
             </div>
         </div>
 
@@ -190,7 +174,8 @@
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
                                        data-placement="top"
-                                       title="Open the default filter.">
+                                       title="Open the default filter."
+                                       style="cursor: pointer">
                                     </a>
                                 </li>
                             <!-- /ko -->
@@ -200,7 +185,8 @@
                                     <a data-bind="click: openFilter, text: filterName"
                                        data-toggle="tooltip"
                                        data-placement="top"
-                                       title="Open the remote custom filter.">
+                                       title="Open the remote custom filter."
+                                       style="cursor: pointer">
                                     </a>
                                 </li>
                             <!-- /ko -->
@@ -209,13 +195,16 @@
                                 <a data-bind="click: appStateModel.customFilters.addCustomFilter"
                                    data-toggle="tooltip"
                                    data-placement="top"
-                                   title="Create a custom filter.">New Custom Filter</a>
+                                   title="Create a custom filter."
+                                   style="cursor: pointer">New Custom Filter</a>
+
                             </li>
                             <li role="presentation">
                                 <a data-bind="click: appStateModel.customFilters.clearAllFilters"
                                    data-toggle="tooltip"
                                    data-placement="top"
-                                   title="Clear all filters.">Clear All</a>
+                                   title="Clear all filters."
+                                   style="cursor: pointer">Clear All</a>
                             </li>
                         </ul>
                     </span>
@@ -337,11 +326,6 @@
                                         title="Filter by host.">
                                     Host
                                 </button>
-                                <button data-bind="click: function(){setParameter('weekend')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'weekend') ? ' active' : ''))}"
-                                        data-toggle="tooltip" data-placement="top" title="Filter by weekend.">
-                                    Weekend
-                                </button>
                                 <button data-bind="click: function(){setParameter('errorState')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'errorState') ? ' active' : ''))}"
                                         data-toggle="tooltip"
@@ -351,8 +335,8 @@
                                 </button>
                                 <button data-bind="click: function(){setParameter('dependency')},
                                         attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || 
-                                                       parameter() == 'requires' ||
-                                                       parameter() == 'requiredBy') ? ' active' : ''))}"
+                                                       parameter() == 'upstream' ||
+                                                       parameter() == 'downstream') ? ' active' : ''))}"
                                         data-toggle="tooltip"
                                         data-placement="top"
                                         title="Filter by dependent on.">
@@ -372,7 +356,7 @@
     </div>
 
     <div class="page-body">
-        <table class="table table-bordered table-condensed" data-bind="visible: appStateModel.currentView() == appStateModel">
+        <table class="table table-bordered table-condensed" >
             <!-- Headers -->
             <thead>
                 <tr data-bind="foreach: appStateModel.headers">
@@ -426,38 +410,26 @@
                             data-bind="click: appInfo.toggle">
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
-                            
-                            <span data-bind="visible: dependencyModel.requires().length > 0">I require:</span>
-                            <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.requires, visible: dependencyModel.requires().length > 0">
-                                <span data-bind="template: {name : 'dependencies-template'}"></span>
-                            </ul>
-                            
-                            <!--<span data-bind="visible: dependencyModel.requiredBy().length > 0">I am required by:</span>-->
-                            <!--<ul class="dep-list" -->
-                                <!--data-bind="foreach: dependencyModel.requiredBy, visible: dependencyModel.requiredBy().length > 0">-->
-                                <!--<span data-bind="template: {name : 'dependencies-template'}"></span>-->
-                            <!--</ul>-->
-
-                            <span data-bind="visible: dependencyModel.zookeepergooduntiltime().length > 0">Good until time:</span>
-                            <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.zookeepergooduntiltime, 
-                                visible: dependencyModel.zookeepergooduntiltime().length > 0"> 
-                                 <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                            I require:
+                            <ul class="dep-list" data-bind="foreach: dependencyModel.upstream">
+                                <li data-bind="style : {backgroundColor : applicationStatusBg}">
+                                    <span data-bind="attr : {class : applicationStatusClass}" style="padding: 4px"></span>
+                                    <span class="cursor-pointer" data-bind="text: componentId"></span>
+                                </li>
                             </ul>
 
-                            <span data-bind="visible: dependencyModel.holiday().length > 0">Holiday:</span>
-                            <ul class="dep-list" 
-                                data-bind="foreach: dependencyModel.holiday, visible: dependencyModel.holiday().length > 0" >
-                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
-                            </ul> 
-
-                            <span data-bind="visible: dependencyModel.weekend().length > 0">Weekend:</span>
+                            <span data-bind="visible: dependencyModel.timeComponent">Time:</span>
                             <ul class="dep-list"
-                                data-bind="foreach: dependencyModel.weekend, visible: dependencyModel.weekend().length > 0"> 
-                                <span data-bind="template: {name : 'other-predicates-template'}"></span>
+                                data-bind="foreach: dependencyModel.time">
+                                <li data-bind="text: $data"></li>
                             </ul>
-                           
+
+                            <span data-bind="visible: dependencyModel.downstream().length > 0">I am required by:</span>
+                            <ul class="dep-list"
+                                data-bind="foreach: dependencyModel.downstream">
+                                <li data-bind="text: $data"></li>
+                            </ul>
+
                         </div>
                         <div class="alert alert-info" role="alert" 
                              data-bind="visible: (appInfo.showInfo() && $parent.login.elements.authenticated()), text: appInfo.data,
@@ -480,12 +452,12 @@
                             </div>
                             <ul class="dropdown-menu" role=menu >
                                 <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href='#'
+                                    <a role="menuitem" style="cursor:pointer" tabindex="-1" href='#'
                                         data-bind="click: function(){$parent.appStateModel.showSentinelConfig(applicationHost)}">Go to Sentinel Config</a></li>
                                     
                                 <li role="presentation" class="divider"></li>    
                                 <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="#"
+                                    <a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
                                        data-bind="click: function(){graphite.modalShow([graphite.cpuURL,
                                                                                         graphite.networkURL,
                                                                                         graphite.memoryURL,
@@ -494,15 +466,15 @@
                                         All Metrics
                                     </a>
                                 </li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.cpuURL])}">CPU Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.memoryURL])}">Memory Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.networkURL])}">Network Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.diskSpaceURL])}">Disk Graph</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" 
+                                <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.bufferErrorsURL])}">Buffer Errors</a></li>
                             </ul>
                         </div>
@@ -531,30 +503,30 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
-                                <a data-bind="click: function()
+                                <a style="cursor: pointer" data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Stop the service.">Stop</a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: function()
+                                <a style="cursor: pointer" data-bind="click: function()
                                     {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Restart the service.">Restart</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Cancel running command.">Cancel</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                       {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
                                       'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Command the agent to ignore Zookeeper changes.">Ignore</a>
                                 </li>
-                                <li role="presentation">
+                                <li style="cursor: pointer" role="presentation">
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
@@ -575,15 +547,15 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
-                                <a data-bind="click: deleteRow"
+                                <a style="cursor: pointer" data-bind="click: deleteRow"
                                    data-toggle="tooltip" data-placement="top" title="Permanently delete this application">Delete</a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: toggleGrayed, text: grayed() ? 'Un-Gray' : 'Gray-Out'"
+                                <a style="cursor: pointer" data-bind="click: toggleGrayed, text: grayed() ? 'Un-Gray' : 'Gray-Out'"
                                    data-toggle="tooltip" data-placement="top" title="Whether to Gray out the app."></a>
                                 </li>
                                 <li role="presentation">
-                                <a data-bind="click: togglePDDisabled, text: pdDisabled() ? 'PD-Enable' : 'PD-Disable'"
+                                <a style="cursor: pointer" data-bind="click: togglePDDisabled, text: pdDisabled() ? 'PD-Enable' : 'PD-Disable'"
                                    data-toggle="tooltip" data-placement="top" title="Whether to disable PD alerts."></a>
                                 </li>
                            </ul>
@@ -594,11 +566,11 @@
             </tbody>
             <!-- END Rows -->
         </table>
-        <div data-bind="visible: appStateModel.filteredItems().length == appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+        <div data-bind="visible: appStateModel.filteredItems().length == appStateModel.appsToShow().length ">
             <p class="text-center"> No more services to show </p>
         </div>
 
-        <div class="page-body scroll-footer" data-bind="visible: appStateModel.filteredItems().length != appStateModel.appsToShow().length && appStateModel.currentView().constructor.name == appStateModel.constructor.name">
+        <div class="page-body scroll-footer" data-bind="visible: appStateModel.filteredItems().length != appStateModel.appsToShow().length ">
                 Scroll down to load more 
         </div>
     </div>
@@ -633,7 +605,7 @@
     <span data-bind="template: {name:'path-host-time-filter-template'}"></span>
     <!-- /ko -->
 
-    <!-- ko if: parameter() == "dependency" || parameter() == "requires" || parameter() == "requiredBy"-->
+    <!-- ko if: parameter() == "dependency" || parameter() == "upstream" || parameter() == "downstream"-->
     <span data-bind="template: {name:'dependency-filter-template'}"></span>
     <!-- /ko -->
 </script>
@@ -739,15 +711,15 @@
 
 <script type="text/html" id="dependency-filter-template">
     <div class="btn-group">
-        <button data-bind="click: function(){setParameter('requires')},
-                           attr: {class : ('btn btn-default' + ((parameter() == 'requires') ? ' active' : ''))}"
+        <button data-bind="click: function(){setParameter('upstream')},
+                           attr: {class : ('btn btn-default' + ((parameter() == 'upstream') ? ' active' : ''))}"
                 data-toggle="tooltip"
                 data-placement="top"
                 title="Filter by services that require the search term.">
             Requires
         </button>
-        <button data-bind="click: function(){setParameter('requiredBy')},
-                           attr: {class : ('btn btn-default' + ((parameter() == 'requiredBy') ? ' active' : ''))}"
+        <button data-bind="click: function(){setParameter('downstream')},
+                           attr: {class : ('btn btn-default' + ((parameter() == 'downstream') ? ' active' : ''))}"
                 data-toggle="tooltip"
                 data-placement="top"
                 title="Filter by services required by the search term.">
@@ -781,19 +753,6 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
-<!--Template for Displaying other predicates-->
-<script type="text/html" id="other-predicates-template">
-    <span data-bind="text: $data.state"></span>
-</script>
-
-<!-- Template for Displaying Dependencies -->
-<script type="text/html" id="dependencies-template">
-    <li data-bind="style : {backgroundColor : $data.state.applicationStatusBg}, click: function(){$parents[1].appStateModel.showSentinelConfig($data.state.applicationHost)}"
-        title="Click to jump to this sentinel config" >
-        <span data-bind="attr : {class : $data.state.applicationStatusClass}" style="padding: 4px"></span>
-        <span class="cursor-pointer" data-bind="text: $data.state.componentId + ($data.operational ? '***' : '')"></span>
-    </li>
-</script>
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });

@@ -4,17 +4,18 @@ import logging.config
 import os
 import socket
 
-from zoom.common.constants import ZK_CONN_STRING, ZOOM_CONFIG
+from zoom.common.constants import get_zk_conn_string, ZOOM_CONFIG
 from zoom.agent.util.helpers import get_system, zk_path_join
 from zoom.common.types import PlatformType
 
 
 class Configuration(object):
-    def __init__(self, zookeeper):
+    def __init__(self, zookeeper, **kwargs):
         """
         :type zookeeper: zoom.www.zoo_keeper.ZooKeeper
         """
         self._zookeeper = zookeeper
+        self._settings = kwargs
         try:
             data, stat = self._zookeeper.get(ZOOM_CONFIG)
             config = json.loads(data)
@@ -33,7 +34,7 @@ class Configuration(object):
             self._host = socket.gethostname()
             # web_server
             web_server_settings = config.get('web_server')
-            self._port = web_server_settings.get('port')
+            self._port = self._get_setting('port', web_server_settings.get('port'))
             self._is_debug = web_server_settings.get('debug')
 
             self._application_path = os.getcwd()
@@ -41,7 +42,8 @@ class Configuration(object):
             self._html_path = zk_path_join(self._client_path, "views")
             self._images_path = zk_path_join(self._client_path, "images")
             self._pid = os.getpid()
-            self._environment = os.environ.get('EnvironmentToUse', 'Staging')
+            self._environment = self._get_setting('environment',
+                                                  os.environ.get('EnvironmentToUse', 'Staging'))
 
             # zookeeper
             zookeeper_settings = config.get('zookeeper')
@@ -53,7 +55,7 @@ class Configuration(object):
             self._pillar_path = zookeeper_settings.get('pillar_path')
             self._alert_path = zookeeper_settings.get('alert_path')
             self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override/override_node')
-            self._zookeeper_host = ZK_CONN_STRING
+            self._zookeeper_host = get_zk_conn_string(self._environment)
 
             #pagerduty
             pagerduty_settings = config.get('pagerduty')
@@ -98,6 +100,13 @@ class Configuration(object):
     def _get_system(self):
         sys = get_system()
         return sys
+
+    def _get_setting(self, setting, default):
+        s = self._settings.get(setting, None)
+        if s is not None:
+            return s
+        else:
+            return default
 
     @property
     def salt_settings(self):
