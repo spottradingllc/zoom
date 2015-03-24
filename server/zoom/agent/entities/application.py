@@ -459,6 +459,7 @@ class Application(object):
                                        mode=self._mode,
                                        system=self._system,
                                        pred_list=self._predicates,
+                                       app_state=self._state,
                                        settings=settings)
 
         actions = action_factory.create(self.config)

@@ -12,7 +12,7 @@ class Action(object):
                  staggerpath=None, staggertime=None, mode_controlled=False,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
                  system=None, pred_list=None, settings=None, disabled=False,
-                 pd_enabled=True, op_action=None):
+                 pd_enabled=True, op_action=None, app_state=None):
         """
         :type name: str
         :type component_name: str
@@ -33,6 +33,7 @@ class Action(object):
         :type disabled: bool
         :type pd_enabled: bool
         :type op_action: types.FunctionType or None
+        :type app_state: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.name = name
         self.disabled = disabled
@@ -49,7 +50,8 @@ class Action(object):
         if staggerpath is not None and staggertime is not None:
             self._stag_lock = StaggerLock(staggerpath, staggertime,
                                           parent=self.component_name,
-                                          acquire_lock=self._acquire_lock)
+                                          acquire_lock=self._acquire_lock,
+                                          app_state=app_state)
             self._log.info('Using {0}'.format(self._stag_lock))
         else:
             self._stag_lock = None

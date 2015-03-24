@@ -9,7 +9,7 @@ from zoom.common.decorators import catch_exception
 class ActionFactory(object):
     def __init__(self, component=None, zkclient=None, proc_client=None,
                  action_queue=None, mode=None, system=None, pred_list=None,
-                 settings=None):
+                 app_state=None, settings=None):
         """
         :type component: zoom.agent.entities.application.Application
         :type zkclient: kazoo.client.KazooClient or None
@@ -18,6 +18,7 @@ class ActionFactory(object):
         :type mode: zoom.agent.entities.thread_safe_object.ApplicationMode
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
+        :type app_state: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self._zk = zkclient
@@ -27,6 +28,7 @@ class ActionFactory(object):
         self._mode = mode
         self._system = system
         self._pred_list = pred_list
+        self._app_state = app_state
         self._settings = settings
         self._log = logging.getLogger('sent.{0}.act.factory'
                                       .format(self._comp.name))
@@ -86,7 +88,8 @@ class ActionFactory(object):
                                        settings=self._settings,
                                        disabled=bool(disabled),
                                        pd_enabled=pagerduty_enabled,
-                                       op_action=op_action)
+                                       op_action=op_action,
+                                       app_state=self._app_state)
                 self._log.info('Registered {0}.'.format(actions[name]))
             else:
                 self._log.error('Invalid action ID or func specified: '

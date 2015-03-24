@@ -121,6 +121,9 @@ define(
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.configErr) {
                     return constants.glyphs.configErr;
                 }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.staggered) {
+                    return constants.glyphs.staggeredClock;
+                }
                 else {
                     return constants.glyphs.unknownQMark;
                 }

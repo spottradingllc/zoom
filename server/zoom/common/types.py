@@ -18,6 +18,7 @@ class ApplicationState():
     OK = "ok"
     ERROR = "error"
     CONFIG_ERROR = "config_error"
+    STAGGERED = "staggered"
     STARTING = "starting"
     STARTED = "started"
     STOPPING = "stopping"
