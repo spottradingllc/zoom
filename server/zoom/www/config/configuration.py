@@ -54,7 +54,7 @@ class Configuration(object):
             self._global_mode_path = zookeeper_settings.get('global_mode_path')
             self._pillar_path = zookeeper_settings.get('pillar_path')
             self._alert_path = zookeeper_settings.get('alert_path')
-            self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override/override_node')
+            self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override')
             self._zookeeper_host = get_zk_conn_string(self._environment)
 
             #pagerduty
