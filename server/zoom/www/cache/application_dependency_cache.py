@@ -1,4 +1,5 @@
 import logging
+import time
 
 from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
@@ -217,25 +218,31 @@ class ApplicationDependencyCache(object):
 
         return dependencies
 
-    def _recalc_downstream_dependencies(self):
+    def _recalc_downstream_dependencies(self, tries=0):
         """
         Loop over existing cache and link upstream with downstream elements
         """
         # clear existing downstream
-        for data in self._cache.application_dependencies.itervalues():
-            downstream = data.get('downstream')
-            del downstream[:]
+        try:
+            for data in self._cache.application_dependencies.itervalues():
+                downstream = data.get('downstream')
+                del downstream[:]
 
-        dep_copy = self._cache.application_dependencies.copy()
-        for path, data in dep_copy.iteritems():
-            for key, value in self._cache.application_dependencies.iteritems():
-                for dep in data.get('dependencies'):
-                    if dep['type'] == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
-                        if key.startswith(dep['path']):
-                            value.get('downstream').append(path)
-                    elif dep['type'] == PredicateType.ZOOKEEPERHASCHILDREN:
-                        if dep['path'] == key:
-                            value.get('downstream').append(path)
+            dep_copy = self._cache.application_dependencies.copy()
+            for path, data in dep_copy.iteritems():
+                for key, value in self._cache.application_dependencies.iteritems():
+                    for dep in data.get('dependencies'):
+                        if dep['type'] == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
+                            if key.startswith(dep['path']):
+                                value.get('downstream').append(path)
+                        elif dep['type'] == PredicateType.ZOOKEEPERHASCHILDREN:
+                            if dep['path'] == key:
+                                value.get('downstream').append(path)
+        except RuntimeError:
+            time.sleep(1)
+            tries += 1
+            if tries < 3:
+                self._recalc_downstream_dependencies(tries=tries)
 
     def _on_update(self, event):
         """

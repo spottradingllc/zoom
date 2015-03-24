@@ -76,17 +76,16 @@ class ApplicationStateCache(object):
         logging.debug("_update_override_info: path: {0}, override_key: {1} override_value: {2}"
                       .format(path, override_key, override_value))
         try:
-            _override_str, stat = self._zoo_keeper.get(self._configuration.override_node)
-            _state = json.loads(_override_str)
-            # TODO Currently keys on the override_value being a bool
-            if override_value:
-                _d = {}
-                _d[override_key] = {path:override_value}
-                _state.update(_d)
-            else:
-                _state[override_key].pop(path)
+            override_str, stat = self._zoo_keeper.get(self._configuration.override_node)
+            override_dict = json.loads(override_str)
 
-            self._zoo_keeper.set(self._configuration.override_node, json.dumps(_state))
+            update = {override_key: override_value}
+            state = override_dict.get(path, {})
+            state.update(update)
+            override_dict.update({path: state})
+
+            self._zoo_keeper.set(self._configuration.override_node,
+                                 json.dumps(override_dict))
         except NoNodeError as err:
             logging.debug('Unable to find {0}, {1}'
                           .format(self._configuration.override_node, err))
@@ -276,38 +275,30 @@ class ApplicationStateCache(object):
         else:
             return ''
 
-    def _get_existing_attribute(self, path, attr, default=False):
+    def _get_existing_attribute(self, path, attr):
         """
-        Look in the existing cache for an app state dictionary, and check for
-        the value of some key (attr), and return it.
+        Look for existing value for some value in the app state cache.
+        If there is an override value, use that. Else use the existing state.
         :type path: str
         :type attr: str
         :param default: the default value to return if the state dict or the
             key (attr) does not exist
         """
-
-        existing_obj = self._cache._application_states.get(path, None)
-        _override = {}
+        state = self._cache._application_states.get(path, None)
+        override = {}
 
         try:
             data, stat = self._zoo_keeper.get(self._configuration.override_node)
-            _override = json.loads(data)
+            override = json.loads(data)
         except (TypeError, ValueError) as err:
             logging.critical('There was a problem returning values from the '
                              'override cache: {0}'.format(err))
 
-        try:
-            # If this lookup passes, we return the value, else we move along
-            # to existing_obj checks
-            _tmp = _override.get(attr).get(path)
-            return _tmp
-        except AttributeError as err:
-            pass # _override.get(attr) was None
-
-        if existing_obj is None:
-            existing = default
+        setting = override.get(path, {}).get(attr, None)
+        if setting is not None:
+            return setting
+        elif state is None:
+            return None
         else:
-            existing = existing_obj.get(attr, default)
-
-        return existing
+            return state.get(attr)
 
