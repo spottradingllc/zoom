@@ -326,7 +326,7 @@ define(
                     if (typeof a === 'string') { aprop = a } else { aprop = ko.unwrap(a[prop])}
                     if (typeof b === 'string') { bprop = b } else { bprop = ko.unwrap(b[prop])}
                     // default secondary sort to componentId
-                    return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop === bprop ? ascSort(a.componentId, b.componentId) : 0;
+                    return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop === bprop ? descSort(a.componentId.toLowerCase(), b.componentId.toLowerCase()) : 0;
                 };
                 var descSort = function(a, b) {
                     return ascSort(b, a);
