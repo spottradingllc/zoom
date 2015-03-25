@@ -57,6 +57,7 @@ class DataStore(object):
         self._global_cache = GlobalCache(self._configuration,
                                          self._zoo_keeper,
                                          self._web_socket_clients)
+        self._pd_svc_list_cache = {}
 
     def start(self):
         logging.info('Starting data store.')
@@ -118,6 +119,7 @@ class DataStore(object):
         self._application_dependency_cache.reload()
         self._time_estimate_cache.reload()
         self._alert_manager.start()
+        self._pd_svc_list_cache = self._pd.get_service_dict()
         return {'cache_clear': 'okay'}
 
     def load(self):
@@ -129,6 +131,7 @@ class DataStore(object):
         self._application_state_cache.load()
         self._application_dependency_cache.load()
         self._time_estimate_cache.load()
+        self._pd_svc_list_cache = self._pd.get_service_dict()
         return {'cache_load': 'okay'}
 
     @property
@@ -158,3 +161,10 @@ class DataStore(object):
         :rtype: list
         """
         return self._alert_exceptions
+
+    @property
+    def pagerduty_services(self):
+        """
+        :rtype: dict
+        """
+        return self._pd_svc_list_cache
