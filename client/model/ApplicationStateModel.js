@@ -35,7 +35,7 @@ define(
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
-                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(true)},
+                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
                 {title: 'Application ID', sort: true, sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sort: true, sortPropertyName: 'applicationHost', asc: ko.observable(true)},
                 {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
@@ -301,7 +301,7 @@ define(
             };
 
             // Sorting
-            self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
+            self.activeSort = ko.observable(self.headers[0]); // set the default sort by up/down status
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
             self.sort = function(header, initialRun) {
                 if (!header.sort) { return; }  // only sort where configured
@@ -321,9 +321,12 @@ define(
                 var prop = self.activeSort().sortPropertyName;
 
                 var ascSort = function(a, b) {
-                    var aprop = ko.unwrap(a[prop]);
-                    var bprop = ko.unwrap(b[prop]);
-                    return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop === bprop ? 0 : 0;
+                    var aprop;
+                    var bprop;
+                    if (typeof a === 'string') { aprop = a } else { aprop = ko.unwrap(a[prop])}
+                    if (typeof b === 'string') { bprop = b } else { bprop = ko.unwrap(b[prop])}
+                    // default secondary sort to componentId
+                    return aprop < bprop ? -1 : aprop > bprop ? 1 : aprop === bprop ? ascSort(a.componentId, b.componentId) : 0;
                 };
                 var descSort = function(a, b) {
                     return ascSort(b, a);
