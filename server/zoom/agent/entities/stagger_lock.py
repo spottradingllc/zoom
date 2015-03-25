@@ -7,10 +7,12 @@ from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import LockTimeout
 
 from zoom.common.constants import get_zk_conn_string
+from zoom.common.types import ApplicationState
 
 
 class StaggerLock(object):
-    def __init__(self, temp_path, timeout, parent='None', acquire_lock=None):
+    def __init__(self, temp_path, timeout,
+                 parent='None', acquire_lock=None, app_state=None):
         """
         :type temp_path: str
         :type timeout: int
@@ -25,6 +27,7 @@ class StaggerLock(object):
         self._log = logging.getLogger('sent.{0}.sl'.format(parent))
         self._counter = 0
         self._acquire_lock = acquire_lock
+        self._app_state = app_state
 
     def join(self):
         if self._thread is not None and self._zk.connected:
@@ -41,6 +44,7 @@ class StaggerLock(object):
         """
         self._zk.start()
         self._acquire_lock.set_value(True)
+        self._app_state.set_value(ApplicationState.STAGGERED)
         self._acquire()
 
     def _acquire(self):
@@ -78,7 +82,7 @@ class StaggerLock(object):
         except TypeError as e:
             pass
         except Exception as e:
-            self._log.error('Unhandled exception: {0}'.format(e))
+            self._log.debug('Unhandled exception: {0}'.format(e))
 
     def _sleep_and_unlock(self, lck):
         self._log.info('Got stagger lock. Sleeping for {0} seconds.'
@@ -87,7 +91,7 @@ class StaggerLock(object):
         lck.release()
         self._log.info('Released stagger lock.')
 
-    def _reset_after_connection_loss(self):
+    def _close_connection(self):
         self._close()
         self._acquire_lock.set_value(False)
 
@@ -108,18 +112,18 @@ class StaggerLock(object):
                 pass
             elif (self._prev_state == KazooState.CONNECTED
                   and state == KazooState.SUSPENDED):
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                self._zk.handler.spawn(self._close_connection)
             elif (self._prev_state == KazooState.CONNECTED
                   and state == KazooState.LOST):
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                self._zk.handler.spawn(self._close_connection)
             elif (self._prev_state == KazooState.SUSPENDED
                   and state == KazooState.LOST):
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                self._zk.handler.spawn(self._close_connection)
             elif (self._prev_state == KazooState.SUSPENDED
                   and state == KazooState.CONNECTED):
                 pass
             elif state == KazooState.CONNECTED:
-                self._zk.handler.spawn(self._reset_after_connection_loss)
+                self._zk.handler.spawn(self._close_connection)
             else:
                 self._log.info('Zookeeper Connection in unknown state: {0}'
                                .format(state))

@@ -29,7 +29,8 @@ define([], function () {
             configErr: 'glyphicon glyphicon-resize-small',
             grayed: 'glyphicon glyphicon-user',
             pdWrench: 'glyphicon glyphicon-wrench',
-            readOnly: 'glyphicon glyphicon-eye-open'
+            readOnly: 'glyphicon glyphicon-eye-open',
+            staggeredClock: 'glyphicon glyphicon-time'
         },
 
         applicationStatuses: {
@@ -40,6 +41,7 @@ define([], function () {
 
         errorStates: {
             ok: 'ok',
+            staggered: 'staggered',
             starting: 'starting',
             started: 'started',
             stopping: 'stopping',
