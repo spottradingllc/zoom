@@ -9,16 +9,16 @@ from zoom.common.decorators import TimeThis
 
 class PagerDutyServicesHandler(tornado.web.RequestHandler):
     @property
-    def pd_client(self):
+    def data_store(self):
         """
-        :rtype: zoom.common.pagerduty.PagerDuty
+        :rtype: zoom.www.cache.data_store.DataStore
         """
-        return self.application.data_store.pd_client
+        return self.application.data_store
 
     @TimeThis(__file__)
     def get(self):
         try:
-            self.write(json.dumps(self.pd_client.get_service_dict()))
+            self.write(json.dumps(self.data_store.pagerduty_services))
 
         except Exception as e:
             self.set_status(httplib.INTERNAL_SERVER_ERROR)
