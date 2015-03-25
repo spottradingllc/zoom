@@ -61,6 +61,8 @@ define(
         self.attached = function() {
             self.appStateModel.loadApplicationStates();  // load initial data
             self.appStateModel.loadApplicationDependencies();  // load initial data
+            // resort after all the dependencies trickle in.
+            setTimeout(function() { self.appStateModel.sort(self.appStateModel.headers[0]); }, 3000);
             callbackInstance = new callbackObj;
             callbackInstance.callback();
         };

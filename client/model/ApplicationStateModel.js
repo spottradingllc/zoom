@@ -35,7 +35,7 @@ define(
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
-                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(true)},
+                {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
                 {title: 'Application ID', sort: true, sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sort: true, sortPropertyName: 'applicationHost', asc: ko.observable(true)},
                 {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
@@ -301,7 +301,7 @@ define(
             };
 
             // Sorting
-            self.activeSort = ko.observable(self.headers[4]); // set the default sort by start time
+            self.activeSort = ko.observable(self.headers[0]); // set the default sort by up/down status
             self.holdSortDirection = ko.observable(true); // hold the direction of the sort on updates
             self.sort = function(header, initialRun) {
                 if (!header.sort) { return; }  // only sort where configured
