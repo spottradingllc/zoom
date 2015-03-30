@@ -24,8 +24,8 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
     @property
     def agent_config_path(self):
-        return 'justin/agent'
-        # return self.configuration._agent_configuration_path[:-1]
+        # return 'justin/agent'
+        return self.configuration._agent_configuration_path[:-1]
 
     @property
     def old_path(self):
@@ -60,7 +60,7 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
                 self._test_full_path_refactor()
 
     def _test_partial_path_refactor(self):
-        self._refactor_paths()
+        self._refactor_paths(append_slash=True)
 
     def _test_full_path_refactor(self):
         # check if the new path already exists in ZK
@@ -76,13 +76,16 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
                                      'base app path'})
             return
 
-        self._refactor_paths()
+        self._refactor_paths(append_slash=False)
 
-    def _refactor_paths(self):
+    def _refactor_paths(self, append_slash=False):
         config_dict = dict()
         comp_id_found = False
         old_uid = self.old_path.replace(self.app_state_path, '')
         new_uid = self.new_path.replace(self.app_state_path, '')
+        if append_slash:
+            old_uid = '{0}{1}'.format(old_uid, '/')
+            new_uid = '{0}{1}'.format(new_uid, '/')
         comp_id_string = 'id="{0}"'.format(old_uid)
 
         # Getting all config children
@@ -99,18 +102,28 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
                     if comp_id_string in data:
                         comp_id_found = True
 
-            if comp_id_found:
-                # push the new configs to Zookeeper
-                for child_path, config in config_dict.iteritems():
-                    self.zk.set(child_path, config)
-                logging.info('Added new configs for paths: {0}'
-                             .format(config_dict.keys()))
-                self.write({'config_dict': config_dict.keys()})
-                return
-            else:
-                self.set_status(httplib.NOT_FOUND)
-                self.write({'errorText': 'Old path doesn\'t have valid component id'})
-                return
+            # push the new configs to Zookeeper
+            for child_path, config in config_dict.iteritems():
+                self.zk.set(child_path, config)
+            logging.info('Added new configs for paths: {0}'
+                         .format(config_dict.keys()))
+            self.write({'config_dict': config_dict.keys()})
+            return
+
+
+
+            # if comp_id_found:
+            #     # push the new configs to Zookeeper
+            #     for child_path, config in config_dict.iteritems():
+            #         self.zk.set(child_path, config)
+            #     logging.info('Added new configs for paths: {0}'
+            #                  .format(config_dict.keys()))
+            #     self.write({'config_dict': config_dict.keys()})
+            #     return
+            # else:
+            #     self.set_status(httplib.NOT_FOUND)
+            #     self.write({'errorText': 'Old path doesn\'t have valid component id'})
+            #     return
         except Exception as e:
             logging.info('Exception in Refactor Path Handler: {0}'.format(e))
 
