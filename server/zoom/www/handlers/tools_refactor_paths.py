@@ -80,9 +80,9 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
     def _refactor_paths(self, append_slash=False):
         config_dict = dict()
-        comp_id_found = False
         old_uid = self.old_path.replace(self.app_state_path, '')
         new_uid = self.new_path.replace(self.app_state_path, '')
+        # So that we don't replace any texts in the configs but just paths
         if append_slash:
             old_uid = '{0}{1}'.format(old_uid, '/')
             new_uid = '{0}{1}'.format(new_uid, '/')
@@ -110,20 +110,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
             self.write({'config_dict': config_dict.keys()})
             return
 
-
-
-            # if comp_id_found:
-            #     # push the new configs to Zookeeper
-            #     for child_path, config in config_dict.iteritems():
-            #         self.zk.set(child_path, config)
-            #     logging.info('Added new configs for paths: {0}'
-            #                  .format(config_dict.keys()))
-            #     self.write({'config_dict': config_dict.keys()})
-            #     return
-            # else:
-            #     self.set_status(httplib.NOT_FOUND)
-            #     self.write({'errorText': 'Old path doesn\'t have valid component id'})
-            #     return
         except Exception as e:
             logging.info('Exception in Refactor Path Handler: {0}'.format(e))
 
