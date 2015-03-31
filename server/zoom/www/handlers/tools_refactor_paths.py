@@ -24,7 +24,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
     @property
     def agent_config_path(self):
-        # return 'justin/agent'
         return self.configuration._agent_configuration_path[:-1]
 
     @property
