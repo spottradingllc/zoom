@@ -37,9 +37,11 @@ define(['knockout', 'service', 'jquery' ], function(ko, service, $) {
     };
 
     login.onFailure = function(data) {
+        // expecting data in the form:
+        // {"method": "POST", "type": "login", "code": 500, "data": null, "error": null}
         if (login.elements.password() !== '') {
             var pw = $('#password');
-            pw.attr('data-content', data.errorText);
+            pw.attr('data-content', data.error);
             pw.popover('show');
         }
     };
