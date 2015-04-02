@@ -29,7 +29,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
     @property
     def old_path(self):
-        logging.info('Whats the old path')
         return self.get_argument('oldPath')
 
     @property
@@ -86,7 +85,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         if append_slash:
             old_uid = '{0}{1}'.format(old_uid, '/')
             new_uid = '{0}{1}'.format(new_uid, '/')
-        comp_id_string = 'id="{0}"'.format(old_uid)
 
         # Getting all config children
         children = self.zk.get_children(self.agent_config_path)
@@ -98,9 +96,6 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
                 if old_uid in data:
                     updated_data, num = re.subn(old_uid, new_uid, data)
                     config_dict[child_path] = str(updated_data)
-                    #check if the comp_id string exists in any configs
-                    if comp_id_string in data:
-                        comp_id_found = True
 
             # push the new configs to Zookeeper
             for child_path, config in config_dict.iteritems():
