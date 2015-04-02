@@ -16,16 +16,15 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
     @property
     def configuration(self):
-        return self.application._configuration
+        return self.application.configuration
 
     @property
     def app_state_path(self):
-        return self.configuration._application_state_path + '/'
+        return self.configuration.application_state_path + '/'
 
     @property
     def agent_config_path(self):
-        # return 'justin/agent'
-        return self.configuration._agent_configuration_path[:-1]
+        return self.configuration.agent_configuration_path[:-1]
 
     @property
     def old_path(self):
@@ -48,14 +47,16 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
         #if the old path has children or not
         children = self.zk.get_children(self.old_path)
         if not children:
-            self._test_partial_path_refactor()
+            self._test_full_path_refactor()
         else:
             # Take the first child and check if its ephemeral or not
             child_path = '{0}/{1}'.format(self.old_path, children[0])
             data, stats = self.zk.get(child_path)
             if stats.owner_session_id in (0, None):
+                # node doesn't have ephemeral child
                 self._test_partial_path_refactor()
             else:
+                # node has ephemeral child
                 self._test_full_path_refactor()
 
     def _test_partial_path_refactor(self):
