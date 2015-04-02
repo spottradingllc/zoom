@@ -28,7 +28,8 @@ class ZooKeeper(object):
         Start KazooClient and add connection listener.
         """
         try:
-            self.kazoo = KazooClient(hosts=get_zk_conn_string(env=self._env))
+            self.kazoo = KazooClient(hosts=get_zk_conn_string(env=self._env),
+                                     timeout=60.0)
             self.kazoo.add_listener(self._zk_listener)
             self.kazoo.start()
             logging.info("ZooKeeper client started against cluster <{0}>"

@@ -101,6 +101,7 @@ class Application(object):
                 logger=logging.getLogger('kazoo.app.{0}'.format(self.name)))
         elif self._system == PlatformType.WINDOWS:
             self.zkclient = KazooClient(hosts=get_zk_conn_string(),
+                                        timeout=60.0,
                                         handler=SequentialThreadingHandler())
 
         self.zkclient.add_listener(self._zk_listener)

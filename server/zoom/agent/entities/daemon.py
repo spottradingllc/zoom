@@ -51,10 +51,12 @@ class SentinelDaemon(object):
 
         if self._system == PlatformType.LINUX:
             self.zkclient = KazooClient(hosts=get_zk_conn_string(),
+                                        timeout=60.0,
                                         handler=SequentialThreadingHandler(),
                                         logger=logging.getLogger('kazoo.daemon'))
         elif self._system == PlatformType.WINDOWS:
             self.zkclient = KazooClient(hosts=get_zk_conn_string(),
+                                        timeout=60.0,
                                         handler=SequentialThreadingHandler())
 
         self.zkclient.add_listener(self._zk_listener)
