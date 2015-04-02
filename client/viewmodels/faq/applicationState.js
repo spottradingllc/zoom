@@ -1,5 +1,6 @@
-﻿define([ 'model/loginModel' ], function(login) {
+﻿define([ 'model/loginModel', 'model/constants' ], function(login, constants) {
     return {
-        login: login
+        login: login,
+        constants: constants
     };
 });
