@@ -22,7 +22,8 @@ class StaggerLock(object):
         self._parent = parent
         self._thread = None
         self._prev_state = None
-        self._zk = KazooClient(hosts=get_zk_conn_string())
+        self._zk = KazooClient(hosts=get_zk_conn_string(),
+                               timeout=60.0)
         self._zk.add_listener(self._zk_listener)
         self._log = logging.getLogger('sent.{0}.sl'.format(parent))
         self._counter = 0
