@@ -12,7 +12,8 @@ class Action(object):
                  staggerpath=None, staggertime=None, mode_controlled=False,
                  action_q=None, zkclient=None, proc_client=None, mode=None,
                  system=None, pred_list=None, settings=None, disabled=False,
-                 pd_enabled=True, op_action=None, app_state=None):
+                 pd_enabled=True, op_action=None, pd_reason=None,
+                 app_state=None):
         """
         :type name: str
         :type component_name: str
@@ -33,6 +34,7 @@ class Action(object):
         :type disabled: bool
         :type pd_enabled: bool
         :type op_action: types.FunctionType or None
+        :type pd_reason: str or None
         :type app_state: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.name = name
@@ -45,6 +47,7 @@ class Action(object):
         self._mode = mode
         self._pd_enabled = pd_enabled
         self._op_action = op_action
+        self._pd_reason = pd_reason
         self._acquire_lock = ThreadSafeObject(True)
 
         if staggerpath is not None and staggertime is not None:
@@ -67,6 +70,14 @@ class Action(object):
     def ready(self):
         return self._predicate.met
 
+    @property
+    def kwargs(self):
+        return {
+            'action_name': self.name,
+            'pd_enabled': self._pd_enabled,
+            'pd_reason': self._pd_reason
+        }
+
     def start(self):
         self._log.debug('Starting {0}'.format(self))
         self._predicate.start()
@@ -78,7 +89,7 @@ class Action(object):
         """
         Force run of action (without regard to predicates)
         """
-        kwargs.update({'pd_enabled': self._pd_enabled})
+        kwargs.update(self.kwargs)
         self._log.info('Action {0} has been called.'.format(self.name))
         self._execute(**kwargs)
 
@@ -121,7 +132,8 @@ class Action(object):
             if (self._mode != ApplicationMode.MANUAL or
                     not self._mode_controlled):
                 self._action_queue.append_unique(Task(self.name,
-                                                      func=self._execute),
+                                                      func=self._execute,
+                                                      kwargs=self.kwargs),
                                                  sender=str(self))
             else:
                 self._log.info('Run mode is set to Manual. Not triggering "{0}"'
