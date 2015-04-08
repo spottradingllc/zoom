@@ -10,7 +10,7 @@ from time import sleep
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
-from kazoo.handlers.threading import SequentialThreadingHandler
+from kazoo.handlers.threading import SequentialThreadingHandler, TimeoutError
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import get_zk_conn_string
@@ -129,16 +129,19 @@ class Application(object):
         - Check for already running instances. 
         - Start main loop, periodically checking whether the process has failed.
         """
-        self.zkclient.start()
-        # make all action objects start processing predicates
-        self._log.info('Starting to process Actions.')
-        map(lambda x: x.start(), self._actions.values())  # start actions
-        self._check_mode()  # get global mode AFTER starting actions
+        try:
+            self.zkclient.start()
+            # make all action objects start processing predicates
+            self._log.info('Starting to process Actions.')
+            map(lambda x: x.start(), self._actions.values())  # start actions
+            self._check_mode()  # get global mode AFTER starting actions
 
-        while self._running:
-            sleep(5)
+            while self._running:
+                sleep(5)
 
-        self.uninitialize()
+            self.uninitialize()
+        except TimeoutError:
+            self._log.critical('Timed out to Zookeeper! In a bad state.')
 
     @catch_exception(NodeExistsError)
     @connected
