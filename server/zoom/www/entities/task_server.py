@@ -15,7 +15,7 @@ class TaskServer(object):
         :type zookeeper: zoom.www.zoo_keeper.ZooKeeper
         """
         self._configuration = config
-        self._zookeeper = zookeeper
+        self._zoo_keeper = zookeeper
         self._task_queue = dict()
         # on initialization, the server will clear all tasks
         self.clear_all_tasks()
@@ -35,11 +35,11 @@ class TaskServer(object):
     @connected_with_return(None)
     def clear_all_tasks(self):
         self._task_queue.clear()
-        children = self._zookeeper.get_children(self._configuration.task_path)
+        children = self._zoo_keeper.get_children(self._configuration.task_path)
         for c in children:
             path = zk_path_join(self._configuration.task_path, c)
             logging.info('Deleting stale task node {0}'.format(path))
-            self._zookeeper.delete(path)
+            self._zoo_keeper.delete(path)
 
     def _submit_task(self, task):
         """
@@ -49,7 +49,7 @@ class TaskServer(object):
         try:
             task_path = zk_path_join(self._configuration.task_path, task.host)
 
-            if self._zookeeper.exists(task_path):
+            if self._zoo_keeper.exists(task_path):
                 # if the node exists, the callback _on_update will submit the
                 # next task.
                 logging.info("{0} already exists. Waiting to submit task: {0}"
@@ -57,8 +57,8 @@ class TaskServer(object):
             else:
                 logging.info("Creating task node for path {0}: {1}"
                              .format(task_path, task))
-                self._zookeeper.create(task_path, value=task.to_json())
-                self._zookeeper.get(task_path, watch=self._on_update)
+                self._zoo_keeper.create(task_path, value=task.to_json())
+                self._zoo_keeper.get(task_path, watch=self._on_update)
 
         except NoNodeError:
             pass
@@ -69,7 +69,7 @@ class TaskServer(object):
         :type event: kazoo.protocol.states.WatchedEvent
         """
         try:
-            data, stat = self._zookeeper.get(event.path)
+            data, stat = self._zoo_keeper.get(event.path)
             task = Task.from_json(data)
             if task.result is not None:
                 self._remove(task, event.path)
@@ -78,7 +78,7 @@ class TaskServer(object):
             else:
                 logging.info('Task result is {0}. Resetting watch'
                              .format(task.result))
-                self._zookeeper.get(event.path, watch=self._on_update)
+                self._zoo_keeper.get(event.path, watch=self._on_update)
 
         except NoNodeError:
             pass
@@ -104,7 +104,7 @@ class TaskServer(object):
                         pass
 
             retry = KazooRetry()
-            retry(self._zookeeper.delete, path)
+            retry(self._zoo_keeper.delete, path)
         except NoNodeError:
             pass
 

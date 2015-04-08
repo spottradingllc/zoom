@@ -13,6 +13,7 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <!-- Admin -->
                     <li role="presentation" class="dropdown" data-bind="visible: login.elements.authenticated">
                         <a class="dropdown-toggle" href="#" id="adminDropDown" data-toggle="dropdown" role="button">
                             <span>Admin</span>
@@ -22,8 +23,10 @@
                             <li role="presentation"><a data-bind="click: function() { admin.disable() }, visible: admin.enabled()">Disable Admin</a></li>
                             <li role="presentation"><a data-bind="click: function() { admin.enable() }, visible: !admin.enabled()">Enable Admin</a></li>
                             <li role="presentation"><a data-bind="click: function() { router.navigate('#tools', {trigger: true })}">ZK Tools</a></li>
+                            <li role="presentation"><a data-bind="click: function() { admin.clearTasks() }">Clear Tasks</a></li>
                         </ul>
                     </li>
+                    <!-- END Admin -->
                     <li role="presentation" class="dropdown">
                         <a class="dropdown-toggle" href="#" id="kibana" data-toggle="dropdown" role="button">
                             <span>Kibana</span>
