@@ -148,20 +148,20 @@
                     <div class="form-group">
                         <input type="text" class="form-control" required placeholder="id"
                                data-bind="tooltip, value: ID, text: ID" data-toggle="tooltip"
-                               data-placement="top" title="id">
+                               data-placement="top" title="id"/>
                         <input type="text" class="form-control" placeholder="function (For custom IDs)"
                                data-bind="tooltip, value: func, text: func" data-toggle="tooltip"
-                               data-placement="top" title="function">
+                               data-placement="top" title="function"/>
                         <input type="text" class="form-control" placeholder="staggerpath"
                                data-bind="tooltip, value: staggerpath, text: staggerpath" data-toggle="tooltip"
-                               data-placement="top" title="staggertime">
+                               data-placement="top" title="staggertime"/>
                         <input type="text" class="form-control" placeholder="staggertime"
                                data-bind="tooltip, value: staggertime, text: staggertime"
-                               data-toggle="tooltip" data-placement="top" title="staggertime">
+                               data-toggle="tooltip" data-placement="top" title="staggertime"/>
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="disabled"
                                    data-toggle="dropdown" data-bind="tooltip, value: disabled, text: disabled"
-                                   data-toggle="tooltip" data-placement="top" title="disabled">
+                                   data-toggle="tooltip" data-placement="top" title="disabled"/>
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){disabled('True')}">True</a></li>
                                     <li><a href="#" data-bind="click: function(){disabled('False')}">False</a></li>
@@ -170,12 +170,15 @@
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="pagerduty enabled"
                                    data-toggle="dropdown" data-bind="tooltip, value: pdEnabled, text: pdEnabled"
-                                   data-toggle="tooltip" data-placement="top" title="pagerduty enabled">
+                                   data-toggle="tooltip" data-placement="top" title="pagerduty enabled"/>
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){pdEnabled('True')}">True</a></li>
                                     <li><a href="#" data-bind="click: function(){pdEnabled('False')}">False</a></li>
                                 </ul>
                         </span>
+                        <input type="text" class="form-control" placeholder="pagerduty reason"
+                               data-bind="tooltip, value: pdReason, text: pdReason" data-toggle="tooltip"
+                               data-placement="top" title="pagerduty reason"/>
                     </div>
                 </form>
                 <br />

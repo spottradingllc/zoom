@@ -58,6 +58,9 @@ class ActionFactory(object):
             disabled = verify_attribute(element, 'disabled', none_allowed=True)
             pd_enabled = verify_attribute(element, 'pd_enabled',
                                           none_allowed=True)
+            pd_reason = verify_attribute(element, 'pd_reason',
+                                         none_allowed=True)
+
             if pd_enabled is None:
                 pagerduty_enabled = True
             else:
@@ -88,6 +91,7 @@ class ActionFactory(object):
                                        settings=self._settings,
                                        disabled=bool(disabled),
                                        pd_enabled=pagerduty_enabled,
+                                       pd_reason=pd_reason,
                                        op_action=op_action,
                                        app_state=self._app_state)
                 self._log.info('Registered {0}.'.format(actions[name]))
