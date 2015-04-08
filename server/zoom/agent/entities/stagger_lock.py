@@ -4,9 +4,10 @@ import time
 from threading import Thread
 
 from kazoo.client import KazooClient, KazooState
-from kazoo.exceptions import LockTimeout
+from kazoo.exceptions import LockTimeout, ConnectionClosedError
 
 from zoom.common.constants import get_zk_conn_string
+from zoom.common.decorators import catch_exception
 from zoom.common.types import ApplicationState
 
 
@@ -85,6 +86,7 @@ class StaggerLock(object):
         except Exception as e:
             self._log.debug('Unhandled exception: {0}'.format(e))
 
+    @catch_exception(ConnectionClosedError)
     def _sleep_and_unlock(self, lck):
         self._log.info('Got stagger lock. Sleeping for {0} seconds.'
                        .format(self._timeout))

@@ -2,7 +2,11 @@ import json
 from time import sleep
 from datetime import datetime
 
-from kazoo.exceptions import NodeExistsError, NoNodeError
+from kazoo.exceptions import (
+    NodeExistsError,
+    NoNodeError,
+    SessionExpiredError
+)
 
 from zoom.common.types import JobState
 from zoom.agent.entities.application import Application
@@ -83,6 +87,8 @@ class Job(Application):
 
         self.uninitialize()
 
+    @catch_exception(SessionExpiredError)
+    @connected
     def _register_job_state(self, state, runtime=''):
         """
         :type state: zoom.common.types.JobState
