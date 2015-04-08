@@ -47,3 +47,10 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             self.set_status(INTERNAL_SERVER_ERROR)
             self.write(json.dumps({'errorText': str(e)}))
             logging.exception(e)
+
+    @TimeThis(__file__)
+    def delete(self):
+        """
+        Delete all tasks in queue
+        """
+        self.task_server.clear_all_tasks()

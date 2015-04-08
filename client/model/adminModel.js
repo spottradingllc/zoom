@@ -1,5 +1,5 @@
-define(['knockout', './loginModel'],
-    function(ko, login) {
+define(['knockout', 'jquery', './loginModel'],
+    function(ko, $, login) {
         var admin = {};
 
         admin._login = login;
@@ -22,6 +22,15 @@ define(['knockout', './loginModel'],
             admin._enabled(false);
             return false;
         });
+
+        admin.clearTasks = function() {
+            $.ajax({
+                    url: '/api/agent/',
+                    type: 'DELETE',
+                    success: function(data) { swal('Tasks cleared') },
+                    error: function(data) { swal('Failure Clearing Tasks ', '', 'error'); }
+                });
+        };
 
         return admin;
     });

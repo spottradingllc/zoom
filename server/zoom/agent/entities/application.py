@@ -10,7 +10,7 @@ from time import sleep
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
-from kazoo.handlers.threading import SequentialThreadingHandler
+from kazoo.handlers.threading import SequentialThreadingHandler, TimeoutError
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import get_zk_conn_string
@@ -129,16 +129,19 @@ class Application(object):
         - Check for already running instances. 
         - Start main loop, periodically checking whether the process has failed.
         """
-        self.zkclient.start()
-        # make all action objects start processing predicates
-        self._log.info('Starting to process Actions.')
-        map(lambda x: x.start(), self._actions.values())  # start actions
-        self._check_mode()  # get global mode AFTER starting actions
+        try:
+            self.zkclient.start()
+            # make all action objects start processing predicates
+            self._log.info('Starting to process Actions.')
+            map(lambda x: x.start(), self._actions.values())  # start actions
+            self._check_mode()  # get global mode AFTER starting actions
 
-        while self._running:
-            sleep(5)
+            while self._running:
+                sleep(5)
 
-        self.uninitialize()
+            self.uninitialize()
+        except TimeoutError:
+            self._log.critical('Timed out to Zookeeper! In a bad state.')
 
     @catch_exception(NodeExistsError)
     @connected
@@ -146,8 +149,10 @@ class Application(object):
         """
         Add entry to the state tree
         """
+        action_name = kwargs.get('action_name', 'register')
+
         if not self.zkclient.exists(self._paths['zk_state_path']):
-            if self._action_is_ready('register'):
+            if self._action_is_ready(action_name):
                 self._log.info('Registering %s in state tree.' % self.name)
                 self.zkclient.create(self._paths['zk_state_path'],
                                      ephemeral=True,
@@ -165,7 +170,8 @@ class Application(object):
     @connected
     def unregister(self, **kwargs):
         """Remove entry from state tree"""
-        if self._action_is_ready('unregister'):
+        action_name = kwargs.get('action_name', 'unregister')
+        if self._action_is_ready(action_name):
             self._log.info('Un-registering %s from state tree.' % self.name)
             self.zkclient.delete(self._paths['zk_state_path'])
 
@@ -326,9 +332,14 @@ class Application(object):
         if self._state == ApplicationState.ERROR:
             return
 
+        action_name = kwargs.get('action_name', 'notify')
         pd_enabled = kwargs.get('pd_enabled', True)
+        pd_reason = kwargs.get('pd_reason', None)
 
-        if not self._action_is_ready('notify'):
+        if pd_reason is None:
+            pd_reason = AlertReason.CRASHED
+
+        if not self._action_is_ready(action_name):
             self._log.info('notify action not defined or not ready.')
             return
 
@@ -336,8 +347,7 @@ class Application(object):
             # the application has crashed
             self._state.set_value(ApplicationState.NOTIFY)
             if pd_enabled:
-                self._create_alert_node(AlertActionType.TRIGGER,
-                                        AlertReason.CRASHED)
+                self._create_alert_node(AlertActionType.TRIGGER, pd_reason)
             else:
                 self._log.debug('PD is disabled, not sending alert.')
         else:
@@ -557,12 +567,12 @@ class Application(object):
             "action": alert_action,
             "service_key": self._pd_svc_key,
             "incident_key": self._pathjoin('sentinel', self.name, self._host),
-            "description": ('Sentinel Error: Application {0} {1} on host {2}.'
-                            .format(self.name, reason, self._host)),
-            "details": ('Sentinel Error: Application {0} {1} on host {2}.\n'
+            "description": ('Sentinel Error: name={0}, host={1}, issue="{2}".'
+                            .format(self.name, self._host, reason)),
+            "details": ('Sentinel Error: name={0}, host={1}, issue="{2}".\n'
                         'Review the application log and contact the appropriate'
                         ' development group.'
-                        .format(self.name, reason, self._host))
+                        .format(self.name, self._host, reason))
         }
 
     @catch_exception(NoNodeError)
