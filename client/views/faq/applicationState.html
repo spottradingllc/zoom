@@ -100,6 +100,12 @@
                             </td>
                             <td width="80%">The sentinel mode has been set to 'react.' This means that it will react to dependency changes. You will most often see this if you send a dep_restart (restart with dependencies).</td>
                         </tr>
+                        <tr>
+                            <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
+                                <span data-bind="attr: {class: constants.glyphs.staggeredClock}"></span>
+                            </td>
+                            <td width="80%">The application is attempting to start, but it is being staggered. This is a means of limiting applications from starting up all at once.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
