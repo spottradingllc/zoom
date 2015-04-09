@@ -97,7 +97,7 @@ define(['jquery', 'model/constants'], function($, constants) {
         self.bufferErrorsURL = function() {
             var url = self.baseURL;
             url = url + '&target=' + host + '.tcpinfo.udperrs';
-            url = url + '&target=' + host + '.nicinfo.*.rx_hardware_errors';
+            url = url + '&target=nonNegativeDerivative(' + host + '.nicinfo.*.rx_hardware_errors)';
             url = url + '&title=' + host + '\'s Buffer Errors';
             url = url + '&vtitle= Errors';
             return encodeURI(url);
