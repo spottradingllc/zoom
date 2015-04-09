@@ -35,6 +35,12 @@ class Task(object):
         """
         return json.dumps(self.__dict__)
 
+    def to_dict(self):
+        """
+        :rtype: dict
+        """
+        return self.__dict__
+
     @staticmethod
     def from_json(json_data):
         """

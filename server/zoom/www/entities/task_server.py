@@ -1,4 +1,5 @@
 import logging
+import json
 
 from zoom.agent.entities.task import Task
 from zoom.agent.entities.unique_queue import UniqueQueue
@@ -20,6 +21,33 @@ class TaskServer(object):
         # on initialization, the server will clear all tasks
         self.clear_all_tasks()
 
+    @property
+    def queued_tasks(self):
+        """
+        Return all Tasks queued for submission
+        :rtype: dict
+        """
+        q = {}
+        for k, v in self._task_queue.iteritems():
+            if v:  # if host queue is not empty
+                q[k] = [t.to_dict() for t in v]
+        return q
+
+    @property
+    def live_tasks(self):
+        """
+        Return Tasks submitted to sentinel agents
+        :rtype: dict
+        """
+        tasks = dict()
+        children = self._zoo_keeper.get_children(self._configuration.task_path)
+        for c in children:
+            path = zk_path_join(self._configuration.task_path, c)
+            data, stat = self._zoo_keeper.get(path)
+            tasks[c] = json.loads(data)
+
+        return tasks
+
     def add_task(self, task):
         """
         Add Task to UniqueQueue. Submit task node to ZooKeeper.
@@ -34,6 +62,9 @@ class TaskServer(object):
 
     @connected_with_return(None)
     def clear_all_tasks(self):
+        """
+        Delete all queued tasks on the server and in Zookeeper
+        """
         self._task_queue.clear()
         children = self._zoo_keeper.get_children(self._configuration.task_path)
         for c in children:

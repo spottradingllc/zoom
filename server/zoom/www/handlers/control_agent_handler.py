@@ -54,3 +54,13 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         Delete all tasks in queue
         """
         self.task_server.clear_all_tasks()
+
+    @TimeThis(__file__)
+    def get(self):
+        """
+        Get live and queued tasks
+        """
+        self.write({
+            "queued_tasks": self.task_server.queued_tasks,
+            "live_tasks": self.task_server.live_tasks
+        })
