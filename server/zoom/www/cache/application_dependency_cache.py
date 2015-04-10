@@ -218,6 +218,7 @@ class ApplicationDependencyCache(object):
 
         return dependencies
 
+    @TimeThis(__file__)
     def _recalc_downstream_dependencies(self, tries=0):
         """
         Loop over existing cache and link upstream with downstream elements
