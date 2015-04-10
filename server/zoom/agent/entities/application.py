@@ -205,6 +205,7 @@ class Application(object):
         elif self._proc_client.restart_logic.crashed and \
                 not self._restart_on_crash:
             self._log.info('Not starting. The application has crashed.')
+            self._state.set_value(ApplicationState.NOTIFY)
             return 0
         else:
             self._log.debug('Start allowed.')
