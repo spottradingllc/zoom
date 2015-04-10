@@ -327,13 +327,36 @@ class Application(object):
     @connected
     def notify(self, **kwargs):
         """
-        Send notification to zookeeper that a dependency has gone down.
+        Send notification based on arbitrary predicates
+        """
+        action_name = kwargs.get('action_name', 'notify')
+        pd_enabled = kwargs.get('pd_enabled', True)
+        pd_reason = kwargs.get('pd_reason', None)
+
+        if pd_reason is None:
+            pd_reason = AlertReason.CRASHED
+
+        if not self._action_is_ready(action_name):
+            self._log.info('notify action not defined or not ready.')
+            return
+
+        self._state.set_value(ApplicationState.NOTIFY)
+        if pd_enabled:
+            self._create_alert_node(AlertActionType.TRIGGER, pd_reason)
+        else:
+            self._log.debug('PD is disabled, not sending alert.')
+
+    @time_this
+    @connected
+    def ensure_running(self, **kwargs):
+        """
+        Essentially a clone of `notify`, but tailored for process monitoring.
         """
         # Application failed to start. Already sent PD alert
         if self._state == ApplicationState.ERROR:
             return
 
-        action_name = kwargs.get('action_name', 'notify')
+        action_name = kwargs.get('action_name', 'ensure_running')
         pd_enabled = kwargs.get('pd_enabled', True)
         pd_reason = kwargs.get('pd_reason', None)
 
