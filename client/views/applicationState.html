@@ -757,11 +757,6 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
-<!--Template for Displaying other predicates-->
-<script type="text/html" id="other-predicates-template">
-    <span data-bind="text: $data.state"></span>
-</script>
-
 <!-- Template for Displaying Dependencies -->
 <script type="text/html" id="dependencies-template">
     <li data-bind="style : {backgroundColor : $data.state.applicationStatusBg}" >
@@ -769,9 +764,6 @@
         <span class="cursor-pointer" data-bind="text: $data.state.componentId + ($data.operational ? ' (Operational)' : '')"></span>
     </li>
 </script>
-
-
-
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });
