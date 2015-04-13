@@ -410,14 +410,11 @@
                             data-bind="click: appInfo.toggle">
                         </span>
                         <div data-bind="visible: dependencyModel.dependencyVisible">
-                            I require:
-                            <ul class="dep-list" data-bind="foreach: dependencyModel.upstream">
-                                <li data-bind="style : {backgroundColor : applicationStatusBg}">
-                                    <span data-bind="attr : {class : applicationStatusClass}" style="padding: 4px"></span>
-                                    <span class="cursor-pointer" data-bind="text: componentId"></span>
-                                </li>
+                            <span data-bind="visible: dependencyModel.upstream().length > 0">I require:</span>
+                            <ul class="dep-list"
+                                 data-bind="foreach: dependencyModel.upstream, visible: dependencyModel.upstream().length > 0">
+                                <span data-bind="template: {name : 'dependencies-template'}"></span>
                             </ul>
-
                             <span data-bind="visible: dependencyModel.timeComponent">Time:</span>
                             <ul class="dep-list"
                                 data-bind="foreach: dependencyModel.time">
@@ -760,6 +757,13 @@
 </script>
 <!-- END Templates for Custom Filters -->
 
+<!-- Template for Displaying Dependencies -->
+<script type="text/html" id="dependencies-template">
+    <li data-bind="style : {backgroundColor : $data.state.applicationStatusBg}" >
+        <span data-bind="attr : {class : $data.state.applicationStatusClass}" style="padding: 4px"></span>
+        <span class="cursor-pointer" data-bind="text: $data.state.componentId + ($data.operational ? ' (Operational)' : '')"></span>
+    </li>
+</script>
 
 <script>
   $(function () { $("[data-toggle='tooltip']").tooltip(); });

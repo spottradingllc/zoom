@@ -52,7 +52,7 @@ define(
 
             self.allChildrenUp = ko.computed(function() {
                  var down = ko.utils.arrayFirst(self.dependencyModel.upstream(), function(d) {
-                     return (d.applicationStatus().toLowerCase() == constants.applicationStatuses.stopped)
+                     return (d.state.applicationStatus().toLowerCase() == constants.applicationStatuses.stopped)
                 });
 
                 return !down

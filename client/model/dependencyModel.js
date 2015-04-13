@@ -34,7 +34,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                 if (predType === constants.predicateTypes.ZooKeeperHasGrandChildren) {
                     ko.utils.arrayForEach(applicationStateArray(), function(applicationState) {
                         if (applicationState.configurationPath.substring(0, path.length) === path) {
-                            self.upstream.push(applicationState);
+                            self.upstream.push({'state': applicationState, 'operational': operational});
                             neverFound = false;
                         }
                     });
@@ -45,7 +45,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                     });
                     if (applicationState) {
                         neverFound = false;
-                        self.upstream.push(applicationState);
+                        self.upstream.push({'state': applicationState, 'operational': operational});
                     }
                 }
                 else if (predType === constants.predicateTypes.Time || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
@@ -75,7 +75,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         'requires': ko.observableArray([]),
                         'errorState': ko.observable(constants.errorStates.unknown)
                     };
-                    self.upstream.push(showAsMissing);
+                    self.upstream.push({'state': showAsMissing, 'operational': operational});
                 }
             });
         };
