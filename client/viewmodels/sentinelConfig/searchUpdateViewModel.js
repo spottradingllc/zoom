@@ -57,8 +57,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                             'XML': self.sentinelConfig(),
                             'serverName': SentinelConfigViewModel.serverName()
                         };
-                        $.ajax(
-                            {
+                        $.ajax({
                                 url: '/api/config/' + SentinelConfigViewModel.serverName(),
                                 type: 'PUT',
                                 data: JSON.stringify(params),
@@ -73,8 +72,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                                 error: function (jqxhr) {
                                     return alert(jqxhr.responseText);
                                 }
-                            }
-                        );
+                            });
                     }
                 })
             };
@@ -121,6 +119,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                                 }
                             }
                         });
+                        self.search();  // get new empty config
                     }
                 })
             };

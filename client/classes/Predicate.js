@@ -8,8 +8,8 @@ define(['knockout'],
             self.interval = ko.observable(null);
             self.command = ko.observable(null);
             self.path = ko.observable(null);
-            self.start = ko.observable(null);
-            self.stop = ko.observable(null);
+            self.begin = ko.observable(null);
+            self.end = ko.observable(null);
             self.weekdays = ko.observable(null);
             self.operational = ko.observable(null);
 
@@ -42,10 +42,10 @@ define(['knockout'],
                     return true;
                 }
             });
-            self.startStopVisible = ko.computed(function() {
+            self.beginEndVisible = ko.computed(function() {
                 if (self.predType() != null) {
                     var predLower = self.predType().toLowerCase();
-                    return predLower === 'time';
+                    return predLower === 'timewindow';
                 }
                 else {
                     return true;
@@ -137,11 +137,11 @@ define(['knockout'],
                 if (self.command() !== null) {
                     XML = XML.concat('command="' + self.command() + '" ');
                 }
-                if (self.start() !== null) {
-                    XML = XML.concat('start="' + self.start() + '" ');
+                if (self.begin() !== null) {
+                    XML = XML.concat('begin="' + self.begin() + '" ');
                 }
-                if (self.stop() !== null) {
-                    XML = XML.concat('stop="' + self.stop() + '" ');
+                if (self.end() !== null) {
+                    XML = XML.concat('end="' + self.end() + '" ');
                 }
                 if (self.weekdays() !== null) {
                     XML = XML.concat('weekdays="' + self.weekdays() + '" ');
@@ -160,8 +160,8 @@ define(['knockout'],
                 self.interval(node.getAttribute('interval'));
                 self.command(node.getAttribute('command'));
                 self.path(node.getAttribute('path'));
-                self.start(node.getAttribute('start'));
-                self.stop(node.getAttribute('stop'));
+                self.begin(node.getAttribute('begin'));
+                self.end(node.getAttribute('end'));
                 self.weekdays(node.getAttribute('weekdays'));
                 self.operational(node.getAttribute('operational'));
 

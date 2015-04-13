@@ -7,9 +7,9 @@ from zoom.agent.predicate.holiday import PredicateHoliday
 from zoom.agent.predicate.pred_and import PredicateAnd
 from zoom.agent.predicate.pred_not import PredicateNot
 from zoom.agent.predicate.pred_or import PredicateOr
-from zoom.agent.predicate.pred_time import PredicateTime
 from zoom.agent.predicate.process import PredicateProcess
 from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.time_window import TimeWindow
 from zoom.agent.predicate.weekend import PredicateWeekend
 from zoom.agent.predicate.zkgut import ZookeeperGoodUntilTime
 from zoom.agent.predicate.zkhas_children import ZookeeperHasChildren
@@ -143,18 +143,17 @@ class PredicateFactory(object):
                                                      parent=self._parent),
                                     callback=callback
             )
-        elif ptype == PredicateType.TIME:
+        elif ptype == PredicateType.TIMEWINDOW:
             return self._ensure_new(
-                PredicateTime(self._component_name,
-                              self._settings,
-                              start=verify_attribute(root, 'start',
+                TimeWindow(self._component_name,
+                           self._settings,
+                           begin=verify_attribute(root, 'begin',
+                                                  none_allowed=True),
+                           end=verify_attribute(root, 'end', none_allowed=True),
+                           weekdays=verify_attribute(root, 'weekdays',
                                                      none_allowed=True),
-                              stop=verify_attribute(root, 'stop',
-                                                    none_allowed=True),
-                              weekdays=verify_attribute(root, 'weekdays',
-                                                        none_allowed=True),
-                              operational=operational,
-                              parent=self._parent),
+                           operational=operational,
+                           parent=self._parent),
                 callback=callback
             )
 

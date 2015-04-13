@@ -34,6 +34,10 @@ define(['knockout', 'classes/predicateFactory'],
                 return 'Action ' + self.ID();
             });
 
+            self.setFunc = function(f) {
+                self.func(f);
+            };
+
             self.addPredicate = function(type) {
                 var pred = Factory.newPredicate(self, type);
                 self.expanded(true);
