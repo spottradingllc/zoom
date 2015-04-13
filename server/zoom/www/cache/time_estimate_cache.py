@@ -1,6 +1,7 @@
 import httplib
 import logging
 import requests
+import socket
 
 from zoom.common.types import PredicateType
 from zoom.common.decorators import TimeThis
@@ -22,6 +23,7 @@ class TimeEstimateCache(object):
         self.graphite_cache = {}
         self.dependencies = {}
         self.states = {}
+        self._graphite_available = None
 
     def start(self):
         self._message_throttle.start()
@@ -56,13 +58,16 @@ class TimeEstimateCache(object):
         """
         logging.debug("Recomputing Timing Estimates...")
         try:
+            if self._graphite_available is None:
+                self._check_graphite_available()
+
             message = TimeEstimateMessage()
 
             cost = self._get_default_data()
             maxpath = "None"
             searchdata = {}
 
-            if self.states:
+            if self.states and self._graphite_available:
                 for path in self.dependencies.iterkeys():
                     data = self._get_max_cost(path, searchdata)
                     if data['max'] > cost['max']:
@@ -83,6 +88,17 @@ class TimeEstimateCache(object):
 
         except Exception as e:
             logging.exception(e)
+
+    def _check_graphite_available(self):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.configuration.graphite_host, 80))
+            s.close()
+            self._graphite_available = True
+        except Exception as ex:
+            logging.error('Could not connect to {0}:80. Error: {1}.'
+                          .format(self.configuration.graphite_host, ex))
+            self._graphite_available = False
 
     def _get_max_cost(self, path, searchdata):
         """
