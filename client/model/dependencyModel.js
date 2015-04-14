@@ -82,10 +82,14 @@ define(['knockout', 'model/constants'], function(ko, constants) {
 
         self.timeComponent = ko.computed(function() {return self.time().length > 0});
 
+        var allDepsEmpty = function() {
+            return (self.upstream().length + self.downstream().length + self.time().length) == 0;
+        };
+
         self.dependencyClass = ko.computed(function() {
             if (typeof self.upstream() === 'undefined') {return ''} // not sure why this happens...
 
-            if (self.upstream().length === 0) { return ''; }
+            if (allDepsEmpty()) { return ''; }
             else if (self.showDependencies()) { return 'caret'; }
             else { return 'caret-left'; }
         });
@@ -93,7 +97,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
         self.dependencyVisible = ko.computed(function () {
             if (typeof self.upstream() === 'undefined') {return ''} // not sure why this happens...
 
-            return (self.upstream().length > 0 && self.showDependencies());
+            return (!allDepsEmpty() && self.showDependencies());
         });
 
         self.dependencyPointer = ko.computed(function() {
