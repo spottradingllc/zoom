@@ -149,9 +149,20 @@
                         <input type="text" class="form-control" required placeholder="id"
                                data-bind="tooltip, value: ID, text: ID" data-toggle="tooltip"
                                data-placement="top" title="id"/>
-                        <input type="text" class="form-control" placeholder="function (For custom IDs)"
-                               data-bind="tooltip, value: func, text: func" data-toggle="tooltip"
-                               data-placement="top" title="function"/>
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="function (For custom IDs)" data-toggle="dropdown"
+                                   data-bind="tooltip, value: func, text: func"
+                                   data-toggle="tooltip" data-placement="top" title="function">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){setFunc('start')}">start</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('stop')}">stop</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('register')}">register</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('unregister')}">unregister</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('restart')}">restart</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('notify')}">notify</a></li>
+                                    <li><a href="#" data-bind="click: function(){setFunc('ensure_running')}">ensure_running</a></li>
+                                </ul>
+                        </span>
                         <input type="text" class="form-control" placeholder="staggerpath"
                                data-bind="tooltip, value: staggerpath, text: staggerpath" data-toggle="tooltip"
                                data-placement="top" title="staggertime"/>
@@ -251,7 +262,7 @@
                                     <li><a href="#" data-bind="click: function(){setType('ZookeeperGoodUntilTime')}">ZookeeperGoodUntilTime</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Weekend')}">Weekend</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Holiday')}">Holiday</a></li>
-                                    <li><a href="#" data-bind="click: function(){setType('Time')}">Time</a></li>
+                                    <li><a href="#" data-bind="click: function(){setType('TimeWindow')}">TimeWindow</a></li>
                                     <li><a href="#" data-bind="click: function(){setType('Process'); interval(5)}">Process</a></li>
                                 </ul>
                         </span>
@@ -261,14 +272,14 @@
                         <input type="text" class="form-control" placeholder="command"
                                data-bind="tooltip, text: command, value: command, visible: commandVisible"
                                data-toggle="tooltip" data-placement="top" title="command">
-                        <input type="text" class="form-control" placeholder="start"
-                               data-bind="tooltip, text: start, value: start, visible: startStopVisible"
-                               data-toggle="tooltip" data-placement="top" title="start">
-                        <input type="text" class="form-control" placeholder="stop"
-                               data-bind="tooltip, text: stop, value: stop, visible: startStopVisible"
-                               data-toggle="tooltip" data-placement="top" title="stop">
+                        <input type="text" class="form-control" placeholder="begin"
+                               data-bind="tooltip, text: begin, value: begin, visible: beginEndVisible"
+                               data-toggle="tooltip" data-placement="top" title="begin">
+                        <input type="text" class="form-control" placeholder="end"
+                               data-bind="tooltip, text: end, value: end, visible: beginEndVisible"
+                               data-toggle="tooltip" data-placement="top" title="end">
                         <input type="text" class="form-control" placeholder="weekdays e.g., 0,1,3-5"
-                               data-bind="tooltip, text: weekdays, value: weekdays, visible: startStopVisible"
+                               data-bind="tooltip, text: weekdays, value: weekdays, visible: beginEndVisible"
                                data-toggle="tooltip" data-placement="top" title="weekdays">
                         <!-- required attributes -->
                         <span class="dropdown">

@@ -48,7 +48,7 @@ define(['knockout', 'model/constants'], function(ko, constants) {
                         self.upstream.push({'state': applicationState, 'operational': operational});
                     }
                 }
-                else if (predType === constants.predicateTypes.Time || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
+                else if (predType === constants.predicateTypes.TimeWindow || predType === constants.predicateTypes.ZookeeperGoodUntilTime) {
                     neverFound = false;
                     self.time.push(path);
                 }

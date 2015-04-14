@@ -8,18 +8,18 @@ from zoom.agent.predicate.simple import SimplePredicate
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
-class PredicateTime(SimplePredicate):
+class TimeWindow(SimplePredicate):
     """
     Predicate for comparing current time to start/stop times.
     It will set the 'met' value based on start > current_time > stop.
     """
-    def __init__(self, comp_name, settings, start=None, stop=None,
+    def __init__(self, comp_name, settings, begin=None, end=None,
                  weekdays=None, operational=False, parent=None, interval=5):
         """
         :type comp_name: str
         :type settings: ThreadSafeObject
-        :type start: str or None
-        :type stop: str or None
+        :type begin: str or None
+        :type end: str or None
         :type weekdays: str or None
         :type operational: bool
         :type parent: str or None
@@ -27,11 +27,11 @@ class PredicateTime(SimplePredicate):
         """
         SimplePredicate.__init__(self, comp_name, settings,
                                  operational=operational, parent=parent)
-        self.start_time = self.get_datetime_object(start)
-        self.stop_time = self.get_datetime_object(stop)
+        self.begin = self.get_datetime_object(begin)
+        self.end = self.get_datetime_object(end)
         self.day_range = self.parse_range(weekdays)
         self.interval = interval
-        self._log = logging.getLogger('sent.{0}.pred.time'.format(comp_name))
+        self._log = logging.getLogger('sent.{0}.pred.timewin'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
         self._operate = ThreadSafeObject(True)
@@ -72,13 +72,13 @@ class PredicateTime(SimplePredicate):
 
     def _process_met(self):
         results = []
-        if self.start_time is not None:
-            compare_to_start = self._get_comparison(self.start_time)
-            results.append(self.start_time < compare_to_start)
+        if self.begin is not None:
+            compare_to_begin = self._get_comparison(self.begin)
+            results.append(self.begin < compare_to_begin)
 
-        if self.stop_time is not None:
-            compare_to_stop = self._get_comparison(self.stop_time)
-            results.append(compare_to_stop < self.stop_time)
+        if self.end is not None:
+            compare_to_end = self._get_comparison(self.end)
+            results.append(compare_to_end < self.end)
 
         if self.day_range is not None:
             results.append(self.weekday() in self.day_range)
@@ -105,7 +105,7 @@ class PredicateTime(SimplePredicate):
             return
 
         dt_object = None
-        dt_dict = PredicateTime.create_datetime_dict(data)
+        dt_dict = TimeWindow.create_datetime_dict(data)
         try:
             # All of year, month and day are not None
             if all([dt_dict.get(i, None) is not None
@@ -194,13 +194,13 @@ class PredicateTime(SimplePredicate):
             return []
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, start="{3}", '
-                'stop="{4}", days={5}, started={6}, operational={7}, met={8})'
+        return ('{0}(component={1}, parent={2}, begin="{3}", '
+                'end="{4}", days={5}, started={6}, operational={7}, met={8})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
-                        self.start_time,
-                        self.stop_time,
+                        self.begin,
+                        self.end,
                         self.day_range,
                         self.started,
                         self._operational,
@@ -209,8 +209,8 @@ class PredicateTime(SimplePredicate):
     def __eq__(self, other):
         return all([
             type(self) == type(other),
-            self.start_time == getattr(other, 'start_time', None),
-            self.stop_time == getattr(other, 'stop_time', None),
+            self.begin == getattr(other, 'begin', None),
+            self.end == getattr(other, 'end', None),
             self.day_range == getattr(other, 'day_range', None),
             self.interval == getattr(other, 'interval', None)
         ])
@@ -218,8 +218,8 @@ class PredicateTime(SimplePredicate):
     def __ne__(self, other):
         return any([
             type(self) != type(other),
-            self.start_time != getattr(other, 'start_time', None),
-            self.stop_time != getattr(other, 'stop_time', None),
+            self.begin != getattr(other, 'begin', None),
+            self.end != getattr(other, 'end', None),
             self.day_range != getattr(other, 'day_range', None),
             self.interval != getattr(other, 'interval', None)
         ])

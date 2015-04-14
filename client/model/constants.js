@@ -59,7 +59,7 @@ define([], function () {
             ZookeeperGoodUntilTime: 'zookeepergooduntiltime',
             Weekend: 'weekend',
             Holiday: 'holiday',
-            Time: 'time',
+            TimeWindow: 'timewindow',
             Process: 'process'
         },
 

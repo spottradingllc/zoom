@@ -4,7 +4,7 @@ import time
 from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 
-from zoom.agent.predicate.pred_time import PredicateTime
+from zoom.agent.predicate.time_window import TimeWindow
 from zoom.agent.util.helpers import verify_attribute
 from zoom.common.decorators import connected_with_return, TimeThis
 from zoom.common.types import PredicateType, Weekdays
@@ -186,23 +186,23 @@ class ApplicationDependencyCache(object):
                               else "Runs on weekends"),
                      'operational': pred_oper})
                 prev_was_not = False
-            elif pred_type == PredicateType.TIME:
-                start = predicate.get('start', None)
-                stop = predicate.get('stop', None)
+            elif pred_type == PredicateType.TIMEWINDOW:
+                begin = predicate.get('begin', None)
+                end = predicate.get('end', None)
                 weekdays = predicate.get('weekdays', None)
                 msg = 'I should be up '
-                if start is not None:
-                    msg += 'after: {0} '.format(start)
-                if stop is not None:
-                    msg += 'until: {0}'.format(stop)
+                if begin is not None:
+                    msg += 'after: {0} '.format(begin)
+                if end is not None:
+                    msg += 'until: {0}'.format(end)
                 # only send dependency if there is something to send
-                if start is not None or stop is not None:
+                if begin is not None or end is not None:
                     dependencies.append({'type': pred_type, 'path': msg,
                                          'operational': pred_oper})
 
                 # pretend this is a weekend predicate for convenience
                 if weekdays is not None:
-                    day_range = PredicateTime.parse_range(weekdays)
+                    day_range = TimeWindow.parse_range(weekdays)
                     if Weekdays.SATURDAY in day_range or \
                                     Weekdays.SUNDAY in day_range:
                         wk_msg = 'Runs on weekends'
