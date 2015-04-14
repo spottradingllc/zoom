@@ -5,7 +5,7 @@ from threading import Thread
 import json
 
 from zoom.agent.predicate.simple import SimplePredicate
-from zoom.agent.predicate.pred_time import PredicateTime
+from zoom.agent.predicate.time_window import TimeWindow
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.common.decorators import connected
 
@@ -103,13 +103,13 @@ class ZookeeperGoodUntilTime(SimplePredicate):
         start_data = gut_data.get(u'start', None)
         self._log.debug('raw start from zk is "{0}"'.format(start_data))
         if start_data is not None:
-            self._start = PredicateTime.get_datetime_object(start_data)
+            self._start = TimeWindow.get_datetime_object(start_data)
             
         stop_data = gut_data.get(u'stop', None)
         self._log.debug('raw stop from zk is "{0}"'.format(stop_data))
 
         if stop_data is not None:
-            self._stop = PredicateTime.get_datetime_object(stop_data)
+            self._stop = TimeWindow.get_datetime_object(stop_data)
 
         if start_data is None and stop_data is None:
             self._log.error('Start and Stop time not specified!')
