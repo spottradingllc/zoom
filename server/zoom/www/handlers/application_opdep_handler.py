@@ -19,6 +19,7 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         opdep_array = []
+        opdep_dict = {}
 
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))
@@ -26,7 +27,9 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
             result = self.data_store.load_application_dependency_cache()
             if path:
                 array = self._downstream_recursive(path, opdep_array)
-                self.write(array)
+                logging.info('### The opdep array looks likeeee: {0}'.format(array))
+                opdep_dict['opdep'] = array
+                self.write(opdep_dict)
             else:
                 self.write(result.to_json())
 
@@ -65,6 +68,7 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
                     logging.info('### FALSE')
                     logging.info('### --------------------------------------------------------------------')
 
-        logging.info('### The opdep array looks like: {0}'.format(opdep_array))
+        # logging.info('### The opdep array looks like: {0}'.format(opdep_array))
+        return opdep_array
 
 
