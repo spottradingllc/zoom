@@ -27,7 +27,7 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
             result = self.data_store.load_application_dependency_cache()
             if path:
                 array = self._downstream_recursive(path, opdep_array)
-                logging.info('### The opdep array looks likeeee: {0}'.format(array))
+                logging.info('### The opdep array looks like: {0}'.format(array))
                 opdep_dict['opdep'] = array
                 self.write(opdep_dict)
             else:
@@ -68,7 +68,6 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
                     logging.info('### FALSE')
                     logging.info('### --------------------------------------------------------------------')
 
-        # logging.info('### The opdep array looks like: {0}'.format(opdep_array))
         return opdep_array
 
 

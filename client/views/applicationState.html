@@ -76,6 +76,13 @@
                                 </input>
                                 <p style="margin-left: 55px; margin-right:55px;">This will restart only the selected application(s) regardless of whether the startup dependencies for that application are up or not.
                                                         Most often you probably don’t need to use this option. </p>
+                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: opdep, visible: showRestartCheckbox"
+                                   title="Valid for Restart command only">
+                                    <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
+                                        <span>Restart with operation dependencies.</span>
+                                    </label>
+                                </input>
+                                <p style="margin-left: 55px; margin-right:55px;">Something about restarting operational dependencies</p>
                             </div>
                         </div>
                 </div>
@@ -528,6 +535,12 @@
                                      {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
                                        data-toggle="tooltip" data-placement="top" title="Command the agent to react to Zookeeper changes.">React</a>
+                                </li>
+                                <li style="cursor: pointer" role="presentation">
+                                    <a data-bind="click: function()
+                                     {$parent.appStateModel.displayOpdep({'com':'show_opdep'}, {'componentId':componentId,
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Show Operational Dependencies for this server">Show Opdep</a>
                                 </li>
                            </ul>
                         </div>

@@ -32,6 +32,7 @@ define(
             self.customFilters = new CustomFilterModel(self);
             self.appsToShow = ko.observableArray([]);
             self.forceRestart = ko.observable(false);
+            self.opdep = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
@@ -123,35 +124,51 @@ define(
                 }
             };
 
+            self.executeOpdepControl = function(options) {
+
+
+
+
+            }
+
+
+
+
+
+
             // Replaces dep_restart by checking self.options. Will also call every other command by passing
             // through self.options to executeGroupControl or executeSingleControl
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                // Command send to single server
-                if (!self.groupMode()){
-                    if (self.options.com === 'restart' && !self.forceRestart()) {
-                        // dep_restart
-                        self.executeSingleControl({'com': 'ignore', 'clear_group': true});
-                        self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                        self.checkStopped();
+                if (self.opdep()){
+                    self.executeOpdepControl()
+                }
+                else{
+                    // Command send to single server
+                    if (!self.groupMode()){
+                        if (self.options.com === 'restart' && !self.forceRestart()) {
+                            // dep_restart
+                            self.executeSingleControl({'com': 'ignore', 'clear_group': true});
+                            self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                            self.checkStopped();
+                        }
+                        else {
+                            self.executeSingleControl(self.options);
+                        }
                     }
                     else {
-                        self.executeSingleControl(self.options);
+                        if (self.options.com === 'restart' && !self.forceRestart()) {
+                            // dep_restart
+                            self.executeGroupControl({'com': 'ignore', 'clear_group': false});
+                            self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
+                            self.checkStopped();
+                        }
+                        else {
+                            self.executeGroupControl(self.options);
+                        }
                     }
                 }
-                else {
-                    if (self.options.com === 'restart' && !self.forceRestart()) {
-                        // dep_restart
-                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
-                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
-                        self.checkStopped();
-                    }
-                    else {
-                        self.executeGroupControl(self.options);
-                    }
-                }
-
                 $('#groupCheckModal').modal('hide');
             };
 
@@ -211,6 +228,44 @@ define(
                 $('#groupCheckModal').modal('show');
             };
 
+            self.OpdepAjax = function(options, clickedApp) {
+                if (!self.isHostEmpty()) {
+                    var dict = {
+                        'componentId': self.clickedApp().componentId,
+                        'applicationHost': self.clickedApp().applicationHost,
+                        'command': options.com,
+                        'user': self.login.elements.username()
+                    };
+                    return $.ajax({
+                            url: '/api/application/opdep/spot/software/state/application/' + dict.componentId,
+                            type: 'GET'
+                        });
+                }
+            };
+
+            // Called from "Show Opdep" in group control
+            self.displayOpdep = function(options, clickedApp) {
+                self.clickedApp(clickedApp);
+                var opdep = self.OpdepAjax(options, clickedApp)
+                // waits for data to be available since ajax is async call
+                opdep.success(function (data) {
+                    swal({
+                        title: self.clickedApp().componentId,
+                        text: self.path_message(data.opdep),
+                        allowOutsideClick: true
+                    });
+                });
+            }
+
+            // function for creating a string with a list
+            self.path_message = function(path_dict){
+                var message = 'Operation Dependencies: \n';
+                ko.utils.arrayForEach(path_dict.sort(), function(path)  {
+                    path = path.replace('/spot/software/state/application/', '')
+                    message = message + path + '\n';
+                });
+                return message
+            };
 
             self.checkEnter = function(d, e) {
                 if (e.which === 13) {
