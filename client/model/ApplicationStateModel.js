@@ -34,6 +34,7 @@ define(
             self.forceRestart = ko.observable(false);
             self.opdep = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
+            self.showOpdepCheckbox = ko.observable(false);
 
             self.headers = [
                 {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
@@ -50,6 +51,7 @@ define(
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestart(false);
+                self.opdep(false);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
@@ -124,15 +126,15 @@ define(
                 }
             };
 
+            self.opdepAppStateArray = ko.observableArray([]);
 
             self.createOpdepStateArray = function(options){
                 var opdepArray = [];
-                var opdepAppStateArray = [];
                 var opdep = self.OpdepAjax(options, self.clickedApp())
 
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {
-                    console.log('Dat fat data: ' + data.opdep)
+//                    console.log('Dat fat data: ' + data.opdep)
                     opdepArray = data.opdep
 
                     ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
@@ -141,66 +143,50 @@ define(
                             console.log('the clicked app state component id: ' + componentId)
                             if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
                                 console.log('ITEM ADDED!!!')
-                                opdepAppStateArray.push(item)
+                                self.opdepAppStateArray().push(item)
                             }
                         });
                     });
+                    console.log('The opdep state array is: ' + self.opdepAppStateArray())
 
-                    console.log('The opdep state array is: ' + opdepAppStateArray)
+                // check if previous async call is completed before any of this runs
+                self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
+                self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                self.checkStopped();
+
                 });
             };
 
-
-
             self.executeOpdepControl = function(options) {
-                var opdepArray = [];
-                var opdepAppStateArray = [];
-                var opdep = self.OpdepAjax(options, self.clickedApp())
+                ko.utils.arrayForEach(self.opdepAppStateArray(), function(applicationState) {
+                    var dict = {
+                        'componentId': applicationState.componentId,
+                        'configurationPath': applicationState.configurationPath,
+                        'applicationHost': applicationState.applicationHost,
+                        'command': options.com,
+                        'stay_down': options.stay_down,
+                        'user': self.login.elements.username()
+                    };
 
-                // waits for data to be available since ajax is async call
-                opdep.success(function (data) {
-                    console.log('Dat fat data: ' + data.opdep)
-                    opdepArray = data.opdep
-
-                    ko.utils.arrayForEach(self.applicationStateArray(), function(item){
-                        opdepArray.map( function(componentId) {
-                            console.log('the app state component id: ' + item.componentId)
-                            console.log('the clicked app state component id: ' + componentId)
-                            if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
-                                console.log('ITEM ADDED!!!')
-                                opdepAppStateArray.push(item)
-                            }
+                    if (self.isHostEmpty()) {
+                        swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
+                    }
+                    else {
+                        console.log('the service about to be restarted: ' + dict.componentId)
+                        $.post('/api/agent/', dict).fail(function(data) {
+                            swal('Error Posting Group Control.', JSON.stringify(data), 'error');
                         });
-                    });
+                    }
 
-                    console.log('The opdep state array is: ' + opdepAppStateArray)
-
-                    ko.utils.arrayForEach(opdepAppStateArray, function(applicationState) {
-                        var dict = {
-                            'componentId': applicationState.componentId,
-                            'configurationPath': applicationState.configurationPath,
-                            'applicationHost': applicationState.applicationHost,
-                            'command': options.com,
-                            'stay_down': options.stay_down,
-                            'user': self.login.elements.username()
-                        };
-
-                        if (self.isHostEmpty()) {
-                            swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
-                        }
-                        else {
-                            console.log('about to POST')
-                            console.log('the service about to be restartedddd: ' + dict.componentId)
-                            $.post('/api/agent/', dict).fail(function(data) {
-                                swal('Error Posting Group Control.', JSON.stringify(data), 'error');
-                            });
-                        }
-
-                    });
                 });
 
                 if (options.clear_group) {
                     self.clearGroupControl();
+                }
+
+                // reset array if dep_restart was sent
+                if (options.com === 'dep_restart'){
+                   self.opdepAppStateArray = ko.observableArray([]);
                 }
             };
 
@@ -290,6 +276,16 @@ define(
 
                 if (options.com === "restart") {
                     self.showRestartCheckbox(true);
+                    // show Opdep restart option only if restarting 1 service for now
+                    if (!($.isEmptyObject(clickedApp))) {
+                        self.showOpdepCheckbox(true);
+                    }
+                    else if (self.groupControl().length < 2) {
+                        self.showOpdepCheckbox(true);
+                    }
+                    else{
+                        self.showOpdepCheckbox(false);
+                    }
                 }
                 else {
                     self.showRestartCheckbox(false);
@@ -345,7 +341,12 @@ define(
             self.checkStopped = function() {
                 clearInterval(interval);
                 var appsNotStopped;
-                if (!self.groupMode()) {
+                if (self.opdep()){
+                    appsNotStopped = ko.utils.arrayFirst(self.opdepAppStateArray(), function(item) {
+                        return item.applicationStatus() !== 'stopped';
+                    });
+                }
+                else if (!self.groupMode()) {
                     var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
                     appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
@@ -368,7 +369,10 @@ define(
                 // needs to sleep so that stop command gets put into the agent's queue first
                 // TODO: a better alternative to ensure stop gets called first
                 self.sleep(500);
-                if (!self.groupMode()){
+                if (self.opdep()){
+                    self.executeOpdepControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
+                }
+                else if (!self.groupMode()){
                     self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
                 // no need to send swal alert for single service. Just send dep_restart right away
