@@ -124,16 +124,85 @@ define(
                 }
             };
 
+
+            self.createOpdepStateArray = function(options){
+                var opdepArray = [];
+                var opdepAppStateArray = [];
+                var opdep = self.OpdepAjax(options, self.clickedApp())
+
+                // waits for data to be available since ajax is async call
+                opdep.success(function (data) {
+                    console.log('Dat fat data: ' + data.opdep)
+                    opdepArray = data.opdep
+
+                    ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
+                        opdepArray.map(function (componentId) {
+                            console.log('the app state component id: ' + item.componentId)
+                            console.log('the clicked app state component id: ' + componentId)
+                            if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
+                                console.log('ITEM ADDED!!!')
+                                opdepAppStateArray.push(item)
+                            }
+                        });
+                    });
+
+                    console.log('The opdep state array is: ' + opdepAppStateArray)
+                });
+            };
+
+
+
             self.executeOpdepControl = function(options) {
+                var opdepArray = [];
+                var opdepAppStateArray = [];
+                var opdep = self.OpdepAjax(options, self.clickedApp())
 
+                // waits for data to be available since ajax is async call
+                opdep.success(function (data) {
+                    console.log('Dat fat data: ' + data.opdep)
+                    opdepArray = data.opdep
 
+                    ko.utils.arrayForEach(self.applicationStateArray(), function(item){
+                        opdepArray.map( function(componentId) {
+                            console.log('the app state component id: ' + item.componentId)
+                            console.log('the clicked app state component id: ' + componentId)
+                            if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
+                                console.log('ITEM ADDED!!!')
+                                opdepAppStateArray.push(item)
+                            }
+                        });
+                    });
 
+                    console.log('The opdep state array is: ' + opdepAppStateArray)
 
-            }
+                    ko.utils.arrayForEach(opdepAppStateArray, function(applicationState) {
+                        var dict = {
+                            'componentId': applicationState.componentId,
+                            'configurationPath': applicationState.configurationPath,
+                            'applicationHost': applicationState.applicationHost,
+                            'command': options.com,
+                            'stay_down': options.stay_down,
+                            'user': self.login.elements.username()
+                        };
 
+                        if (self.isHostEmpty()) {
+                            swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
+                        }
+                        else {
+                            console.log('about to POST')
+                            console.log('the service about to be restartedddd: ' + dict.componentId)
+                            $.post('/api/agent/', dict).fail(function(data) {
+                                swal('Error Posting Group Control.', JSON.stringify(data), 'error');
+                            });
+                        }
 
+                    });
+                });
 
-
+                if (options.clear_group) {
+                    self.clearGroupControl();
+                }
+            };
 
 
             // Replaces dep_restart by checking self.options. Will also call every other command by passing
@@ -141,8 +210,9 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
+                //operational restart
                 if (self.opdep()){
-                    self.executeOpdepControl()
+                    self.createOpdepStateArray(self.options)
                 }
                 else{
                     // Command send to single server
@@ -229,15 +299,11 @@ define(
             };
 
             self.OpdepAjax = function(options, clickedApp) {
+                self.clickedApp(clickedApp);
                 if (!self.isHostEmpty()) {
-                    var dict = {
-                        'componentId': self.clickedApp().componentId,
-                        'applicationHost': self.clickedApp().applicationHost,
-                        'command': options.com,
-                        'user': self.login.elements.username()
-                    };
+                    console.log('What is the componentID? ' + self.clickedApp().componentId)
                     return $.ajax({
-                            url: '/api/application/opdep/spot/software/state/application/' + dict.componentId,
+                            url: '/api/application/opdep/spot/software/state/application/' + self.clickedApp().componentId,
                             type: 'GET'
                         });
                 }
@@ -245,7 +311,6 @@ define(
 
             // Called from "Show Opdep" in group control
             self.displayOpdep = function(options, clickedApp) {
-                self.clickedApp(clickedApp);
                 var opdep = self.OpdepAjax(options, clickedApp)
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {

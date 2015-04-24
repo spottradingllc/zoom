@@ -24,6 +24,7 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))
         try:
+            opdep_array.append(path)
             result = self.data_store.load_application_dependency_cache()
             if path:
                 array = self._downstream_recursive(path, opdep_array)
