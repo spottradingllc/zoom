@@ -257,9 +257,10 @@ class ApplicationDependencyCache(object):
             message = ApplicationDependenciesMessage()
 
             self._walk(path, message)
-            self._recalc_downstream_dependencies()
 
             self._cache.update(message.application_dependencies)
+
+            self._recalc_downstream_dependencies()
 
             self._message_throttle.add_message(message)
 
