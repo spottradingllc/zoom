@@ -1,6 +1,7 @@
 import httplib
 import json
 import logging
+import os.path
 
 import tornado.web
 
@@ -22,6 +23,13 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
         """
         return self.application.data_store.application_state_cache
 
+    @property
+    def app_state_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.application_state_path
+
     @TimeThis(__file__)
     def get(self, path):
         try:
@@ -29,6 +37,9 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
                          .format(self.request.remote_ip))
             result = self.data_store.load_application_state_cache()
             if path:
+                if not path.startswith(self.app_state_path):
+                    # be able to search by comp id, not full path
+                    path = os.path.join(self.app_state_path, path[1:])
                 item = result.application_states.get(path, {})
                 self.write(item)
             else:
