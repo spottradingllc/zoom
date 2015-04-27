@@ -118,9 +118,9 @@ class ApplicationDependencyCache(object):
                     if start_action is None:
                         logging.warn("No Start Action Found for {0}"
                                      .format(registrationpath))
-                        continue
-
-                    dependencies = self._parse_dependencies(start_action)
+                        dependencies = list()
+                    else:
+                        dependencies = self._parse_dependencies(start_action)
 
                     data = {
                         "configuration_path": registrationpath,
