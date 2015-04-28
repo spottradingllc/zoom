@@ -34,7 +34,7 @@ define(
             self.forceRestart = ko.observable(false);
             self.opdep = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
-            self.showOpdepCheckbox = ko.observable(false);
+            self.showOpdepCheckbox = ko.observable(true);
 
             self.headers = [
                 {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
@@ -128,36 +128,56 @@ define(
 
             self.opdepAppStateArray = ko.observableArray([]);
 
-            self.createOpdepStateArray = function(options){
-                var opdepArray = [];
-                var opdep = self.OpdepAjax(options, self.clickedApp())
-
-                // waits for data to be available since ajax is async call
-                opdep.success(function (data) {
-//                    console.log('Dat fat data: ' + data.opdep)
-                    opdepArray = data.opdep
-
+            self.addtoOpDepArray = function(opdep_ajax, execute_command) {
+                console.log('this is the execute command: ' + execute_command)
+                opdep_ajax.success(function (data) {
+                    opdepArray = data.opdep //gets the array from dict
+                    //double for loop
                     ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
                         opdepArray.map(function (componentId) {
-                            console.log('the app state component id: ' + item.componentId)
-                            console.log('the clicked app state component id: ' + componentId)
                             if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
-                                console.log('ITEM ADDED!!!')
+                                console.log('application added: ' + item.componentId)
                                 self.opdepAppStateArray().push(item)
                             }
-                        });
-                    });
-                    console.log('The opdep state array is: ' + self.opdepAppStateArray())
+                        })
+                    })
 
-                // check if previous async call is completed before any of this runs
-                self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
-                self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                self.checkStopped();
+                    if (execute_command){
+                        // check if previous async call is completed before any of this runs
+                        self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
+                        self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                        self.checkStopped();
+                    }
 
-                });
+
+                })
+            };
+
+            self.createOpdepStateArray = function(){
+                var opdep_ajax;
+                if (self.groupMode()){
+                    //iterate groupcontrol and create array
+                    for (i = 0; i < self.groupControl().length; i++){
+                        ApplicationState = self.groupControl()[i]
+                        opdep_ajax = self.OpdepAjax(ApplicationState.componentId)
+                        if (i == (self.groupControl().length - 1)){
+                            self.addtoOpDepArray(opdep_ajax, true)
+                        }
+                        else{
+                            self.addtoOpDepArray(opdep_ajax, false)
+                        }
+
+                    }
+                }
+                else{
+                    console.log('The component ID for clickedapp is: ' + self.clickedApp().componentId)
+                    opdep_ajax = self.OpdepAjax(self.clickedApp().componentId)
+                    self.addtoOpDepArray(opdep_ajax, true)
+                }
             };
 
             self.executeOpdepControl = function(options) {
+//                console.log('the opdepAppStatteArray is: ' + self.opdepAppStateArray())
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(applicationState) {
                     var dict = {
                         'componentId': applicationState.componentId,
@@ -172,7 +192,7 @@ define(
                         swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
                     }
                     else {
-                        console.log('the service about to be restarted: ' + dict.componentId)
+                        console.log('running command: '+ options.com + ' for component: ' + dict.componentId)
                         $.post('/api/agent/', dict).fail(function(data) {
                             swal('Error Posting Group Control.', JSON.stringify(data), 'error');
                         });
@@ -197,8 +217,8 @@ define(
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
                 //operational restart
-                if (self.opdep()){
-                    self.createOpdepStateArray(self.options)
+                if (self.options.com === 'restart' && self.opdep()){
+                    self.createOpdepStateArray()
                 }
                 else{
                     // Command send to single server
@@ -277,15 +297,15 @@ define(
                 if (options.com === "restart") {
                     self.showRestartCheckbox(true);
                     // show Opdep restart option only if restarting 1 service for now
-                    if (!($.isEmptyObject(clickedApp))) {
-                        self.showOpdepCheckbox(true);
-                    }
-                    else if (self.groupControl().length < 2) {
-                        self.showOpdepCheckbox(true);
-                    }
-                    else{
-                        self.showOpdepCheckbox(false);
-                    }
+//                    if (!($.isEmptyObject(clickedApp))) {
+//                        self.showOpdepCheckbox(true);
+//                    }
+//                    else if (self.groupControl().length < 2) {
+//                        self.showOpdepCheckbox(true);
+//                    }
+//                    else{
+//                        self.showOpdepCheckbox(false);
+//                    }
                 }
                 else {
                     self.showRestartCheckbox(false);
@@ -294,20 +314,17 @@ define(
                 $('#groupCheckModal').modal('show');
             };
 
-            self.OpdepAjax = function(options, clickedApp) {
-                self.clickedApp(clickedApp);
-                if (!self.isHostEmpty()) {
-                    console.log('What is the componentID? ' + self.clickedApp().componentId)
-                    return $.ajax({
-                            url: '/api/application/opdep/spot/software/state/application/' + self.clickedApp().componentId,
-                            type: 'GET'
-                        });
-                }
+            self.OpdepAjax = function(componentID) {
+                return $.ajax({
+                        url: '/api/application/opdep/spot/software/state/application/' + componentID,
+                        type: 'GET'
+                    });
             };
 
             // Called from "Show Opdep" in group control
-            self.displayOpdep = function(options, clickedApp) {
-                var opdep = self.OpdepAjax(options, clickedApp)
+            self.displayOpdep = function(clickedApp) {
+                self.clickedApp(clickedApp);
+                var opdep = self.OpdepAjax(self.clickedApp().componentId)
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {
                     swal({
@@ -316,7 +333,8 @@ define(
                         allowOutsideClick: true
                     });
                 });
-            }
+                //add opdep.failure
+            };
 
             // function for creating a string with a list
             self.path_message = function(path_dict){
