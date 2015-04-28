@@ -34,7 +34,6 @@ define(
             self.forceRestart = ko.observable(false);
             self.opdep = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
-            self.showOpdepCheckbox = ko.observable(true);
 
             self.headers = [
                 {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
@@ -129,27 +128,41 @@ define(
             self.opdepAppStateArray = ko.observableArray([]);
 
             self.addtoOpDepArray = function(opdep_ajax, execute_command) {
-                console.log('this is the execute command: ' + execute_command)
                 opdep_ajax.success(function (data) {
                     opdepArray = data.opdep //gets the array from dict
                     //double for loop
                     ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
                         opdepArray.map(function (componentId) {
                             if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
-                                console.log('application added: ' + item.componentId)
-                                self.opdepAppStateArray().push(item)
+                                //Add to array if the element hasn't been added
+                                if ($.inArray(item, self.opdepAppStateArray()) == -1 ){
+                                    self.opdepAppStateArray().push(item)
+                                }
                             }
                         })
                     })
-
                     if (execute_command){
-                        // check if previous async call is completed before any of this runs
-                        self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
-                        self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                        self.checkStopped();
+                        swal({
+                            title: 'ARE YOU SURE?!',
+                            text: self.path_message_appstate(),
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Yes, Restart them!",
+                            closeOnConfirm: true
+                        },
+                        function(isConfirm){
+                            if (isConfirm) {
+                                // check if previous async call is completed before any of this runs
+                                console.log('the opdepAppStatteArray is: ' + self.opdepAppStateArray())
+                                self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
+                                self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                                self.checkStopped();
+                            } else {
+                                return;
+                            }
+                        })
                     }
-
-
                 })
             };
 
@@ -177,7 +190,6 @@ define(
             };
 
             self.executeOpdepControl = function(options) {
-//                console.log('the opdepAppStatteArray is: ' + self.opdepAppStateArray())
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(applicationState) {
                     var dict = {
                         'componentId': applicationState.componentId,
@@ -206,7 +218,8 @@ define(
 
                 // reset array if dep_restart was sent
                 if (options.com === 'dep_restart'){
-                   self.opdepAppStateArray = ko.observableArray([]);
+                    console.log('Erasing state array')
+                    self.opdepAppStateArray = ko.observableArray([]);
                 }
             };
 
@@ -296,16 +309,6 @@ define(
 
                 if (options.com === "restart") {
                     self.showRestartCheckbox(true);
-                    // show Opdep restart option only if restarting 1 service for now
-//                    if (!($.isEmptyObject(clickedApp))) {
-//                        self.showOpdepCheckbox(true);
-//                    }
-//                    else if (self.groupControl().length < 2) {
-//                        self.showOpdepCheckbox(true);
-//                    }
-//                    else{
-//                        self.showOpdepCheckbox(false);
-//                    }
                 }
                 else {
                     self.showRestartCheckbox(false);
@@ -329,7 +332,7 @@ define(
                 opdep.success(function (data) {
                     swal({
                         title: self.clickedApp().componentId,
-                        text: self.path_message(data.opdep),
+                        text: self.path_message_paths(data.opdep),
                         allowOutsideClick: true
                     });
                 });
@@ -337,10 +340,20 @@ define(
             };
 
             // function for creating a string with a list
-            self.path_message = function(path_dict){
+            self.path_message_paths = function(path_array){
                 var message = 'Operation Dependencies: \n';
-                ko.utils.arrayForEach(path_dict.sort(), function(path)  {
+                ko.utils.arrayForEach(path_array.sort(), function(path)  {
                     path = path.replace('/spot/software/state/application/', '')
+                    message = message + path + '\n';
+                });
+                return message
+            };
+
+            // function for creating a string with a list
+            self.path_message_appstate = function(){
+                var message = 'You will be restarting: \n'
+                ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
+                    path = appstate.componentId.replace('/spot/software/state/application/', '')
                     message = message + path + '\n';
                 });
                 return message
