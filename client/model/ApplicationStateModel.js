@@ -155,7 +155,6 @@ define(
                         function(isConfirm){
                             if (isConfirm) {
                                 // check if previous async call is completed before any of this runs
-                                console.log('the opdepAppStatteArray is: ' + self.opdepAppStateArray())
                                 self.executeOpdepControl({'com': 'ignore', 'clear_group': true});
                                 self.executeOpdepControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
                                 self.checkStopped();
@@ -184,7 +183,6 @@ define(
                     }
                 }
                 else{
-                    console.log('The component ID for clickedapp is: ' + self.clickedApp().componentId)
                     opdep_ajax = self.OpdepAjax(self.clickedApp().componentId)
                     self.addtoOpDepArray(opdep_ajax, true)
                 }
@@ -205,7 +203,6 @@ define(
                         swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
                     }
                     else {
-                        console.log('running command: '+ options.com + ' for component: ' + dict.componentId)
                         $.post('/api/agent/', dict).fail(function(data) {
                             swal('Error Posting Group Control.', JSON.stringify(data), 'error');
                         });
@@ -219,8 +216,7 @@ define(
 
                 // reset array if dep_restart was sent
                 if (options.com === 'dep_restart'){
-                    console.log('Erasing state array')
-                    self.opdepAppStateArray = ko.observableArray([]);
+                    self.opdepAppStateArray([]);
                 }
             };
 
@@ -340,7 +336,7 @@ define(
                 //add opdep.failure
             };
 
-            // function for creating a string with a list
+            // create string with componentId array
             self.path_message_paths = function(path_array){
                 var message = 'Operation Dependencies: \n';
                 ko.utils.arrayForEach(path_array.sort(), function(path)  {
@@ -350,7 +346,7 @@ define(
                 return message
             };
 
-            // function for creating a string with a list
+            // create string with a appstate.componentId
             self.path_message_appstate = function(){
                 var message = 'You will be restarting: \n'
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
