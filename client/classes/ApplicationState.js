@@ -325,9 +325,7 @@ define(
                 // deletes the path in zookeeper matching the configurationPath
                 if (self.dependencyModel.downstream().length > 0) {
                     var message = 'Are you sure?\n';
-                    $.each(self.dependencyModel.downstream(), function(path) {
-                        message = message + path + '\n';
-                    });
+                    message += self.dependencyModel.downstream().length + ' application(s) depend on this.';
                     swal({
                         title: 'Someone depends on this!',
                         text: message,

@@ -82,11 +82,12 @@ class WebServer(tornado.web.Application):
             # zookeeper tools
             (r"/tools/refactor_path/", ToolsRefactorPathHandler),
             # tornado-specific
-            (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": ""}),
-            (r'/front-end/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.client_path}),
-            (r'/(.*\.html)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
-            (r'/images/(.*)', tornado.web.StaticFileHandler, {"path": self._configuration.images_path}),
-            (r'/(.*\.json)', tornado.web.StaticFileHandler, {"path": self._configuration.html_path}),
+            (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": ""}),
+            (r'/front-end/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.client_path}),
+            (r'/(.*\.html)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),
+            (r'/images/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.images_path}),
+            (r'/(.*\.json)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),
+
             (r'/', tornado.web.RedirectHandler, {"url": "/index.html"})
         ]
 
@@ -135,3 +136,10 @@ class WebServer(tornado.web.Application):
         :rtype task_server: zoom.www.entities.task_server.TaskServer
         """
         return self._task_server
+
+# subclass the StaticFileHandler to prevent caching in browsers
+# http://stackoverflow.com/questions/12031007/disable-static-file-caching-in-tornado
+class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
+    def set_extra_headers(self, path):
+        self.set_header('Cache-control', 'no-store, no-cache, must-revalidate, max-age=0')
+

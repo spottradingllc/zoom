@@ -1,3 +1,4 @@
+import os.path
 import json
 import logging
 import httplib
@@ -15,13 +16,25 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
         """
         return self.application.data_store
 
+    @property
+    def app_state_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.application_state_path
+
     @TimeThis(__file__)
     def get(self, path):
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))
         try:
             result = self.data_store.load_application_dependency_cache()
+            print 'pre', path
             if path:
+                if not path.startswith(self.app_state_path):
+                    # be able to search by comp id, not full path
+                    path = os.path.join(self.app_state_path, path[1:])
+
                 item = result.application_dependencies.get(path, {})
                 self.write(item)
             else:
