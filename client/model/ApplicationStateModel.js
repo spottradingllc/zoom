@@ -50,6 +50,7 @@ define(
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestart(false);
+                //very imporant to reset self.opdep() back to false or it'll restart selected services for any command
                 self.opdep(false);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
