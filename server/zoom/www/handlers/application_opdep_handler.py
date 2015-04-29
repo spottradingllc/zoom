@@ -21,17 +21,18 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
         opdep_array = []
         opdep_dict = {}
 
-        logging.info('Retrieving Application Dependency Cache for client {0}'
-                     .format(self.request.remote_ip))
+        logging.info('Retrieving Application Operational Dependency Cache for '
+                     'client {0}'.format(self.request.remote_ip))
         try:
+            # append the service we want opdep for to the array
             opdep_array.append(path)
-            result = self.data_store.load_application_dependency_cache()
             if path:
-                array = self._downstream_recursive(path, opdep_array)
-                opdep_dict['opdep'] = array
+                opdep_array = self._downstream_recursive(path, opdep_array)
+                opdep_dict['opdep'] = opdep_array
                 self.write(opdep_dict)
             else:
-                self.write(result.to_json())
+                self.write('Please specify a path for operational '
+                           'dependency lookup')
 
         except Exception as e:
             logging.exception(e)
@@ -42,23 +43,24 @@ class ApplicationOpDepHandler(tornado.web.RequestHandler):
         logging.info('Done Retrieving Application Depends Cache')
 
     def _downstream_recursive(self, parent_path, opdep_array):
-
-        result = self.data_store.load_application_dependency_cache()
-        item = result.application_dependencies.get(parent_path, {})
+        app_cache = self.data_store.load_application_dependency_cache()
+        item = app_cache.application_dependencies.get(parent_path, {})
 
         for downstream in item.get("downstream", None):
-            item = result.application_dependencies.get(downstream, {})
+            item = app_cache.application_dependencies.get(downstream, {})
             for dependency in item.get('dependencies', None):
+                # Checks both HasChildren and HasGrandChildren predicates
                 if dependency.get('path', None) in parent_path:
                     if dependency.get('operational', None) is True:
+                        # only append elements not in the array
                         if downstream not in opdep_array:
-                            opdep_array.append(downstream)  # CHECK UNIQUENESS
-                        #recursive since found
+                            opdep_array.append(downstream)
+                        # Recursive with the operational downstream path
                         self._downstream_recursive(downstream, opdep_array)
                     else:
-                        logging.info('### FALSE -- NOT operational')
-                else:
-                    logging.info('### FALSE')
+                        logging.debug('{0} is not operational '
+                                      'dependency of {1}'
+                                      .format(parent_path, downstream))
 
         return opdep_array
 

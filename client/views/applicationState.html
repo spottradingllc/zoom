@@ -79,10 +79,15 @@
                                 <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: opdep, visible: showRestartCheckbox"
                                    title="Valid for Restart command only">
                                     <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
-                                        <span>Restart all the downstream operational dependencies!!.</span>
+                                        <span>Restart all the downstream operational dependencies.</span>
                                     </label>
                                 </input>
-                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showRestartCheckbox">Something about restarting operational dependencies</p>
+                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showRestartCheckbox">
+                                    1. Restart the selected application(s)
+                                    </br>2. Then (re)start the applications that have operational dependencies on the applications in step 1
+                                    </br>3. Then (re)start the applications that have operational dependencies on the applications in step 2
+                                    </br>4. And so on until all layers of operational dependencies have been started
+                                </p>
                             </div>
                         </div>
                 </div>
