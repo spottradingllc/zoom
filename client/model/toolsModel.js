@@ -53,7 +53,6 @@ define( [
                                         });
                                     },
                                     error: function(data) {
-                                        console.log(data)
                                         swal({
                                             title:"Error!",
                                             text: data.responseJSON.errorText,

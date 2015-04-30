@@ -5,6 +5,7 @@ import tornado.web
 import tornado.websocket
 
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
+from zoom.www.handlers.application_opdep_handler import ApplicationOpdepHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
 from zoom.www.handlers.environment_handler import EnvironmentHandler
@@ -50,6 +51,7 @@ class WebServer(tornado.web.Application):
             # application
             (r'/api/application/states(?P<path>.*)', ApplicationStateHandler),
             (r'/api/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
+            (r'/api/application/opdep(?P<path>.*)', ApplicationOpdepHandler),
             # agent
             (r'/api/agent/', ControlAgentHandler),
             # cache

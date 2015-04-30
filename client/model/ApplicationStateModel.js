@@ -8,17 +8,19 @@ define(
         'model/environmentModel',
         'model/adminModel',
         'model/GlobalMode',
+        'model/constants',
         'model/customFilterModel',
         'classes/ApplicationState',
         'classes/applicationStateArray'
     ],
-    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
+    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode, constants,
              CustomFilterModel, ApplicationState, ApplicationStateArray) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
             self.admin = admin;
             self.globalMode = GlobalMode;
+            self.constants = constants;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
             self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } });
@@ -31,7 +33,9 @@ define(
             self.clickedApp = ko.observable({});
             self.customFilters = new CustomFilterModel(self);
             self.appsToShow = ko.observableArray([]);
-            self.forceRestart = ko.observable(false);
+            self.forceRestartEnabled = ko.observable(false);
+            // opdep = Operational Dependency
+            self.opdepRestartEnabled = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
@@ -48,7 +52,9 @@ define(
             // callback for groupCheckModal to set forcedRestart to false, password input to empty string,
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
-                self.forceRestart(false);
+                self.forceRestartEnabled(false);
+                //very imporant to reset self.opdepRestartEnabled() back to false or it'll restart selected services for any command
+                self.opdepRestartEnabled(false);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
@@ -98,7 +104,7 @@ define(
 
             // Takes in 'options' as an argument and actually sends a command to the server
             self.executeGroupControl = function(options) {
-                ko.utils.arrayForEach(self.groupControl(), function(applicationState) {
+                ko.utils.arrayForEach((self.opdepRestartEnabled())? self.opdepAppStateArray():self.groupControl(), function(applicationState) {
                     var dict = {
                         'componentId': applicationState.componentId,
                         'configurationPath': applicationState.configurationPath,
@@ -121,6 +127,73 @@ define(
                 if (options.clear_group) {
                     self.clearGroupControl();
                 }
+
+                // reset array if dep_restart was sent
+                if (options.com === 'dep_restart'){
+                    self.opdepAppStateArray([]);
+                }
+            };
+
+            self.opdepAppStateArray = ko.observableArray([]);
+
+            self.addtoOpdepArray = function(opdep_ajax, execute_command) {
+                opdep_ajax.success(function (data) {
+                    opdepArray = data.opdep //gets the array from dict
+                    //double for loop
+                    ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
+                        opdepArray.map(function (componentId) {
+                            if (item.componentId === componentId.replace(self.constants.zkPaths.appStatePath, '')) {
+                                //Add to array if the element hasn't been added
+                                if ($.inArray(item, self.opdepAppStateArray()) === -1 ){
+                                    self.opdepAppStateArray().push(item)
+                                }
+                            }
+                        })
+                    })
+                    if (execute_command){
+                        swal({
+                            title: 'ARE YOU SURE?!',
+                            text: self.path_message_appstate(),
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Yes, Restart them!",
+                            closeOnConfirm: true
+                        },
+                        function(isConfirm){
+                            if (isConfirm) {
+                                // check if previous async call is completed before any of this runs
+                                self.executeGroupControl({'com': 'ignore', 'clear_group': true});
+                                self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                                self.checkStopped();
+                            } else {
+                                return;
+                            }
+                        })
+                    }
+                })
+            };
+
+            self.createOpdepStateArray = function(){
+                var opdep_ajax;
+                if (self.groupMode()){
+                    //iterate groupcontrol and create array
+                    for (i = 0; i < self.groupControl().length; i++){
+                        ApplicationState = self.groupControl()[i]
+                        opdep_ajax = self.OpdepAjax(ApplicationState.configurationPath)
+                        if (i === (self.groupControl().length - 1)){
+                            self.addtoOpdepArray(opdep_ajax, true)
+                        }
+                        else{
+                            self.addtoOpdepArray(opdep_ajax, false)
+                        }
+
+                    }
+                }
+                else{
+                    opdep_ajax = self.OpdepAjax(self.clickedApp().configurationPath)
+                    self.addtoOpdepArray(opdep_ajax, true)
+                }
             };
 
             // Replaces dep_restart by checking self.options. Will also call every other command by passing
@@ -128,30 +201,35 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                // Command send to single server
-                if (!self.groupMode()){
-                    if (self.options.com === 'restart' && !self.forceRestart()) {
-                        // dep_restart
-                        self.executeSingleControl({'com': 'ignore', 'clear_group': true});
-                        self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                        self.checkStopped();
+                //operational restart
+                if (self.options.com === 'restart' && self.opdepRestartEnabled()){
+                    self.createOpdepStateArray()
+                }
+                else{
+                    // Command send to single server
+                    if (!self.groupMode()){
+                        if (self.options.com === 'restart' && !self.forceRestartEnabled()) {
+                            // dep_restart
+                            self.executeSingleControl({'com': 'ignore', 'clear_group': true});
+                            self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                            self.checkStopped();
+                        }
+                        else {
+                            self.executeSingleControl(self.options);
+                        }
                     }
                     else {
-                        self.executeSingleControl(self.options);
+                        if (self.options.com === 'restart' && !self.forceRestartEnabled()) {
+                            // dep_restart
+                            self.executeGroupControl({'com': 'ignore', 'clear_group': false});
+                            self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
+                            self.checkStopped();
+                        }
+                        else {
+                            self.executeGroupControl(self.options);
+                        }
                     }
                 }
-                else {
-                    if (self.options.com === 'restart' && !self.forceRestart()) {
-                        // dep_restart
-                        self.executeGroupControl({'com': 'ignore', 'clear_group': false});
-                        self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
-                        self.checkStopped();
-                    }
-                    else {
-                        self.executeGroupControl(self.options);
-                    }
-                }
-
                 $('#groupCheckModal').modal('hide');
             };
 
@@ -211,6 +289,46 @@ define(
                 $('#groupCheckModal').modal('show');
             };
 
+            self.OpdepAjax = function(componentID) {
+                return $.ajax({
+                        url: '/api/application/opdep' + componentID,
+                        type: 'GET'
+                    });
+            };
+
+            // Called from "Show Opdep" in group control
+            self.displayOpdep = function(clickedApp) {
+                self.clickedApp(clickedApp);
+                var opdep = self.OpdepAjax(self.clickedApp().configurationPath)
+                // waits for data to be available since ajax is async call
+                opdep.success(function (data) {
+                    swal({
+                        title: self.clickedApp().componentId,
+                        text: self.path_message_paths(data.opdep),
+                        allowOutsideClick: true
+                    });
+                });
+            };
+
+            // create string with componentId array
+            self.path_message_paths = function(path_array){
+                var message = 'Operation Dependencies: \n';
+                ko.utils.arrayForEach(path_array.sort(), function(path)  {
+                    path = path.replace(self.constants.zkPaths.appStatePath, '')
+                    message = message + path + '\n';
+                });
+                return message
+            };
+
+            // create string with a appstate.componentId
+            self.path_message_appstate = function(){
+                var message = 'You will be restarting: \n'
+                ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
+                    path = appstate.componentId.replace(self.constants.zkPaths.appStatePath, '')
+                    message = message + path + '\n';
+                });
+                return message
+            };
 
             self.checkEnter = function(d, e) {
                 if (e.which === 13) {
@@ -225,7 +343,12 @@ define(
             self.checkStopped = function() {
                 clearInterval(interval);
                 var appsNotStopped;
-                if (!self.groupMode()) {
+                if (self.opdepRestartEnabled()){
+                    appsNotStopped = ko.utils.arrayFirst(self.opdepAppStateArray(), function(item) {
+                        return item.applicationStatus() !== 'stopped';
+                    });
+                }
+                else if (!self.groupMode()) {
                     var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
                     appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
@@ -248,7 +371,10 @@ define(
                 // needs to sleep so that stop command gets put into the agent's queue first
                 // TODO: a better alternative to ensure stop gets called first
                 self.sleep(500);
-                if (!self.groupMode()){
+                if (self.opdepRestartEnabled()){
+                    self.executeGroupControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
+                }
+                else if (!self.groupMode()){
                     self.executeSingleControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
                 // no need to send swal alert for single service. Just send dep_restart right away
