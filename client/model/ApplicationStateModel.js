@@ -8,17 +8,19 @@ define(
         'model/environmentModel',
         'model/adminModel',
         'model/GlobalMode',
+        'model/constants',
         'model/customFilterModel',
         'classes/ApplicationState',
         'classes/applicationStateArray'
     ],
-    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode,
+    function(ko, router, service, $, jqthrottle, environment, admin, GlobalMode, constants,
              CustomFilterModel, ApplicationState, ApplicationStateArray) {
         return function ApplicationStateModel(login) {
             var self = this;
             self.login = login;
             self.admin = admin;
             self.globalMode = GlobalMode;
+            self.constants = constants;
             self.applicationStateArray = ApplicationStateArray;
             self.textFilter = ko.observable('');
             self.textFilter.extend({ rateLimit: { method: "notifyWhenChangesStop", timeout: 700 } });
@@ -140,7 +142,7 @@ define(
                     //double for loop
                     ko.utils.arrayForEach(self.applicationStateArray(), function (item) {
                         opdepArray.map(function (componentId) {
-                            if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
+                            if (item.componentId === componentId.replace(self.constants.zkPaths.appStatePath, '')) {
                                 //Add to array if the element hasn't been added
                                 if ($.inArray(item, self.opdepAppStateArray()) === -1 ){
                                     self.opdepAppStateArray().push(item)
@@ -178,7 +180,7 @@ define(
                     //iterate groupcontrol and create array
                     for (i = 0; i < self.groupControl().length; i++){
                         ApplicationState = self.groupControl()[i]
-                        opdep_ajax = self.OpdepAjax(ApplicationState.componentId)
+                        opdep_ajax = self.OpdepAjax(ApplicationState.configurationPath)
                         if (i === (self.groupControl().length - 1)){
                             self.addtoOpdepArray(opdep_ajax, true)
                         }
@@ -189,7 +191,7 @@ define(
                     }
                 }
                 else{
-                    opdep_ajax = self.OpdepAjax(self.clickedApp().componentId)
+                    opdep_ajax = self.OpdepAjax(self.clickedApp().configurationPath)
                     self.addtoOpdepArray(opdep_ajax, true)
                 }
             };
@@ -289,7 +291,7 @@ define(
 
             self.OpdepAjax = function(componentID) {
                 return $.ajax({
-                        url: '/api/application/opdep/spot/software/state/application/' + componentID,
+                        url: '/api/application/opdep' + componentID,
                         type: 'GET'
                     });
             };
@@ -297,7 +299,7 @@ define(
             // Called from "Show Opdep" in group control
             self.displayOpdep = function(clickedApp) {
                 self.clickedApp(clickedApp);
-                var opdep = self.OpdepAjax(self.clickedApp().componentId)
+                var opdep = self.OpdepAjax(self.clickedApp().configurationPath)
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {
                     swal({
@@ -312,7 +314,7 @@ define(
             self.path_message_paths = function(path_array){
                 var message = 'Operation Dependencies: \n';
                 ko.utils.arrayForEach(path_array.sort(), function(path)  {
-                    path = path.replace('/spot/software/state/application/', '')
+                    path = path.replace(self.constants.zkPaths.appStatePath, '')
                     message = message + path + '\n';
                 });
                 return message
@@ -322,7 +324,7 @@ define(
             self.path_message_appstate = function(){
                 var message = 'You will be restarting: \n'
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
-                    path = appstate.componentId.replace('/spot/software/state/application/', '')
+                    path = appstate.componentId.replace(self.constants.zkPaths.appStatePath, '')
                     message = message + path + '\n';
                 });
                 return message
