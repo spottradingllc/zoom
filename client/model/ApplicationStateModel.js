@@ -102,7 +102,6 @@ define(
 
             // Takes in 'options' as an argument and actually sends a command to the server
             self.executeGroupControl = function(options) {
-                console.log()
                 ko.utils.arrayForEach((self.opdepRestartEnabled())? self.opdepAppStateArray():self.groupControl(), function(applicationState) {
                     var dict = {
                         'componentId': applicationState.componentId,
