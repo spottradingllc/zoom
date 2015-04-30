@@ -306,7 +306,6 @@ define(
                         allowOutsideClick: true
                     });
                 });
-                //add opdep.failure
             };
 
             // create string with componentId array

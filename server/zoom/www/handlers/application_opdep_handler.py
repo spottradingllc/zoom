@@ -40,7 +40,7 @@ class ApplicationOpdepHandler(tornado.web.RequestHandler):
             self.write(json.dumps({'errorText': str(e)}))
 
         self.set_header('Content-Type', 'application/json')
-        logging.info('Done Retrieving Application Depends Cache')
+        logging.info('Done Retrieving Application Operational Dependency Cache')
 
     def _downstream_recursive(self, parent_path, opdep_array):
         app_cache = self.data_store.load_application_dependency_cache()
