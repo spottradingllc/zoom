@@ -6,7 +6,7 @@ import tornado.web
 from zoom.common.decorators import TimeThis
 
 
-class ApplicationOpDepHandler(tornado.web.RequestHandler):
+class ApplicationOpdepHandler(tornado.web.RequestHandler):
 
 
     @property

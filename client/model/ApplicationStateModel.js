@@ -31,8 +31,9 @@ define(
             self.clickedApp = ko.observable({});
             self.customFilters = new CustomFilterModel(self);
             self.appsToShow = ko.observableArray([]);
-            self.forceRestart = ko.observable(false);
-            self.opdep = ko.observable(false);
+            self.forceRestartEnabled = ko.observable(false);
+            // opdep = Operational Dependency
+            self.opdepEnabled = ko.observable(false);
             self.showRestartCheckbox = ko.observable(false);
 
             self.headers = [
@@ -49,9 +50,9 @@ define(
             // callback for groupCheckModal to set forcedRestart to false, password input to empty string,
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
-                self.forceRestart(false);
-                //very imporant to reset self.opdep() back to false or it'll restart selected services for any command
-                self.opdep(false);
+                self.forceRestartEnabled(false);
+                //very imporant to reset self.opdepEnabled() back to false or it'll restart selected services for any command
+                self.opdepEnabled(false);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
@@ -136,7 +137,7 @@ define(
                         opdepArray.map(function (componentId) {
                             if (item.componentId === componentId.replace('/spot/software/state/application/', '')) {
                                 //Add to array if the element hasn't been added
-                                if ($.inArray(item, self.opdepAppStateArray()) == -1 ){
+                                if ($.inArray(item, self.opdepAppStateArray()) === -1 ){
                                     self.opdepAppStateArray().push(item)
                                 }
                             }
@@ -173,7 +174,7 @@ define(
                     for (i = 0; i < self.groupControl().length; i++){
                         ApplicationState = self.groupControl()[i]
                         opdep_ajax = self.OpdepAjax(ApplicationState.componentId)
-                        if (i == (self.groupControl().length - 1)){
+                        if (i === (self.groupControl().length - 1)){
                             self.addtoOpDepArray(opdep_ajax, true)
                         }
                         else{
@@ -227,13 +228,13 @@ define(
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
                 //operational restart
-                if (self.options.com === 'restart' && self.opdep()){
+                if (self.options.com === 'restart' && self.opdepEnabled()){
                     self.createOpdepStateArray()
                 }
                 else{
                     // Command send to single server
                     if (!self.groupMode()){
-                        if (self.options.com === 'restart' && !self.forceRestart()) {
+                        if (self.options.com === 'restart' && !self.forceRestartEnabled()) {
                             // dep_restart
                             self.executeSingleControl({'com': 'ignore', 'clear_group': true});
                             self.executeSingleControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
@@ -244,7 +245,7 @@ define(
                         }
                     }
                     else {
-                        if (self.options.com === 'restart' && !self.forceRestart()) {
+                        if (self.options.com === 'restart' && !self.forceRestartEnabled()) {
                             // dep_restart
                             self.executeGroupControl({'com': 'ignore', 'clear_group': false});
                             self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': false});
@@ -369,7 +370,7 @@ define(
             self.checkStopped = function() {
                 clearInterval(interval);
                 var appsNotStopped;
-                if (self.opdep()){
+                if (self.opdepEnabled()){
                     appsNotStopped = ko.utils.arrayFirst(self.opdepAppStateArray(), function(item) {
                         return item.applicationStatus() !== 'stopped';
                     });
@@ -397,7 +398,7 @@ define(
                 // needs to sleep so that stop command gets put into the agent's queue first
                 // TODO: a better alternative to ensure stop gets called first
                 self.sleep(500);
-                if (self.opdep()){
+                if (self.opdepEnabled()){
                     self.executeOpdepControl({'com': 'dep_restart', 'stay_down': false, 'clear_group': true});
                 }
                 else if (!self.groupMode()){
