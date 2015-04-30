@@ -118,7 +118,7 @@ class Action(object):
                     self._mode != ApplicationMode.MANUAL:
                 self._log.info('Operational relevancy detected. '
                                'Triggering operation action.')
-                self._action_queue.append_unique(Task(self.name,
+                self._action_queue.append_unique(Task(self._op_action.__name__,
                                                       func=self._op_action),
                                                  sender=str(self))
             else:
