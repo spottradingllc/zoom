@@ -55,6 +55,7 @@ define(
                 self.forceRestartEnabled(false);
                 //very imporant to reset self.opdepRestartEnabled() back to false or it'll restart selected services for any command
                 self.opdepRestartEnabled(false);
+                self.opdepAppStateArray([]);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
                 $("#advancedOptionsBody").collapse('hide');
@@ -128,10 +129,6 @@ define(
                     self.clearGroupControl();
                 }
 
-                // reset array if dep_restart was sent
-                if (options.com === 'dep_restart'){
-                    self.opdepAppStateArray([]);
-                }
             };
 
             self.opdepAppStateArray = ko.observableArray([]);
@@ -167,6 +164,7 @@ define(
                                 self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
                                 self.checkStopped();
                             } else {
+                                self.opdepAppStateArray([]);
                                 return;
                             }
                         })
