@@ -46,6 +46,8 @@ class MessageThrottle(object):
                                           'update.')
                             continue
                     self._message = None
+            except AttributeError as e:
+                logging.exception('Exception in MessageThrottle: {0}'.format(e))
             finally:
                 self._lock.release()
             
