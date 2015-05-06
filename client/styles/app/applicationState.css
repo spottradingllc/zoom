@@ -43,3 +43,12 @@
     Z-index: 99;
 }
 
+.dropdown-menu {
+    max-height: 400px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+a.dropdown-toggle {
+    position: relative;
+}

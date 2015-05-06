@@ -29,7 +29,6 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
                      .format(self.request.remote_ip))
         try:
             result = self.data_store.load_application_dependency_cache()
-            print 'pre', path
             if path:
                 if not path.startswith(self.app_state_path):
                     # be able to search by comp id, not full path
