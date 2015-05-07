@@ -282,8 +282,8 @@ class ApplicationStateCache(object):
         This is to capture when an agent goes down.
         :type event: kazoo.protocol.states.WatchedEvent
         """
-        print 'agent is down', event.path
         host = os.path.basename(event.path)
+        logging.info('Agent on host {0} has changed up/down state.'.format(host))
         paths = self._path_to_host_mapping.get(host, {})
         for p in paths.keys():
             self._on_update_path(p)
