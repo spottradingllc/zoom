@@ -9,6 +9,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             self.visible = ko.computed(function() {
                 return self.sentinelConfig() !== '';
             });
+            self.guiEdit = ko.observable(false);
             self.treeViewModel = new TreeViewModel(self);
             self.parent = SentinelConfigViewModel;
 
@@ -79,6 +80,9 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
 
             self.validateXML = function() {
                 // parse XML doc and see if it has parsing errors
+                if (self.guiEdit()) {
+                    self.treeViewModel.createXML()
+                }
                 var XMLParser = new DOMParser();
                 var XMLDoc = XMLParser.parseFromString(self.sentinelConfig(), 'text/xml');
 
@@ -131,6 +135,11 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                 self.setXML(newConfig);
             };
 
+            self.toggleGuiEdit = function() {
+                self.guiEdit(!self.guiEdit());
+                self.editedConfig()
+            };
+
             self.closeAlerts = function() {
                 AlertsViewModel.closeAlerts();
             };
@@ -142,7 +151,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             self.setDefault = function() {
                 // TODO: Move this string to its own file?
                 self.setXML('<?xml version="1.0" encoding="UTF-8"?><Application><Automation></Automation></Application>');
-                self.treeViewModel.addComponent()
+                self.treeViewModel.addComponent();
             };
         };
     });

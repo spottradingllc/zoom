@@ -58,7 +58,6 @@
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
                                 <span data-bind="attr: {class: constants.glyphs.unknownQMark}"></span>
-                                <span data-bind="attr: {class: constants.glyphs.runningCheck}"></span>
                             </td>
                             <td width="80%">The sentinel agent has lost connection to Zookeeper.</td>
                         </tr>
@@ -105,6 +104,12 @@
                                 <span data-bind="attr: {class: constants.glyphs.staggeredClock}"></span>
                             </td>
                             <td width="80%">The application is attempting to start, but it is being staggered. This is a means of limiting applications from starting up all at once.</td>
+                        </tr>
+                        <tr>
+                            <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
+                                <span data-bind="attr: {class: constants.glyphs.invalidTrash}"></span>
+                            </td>
+                            <td width="80%">The application was once mapped to this host, but is no longer in that host's config. The row/app should likely be deleted.</td>
                         </tr>
                     </tbody>
                 </table>

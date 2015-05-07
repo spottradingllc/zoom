@@ -115,10 +115,14 @@ class SentinelDaemon(object):
         """
         agent_state_path = self._settings.get('ZK_AGENT_STATE_PATH')
         path = '/'.join([agent_state_path, self._hostname])
-        if not self.zkclient.exists(path, watch=self._register):
+        components = {"components": self.children.keys()}
+        if not self.zkclient.exists(path):
             self.zkclient.create(path,
-                                 value=json.dumps({}),
+                                 value=json.dumps(components),
                                  ephemeral=True)
+        else:
+            self.zkclient.set(path, json.dumps(components))
+        self._log.info('Done Registering: {}'.format(components))
 
     @connected
     def _get_config_and_run(self, event=None):
@@ -142,6 +146,7 @@ class SentinelDaemon(object):
 
             self._terminate_children()
             self._spawn_children(config)
+            self._register()
 
         except ParseError as e:
             self._log.error('Incomplete XML config found in path {0}: {1}'
@@ -196,7 +201,6 @@ class SentinelDaemon(object):
         """
         self._log.info('Daemon listener callback triggered')
         self._get_settings()
-        self._register()
         self._get_config_and_run()
         if self.task_client is not None:
             self.task_client.reset_watches()

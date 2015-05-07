@@ -89,6 +89,9 @@ define(
                 else if (self.mode() === 'manual') {
                     return constants.glyphs.modeManual;
                 }
+                else if (self.mode() == 'unknown') {
+                    return '';
+                }
                 else {
                     return constants.glyphs.runningCheck;
                 }
@@ -123,6 +126,9 @@ define(
                 }
                 else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.staggered) {
                     return constants.glyphs.staggeredClock;
+                }
+                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.invalid) {
+                    return constants.glyphs.invalidTrash;
                 }
                 else {
                     return constants.glyphs.unknownQMark;
