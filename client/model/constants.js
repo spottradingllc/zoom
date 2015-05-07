@@ -30,7 +30,8 @@ define([], function () {
             grayed: 'glyphicon glyphicon-user',
             pdWrench: 'glyphicon glyphicon-wrench',
             readOnly: 'glyphicon glyphicon-eye-open',
-            staggeredClock: 'glyphicon glyphicon-time'
+            staggeredClock: 'glyphicon glyphicon-time',
+            invalidTrash: 'glyphicon glyphicon-trash'
         },
 
         applicationStatuses: {
@@ -49,7 +50,8 @@ define([], function () {
             error: 'error',
             notify: 'notify',
             configErr: 'config_error',
-            unknown: 'unknown'
+            unknown: 'unknown',
+            invalid: 'invalid'
         },
 
         predicateTypes: {

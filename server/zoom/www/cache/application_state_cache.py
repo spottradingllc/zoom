@@ -164,22 +164,36 @@ class ApplicationStateCache(object):
             # watch node to see if children are created
             self._zoo_keeper.get_children(path, watch=self._on_update)
             host = data.get('host', 'Unknown')
+            name = data.get('name', os.path.basename(path))
             agent_path = zk_path_join(self._configuration.agent_state_path,
                                       host)
 
             # if the agent is down, update state and mode with unknown
-            if (host is None or
-                    not self._zoo_keeper.exists(
-                            agent_path,
-                            watch=self._on_agent_state_update)):
+            agent_up = bool(self._zoo_keeper.exists(
+                agent_path,
+                watch=self._on_agent_state_update))
+
+            valid = True
+            if host in (None, 'Unknown'):
+                data['state'] = 'invalid'
+                data['mode'] = 'unknown'
+                valid = False
+            elif not agent_up:
                 data['state'] = 'unknown'
                 data['mode'] = 'unknown'
+                valid = False
+            elif agent_up:
+                d, s = self._zoo_keeper.get(agent_path)
+                registered_comps = json.loads(d).get('components', [])
+                if name not in registered_comps:
+                    data['state'] = 'invalid'
+                    data['mode'] = 'unknown'
+                    valid = False
 
-            else:
-                self._path_to_host_mapping[host] = path
+            self._update_mapping(host, {path: valid})
 
             application_state = ApplicationState(
-                application_name=data.get('name', os.path.basename(path)),
+                application_name=name,
                 configuration_path=path,
                 application_status=ApplicationStatus.STOPPED,
                 application_host=host,
@@ -207,7 +221,7 @@ class ApplicationStateCache(object):
             config_path = os.path.dirname(path)
             parent_data, parent_stat = self._get_app_details(config_path)
 
-            self._path_to_host_mapping[host] = config_path
+            self._update_mapping(host, {config_path: True})
 
             application_state = ApplicationState(
                 application_name=parent_data.get('name',
@@ -228,6 +242,16 @@ class ApplicationStateCache(object):
             )
 
         return application_state
+
+    def _update_mapping(self, host, data):
+        """
+        :type host: str
+        :type data: dict
+            {'/some/path', bool}
+        """
+        d = self._path_to_host_mapping.get(host, {})
+        d.update(data)
+        self._path_to_host_mapping[host] = d
 
     def _on_update(self, event):
         """
@@ -258,10 +282,11 @@ class ApplicationStateCache(object):
         This is to capture when an agent goes down.
         :type event: kazoo.protocol.states.WatchedEvent
         """
+        print 'agent is down', event.path
         host = os.path.basename(event.path)
-        path = self._path_to_host_mapping.get(host, None)
-        if path is not None:  # if data is in the cache
-            self._on_update_path(path)
+        paths = self._path_to_host_mapping.get(host, {})
+        for p in paths.keys():
+            self._on_update_path(p)
 
     def _get_last_command(self, data):
         """
