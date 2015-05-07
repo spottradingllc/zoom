@@ -48,20 +48,23 @@
                     <button type="button" class="btn btn-success" data-bind="click: validateXML">Push Configuration</button>
                     <button type="button" class="btn btn-danger" data-bind="click: deleteConfig">Delete Configuration</button>
                     <button type="button" class="btn btn-default" data-bind="click: setDefault">Default Configuration</button>
-                    <button type="button" class="btn btn-primary" data-bind="click: treeViewModel.addComponent"style="margin-bottom:15px">Add Component</button>
+                    <button type="button" class="btn btn-info" data-bind="click: toggleGuiEdit, text: guiEdit() ? 'Text Edit' : 'GUI Edit'" ></button>
                 </div>
             </div>
-            <div class="panel-body">
-                <div data-bind="with: treeViewModel, event: {mouseout: treeViewModel.createXML, click: closeAlerts}">
+            <!-- GUI Edit panel-->
+            <div class="panel-body" data-bind="visible: guiEdit">
+                <button type="button" class="btn btn-primary" data-bind="click: treeViewModel.addComponent">Add Component</button>
+                <div data-bind="with: treeViewModel">
                     <div data-bind="template: {name: 'component-template', foreach: components}">
                     </div>
                 </div>
-                <h4>XML:</h4>
+            </div>
+            <!-- XML panel-->
+            <div class="panel-body" data-bind="visible: !guiEdit()">
                 <pre data-bind="text: sentinelConfig, value: sentinelConfig, event: {mouseout: editedConfig, click: closeAlerts}"
                      name="server-config" id="server-config" contenteditable="true"></pre>
             </div>
         </div>
-
     </div>
 
     <!-- templates for adding sentinel configurations -->
