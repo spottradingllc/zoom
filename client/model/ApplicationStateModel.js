@@ -36,7 +36,10 @@ define(
             self.forceRestartEnabled = ko.observable(false);
             // opdep = Operational Dependency
             self.opdepRestartEnabled = ko.observable(false);
-            self.showRestartCheckbox = ko.observable(false);
+            self.opdepStopEnabled = ko.observable(false);
+            self.showAdvancedOptions = ko.observable(false);
+            self.showRestartOptions = ko.observable(false);
+            self.showStopOptions = ko.observable(false);
 
             self.headers = [
                 {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
@@ -53,8 +56,9 @@ define(
             // remove "incorrect password" popover if shown, collapse the Advanced Option accordion
             $(document).on('show.bs.modal', '#groupCheckModal', function() {
                 self.forceRestartEnabled(false);
-                //very imporant to reset self.opdepRestartEnabled() back to false or it'll restart selected services for any command
+                //very imporant to reset self.opdepRestartEnabled() and self.opdepStopEnabled() back to false or it'll restart selected services for any command
                 self.opdepRestartEnabled(false);
+                self.opdepStopEnabled(false);
                 self.opdepAppStateArray([]);
                 self.passwordConfirm('');
                 $('#passwordFieldG').popover('destroy');
@@ -105,7 +109,7 @@ define(
 
             // Takes in 'options' as an argument and actually sends a command to the server
             self.executeGroupControl = function(options) {
-                ko.utils.arrayForEach((self.opdepRestartEnabled())? self.opdepAppStateArray():self.groupControl(), function(applicationState) {
+                ko.utils.arrayForEach((self.opdepRestartEnabled() || self.opdepStopEnabled())? self.opdepAppStateArray():self.groupControl(), function(applicationState) {
                     var dict = {
                         'componentId': applicationState.componentId,
                         'configurationPath': applicationState.configurationPath,
@@ -147,6 +151,13 @@ define(
                             }
                         })
                     })
+                    if (self.opdepRestartEnabled()){
+                        var confirmButtonText = 'Yes, Restart them!'
+                    }
+                    else if (self.opdepStopEnabled()){
+                        var confirmButtonText = 'Yes, Stop them!'
+                    }
+
                     if (execute_command){
                         swal({
                             title: 'ARE YOU SURE?!',
@@ -154,15 +165,23 @@ define(
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
-                            confirmButtonText: "Yes, Restart them!",
+                            confirmButtonText: confirmButtonText,
                             closeOnConfirm: true
                         },
                         function(isConfirm){
                             if (isConfirm) {
-                                // check if previous async call is completed before any of this runs
-                                self.executeGroupControl({'com': 'ignore', 'clear_group': true});
-                                self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                                self.checkStopped();
+                                if (self.opdepRestartEnabled()){
+                                    // check if previous async call is completed before any of this runs
+                                    self.executeGroupControl({'com': 'ignore', 'clear_group': true});
+                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                                    self.checkStopped();
+                                }
+                                else if (self.opdepStopEnabled()){
+                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                                }
+                                else {
+                                    console.out('No options are enabled')
+                                }
                             } else {
                                 self.opdepAppStateArray([]);
                                 return;
@@ -199,8 +218,8 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                //operational restart
-                if (self.options.com === 'restart' && self.opdepRestartEnabled()){
+                //operational restart/stop
+                if (self.opdepStopEnabled() || self.opdepRestartEnabled()){
                     self.createOpdepStateArray()
                 }
                 else{
@@ -274,14 +293,24 @@ define(
                     self.groupMode(false);
                 }
 
+                // reset values. Should have a method to reset values  to default
+                self.showRestartOptions(false)
+                self.showStopOptions(false)
+
                 self.buttonLabel('Send ' + options.com.toUpperCase() + ' command');
                 self.options = options;
 
-                if (options.com === "restart") {
-                    self.showRestartCheckbox(true);
+                // Show appropriate Advanced options in modal
+                if (options.com === "stop"){
+                    self.showAdvancedOptions(true);
+                    self.showStopOptions(true)
                 }
-                else {
-                    self.showRestartCheckbox(false);
+                else if (options.com === "restart"){
+                    self.showAdvancedOptions(true);
+                    self.showRestartOptions(true)
+                }
+                else{
+                    self.showAdvancedOptions(false);
                 }
 
                 $('#groupCheckModal').modal('show');
@@ -301,7 +330,7 @@ define(
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {
                     swal({
-                        title: self.clickedApp().componentId,
+                        title: "Downstream Opdep for \n" + self.clickedApp().componentId + ":",
                         text: self.path_message_paths(data.opdep),
                         allowOutsideClick: true
                     });
@@ -310,7 +339,7 @@ define(
 
             // create string with componentId array
             self.path_message_paths = function(path_array){
-                var message = 'Operation Dependencies: \n';
+                var message = '';
                 ko.utils.arrayForEach(path_array.sort(), function(path)  {
                     path = path.replace(self.constants.zkPaths.appStatePath, '')
                     message = message + path + '\n';
@@ -320,7 +349,13 @@ define(
 
             // create string with a appstate.componentId
             self.path_message_appstate = function(){
-                var message = 'You will be restarting: \n'
+                if (self.opdepRestartEnabled()){
+                    var message = 'You will be restarting: \n'
+                }
+                else if (self.opdepStopEnabled()){
+                    var message = 'You will be stopping: \n'
+                }
+
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
                     path = appstate.componentId.replace(self.constants.zkPaths.appStatePath, '')
                     message = message + path + '\n';

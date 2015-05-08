@@ -62,31 +62,45 @@
                 </div>
                 <div class="accordion" id="advancedOptions">
                         <div class="accordion-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" href="#advancedOptionsBody" data-bind="visible: showRestartCheckbox">
+                            <a class="accordion-toggle" data-toggle="collapse" href="#advancedOptionsBody" data-bind="visible: showAdvancedOptions">
                                 <p align="left" style="margin-left: 25px">Advanced Options</p>
                             </a>
                         </div>
                         <div id="advancedOptionsBody" class="accordion-body collapse in" >
                             <div class="accordion-inner">
-                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: forceRestartEnabled, visible: showRestartCheckbox"
+                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: forceRestartEnabled, visible: showRestartOptions"
                                    title="Valid for Restart command only">
-                                    <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
+                                    <label data-bind="visible: showRestartOptions" style="margin-left: 5px">
                                         <span>Restart without dependencies.</span>
                                     </label>
                                 </input>
-                                <p style="margin-left: 55px; margin-right:55px;">This will restart only the selected application(s) regardless of whether the startup dependencies for that application are up or not.
-                                                        Most often you probably don’t need to use this option. </p>
-                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: opdepRestartEnabled, visible: showRestartCheckbox"
+                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showRestartOptions">
+                                    This will restart only the selected application(s) regardless of whether the startup dependencies for that application are up or not.
+                                    Most often you probably don’t need to use this option.
+                                </p>
+                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: opdepRestartEnabled, visible: showRestartOptions"
                                    title="Valid for Restart command only">
-                                    <label data-bind="visible: showRestartCheckbox" style="margin-left: 5px">
+                                    <label data-bind="visible: showRestartOptions" style="margin-left: 5px">
                                         <span>Restart with all the downstream operational dependencies.</span>
                                     </label>
                                 </input>
-                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showRestartCheckbox">
+                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showRestartOptions">
                                     1. Restart the selected application(s)
                                     </br>2. Then (re)start the applications that have operational dependencies on the applications in step 1
                                     </br>3. Then (re)start the applications that have operational dependencies on the applications in step 2
                                     </br>4. And so on until all layers of operational dependencies have been started
+                                </p>
+                                <input type="checkbox" style="margin-left: 25px;width:20px;height:20px" data-bind="checked: opdepStopEnabled, visible: showStopOptions"
+                                   title="Valid for Restart command only">
+                                    <label data-bind="visible: showStopOptions" style="margin-left: 5px">
+                                        <span>Stop all downstream operational dependencies.</span>
+                                    </label>
+                                </input>
+                                <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showStopOptions">
+                                    1. Stop the selected application(s)
+                                    </br>2. Then stop the applications that have operational dependencies on the applications in step 1
+                                    </br>3. Then stop the applications that have operational dependencies on the applications in step 2
+                                    </br>4. And so on until all layers of operational dependencies have been stopped
                                 </p>
                             </div>
                         </div>
@@ -545,7 +559,7 @@
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.displayOpdep({'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Show Opdep</a>
+                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Downstream Opdep</a>
                                 </li>
                            </ul>
                         </div>
