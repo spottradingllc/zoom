@@ -20,25 +20,22 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header" data-bind="style: {backgroundColor: environment.envColor, color: environment.envTextColor}">
-                    <h2 data-bind="text: environment.env"></h2>
-                    <h4>Are you sure you want to restart???</h4>
+                    <h2>
+                        Are you sure??
+                        <br>These will be the affected services.
+                    </h2>
                 </div>
                 <div class="modal-body">
                     <table class="table table-bordered">
                         <tr>
                             <td>Application Name </td>
                             <td>Hostname </td>
+                            <td>Cancel Buttons </td>
                         </tr>
-                        <tbody data-bind="foreach: groupControl, visible: groupMode()">
+                        <tbody data-bind="foreach: opdepAppStateArray">
                             <tr>
                                 <td data-bind="text: $parent.parseAppName(configurationPath)"></td>
                                 <td data-bind="text: applicationHost"></td>
-                            </tr>
-                        </tbody>
-                        <tbody data-bind="visible: !groupMode()">
-                            <tr>
-                                <td data-bind="text: parseAppName(clickedApp().configurationPath)"></td>
-                                <td data-bind="text: clickedApp().applicationHost"></td>
                             </tr>
                         </tbody>
                     </table>
