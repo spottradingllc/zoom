@@ -97,7 +97,10 @@
                                     </label>
                                 </input>
                                 <p style="margin-left: 55px; margin-right:55px;" data-bind="visible: showStopOptions">
-                                    This is gonna stop hella things
+                                    1. Stop the selected application(s)
+                                    </br>2. Then stop the applications that have operational dependencies on the applications in step 1
+                                    </br>3. Then stop the applications that have operational dependencies on the applications in step 2
+                                    </br>4. And so on until all layers of operational dependencies have been stopped
                                 </p>
                             </div>
                         </div>
@@ -556,7 +559,7 @@
                                     <a data-bind="click: function()
                                      {$parent.appStateModel.displayOpdep({'componentId':componentId,
                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Show Opdep</a>
+                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Downstream Opdep</a>
                                 </li>
                            </ul>
                         </div>

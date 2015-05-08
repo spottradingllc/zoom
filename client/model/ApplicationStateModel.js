@@ -151,12 +151,11 @@ define(
                             }
                         })
                     })
-                    var confirmButtonText = 'Run action'
                     if (self.opdepRestartEnabled()){
-                        confirmButtonText = 'Yes, Restart them!'
+                        var confirmButtonText = 'Yes, Restart them!'
                     }
                     else if (self.opdepStopEnabled()){
-                        confirmButtonText = 'Yes, Stop them!'
+                        var confirmButtonText = 'Yes, Stop them!'
                     }
 
                     if (execute_command){
@@ -219,8 +218,7 @@ define(
             // *Note*: 'ignore' is sent before 'stop' so that services on react won't start up if they stopped
             // before all the other selected services stopped.
             self.determineAndExecute = function() {
-                //operational restart
-//                if (self.options.com === 'restart' && self.opdepRestartEnabled()){
+                //operational restart/stop
                 if (self.opdepStopEnabled() || self.opdepRestartEnabled()){
                     self.createOpdepStateArray()
                 }
@@ -302,16 +300,16 @@ define(
                 self.buttonLabel('Send ' + options.com.toUpperCase() + ' command');
                 self.options = options;
 
-                if (options.com === "restart" || options.com === "stop") {
+                // Show appropriate Advanced options in modal
+                if (options.com === "stop"){
                     self.showAdvancedOptions(true);
-                    if (options.com === "restart"){
-                        self.showRestartOptions(true)
-                    }
-                    else if (options.com === "stop"){
-                        self.showStopOptions(true)
-                    }
+                    self.showStopOptions(true)
                 }
-                else {
+                else if (options.com === "restart"){
+                    self.showAdvancedOptions(true);
+                    self.showRestartOptions(true)
+                }
+                else{
                     self.showAdvancedOptions(false);
                 }
 
@@ -332,7 +330,7 @@ define(
                 // waits for data to be available since ajax is async call
                 opdep.success(function (data) {
                     swal({
-                        title: self.clickedApp().componentId,
+                        title: "Downstream Opdep for \n" + self.clickedApp().componentId + ":",
                         text: self.path_message_paths(data.opdep),
                         allowOutsideClick: true
                     });
@@ -341,7 +339,7 @@ define(
 
             // create string with componentId array
             self.path_message_paths = function(path_array){
-                var message = 'Operation Dependencies: \n';
+                var message = '';
                 ko.utils.arrayForEach(path_array.sort(), function(path)  {
                     path = path.replace(self.constants.zkPaths.appStatePath, '')
                     message = message + path + '\n';
@@ -352,7 +350,7 @@ define(
             // create string with a appstate.componentId
             self.path_message_appstate = function(){
                 if (self.opdepRestartEnabled()){
-                    var message = 'You will be restaaarting: \n'
+                    var message = 'You will be restarting: \n'
                 }
                 else if (self.opdepStopEnabled()){
                     var message = 'You will be stopping: \n'
