@@ -201,6 +201,8 @@ class Application(object):
                 and self._apptype == ApplicationType.APPLICATION:
 
             self._log.info('Not starting. App was stopped with Zoom.')
+            # set to OK just in case we're staggered
+            self._state.set_value(ApplicationState.OK)
             return 0
         elif self._proc_client.restart_logic.crashed and \
                 not self._restart_on_crash:
