@@ -40,6 +40,10 @@ define([
             var checkObjContents = function(obj1, obj2) {
                 var ret = true;
                 for (var each in obj1) {
+                    // ignore 'zoom_version' as it is not in zookeeper and therefore only in the salt return
+                    if (each === 'zoom_version') {
+                        continue;
+                    }
                     if (obj2.hasOwnProperty(each)) {
                         if (typeof obj1[each] === 'object') {
                             ret = checkObjContents(obj1[each], obj2[each]);
@@ -152,10 +156,10 @@ define([
                                     // make sure zkpillar is gone
                                     for (var server in dataset) { 
                                         // external pillar will not be completely gone from salts perspective
-                                        // still appears as an empty object
+                                        // still appears with zoom_version since we don't control that - not actually in zk
                                         if (!$.isEmptyObject(dataset[server][zk])) {
                                             validationFailure = true;
-                                            errorMsg = "ZK Pillar was not deleted";
+                                            errorMsg = "ZK Pillar may not have been deleted";
                                         }
                                         else validationFailure = false;
                                     }
@@ -188,7 +192,7 @@ define([
                         pillarModel.pillarApiModel.updateChecked(_assocArray);
 
                         if (validationFailure) {
-                            swal("Fatal", "Validation error: " + errorMsg, 'error');
+                            swal("Error", "Validation error: " + errorMsg, 'error');
                         }
                         else {
                             // Show a successful confirmation for 1.5 seconds
