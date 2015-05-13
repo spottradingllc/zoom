@@ -21,7 +21,7 @@
             <div class="modal-content">
                 <div class="modal-header" data-bind="style: {backgroundColor: environment.envColor, color: environment.envTextColor}">
                     <h2>
-                        Are you sure??
+                        Are you sure????
                         <br>These will be the affected services.
                     </h2>
                 </div>
@@ -30,14 +30,24 @@
                         <tr>
                             <td>Application Name </td>
                             <td>Hostname </td>
-                            <td>Cancel Buttons </td>
                         </tr>
-                        <tbody data-bind="foreach: opdepAppStateArray">
+                        <tbody data-bind="foreach: opdepAppStateArray()">
                             <tr>
-                                <td data-bind="text: $parent.parseAppName(configurationPath)"></td>
-                                <td data-bind="text: applicationHost"></td>
+                                <td> hello</td>
+                                <td> testing</td>
                             </tr>
                         </tbody>
+
+
+<!--                        <tbody data-bind="foreach: opdepAppStateArray">
+                            <tr>
+                                <td data-bind="text: hello"></td>
+                                <td data-bind="text: $data.componentId"></td>
+                                <td data-bind="text: $data.applicationHost"></td>
+                            </tr>
+                        </tbody>
+    -->
+
                     </table>
                 </div>
                 <div class="modal-footer">

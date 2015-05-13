@@ -134,10 +134,9 @@ define(
                 }
 
             };
-
             self.opdepAppStateArray = ko.observableArray([]);
-
             self.addtoOpdepArray = function(opdep_ajax, execute_command) {
+                self.opdepAppStateArray([])
                 opdep_ajax.success(function (data) {
                     opdepArray = data.opdep //gets the array from dict
                     //double for loop
@@ -151,12 +150,18 @@ define(
                             }
                         })
                     })
+
                     if (self.opdepRestartEnabled()){
                         var confirmButtonText = 'Yes, Restart them!'
                     }
                     else if (self.opdepStopEnabled()){
                         var confirmButtonText = 'Yes, Stop them!'
                     }
+
+                    console.log('opdep length: ' + self.opdepAppStateArray().length)
+                    console.log(self.opdepAppStateArray())
+                    console.log('group control length: ' + self.groupControl().length)
+                    console.log(self.groupControl())
 
                     $('#opdepModal').modal('show');
 
