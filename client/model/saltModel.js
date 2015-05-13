@@ -40,7 +40,7 @@ define([
             var checkObjContents = function(obj1, obj2) {
                 var ret = true;
                 for (var each in obj1) {
-                    // ignore 'zoom_version' as it is not in zookeeper and therefore only in the salt return
+                    // ignore 'zoom_version' as it is not in in the pillar path of zookeeper that we are updating
                     if (each === 'zoom_version') {
                         continue;
                     }
@@ -156,7 +156,7 @@ define([
                                     // make sure zkpillar is gone
                                     for (var server in dataset) { 
                                         // external pillar will not be completely gone from salts perspective
-                                        // still appears with zoom_version since we don't control that - not actually in zk
+                                        // still appears with zoom_version since it's not part of the path deleted
                                         if (!$.isEmptyObject(dataset[server][zk])) {
                                             validationFailure = true;
                                             errorMsg = "ZK Pillar may not have been deleted";
