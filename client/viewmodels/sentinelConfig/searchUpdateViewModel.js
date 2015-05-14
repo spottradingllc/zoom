@@ -136,8 +136,14 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
             };
 
             self.toggleGuiEdit = function() {
+                if (self.guiEdit()) {
+                    self.treeViewModel.createXML()
+                }
+                else {
+                    self.editedConfig()
+                }
+
                 self.guiEdit(!self.guiEdit());
-                self.editedConfig()
             };
 
             self.closeAlerts = function() {

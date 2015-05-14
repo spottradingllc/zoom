@@ -201,6 +201,8 @@ class Application(object):
                 and self._apptype == ApplicationType.APPLICATION:
 
             self._log.info('Not starting. App was stopped with Zoom.')
+            # set to OK just in case we're staggered
+            self._state.set_value(ApplicationState.OK)
             return 0
         elif self._proc_client.restart_logic.crashed and \
                 not self._restart_on_crash:
@@ -577,10 +579,12 @@ class Application(object):
         type_metric = type_path.replace('/', '.')
         result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
         runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
+        updown_path = self._settings.get('GRAPHITE_UPDOWN_METRIC')
 
         return {
             "result": result_path.format(type_metric),
-            "runtime": runtime_path.format(type_metric)
+            "runtime": runtime_path.format(type_metric),
+            "updown": updown_path.format(type_metric)
         }
 
     def _get_current_time(self):

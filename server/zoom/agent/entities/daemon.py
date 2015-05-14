@@ -3,7 +3,6 @@ import json
 import signal
 import socket
 import sys
-import platform
 import pprint
 from multiprocessing import Lock
 from xml.etree import ElementTree
@@ -116,12 +115,10 @@ class SentinelDaemon(object):
         agent_state_path = self._settings.get('ZK_AGENT_STATE_PATH')
         path = '/'.join([agent_state_path, self._hostname])
         components = {"components": self.children.keys()}
-        if not self.zkclient.exists(path):
+        if not self.zkclient.exists(path, watch=self._register):
             self.zkclient.create(path,
                                  value=json.dumps(components),
                                  ephemeral=True)
-        else:
-            self.zkclient.set(path, json.dumps(components))
         self._log.info('Done Registering: {}'.format(components))
 
     @connected
