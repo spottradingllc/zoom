@@ -89,7 +89,8 @@ class ProcessClient(object):
         """
         self.last_status = self.status_method()
         self.restart_logic.check_for_crash(self.last_status)
-
+        self.send_to_graphite(self._graphite_metric_names['updown'],
+                              (1 if self.last_status else 0))
         self._log.debug('Process {0} running: {1}, crashed={2}'
                         .format(self.name, self.last_status,
                                 self.restart_logic.crashed))
