@@ -579,10 +579,12 @@ class Application(object):
         type_metric = type_path.replace('/', '.')
         result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
         runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
+        updown_path = self._settings.get('GRAPHITE_UPDOWN_METRIC')
 
         return {
             "result": result_path.format(type_metric),
-            "runtime": runtime_path.format(type_metric)
+            "runtime": runtime_path.format(type_metric),
+            "updown": updown_path.format(type_metric)
         }
 
     def _get_current_time(self):

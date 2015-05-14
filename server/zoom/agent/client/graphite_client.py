@@ -62,8 +62,8 @@ class GraphiteClient(object):
 
         host = cls._get_host(environment=env)
         payload = '{0} {1} {2}'.format(metric, data, tstamp)
-        log.info('Sending message "{0}" to {1}:{2}'
-                 .format(payload, host, GraphiteClient.GRAPHITE_PORT))
+        log.debug('Sending message "{0}" to {1}:{2}'
+                  .format(payload, host, GraphiteClient.GRAPHITE_PORT))
 
         sock = socket.socket()
         sock.settimeout(10)
