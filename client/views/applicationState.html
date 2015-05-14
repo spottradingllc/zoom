@@ -82,7 +82,7 @@
                             <tr>
                                 <td data-bind="text: parseAppName(clickedApp().configurationPath)"></td>
                                 <td data-bind="text: clickedApp().applicationHost"></td>
-                                <td><input type="button" value="Delete" disabled></td>
+                                <td><input type="button" value="Delete" data-bind="click: removeFromClickedApp"></td>
                             </tr>
                         </tbody>
                     </table>

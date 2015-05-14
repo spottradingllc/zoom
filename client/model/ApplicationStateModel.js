@@ -137,16 +137,29 @@ define(
 
             self.removeFromOpdepAppStateArray = function(appState){
                 self.opdepAppStateArray.remove(appState)
+                //close modal if no services are selected
+                if (self.opdepAppStateArray().length === 0){
+                    $('#opdepModal').modal('hide');
+                }
             }
 
             self.removeFromGroupControl = function(appState){
                 self.groupControl.remove(appState)
+                //close modal if no services are selected
+                if (self.groupControl().length === 0){
+                    $('#groupCheckModal').modal('hide');
+                }
+            }
+
+            self.removeFromClickedApp = function(){
+                self.clickedApp({});
+                $('#groupCheckModal').modal('hide');
             }
 
             self.opdepAppStateArray = ko.observableArray([]);
 
             self.addtoOpdepArray = function(opdep_ajax, execute_command) {
-                self.opdepAppStateArray([])
+                self.opdepAppStateArray([]);
                 opdep_ajax.success(function (data) {
                     opdepArray = data.opdep //gets the array from dict
                     //double for loop
