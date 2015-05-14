@@ -134,7 +134,13 @@ define(
                 }
 
             };
+
+            self.send
+
+
+
             self.opdepAppStateArray = ko.observableArray([]);
+
             self.addtoOpdepArray = function(opdep_ajax, execute_command) {
                 self.opdepAppStateArray([])
                 opdep_ajax.success(function (data) {
@@ -145,7 +151,7 @@ define(
                             if (item.componentId === componentId.replace(self.constants.zkPaths.appStatePath, '')) {
                                 //Add to array if the element hasn't been added
                                 if ($.inArray(item, self.opdepAppStateArray()) === -1 ){
-                                    self.opdepAppStateArray().push(item)
+                                    self.opdepAppStateArray.push(item)
                                 }
                             }
                         })
@@ -157,11 +163,6 @@ define(
                     else if (self.opdepStopEnabled()){
                         var confirmButtonText = 'Yes, Stop them!'
                     }
-
-                    console.log('opdep length: ' + self.opdepAppStateArray().length)
-                    console.log(self.opdepAppStateArray())
-                    console.log('group control length: ' + self.groupControl().length)
-                    console.log(self.groupControl())
 
                     $('#opdepModal').modal('show');
 
@@ -197,6 +198,23 @@ define(
 //                    }
                 })
             };
+
+            self.submitOpdepAction = function(){
+                $('#opdepModal').modal('hide');
+
+                if (self.opdepRestartEnabled()){
+                    // check if previous async call is completed before any of this runs
+                    self.executeGroupControl({'com': 'ignore', 'clear_group': true});
+                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                    self.checkStopped();
+                }
+                else if (self.opdepStopEnabled()){
+                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                }
+                else {
+                    console.log('No options are enabled')
+                }
+            }
 
             self.createOpdepStateArray = function(){
                 var opdep_ajax;

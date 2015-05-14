@@ -21,7 +21,7 @@
             <div class="modal-content">
                 <div class="modal-header" data-bind="style: {backgroundColor: environment.envColor, color: environment.envTextColor}">
                     <h2>
-                        Are you sure????
+                        Are you sure??
                         <br>These will be the affected services.
                     </h2>
                 </div>
@@ -31,23 +31,12 @@
                             <td>Application Name </td>
                             <td>Hostname </td>
                         </tr>
-                        <tbody data-bind="foreach: opdepAppStateArray()">
+                        <tbody data-bind="foreach: opdepAppStateArray">
                             <tr>
-                                <td> hello</td>
-                                <td> testing</td>
-                            </tr>
-                        </tbody>
-
-
-<!--                        <tbody data-bind="foreach: opdepAppStateArray">
-                            <tr>
-                                <td data-bind="text: hello"></td>
                                 <td data-bind="text: $data.componentId"></td>
                                 <td data-bind="text: $data.applicationHost"></td>
                             </tr>
                         </tbody>
-    -->
-
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -55,8 +44,8 @@
                         <div class="row" >
                             <div >
                                 <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel </button>
-                                <button type="button" class="btn btn-danger" id="Gsend"
-                                    data-bind="click: submitAction, text:buttonLabel"></button>
+                                <button type="button" class="btn btn-danger"
+                                    data-bind="click: submitOpdepAction, text:buttonLabel"></button>
                             </div>
                         </div>
                     </form>
