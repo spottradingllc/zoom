@@ -135,9 +135,13 @@ define(
 
             };
 
-            self.send
+            self.removeFromOpdepAppStateArray = function(appState){
+                self.opdepAppStateArray.remove(appState)
+            }
 
-
+            self.removeFromGroupControl = function(appState){
+                self.groupControl.remove(appState)
+            }
 
             self.opdepAppStateArray = ko.observableArray([]);
 
@@ -165,37 +169,6 @@ define(
                     }
 
                     $('#opdepModal').modal('show');
-
-//                    if (execute_command){
-//                        swal({
-//                            title: 'ARE YOU SURE?!',
-//                            text: self.path_message_appstate(),
-//                            type: "warning",
-//                            showCancelButton: true,
-//                            confirmButtonColor: "#DD6B55",
-//                            confirmButtonText: confirmButtonText,
-//                            closeOnConfirm: true
-//                        },
-//                        function(isConfirm){
-//                            if (isConfirm) {
-//                                if (self.opdepRestartEnabled()){
-//                                    // check if previous async call is completed before any of this runs
-//                                    self.executeGroupControl({'com': 'ignore', 'clear_group': true});
-//                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-//                                    self.checkStopped();
-//                                }
-//                                else if (self.opdepStopEnabled()){
-//                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-//                                }
-//                                else {
-//                                    console.out('No options are enabled')
-//                                }
-//                            } else {
-//                                self.opdepAppStateArray([]);
-//                                return;
-//                            }
-//                        })
-//                    }
                 })
             };
 

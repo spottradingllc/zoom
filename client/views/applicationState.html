@@ -21,20 +21,22 @@
             <div class="modal-content">
                 <div class="modal-header" data-bind="style: {backgroundColor: environment.envColor, color: environment.envTextColor}">
                     <h2>
-                        Are you sure??
+                        Please double check!
                         <br>These will be the affected services.
                     </h2>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" id="opdepTable">
                         <tr>
                             <td>Application Name </td>
                             <td>Hostname </td>
+                            <td  style="width:50px"></td>
                         </tr>
                         <tbody data-bind="foreach: opdepAppStateArray">
                             <tr>
                                 <td data-bind="text: $data.componentId"></td>
                                 <td data-bind="text: $data.applicationHost"></td>
+                                <td><input type="button" value="Delete" data-bind="click: $parent.removeFromOpdepAppStateArray"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -67,17 +69,20 @@
                         <tr>
                             <td>Application Name </td>
                             <td>Hostname </td>
+                            <td style="width:50px"></td>
                         </tr>
                         <tbody data-bind="foreach: groupControl, visible: groupMode()">
                             <tr>
                                 <td data-bind="text: $parent.parseAppName(configurationPath)"></td>
                                 <td data-bind="text: applicationHost"></td>
+                                <td><input type="button" value="Delete" data-bind="click: $parent.removeFromGroupControl"></td>
                             </tr>
                         </tbody>
                         <tbody data-bind="visible: !groupMode()">
                             <tr>
                                 <td data-bind="text: parseAppName(clickedApp().configurationPath)"></td>
                                 <td data-bind="text: clickedApp().applicationHost"></td>
+                                <td><input type="button" value="Delete" disabled></td>
                             </tr>
                         </tbody>
                     </table>
