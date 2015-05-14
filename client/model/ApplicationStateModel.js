@@ -135,9 +135,31 @@ define(
 
             };
 
+            self.removeFromOpdepAppStateArray = function(appState){
+                self.opdepAppStateArray.remove(appState)
+                //close modal if no services are selected
+                if (self.opdepAppStateArray().length === 0){
+                    $('#opdepModal').modal('hide');
+                }
+            }
+
+            self.removeFromGroupControl = function(appState){
+                self.groupControl.remove(appState)
+                //close modal if no services are selected
+                if (self.groupControl().length === 0){
+                    $('#groupCheckModal').modal('hide');
+                }
+            }
+
+            self.removeFromClickedApp = function(){
+                self.clickedApp({});
+                $('#groupCheckModal').modal('hide');
+            }
+
             self.opdepAppStateArray = ko.observableArray([]);
 
             self.addtoOpdepArray = function(opdep_ajax, execute_command) {
+                self.opdepAppStateArray([]);
                 opdep_ajax.success(function (data) {
                     opdepArray = data.opdep //gets the array from dict
                     //double for loop
@@ -146,11 +168,12 @@ define(
                             if (item.componentId === componentId.replace(self.constants.zkPaths.appStatePath, '')) {
                                 //Add to array if the element hasn't been added
                                 if ($.inArray(item, self.opdepAppStateArray()) === -1 ){
-                                    self.opdepAppStateArray().push(item)
+                                    self.opdepAppStateArray.push(item)
                                 }
                             }
                         })
                     })
+
                     if (self.opdepRestartEnabled()){
                         var confirmButtonText = 'Yes, Restart them!'
                     }
@@ -158,38 +181,26 @@ define(
                         var confirmButtonText = 'Yes, Stop them!'
                     }
 
-                    if (execute_command){
-                        swal({
-                            title: 'ARE YOU SURE?!',
-                            text: self.path_message_appstate(),
-                            type: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#DD6B55",
-                            confirmButtonText: confirmButtonText,
-                            closeOnConfirm: true
-                        },
-                        function(isConfirm){
-                            if (isConfirm) {
-                                if (self.opdepRestartEnabled()){
-                                    // check if previous async call is completed before any of this runs
-                                    self.executeGroupControl({'com': 'ignore', 'clear_group': true});
-                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                                    self.checkStopped();
-                                }
-                                else if (self.opdepStopEnabled()){
-                                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
-                                }
-                                else {
-                                    console.out('No options are enabled')
-                                }
-                            } else {
-                                self.opdepAppStateArray([]);
-                                return;
-                            }
-                        })
-                    }
+                    $('#opdepModal').modal('show');
                 })
             };
+
+            self.submitOpdepAction = function(){
+                $('#opdepModal').modal('hide');
+
+                if (self.opdepRestartEnabled()){
+                    // check if previous async call is completed before any of this runs
+                    self.executeGroupControl({'com': 'ignore', 'clear_group': true});
+                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                    self.checkStopped();
+                }
+                else if (self.opdepStopEnabled()){
+                    self.executeGroupControl({'com': 'stop', 'stay_down': false, 'clear_group': true});
+                }
+                else {
+                    console.log('No options are enabled')
+                }
+            }
 
             self.createOpdepStateArray = function(){
                 var opdep_ajax;
