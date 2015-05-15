@@ -30,7 +30,8 @@ class GraphiteClient(object):
         end = cls._get_begin_or_end(finish, 'now')
 
         uri = ('http://{0}/render?from={1}&until={2}&target={3}&format=json'
-               .format(cls._get_host(environment=env), begin, end, metric))
+               .format(cls._get_host(environment=env, haproxy=False),
+                       begin, end, metric))
 
         log.debug(uri)
 
@@ -72,9 +73,10 @@ class GraphiteClient(object):
         sock.close()
 
     @classmethod
-    def _get_host(cls, environment=None):
+    def _get_host(cls, environment=None, haproxy=True):
         """
-        :type environment: str
+        :type environment: str or None
+        :type haproxy: bool
         :rtype: str
         """
         if environment is None:
@@ -84,7 +86,10 @@ class GraphiteClient(object):
                 ("Invalid 'EnvironmentToUse' variable: {0} "
                  .format(environment))
 
-        return 'haproxy{0}'.format(environment.lower())
+        if haproxy:
+            return 'haproxy{0}'.format(environment.lower())
+        else:
+            return 'graphite{0}'.format(environment.lower())
 
     @classmethod
     def _get_begin_or_end(cls, dtime, default):
