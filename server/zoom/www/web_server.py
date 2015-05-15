@@ -7,6 +7,10 @@ import tornado.websocket
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
 from zoom.www.handlers.application_opdep_handler import ApplicationOpdepHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
+from zoom.www.handlers.application_mapping_handler import (
+    ApplicationMappingHandler,
+    HostMappingHandler
+)
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
 from zoom.www.handlers.environment_handler import EnvironmentHandler
 from zoom.www.handlers.delete_path_handler import DeletePathHandler
@@ -26,7 +30,6 @@ from zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
 from zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 from zoom.www.handlers.tools_refactor_paths import ToolsRefactorPathHandler
-
 
 
 class WebServer(tornado.web.Application):
@@ -52,6 +55,8 @@ class WebServer(tornado.web.Application):
             (r'/api/application/states(?P<path>.*)', ApplicationStateHandler),
             (r'/api/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
             (r'/api/application/opdep(?P<path>.*)', ApplicationOpdepHandler),
+            (r'/api/application/mapping/app(?P<path>.*)', ApplicationMappingHandler),
+            (r'/api/application/mapping/host/(?P<path>.*)', HostMappingHandler),
             # agent
             (r'/api/agent/', ControlAgentHandler),
             # cache

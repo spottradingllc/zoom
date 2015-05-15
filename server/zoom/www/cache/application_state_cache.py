@@ -32,6 +32,10 @@ class ApplicationStateCache(object):
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
 
+    @property
+    def host_mapping(self):
+        return self._path_to_host_mapping
+
     def start(self):
         self._message_throttle.start()
 
