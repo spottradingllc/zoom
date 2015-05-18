@@ -164,7 +164,7 @@ class ProcessClient(object):
         except socket.timeout:
             self._log.error('Could not connect to Graphite')
         except IOError as e:
-            self._log.error('Check shortage of file descriptor: {0}'.format(e))
+            self._log.error('Graphite/HAProxy not available: {0}'.format(e))
         except Exception as e:
             self._log.error('Unknown exception while sending data to Graphite:'
                             ' {0}'.format(e))
