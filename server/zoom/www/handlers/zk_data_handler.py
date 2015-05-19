@@ -31,7 +31,12 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
         logging.debug('Getting data for path: {0}'.format(path))
         if self.zk.exists(path):
             data, stat = self.zk.get(path)
-            ret['data'] = data
+
+            try:
+                ret['data'] = json.loads(data)
+            except (ValueError, TypeError):
+                ret['data'] = data
+
             self.write(ret)
         else:
             ret['code'] = httplib.NOT_FOUND
