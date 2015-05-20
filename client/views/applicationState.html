@@ -75,14 +75,14 @@
                             <tr>
                                 <td data-bind="text: $parent.parseAppName(configurationPath)"></td>
                                 <td data-bind="text: applicationHost"></td>
-                                <td><input type="button" value="Remove from list" data-bind="click: $parent.removeFromGroupControl"></td>
+                                <td><input type="button" class="btn btn-default" value="Remove from list" data-bind="click: $parent.removeFromGroupControl"></td>
                             </tr>
                         </tbody>
                         <tbody data-bind="visible: !groupMode()">
                             <tr>
                                 <td data-bind="text: parseAppName(clickedApp().configurationPath)"></td>
                                 <td data-bind="text: clickedApp().applicationHost"></td>
-                                <td><input type="button" value="Remove from list" data-bind="click: removeFromClickedApp"></td>
+                                <td><input type="button" class="btn btn-default" value="Remove from list" data-bind="click: removeFromClickedApp"></td>
                             </tr>
                         </tbody>
                     </table>
