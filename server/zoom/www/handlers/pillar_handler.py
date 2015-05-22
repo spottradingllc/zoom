@@ -81,11 +81,17 @@ class PillarHandler(tornado.web.RequestHandler):
         POST /{minion}/{project} > Create new project
         """
         try:
+            logging.info("### The data: {0}".format(data))
             minion, project, data_key, data_val = self._parse_uri(data)
             minion_data = ""
             update_phrase = ""
-            jsondict = json.loads(self.request.body)
-            username = jsondict["username"]
+            username = ""
+            logging.info("### The request body: {0}".format(type(self.request.body)))
+
+            if self.request.body:
+                jsondict = json.loads(self.request.body)
+                username = jsondict["username"]
+
             if not minion:
                 minion = jsondict["minion"]
                 minion_data = jsondict["data"]
@@ -101,7 +107,7 @@ class PillarHandler(tornado.web.RequestHandler):
         # _get_minion_data will set to DOES_NOT_EXIST if minion not found
 
         # update existing minion
-        if (minion_data != {"DOES_NOT_EXIST": "true"}):
+        if minion_data != {"DOES_NOT_EXIST": "true"}:
             self._set_minion_data(minion, minion_data)
             self.actionLog(username, update_phrase, minion, json.dumps(minion_data))
         # create a new minion
