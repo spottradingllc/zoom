@@ -81,12 +81,10 @@ class PillarHandler(tornado.web.RequestHandler):
         POST /{minion}/{project} > Create new project
         """
         try:
-            logging.info("### The data: {0}".format(data))
             minion, project, data_key, data_val = self._parse_uri(data)
             minion_data = ""
             update_phrase = ""
             username = ""
-            logging.info("### The request body: {0}".format(type(self.request.body)))
 
             if self.request.body:
                 jsondict = json.loads(self.request.body)
