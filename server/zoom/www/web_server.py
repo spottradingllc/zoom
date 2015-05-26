@@ -24,7 +24,7 @@ from zoom.www.handlers.pillar_handler import PillarHandler
 from zoom.www.handlers.list_pillar_servers_handler import ListPillarServersHandler
 from zoom.www.handlers.salt_master_handler import SaltMasterHandler
 from zoom.www.handlers.reload_cache_handler import ReloadCacheHandler
-from zoom.www.handlers.server_config_handler import SentinelConfigHandler
+from zoom.www.handlers.sentinel_config_handler import SentinelConfigHandler
 from zoom.www.handlers.service_info_handler import ServiceInfoHandler
 from zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
 from zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler

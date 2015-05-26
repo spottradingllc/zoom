@@ -3,13 +3,15 @@ define(
         'jquery',
         'knockout',
         'plugins/router',
+        'model/loginModel',
         'viewmodels/sentinelConfig/alertsViewModel',
         'viewmodels/sentinelConfig/searchUpdateViewModel'
     ],
-    function($, ko, router, AlertsViewModel, SearchUpdateViewModel) {
+    function($, ko, router, login, AlertsViewModel, SearchUpdateViewModel) {
 
         var SentinelConfigViewModel = {
             // view models
+            login: login,
             alertsViewModel: AlertsViewModel,
 
             // variables
