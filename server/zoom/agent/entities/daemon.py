@@ -119,6 +119,17 @@ class SentinelDaemon(object):
             self.zkclient.create(path,
                                  value=json.dumps(components),
                                  ephemeral=True)
+        else:
+            try:
+                data, stat = self.zkclient.get(path)
+                registered_comps = json.loads(data)
+            except ValueError:
+                registered_comps = {}
+
+            # register most recent components
+            if components != registered_comps:
+                self.zkclient.set(path, json.dumps(components))
+
         self._log.info('Done Registering: {}'.format(components))
 
     @connected
