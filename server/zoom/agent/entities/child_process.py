@@ -49,8 +49,9 @@ class ChildProcess(object):
         """
         Set the cancel flag that is used in the process client.
         """
-        self._log.info('Setting Cancel Flag')
+        self._log.info('Setting Cancel Flag and clearing queue.')
         self._cancel_flag.set_value(True)
+        self._action_queue.clear()
 
     def stop(self):
         """
@@ -58,7 +59,7 @@ class ChildProcess(object):
         """ 
         try:
             self._log.info('Terminating {0} child process'.format(self.name))
-
+            self.cancel_current_task()
             self.add_work(Task('terminate', block=True), immediate=True)
         except Exception as e:
             self._log.warning('Exception with stopping {0} child process: {1}'

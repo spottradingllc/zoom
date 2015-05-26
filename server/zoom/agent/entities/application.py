@@ -266,6 +266,7 @@ class Application(object):
         else:
             self._state.set_value(ApplicationState.STOPPED, run_callback=False)
 
+        self._log.debug('Sleeping for 5s after stop for some reason...')
         sleep(5)  # give everything time to catch up, not sure why anymore...
         self._update_agent_node_with_app_details()
 
@@ -693,9 +694,5 @@ class Application(object):
         return self.__repr__()
     
     def __repr__(self):
-        return ("{0}(name={1}, runmode={2}, actions={3})"
-                .format(self.__class__.__name__,
-                        self.name,
-                        self._mode,
-                        self._actions.keys())
-                )
+        return ("{0}(name={1}, runmode={2})"
+                .format(self.__class__.__name__, self.name, self._mode))

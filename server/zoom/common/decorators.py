@@ -77,7 +77,7 @@ def catch_exception(*ex, **ex_kwargs):
     Decorator to catch, log, and pass Exceptions
     :type ex: one or more Exceptions
     :type ex_kwargs: dict
-        {msg: str, 'traceback': bool}
+        {'msg': str, 'traceback': bool, 'log_level': int}
     """
     def wrap(method):
         @wraps(method)
@@ -86,18 +86,19 @@ def catch_exception(*ex, **ex_kwargs):
             try:
                 return method(cls, *args, **kwargs)
             except ex as exception:
+                log_level = ex_kwargs.get('log_level', logging.DEBUG)
                 msg = ex_kwargs.get('msg', None)
+
                 if msg is not None:
-                    _log.warning(msg)
+                    _log.log(log_level, msg)
                 else:
-                    _log.warning('{0} caught for {1}.{2} with args {3} '
-                                 'and kwargs {4}'.format(type(exception),
-                                                         cls,
-                                                         method.__name__,
-                                                         args, kwargs))
+                    _log.log(log_level,
+                             '{0} caught for {1}.{2} with args={3}, kwargs={4}'
+                             .format(type(exception), cls, method.__name__,
+                                     args, kwargs))
                 tb = ex_kwargs.get('traceback', None)
                 if tb:
-                    _log.warning(traceback.format_exc())
+                    _log.log(log_level, traceback.format_exc())
 
         return catch_wrapper
     return wrap

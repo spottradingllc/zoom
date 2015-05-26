@@ -135,7 +135,7 @@ class ProcessClient(object):
                 sleep(10)  # minor wait before we try again
 
         self.restart_logic.set_ran_stop(False)
-        self._cancel_flag.set_value(False)
+
         return return_code
 
     def stop(self, **kwargs):
@@ -275,6 +275,8 @@ class ProcessClient(object):
                 elif self._cancel_flag == True:
                     p.terminate()
                     return_code = -2
+                    self._log.info('Command {0} was cancelled.'.format(cmd))
+                    self._cancel_flag.set_value(False)
                     break
                 sleep(1)
 
