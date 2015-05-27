@@ -17,7 +17,7 @@ class RestServer(tornado.web.Application):
         self.app_settings = settings
         handlers = [
             (r"/log", LogHandler),
-            (r'/logger/(?P<level>\w+)', LogVerbosityHandler),
+            (r'/loglevel/(?P<level>\w+)', LogVerbosityHandler),
             (r"/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", WorkHandler),
         ]
         tornado.web.Application.__init__(self, handlers)

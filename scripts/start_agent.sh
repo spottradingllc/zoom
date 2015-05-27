@@ -29,7 +29,10 @@ fi
 APPPATH="${PROJ_PATH}/server"
 VENV_PATH="/opt/spot/zoom/venv"
 STARTCMD="python sentinel.py"
-TIMEOUT=30
+PROCESS_START_TIMEOUT=10
+PROCESS_STOP_TIMEOUT=30
+WEB_AVAILABLE_TIMEOUT=90
+TEST_URI="http://localhost:9000/log"
 RUNLOG=$APPPATH/logs/stdout
 
 export PATH=$PATH:/bin
@@ -60,6 +63,28 @@ function getstatus()
     fi;
 }
 
+function check_api_availability()
+{
+    /bin/echo -n "Waiting $WEB_AVAILABLE_TIMEOUT seconds for API availability."
+    code=1
+    counter=0
+    while [[ $code -ne 0 ]] && [[ $counter -lt $WEB_AVAILABLE_TIMEOUT ]]; do
+        /usr/bin/curl $TEST_URI > /dev/null 2>&1
+        code=$?
+        /bin/sleep 5
+        let counter+=5
+        /bin/echo -n " ."
+    done
+
+    if [ $code -ne 0 ]; then
+        echo "Fail!"
+        echo "Process has started, but API not available after $WEB_AVAILABLE_TIMEOUT seconds."
+        exit 1
+    else
+        echo "UP!"
+    fi
+}
+
 function dostart()
 {
     pid=$(getpid);
@@ -84,7 +109,7 @@ function dostart()
     COUNTER=0
     /bin/echo -n "Starting $APP.";
     cd $APPPATH; source ${VENV_PATH}/bin/activate; $STARTCMD > $RUNLOG 2>&1 &
-    while [[ -z "$(getpid)" ]] && [[ $COUNTER -lt 10 ]]; do
+    while [[ -z "$(getpid)" ]] && [[ $COUNTER -lt $PROCESS_START_TIMEOUT ]]; do
         let COUNTER+=1
         /bin/echo -n " ."
         /bin/sleep 1
@@ -98,6 +123,9 @@ function dostart()
         /bin/echo
         /bin/echo "Started with pid $pid";
     fi;
+
+    # Check that web server is available
+    check_api_availability
 }
 
 function dostop()
@@ -105,7 +133,7 @@ function dostop()
     COUNTER=0
     /bin/echo -n "Stopping $APP.";
     /usr/bin/pkill -f $APP
-    while [[ $(getpid) ]] && [[ $COUNTER -lt $TIMEOUT ]]; do
+    while [[ $(getpid) ]] && [[ $COUNTER -lt $PROCESS_STOP_TIMEOUT ]]; do
         /bin/sleep 5
         let COUNTER+=5
         /bin/echo -n " ."
