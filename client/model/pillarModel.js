@@ -6,10 +6,11 @@ define( [
         'model/saltModel',
         'model/constants',
         'bindings/uppercase',
-        'bindings/pillarEditor'
+        'bindings/pillarEditor',
+        'jsonlint'
 
     ],
-    function(ko, service, $, pillarApiModel, saltModel, constants) {
+    function(ko, service, $, pillarApiModel, saltModel, constants, jsonlint) {
         return function pillarModel(login, admin) {
     
             var self = this;
@@ -159,6 +160,10 @@ define( [
                 }
                 return true;
             });
+
+            $(document).on( 'change click hover keyup keydown paste cut', 'textarea', function (){
+                $(this).height(0).height(this.scrollHeight);
+            }).find( 'textarea' ).change();
 
             var validateNewProject = function(type) {
                 if (type === 'new') {

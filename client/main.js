@@ -12,7 +12,8 @@ requirejs.config({
         'jq-mousewh':   './libs/jquery.mousewheel.min',
         'd3':           './libs/d3.min',
         'vkbeautify':   './libs/vkbeautify.0.99.00.beta',
-        'sweet-alert':  './libs/sweet-alert.min'
+        'sweet-alert':  './libs/sweet-alert.min',
+        'jsonlint':     './libs/jsonlint'
     },
     shim: {
         'jq-mousewh': {
