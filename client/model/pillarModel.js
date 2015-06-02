@@ -293,8 +293,10 @@ define( [
                 if (modal_id === 'addKey') {
                     self.keyProject(_proj);
                 }
-                $('#'+modal_id).modal('show');
+
                 self.triggerResize();
+                $('#'+modal_id).modal('show');
+
             };
 
             self.closeModal = function(modal_id) {

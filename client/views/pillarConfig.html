@@ -230,7 +230,9 @@
                         <!-- ko foreach: new_pairs() -->
                         <div class="form-group">
                             <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
-                            <input class="form-control mt" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                            <textarea class="form-control mt" type="text" placeholder="JSON-formatted Value"
+                                    data-bind="textInput: value" style="min-height:50px">
+                            </textarea>
                         </div>
                         <!-- /ko -->
                         <div class="form-group">
@@ -284,7 +286,9 @@
                              <!-- ko foreach: new_pairs() -->
                              <div class="form-group">
                                  <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
-                                 <input class="form-control mt" type="text" placeholder="JSON-formatted Value" data-bind="textInput: value">
+                                 <textarea class="form-control mt resize" type="text" placeholder="JSON-formatted Value"
+                                    data-bind="textInput: value" style="min-height:50px">
+                                 </textarea>
                              </div>
                              <!-- /ko-->
                              <button class="btn btn-danger mt mr" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
