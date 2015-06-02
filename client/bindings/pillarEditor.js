@@ -1,7 +1,8 @@
 define(
     [
         'knockout',
-        'jquery'
+        'jquery',
+        'jsonlint'
     ], 
     function(ko, $) {
         var getPillarModel = function(bindingContext) {
@@ -40,9 +41,10 @@ define(
                     // don't pass to the parser if null - parser will return and we want to allow null?
                     if (typeof element.value !== 'undefined' && element.value !== "") { 
                         try {
-                            var parsed = JSON.parse(element.value);
+                            parsed = jsonlint.parse(element.value)
                         } catch(err) {
-                            swal("Error", "Please make sure your changes consist of valid JSON", 'error');
+                            swal("Invalid JSON", err.message, 'error');
+
                             return;
                         }
                     }

@@ -6,7 +6,8 @@ define( [
         'model/saltModel',
         'model/constants',
         'bindings/uppercase',
-        'bindings/pillarEditor'
+        'bindings/pillarEditor',
+        'jsonlint'
 
     ],
     function(ko, service, $, pillarApiModel, saltModel, constants) {
@@ -160,6 +161,15 @@ define( [
                 return true;
             });
 
+            // basically verbatim from https://coderwall.com/p/imkqoq/resize-textarea-to-fit-content
+            $(document).on( 'change click keyup keydown paste cut', '.resize', function (){
+                $(this).height(0).height(this.scrollHeight);
+            }).find( '.resize' ).change();
+
+            self.triggerResize = function() {
+                $('.resize').trigger('click')
+            };
+
             var validateNewProject = function(type) {
                 if (type === 'new') {
                     if (self.new_project() === "") {
@@ -174,6 +184,7 @@ define( [
                 }
 
                 var ret = true;
+                var first_error = ""
 
                 $.extend(true, [], self.new_pairs());
                 ko.utils.arrayForEach(self.new_pairs(), function(pair){
@@ -185,10 +196,18 @@ define( [
                     if (typeof pair.value !== 'undefined' && pair.value !== "") {
                         try {
                             // make sure we can parse it later
-                            JSON.parse(pair.value);
+                            jsonlint.parse(pair.value);
                         } catch(err) {
-                            swal("Error", "Please make sure your values consist of valid JSON", 'error');
+                            if (err.name == 'TypeError') {
+                                err.message = "No value provided for key " + pair.key + ". Remove key-value pair if not " +
+                                "needed.";
+                            }
                             ret = false;
+                            // save the first error we saw so end user can tell which line is invalid
+                            if (first_error == "") {
+                                first_error = err.message
+                            }
+                            swal("Invalid JSON", first_error, 'error');
                         }
                     }
 
@@ -247,6 +266,7 @@ define( [
                 ko.utils.arrayForEach(html_proj.keys(), function(key) {
                     html_proj.edit_keys.push(key);
                 });
+                self.triggerResize();
             };
 
             self.showEditInline = function(_assoc) {
@@ -258,6 +278,7 @@ define( [
                         _proj.edit_keys.push(key);
                     });
                 });
+                self.triggerResize();
             };
 
             self.showModal = function(modal_id, _proj, indivAction) {
@@ -271,7 +292,10 @@ define( [
                 if (modal_id === 'addKey') {
                     self.keyProject(_proj);
                 }
+
+                self.triggerResize();
                 $('#'+modal_id).modal('show');
+
             };
 
             self.closeModal = function(modal_id) {
@@ -531,6 +555,7 @@ define( [
                     self.editingNodes.remove(_assoc);
                     _assoc.projArray([]);
                 }
+                self.triggerResize();
             };
 
             self.refreshEdit = function() {
