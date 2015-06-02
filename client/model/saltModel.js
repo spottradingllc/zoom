@@ -195,11 +195,11 @@ define([
                             swal("Error", "Validation error: " + errorMsg, 'error');
                         }
                         else {
-                            // Show a successful confirmation for 1.5 seconds
+                            // Show a successful confirmation for 1 second
                             $('#successAlert').fadeIn(250);
                             setTimeout(function() {
                                 $('#successAlert').fadeOut(250);
-                            }, 1500);
+                            }, 1000);
                         }
                     });
             };
