@@ -167,8 +167,7 @@ define( [
             }).find( '.resize' ).change();
 
             self.triggerResize = function() {
-                var $all = $(document).find('.resize')
-                $all.trigger('click')
+                $('.resize').trigger('click')
             };
 
             var validateNewProject = function(type) {
