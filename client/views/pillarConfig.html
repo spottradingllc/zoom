@@ -178,8 +178,9 @@
 
                                 <!-- ko foreach: $parent.edit_keys() -->
                                 <td>
-                                    <input data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
+                                    <textarea class="form-control resize" data-bind="value: $parents[2].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                         style="width: 100%;">
+                                    </textarea>
                                 </td>
                                 <!-- /ko -->
                             </tr>
@@ -245,7 +246,7 @@
                             <tbody data-bind="foreach:checkedNodes()">
                                 <tr>
                                     <td >
-                                        <textarea data-bind="text: $data.name"></textarea>
+                                        <span data-bind="text: $data.name"></span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -491,7 +492,7 @@
                                                 <td class="col-sm-1" data-bind="text: $parent.proj_name"></td>
 
                                                 <!-- ko foreach: $parent.edit_keys() -->
-                                                <td class="col-sm-1" id="test1">
+                                                <td class="col-sm-1">
                                                     <textarea class="form-control resize" data-bind="value: $parents[3].getValues($parent, $parents[1], $data), updateEdit: $parent.editable"
                                                         style="width: 100%;">
                                                     </textarea>

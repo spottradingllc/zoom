@@ -41,10 +41,9 @@ define(
                     // don't pass to the parser if null - parser will return and we want to allow null?
                     if (typeof element.value !== 'undefined' && element.value !== "") { 
                         try {
-                            //var parsed = JSON.parse(element.value);
-                            var parsed = jsonlint.parse(element.value)
+                            parsed = jsonlint.parse(element.value)
                         } catch(err) {
-                            swal("Error", err.message, 'error');
+                            swal("Invalid JSON", err.message, 'error');
 
                             return;
                         }
