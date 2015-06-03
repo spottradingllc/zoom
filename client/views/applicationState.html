@@ -716,69 +716,11 @@
 </script>
 
 <script type="text/html" id="error-filter-template">
-    <div class="btn-group">
-        <button data-bind="click: function(){setSearchTerm(['ok', 'started', 'stopped'])},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == ['ok', 'started', 'stopped']) ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services whose status is ok.">
-            <span class="glyphicon glyphicon-thumbs-up"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('starting')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'starting') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services whose status is starting.">
-            <span class="glyphicon glyphicon-retweet"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('stopping')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'stopping') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services whose status is stopping.">
-            <span class="glyphicon glyphicon-arrow-down"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('error')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'error') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services whose status is error.">
-            <span class="glyphicon glyphicon-warning-sign"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('unknown')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'unknown') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services whose status is unknown.">
-            <span class="glyphicon glyphicon-question-sign"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('grayed')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'grayed') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services that are grayed out.">
-            <span class="glyphicon glyphicon-user"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('pdDisabled')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'pdDisabled') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services that have PD disabled.">
-            <span class="glyphicon glyphicon glyphicon-wrench"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('readOnly')},
-                           attr: {class : ('btn btn-default' + ((searchTerm() == 'readOnly') ? ' active' : ''))}"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Filter services that are read only.">
-            <span class="glyphicon glyphicon glyphicon-eye-open"></span>
-        </button>
-        <button data-bind="click: function(){setSearchTerm('staggered')},
-                       attr: {class : ('btn btn-default' + ((searchTerm() == 'staggered') ? ' active' : ''))}"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Filter services that are currently staggered.">
-            <span class="glyphicon glyphicon glyphicon-time"></span>
+    <div class="btn-group" data-bind="foreach: filterButtons">
+        <button data-bind="click: function(){$parent.setSearchTerm(term)},
+                           attr: {class : ('btn btn-default' + (($parent.searchTerm() == term) ? ' active' : '')), title: title}"
+                data-toggle="tooltip" data-placement="top">
+            <span data-bind="attr: {class: glyph}" ></span>
         </button>
     </div>
 </script>

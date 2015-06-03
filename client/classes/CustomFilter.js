@@ -1,4 +1,4 @@
-define(['jquery', 'knockout'], function($, ko) {
+define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
     return function CustomFilter(parent, appStateModel) {
         var self = this;
         // trickle-down dictionaries
@@ -24,6 +24,20 @@ define(['jquery', 'knockout'], function($, ko) {
             grayed: 'grayed',
             readOnly: 'readOnly'
         };
+
+        self.filterButtons = [
+            {'term': [constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped], 'glyph': constants.glyphs.thumpsUp, 'title': 'Filter services whose status is ok.'},
+            {'term': constants.errorStates.starting, 'glyph': constants.glyphs.startingRetweet, 'title': 'Filter services whose status is starting.'},
+            {'term': constants.errorStates.stopping, 'glyph': constants.glyphs.stoppingDown, 'title': 'Filter services whose status is stopping.'},
+            {'term': constants.errorStates.error, 'glyph': constants.glyphs.errorWarning, 'title': 'Filter services whose status is error.'},
+            {'term': constants.errorStates.unknown, 'glyph': constants.glyphs.unknownQMark, 'title': 'Filter services whose status is unknown.'},
+            {'term': self.searchTerms.grayed, 'glyph': constants.glyphs.grayed, 'title': 'Filter services that are grayed out.'},
+            {'term': self.searchTerms.pdDisabled, 'glyph': constants.glyphs.pdWrench, 'title': 'Filter services that have PD disabled.'},
+            {'term': self.searchTerms.readOnly, 'glyph': constants.glyphs.readOnly, 'title': 'Filter services that are read only.'},
+            {'term': constants.errorStates.staggered, 'glyph': constants.glyphs.staggeredClock, 'title': 'Filter services that are currently staggered.'},
+            {'term': constants.errorStates.notify, 'glyph': constants.glyphs.notifyExclamation, 'title': 'Filter services that are crashed.'},
+            {'term': constants.errorStates.invalid, 'glyph': constants.glyphs.invalidTrash, 'title': 'Filter services that are invalid.'}
+        ];
 
         // member variables and getters/setters
         self.filterName = ko.observable('');
