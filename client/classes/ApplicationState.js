@@ -35,19 +35,15 @@ define(
             self.pdDisabled = ko.observable(data.pd_disabled);
 
             self.applicationStatusClass = ko.computed(function() {
-                var ret;
-
                 if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
-                    ret = constants.glyphs.runningCheck;
+                    return constants.glyphs.runningCheck;
                 }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.stopped) {
-                    ret = constants.glyphs.stoppedX;
+                    return constants.glyphs.stoppedX;
                 }
                 else {
-                    ret = constants.glyphs.unknownQMark;
+                    return constants.glyphs.unknownQMark;
                 }
-                // add the cursor-pointer css class so it appears as clickable
-                return ret + ' cursor-pointer';
             }, self);
 
             self.allChildrenUp = ko.computed(function() {

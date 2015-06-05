@@ -14,7 +14,8 @@ define(['jquery', 'model/constants'], function($, constants) {
             $('#graphiteModal').modal('show');
         };
 
-        self.applicationURL = function() {
+        self.startupMetricsURL = function() {
+//        self.applicationURL = function() {
             var url = 'http://graphite' + environment + '/render?';
             var appName = configPath.replace(constants.zkPaths.statePath, '');
             var dotname = appName.replace(/\//g, '.');
@@ -30,6 +31,20 @@ define(['jquery', 'model/constants'], function($, constants) {
             url = url + '&vtitle=Startup Time (seconds)';
             url = url + '&vtitleRight=Exit Code (0 = Success)';
             url = url + '&title=' + appName;
+            return encodeURI(url);
+        }();
+
+        self.upDownURL = function() {
+            var url = 'http://graphite' + environment + '/render?';
+            var appName = configPath.replace(constants.zkPaths.statePath, '');
+            var dotname = appName.replace(/\//g, '.');
+            url = url + 'target=alias(Infrastructure.startup.' + dotname + '.updown, "Uptime")';
+            url = url + '&from=-1d';
+            url = url + '&yMax=1.25';
+            url = url + '&areaMode=all';
+            url = url + '&width=850';
+            url = url + '&height=500';
+            url = url + '&title=' + appName + ' - Up/Down Metrics';
             return encodeURI(url);
         }();
 

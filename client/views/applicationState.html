@@ -463,10 +463,7 @@
             <tbody data-bind="foreach: appStateModel.appsToShow">
                 <tr>
                     <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
-                        <span title="Show startup time and exit code history."
-                            data-bind="attr : {class : applicationStatusClass},
-                            click: function(){graphite.modalShow([graphite.applicationURL])}">
-                        </span>
+                        <span data-bind="attr : {class : applicationStatusClass}"></span>
                     </td>
                     <td data-toggle="tooltip"
                         data-placement="top">
@@ -525,7 +522,9 @@
                                 <li role="presentation" class="divider"></li>    
                                 <li role="presentation">
                                     <a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
-                                       data-bind="click: function(){graphite.modalShow([graphite.cpuURL,
+                                       data-bind="click: function(){graphite.modalShow([graphite.startupMetricsURL,
+                                                                                        graphite.upDownURL,
+                                                                                        graphite.cpuURL,
                                                                                         graphite.networkURL,
                                                                                         graphite.memoryURL,
                                                                                         graphite.diskSpaceURL,
@@ -533,6 +532,12 @@
                                         All Metrics
                                     </a>
                                 </li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation"><a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
+                                                           data-bind="click: function(){graphite.modalShow([graphite.startupMetricsURL])}">Application Startup</a></li>
+                                <li role="presentation"><a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
+                                                           data-bind="click: function(){graphite.modalShow([graphite.upDownURL])}">Applicaiton Uptime</a></li>
+                                <li role="presentation" class="divider"></li>
                                 <li role="presentation"><a role="menuitem" style="cursor:pointer" tabindex="-1" href="#"
                                                            data-bind="click: function(){graphite.modalShow([graphite.cpuURL])}">CPU Graph</a></li>
                                 <li role="presentation"><a role="menuitem" style="cursor: pointer" tabindex="-1" href="#"
