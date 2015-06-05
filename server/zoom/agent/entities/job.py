@@ -31,11 +31,11 @@ class Job(Application):
             self._pathjoin(self._paths['zk_state_base'], 'gut')
 
     @time_this
-    def start(self, reset=True, pause=False):
+    def start(self, **kwargs):
         """Start actual process"""
-        if reset:
+        if kwargs.get('reset', True):
             self._proc_client.reset_counters()
-        if pause:
+        if kwargs.get('pause', False):
             self.ignore()
 
         self.unregister()
