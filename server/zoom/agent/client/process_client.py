@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import psutil
@@ -259,9 +260,14 @@ class ProcessClient(object):
         :param cmd: the param to run
         :rtype: int
         """
+        outfile = self._get_cmd_outfile(cmd)
         return_code = -1
-        with open(os.devnull, 'w') as devnull:
-            p = psutil.Popen(cmd, stdout=devnull, stderr=devnull)
+        with open(outfile, 'a') as outfile:
+            # log out a timestamp so we know when the command was run
+            outfile.write('{0}: "{1}"\n'.format(datetime.datetime.now(),
+                                                ' '.join(cmd)))
+
+            p = psutil.Popen(cmd, stdout=outfile, stderr=outfile)
             while True:
                 return_code = p.poll()
                 if return_code is not None:  # None = still running
@@ -282,6 +288,21 @@ class ProcessClient(object):
 
         self._log.debug('RETURNCODE: {0}'.format(return_code))
         return return_code
+
+    def _get_cmd_outfile(self, cmd):
+        """
+        For every init script log out stdout/err to a file on 'start' or 'stop'.
+        For 'status' write to /dev/null b/c it can be quite chatty.
+        :type list:
+        :rtype: str
+        """
+        if 'status' in cmd:
+            _file = os.devnull
+        else:
+            dt = datetime.date.today().strftime('%Y%m%d')
+            _file = 'logs/{0}_script_output.{1}.log'.format(self.script_name, dt)
+
+        return _file
 
 
 class WindowsProcessClient(ProcessClient):
