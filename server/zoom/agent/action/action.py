@@ -68,6 +68,9 @@ class Action(object):
 
     @property
     def ready(self):
+        """
+        :rtype: bool
+        """
         return self._predicate.met
 
     @property
@@ -77,6 +80,13 @@ class Action(object):
             'pd_enabled': self._pd_enabled,
             'pd_reason': self._pd_reason
         }
+
+    @property
+    def started(self):
+        """
+        :rtype: bool
+        """
+        return self._predicate.started
 
     def start(self):
         self._log.debug('Starting {0}'.format(self))
@@ -102,7 +112,7 @@ class Action(object):
                            .format(self.name))
             return
         # ensure all predicates are started
-        elif not self._predicate.started:
+        elif not self.started:
             self._log.warning('All predicates are not started. '
                               'Ignoring action {0}'.format(self.name))
             return

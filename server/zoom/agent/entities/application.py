@@ -134,6 +134,11 @@ class Application(object):
             # make all action objects start processing predicates
             self._log.info('Starting to process Actions.')
             map(lambda x: x.start(), self._actions.values())  # start actions
+            started = all([i.started for i in self._actions.values()])
+            if not started:
+                self._log.critical('All actions are not started!')
+            else:
+                self._log.info('All actions started.'.format(started))
             self._check_mode()  # get global mode AFTER starting actions
 
             while self._running:

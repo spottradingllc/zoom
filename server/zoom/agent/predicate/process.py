@@ -49,6 +49,7 @@ class PredicateProcess(SimplePredicate):
             self._log.debug('Starting {0}'.format(self))
             self._started = True
             self._thread.start()
+            self._block_until_started()
         else:
             self._log.debug('Already started {0}'.format(self))
 

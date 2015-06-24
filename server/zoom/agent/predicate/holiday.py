@@ -46,6 +46,7 @@ class PredicateHoliday(SimplePredicate):
             self._started = True
             self._watch_node()
             self._thread.start()
+            self._block_until_started()
         else:
             self._log.debug('Already started {0}'.format(self))
 
