@@ -41,7 +41,8 @@ def setup_logging(verbose=False):
     logger.addHandler(handler)
 
 
-def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
+def verify_attribute(xmlpart, attribute,
+                     none_allowed=False, cast=str, default=None):
     """
     :type xmlpart: xml.etree.ElementTree.Element
     :type attribute: str
@@ -54,7 +55,9 @@ def verify_attribute(xmlpart, attribute, none_allowed=False, cast=str):
                          .format(attribute, ElementTree.tostring(xmlpart)))
     else:
         if a is None:
-            return None
+            logging.info('Returning default value: {0} for attribute: {1}'
+                         .format(default, attribute))
+            return default
         elif a.upper() == 'TRUE':
             return True
         elif a.upper() == 'FALSE':
@@ -81,4 +84,3 @@ def zk_path_join(*args):
     :return: string
     """
     return os.path.join(*args).replace("\\", "/")
-

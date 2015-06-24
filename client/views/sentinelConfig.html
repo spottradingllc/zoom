@@ -109,12 +109,21 @@
                         <!-- TODO: figure out how to dynamically set required in the below field -->
                         <input type="text" class="form-control" placeholder="script" data-bind="tooltip, value: script, text: script"
                                data-toggle="tooltip" data-placement="top" title="script - Either the script name in /etc/init.d/ (not the full path) or the Windows Service name.">
-                        <input type="text" class="form-control" placeholder="command" data-bind="tooltip, value: command, text: command"
+                        <input type="text" class="form-control" placeholder="start_cmd" data-bind="tooltip, value: startCommand, text: startCommand"
                                data-toggle="tooltip" data-placement="top"
-                               title="command - Special command to run on the command line to start an application/job.">
+                               title="start_cmd - Special command to run on the command line to start an application/job.">
+                        <input type="text" class="form-control" placeholder="stop_cmd" data-bind="tooltip, value: stopCommand, text: stopCommand"
+                               data-toggle="tooltip" data-placement="top"
+                               title="stop_cmd - Special command to run on the command line to stop an application/job.">
+                        <input type="text" class="form-control" placeholder="status_cmd" data-bind="tooltip, value: statusCommand, text: statusCommand"
+                               data-toggle="tooltip" data-placement="top"
+                               title="status_cmd - Special command to run on the command line to determine whether an application/job is running. Should exit with 1 if it is not running.">
                         <input type="number" class="form-control" placeholder="restartmax" data-bind="tooltip, value: restartmax, text: restartmax"
                                data-toggle="tooltip" data-placement="top"
                                title="restartmax - How many times to try to start an application/job if it fails to start.">
+                        <input type="number" class="form-control" placeholder="post_stop_sleep" data-bind="tooltip, value: postStopSleep, text: postStopSleep"
+                               data-toggle="tooltip" data-placement="top"
+                               title="post_stop_sleep - How long to sleep after running the stop command. Defaults to 5s.">
                         <span class="dropdown">
                             <input type="text" class="form-control" placeholder="restart on crash"
                                    data-toggle="dropdown" data-bind="tooltip, value: restartOnCrash, text: restartOnCrash"

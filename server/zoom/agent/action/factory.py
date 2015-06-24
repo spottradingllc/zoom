@@ -57,14 +57,9 @@ class ActionFactory(object):
                                                none_allowed=True)
             disabled = verify_attribute(element, 'disabled', none_allowed=True)
             pd_enabled = verify_attribute(element, 'pd_enabled',
-                                          none_allowed=True)
+                                          none_allowed=True, default=True)
             pd_reason = verify_attribute(element, 'pd_reason',
                                          none_allowed=True)
-
-            if pd_enabled is None:
-                pagerduty_enabled = True
-            else:
-                pagerduty_enabled = pd_enabled
 
             if func is not None:
                 action = getattr(self._comp, func, None)
@@ -90,7 +85,7 @@ class ActionFactory(object):
                                        pred_list=self._pred_list,
                                        settings=self._settings,
                                        disabled=bool(disabled),
-                                       pd_enabled=pagerduty_enabled,
+                                       pd_enabled=pd_enabled,
                                        pd_reason=pd_reason,
                                        op_action=op_action,
                                        app_state=self._app_state)

@@ -2,14 +2,12 @@ import datetime
 import logging
 import os
 import psutil
-import shlex
 import socket
 
 from multiprocessing import Lock
 from time import sleep, time
 
 from zoom.common.types import (
-    PlatformType,
     ApplicationType,
     ApplicationStatus
 )
@@ -17,30 +15,32 @@ from zoom.agent.client.graphite_client import GraphiteClient
 
 
 class ProcessClient(object):
-    def __init__(self, name=None, command=None, script=None, apptype=None,
-                 system=None, restart_logic=None, graphite_metric_names=None,
-                 settings=None, cancel_flag=None):
+    def __init__(self, name=None, start_cmd=None, stop_cmd=None,
+                 status_cmd=None, script=None, apptype=None, restart_logic=None,
+                 graphite_metric_names=None, settings=None, cancel_flag=None):
         """
         :type name: str or None
-        :type command: str or None
+        :type start_cmd: str or None
+        :type stop_cmd: str or None
+        :type status_cmd: str or None
         :type script: str or None
         :type apptype: zoom.common.types.ApplicationType
-        :type system: zoom.common.types.PlatformType
         :type restart_logic: zoom.agent.entities.restart.RestartLogic
         :type graphite_metric_names: dict
         :type settings: dict
         """
-        assert any((name, command, script)), \
+        assert any((name, start_cmd, script)), \
             ('Cannot initialize ProcessClient if name, command, and script'
              ' are all None.')
 
         self._log = logging.getLogger('sent.{0}.process'.format(name))
-        self.command = command
+        self.start_cmd = start_cmd
+        self.stop_cmd = stop_cmd
+        self.status_cmd = status_cmd
         self.name = name
         self.process_client_lock = Lock()  # lock for synchronous decorator
         self._script = script
         self._apptype = apptype
-        self._system = system
         self.restart_logic = restart_logic
         self._cancel_flag = cancel_flag
 
@@ -58,26 +58,32 @@ class ProcessClient(object):
     @property
     def start_method(self):
         if self._apptype == ApplicationType.JOB:
-            return self._job_start
+            return self._process_start
         elif self._apptype == ApplicationType.APPLICATION:
-            if self.command is not None:  # custom start command
-                return self._job_start
+            if self.start_cmd is not None:  # custom start command
+                return self._process_start
             else:
                 return self._service_start
 
     @property
     def status_method(self):
         if self._apptype == ApplicationType.JOB:
-            return self._job_status
+            return self._process_status
         elif self._apptype == ApplicationType.APPLICATION:
-            return self._service_status
+            if self.status_cmd is not None:  # custom status command
+                return self._process_status
+            else:
+                return self._service_status
 
     @property
     def stop_method(self):
         if self._apptype == ApplicationType.JOB:
-            return self._job_stop
+            return self._process_stop
         elif self._apptype == ApplicationType.APPLICATION:
-            return self._service_stop
+            if self.stop_cmd is not None:  # custom stop command
+                return self._process_stop
+            else:
+                return self._service_stop
 
     @property
     def reset_counters(self):
@@ -178,35 +184,36 @@ class ProcessClient(object):
             self._log.warning('The application is running. Attempting stop.')
             self.stop()
             
-    def _job_start(self):
+    def _process_start(self):
         """
         Start process by running some arbitrary command
         """
-        self._log.info('Starting {0}'.format(self.command))
-        if self._system == PlatformType.LINUX:
-            cmd = shlex.split(self.command)
-        else:
-            cmd = self.command
+        self._log.info('Running command: {0}'.format(self.start_cmd))
+        return self._run_command(self.start_cmd)
 
-        return self._run_command(cmd)
-
-    def _job_status(self):
+    def _process_status(self):
         """
         :return: Return whether a binary is running
         :rtype: bool
         """
-        return bool(self._find_application_processes())
+        if self.status_cmd is not None:
+            return self._run_command(self.status_cmd, stdout=False) == 0
+        else:
+            return bool(self._find_application_processes())
 
-    def _job_stop(self):
+    def _process_stop(self):
         """Stop any instances of a running binary"""
-        procs = self._find_application_processes()
-        for p in procs:
-            p.terminate()
-        gone, alive = psutil.wait_procs(procs, 10)
-        for p in alive:
-            p.kill()
-        self._log.info('Stopped pid(s) {0}'.format([p.pid for p in procs]))
-        return 0
+        if self.stop_cmd is not None:
+            return self._run_command(self.stop_cmd)
+        else:
+            procs = self._find_application_processes()
+            for p in procs:
+                p.terminate()
+            gone, alive = psutil.wait_procs(procs, 10)
+            for p in alive:
+                p.kill()
+            self._log.info('Stopped pid(s) {0}'.format([p.pid for p in procs]))
+            return 0
 
     def _find_application_processes(self):
         """
@@ -215,7 +222,7 @@ class ProcessClient(object):
         processes = list()
         for p in psutil.process_iter():
             try:
-                if p.exe == self.command:
+                if p.exe == self.start_cmd:
                     processes.append(p)
             except psutil.AccessDenied:
                 continue
@@ -252,22 +259,22 @@ class ProcessClient(object):
         :rtype: int
         """
         cmd = '/sbin/service {0} {1}'.format(self.script_name, action)
-        return self._run_command(shlex.split(cmd))
+        stdout = (False if action == 'status' else True)
+        return self._run_command(cmd, stdout=stdout)
 
-    def _run_command(self, cmd):
+    def _run_command(self, cmd, stdout=True):
         """
         Generic command runner
-        :param cmd: the param to run
+        :type cmd: str
         :rtype: int
         """
-        outfile = self._get_cmd_outfile(cmd)
+        outfile = self._get_cmd_outfile(stdout)
         return_code = -1
         with open(outfile, 'a') as outfile:
             # log out a timestamp so we know when the command was run
-            outfile.write('{0}: "{1}"\n'.format(datetime.datetime.now(),
-                                                ' '.join(cmd)))
+            outfile.write('{0}: "{1}"\n'.format(datetime.datetime.now(), cmd))
 
-            p = psutil.Popen(cmd, stdout=outfile, stderr=outfile)
+            p = psutil.Popen(cmd, stdout=outfile, stderr=outfile, shell=True)
             while True:
                 return_code = p.poll()
                 if return_code is not None:  # None = still running
@@ -289,14 +296,13 @@ class ProcessClient(object):
         self._log.debug('RETURNCODE: {0}'.format(return_code))
         return return_code
 
-    def _get_cmd_outfile(self, cmd):
+    def _get_cmd_outfile(self, stdout):
         """
         For every init script log out stdout/err to a file on 'start' or 'stop'.
-        For 'status' write to /dev/null b/c it can be quite chatty.
-        :type list:
+        :type stdout: bool
         :rtype: str
         """
-        if 'status' in cmd:
+        if not stdout:
             _file = os.devnull
         else:
             dt = datetime.date.today().strftime('%Y%m%d')
