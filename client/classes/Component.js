@@ -129,6 +129,9 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                     self.statusCommand(sanitizeXML(self.statusCommand()));
                     XML = XML.concat('status_cmd="' + self.statusCommand() + '" ');
                 }
+                if (checkNull(self.postStopSleep())) {
+                    XML = XML.concat('post_stop_sleep="' + self.postStopSleep() + '" ');
+                }
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
                 }

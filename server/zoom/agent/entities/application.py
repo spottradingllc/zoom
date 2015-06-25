@@ -74,7 +74,8 @@ class Application(object):
         self._restart_on_crash = \
             verify_attribute(self.config, 'restart_on_crash', none_allowed=True)
         self._post_stop_sleep = verify_attribute(self.config, 'post_stop_sleep',
-                                           none_allowed=True, default=5)
+                                                 none_allowed=True, cast=int,
+                                                 default=5)
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -274,10 +275,9 @@ class Application(object):
             self._state.set_value(ApplicationState.STOPPED, run_callback=False)
 
         # give everything time to catch up, not sure why anymore...
-        self._log.debug('Sleeping for {0}s after stop.'
-                        .format(self._post_stop_sleep))
+        self._log.info('Sleeping for the configured {0}s after stop.'
+                       .format(self._post_stop_sleep))
         sleep(self._post_stop_sleep)
-        self._update_agent_node_with_app_details()
 
         # reset this value back to False
         self._user_set_in_react = False
