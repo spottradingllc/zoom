@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 
 
 class SimplePredicate(object):
@@ -83,6 +84,13 @@ class SimplePredicate(object):
     def reset(self):
         self._log.info('Resetting predicate for {0}'.format(self))
         self._started = False
+
+    def _block_until_started(self, timeout=10):
+        counter = 0
+        while not self.started and counter < timeout:
+            sleep(1)
+            self._log.debug('Still starting...')
+            counter += 1
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, operational={3}, met={4})'

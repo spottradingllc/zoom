@@ -49,6 +49,8 @@ class ZookeeperHasChildren(SimplePredicate):
             self._log.warning('Node {0} has been deleted.'.format(self.node))
             if self._met_on_delete:
                 self.set_met(True)  # synthetically setting to true
+            else:
+                self.set_met(False)
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '

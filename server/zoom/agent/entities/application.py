@@ -73,6 +73,9 @@ class Application(object):
         self._apptype = application_type
         self._restart_on_crash = \
             verify_attribute(self.config, 'restart_on_crash', none_allowed=True)
+        self._post_stop_sleep = verify_attribute(self.config, 'post_stop_sleep',
+                                                 none_allowed=True, cast=int,
+                                                 default=5)
 
         # tool-like attributes
         self.listener_lock = Lock()
@@ -134,6 +137,11 @@ class Application(object):
             # make all action objects start processing predicates
             self._log.info('Starting to process Actions.')
             map(lambda x: x.start(), self._actions.values())  # start actions
+            started = all([i.started for i in self._actions.values()])
+            if not started:
+                self._log.critical('All actions are not started!')
+            else:
+                self._log.info('All actions started.'.format(started))
             self._check_mode()  # get global mode AFTER starting actions
 
             while self._running:
@@ -266,9 +274,10 @@ class Application(object):
         else:
             self._state.set_value(ApplicationState.STOPPED, run_callback=False)
 
-        self._log.debug('Sleeping for 5s after stop for some reason...')
-        sleep(5)  # give everything time to catch up, not sure why anymore...
-        self._update_agent_node_with_app_details()
+        # give everything time to catch up, not sure why anymore...
+        self._log.info('Sleeping for the configured {0}s after stop.'
+                       .format(self._post_stop_sleep))
+        sleep(self._post_stop_sleep)
 
         # reset this value back to False
         self._user_set_in_react = False
@@ -445,14 +454,12 @@ class Application(object):
         :rtype: dict
         """
         paths = dict()
-        registrationpath = verify_attribute(config, 'registrationpath',
-                                            none_allowed=True)
-
-        if registrationpath is not None:
-            paths['zk_state_base'] = registrationpath
-        else:
-            paths['zk_state_base'] = \
-                self._pathjoin(settings.get('ZK_STATE_PATH'), atype, self.name)
+        paths['zk_state_base'] = verify_attribute(
+            config,
+            'registrationpath',
+            none_allowed=True,
+            default=self._pathjoin(settings.get('ZK_STATE_PATH'), atype, self.name)
+        )
 
         paths['zk_state_path'] = \
             self._pathjoin(paths['zk_state_base'], self._host)
@@ -465,22 +472,20 @@ class Application(object):
 
     def _init_proc_client(self, config, settings, atype, cancel_flag):
         """Create the process client."""
-        command = verify_attribute(config, 'command', none_allowed=True)
+        start_cmd = verify_attribute(config, 'start_cmd', none_allowed=True)
+        stop_cmd = verify_attribute(config, 'stop_cmd', none_allowed=True)
+        status_cmd = verify_attribute(config, 'status_cmd', none_allowed=True)
         script = verify_attribute(config, 'script', none_allowed=True)
         restartmax = verify_attribute(config, 'restartmax', none_allowed=True,
-                                      cast=int)
-
-        if restartmax is None:
-            self._log.info('Restartmax not specified. Assuming 3.')
-            restartmax = 3
-
+                                      cast=int, default=3)
         g_names = self._get_graphite_metric_names()
 
         return ProcessClient(name=self.name,
-                             command=command,
+                             start_cmd=start_cmd,
+                             stop_cmd=stop_cmd,
+                             status_cmd=status_cmd,
                              script=script,
                              apptype=atype,
-                             system=self._system,
                              restart_logic=RestartLogic(restartmax),
                              graphite_metric_names=g_names,
                              settings=settings,

@@ -7,7 +7,10 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
             self.ID = ko.observable(null);
             self.compType = ko.observable(null);
             self.script = ko.observable(null);
-            self.command = ko.observable(null);
+            self.startCommand = ko.observable(null);
+            self.stopCommand = ko.observable(null);
+            self.statusCommand = ko.observable(null);
+            self.postStopSleep = ko.observable(null)
             self.restartmax = ko.observable(null);
             self.restartOnCrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
@@ -92,6 +95,14 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 return allErrors;
             };
 
+            var sanitizeXML = function(someString) {
+                var comEdit1 = someString.replace(/"/g, '&quot;');
+                var comEdit2 = comEdit1.replace(/'/g, '&apos;');
+                var comEdit3 = comEdit2.replace(/</g, '&lt;');
+                var comEdit4 = comEdit3.replace(/>/g, '&gt;');
+                return comEdit4.replace(/&(?=[a-z_0-9]+=)/g, '&amp;');
+            };
+
             self.createComponentXML = function() {
                 var XML = '<Component ';
                 XML = XML.concat('id="' + self.ID() + '" ');
@@ -100,20 +111,26 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 if (checkNull(self.script())) {
                     XML = XML.concat('script="' + self.script() + '" ');
                 }
-
                 if (checkNull(self.registrationpath())) {
                     XML = XML.concat('registrationpath="' + self.registrationpath() + '" ');
                 }
-
-                if (checkNull(self.command())) {
+                if (checkNull(self.startCommand())) {
                     // replace xml entities
-                    var comEdit1 = self.command().replace(/"/g, '&quot;');
-                    var comEdit2 = comEdit1.replace(/'/g, '&apos;');
-                    var comEdit3 = comEdit2.replace(/</g, '&lt;');
-                    var comEdit4 = comEdit3.replace(/>/g, '&gt;');
-                    var comEdit5 = comEdit4.replace(/&(?=[a-z_0-9]+=)/g, '&amp;');
-                    self.command(comEdit5);
-                    XML = XML.concat('command="' + self.command() + '" ');
+                    self.startCommand(sanitizeXML(self.startCommand()));
+                    XML = XML.concat('start_cmd="' + self.startCommand() + '" ');
+                }
+                if (checkNull(self.stopCommand())) {
+                    // replace xml entities
+                    self.stopCommand(sanitizeXML(self.stopCommand()));
+                    XML = XML.concat('stop_cmd="' + self.stopCommand() + '" ');
+                }
+                if (checkNull(self.statusCommand())) {
+                    // replace xml entities
+                    self.statusCommand(sanitizeXML(self.statusCommand()));
+                    XML = XML.concat('status_cmd="' + self.statusCommand() + '" ');
+                }
+                if (checkNull(self.postStopSleep())) {
+                    XML = XML.concat('post_stop_sleep="' + self.postStopSleep() + '" ');
                 }
                 if (checkNull(self.restartmax())) {
                     XML = XML.concat('restartmax="' + self.restartmax() + '" ');
@@ -146,7 +163,10 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 self.ID(node.getAttribute('id'));
                 self.compType(node.getAttribute('type'));
                 self.script(node.getAttribute('script'));
-                self.command(node.getAttribute('command'));
+                self.startCommand(node.getAttribute('start_cmd'));
+                self.stopCommand(node.getAttribute('stop_cmd'));
+                self.statusCommand(node.getAttribute('status_cmd'));
+                self.postStopSleep(node.getAttribute('post_stop_sleep'));
                 self.restartmax(node.getAttribute('restartmax'));
                 self.restartOnCrash(node.getAttribute('restart_on_crash'));
                 self.registrationpath(node.getAttribute('registrationpath'));

@@ -37,13 +37,20 @@ class BaseHandler(tornado.web.RequestHandler):
                              .format(target))
             return {'target': target, 'work': work, 'result': '404: Not Found'}
         else:
-            process = child['process']
-            process.add_work(Task(work, block=True, pipe=True, retval=True),
-                             immediate=True)
-            result = process.parent_conn.recv()  # will block until done
-            # synthetically create result dictionary
-            # it's not directly available yet
-            return {'target': target, 'work': work, 'result': result}
+            result = '?'
+            try:
+                process = child['process']
+                process.add_work(Task(work, block=True, pipe=True, retval=True),
+                                 immediate=True)
+                result = process.parent_conn.recv()  # will block until done
+                # synthetically create result dictionary
+                # it's not directly available yet
+            except EOFError:
+                self.log.warning('There is nothing left to receive from the '
+                                 'work manager and the other end of the Pipe '
+                                 'is closed.')
+            finally:
+                return {'target': target, 'work': work, 'result': result}
 
 
 class WorkHandler(BaseHandler):

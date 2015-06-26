@@ -36,10 +36,11 @@ class TaskClient(object):
     def on_exist(self, event=None):
         try:
             if self.zkclient.exists(self._path, watch=self.on_exist):
-                self._log.info('Found work to do.')
                 data, stat = self.zkclient.get(self._path)
                 task = Task.from_json(data)
+                self._log.info('Found work to do: {0}'.format(task))
                 if task.result == ApplicationState.OK:
+                    self._log.info('Task is already complete: {0}'.format(task))
                     return  # ignore tasks that are already done
 
                 if task.name in self._settings.get('ALLOWED_WORK'):
@@ -94,7 +95,14 @@ class TaskClient(object):
                 return {'target': task.target, 'work': task.name,
                         'result': CommandType.CANCEL}
             else:
-                process.add_work(task, immediate=False)
-                result = process.parent_conn.recv()  # will block until done
-                return {'target': task.target, 'work': task.name,
-                        'result': result}
+                result = '?'
+                try:
+                    process.add_work(task, immediate=False)
+                    result = process.parent_conn.recv()  # will block until done
+                except EOFError:
+                    self._log.warning('There is nothing left to receive from '
+                                      'the work manager and the other end of '
+                                      'the Pipe is closed.')
+                finally:
+                    return {'target': task.target, 'work': task.name,
+                            'result': result}
