@@ -11,6 +11,7 @@ from zoom.agent.predicate.process import PredicateProcess
 from zoom.agent.predicate.simple import SimplePredicate
 from zoom.agent.predicate.time_window import TimeWindow
 from zoom.agent.predicate.weekend import PredicateWeekend
+from zoom.agent.predicate.zkglob import ZookeeperGlob
 from zoom.agent.predicate.zkgut import ZookeeperGoodUntilTime
 from zoom.agent.predicate.zkhas_children import ZookeeperHasChildren
 from zoom.agent.predicate.zkhas_grandchildren import ZookeeperHasGrandChildren
@@ -91,6 +92,15 @@ class PredicateFactory(object):
                                           verify_attribute(root, 'path'),
                                           operational=operational,
                                           parent=self._parent),
+                callback=callback
+            )
+        elif ptype == PredicateType.ZOOKEEPERGLOB:
+            return self._ensure_new(
+                ZookeeperGlob(self._component_name,
+                              self.zkclient,
+                              verify_attribute(root, 'path'),
+                              operational=operational,
+                              parent=self._parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERGOODUNTILTIME:

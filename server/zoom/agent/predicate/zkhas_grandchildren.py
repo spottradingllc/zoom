@@ -1,3 +1,4 @@
+import copy
 import logging
 import os.path
 from kazoo.exceptions import NoNodeError
@@ -22,8 +23,6 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         self.node = nodepath
         self.zkclient = zkclient
         self._children = list()
-        self._new_nodes = list()
-        self._old_nodes = list()
         self._log = logging.getLogger('sent.{0}.pred.hgc'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
@@ -60,7 +59,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
 
     @catch_exception(NoNodeError, msg='A node has been removed during walk.')
     @connected
-    def _walk(self, node):
+    def _walk(self, node, node_list):
         """
         Recursively walk a ZooKeeper path and add all children to the _children
             list as ZookeeperHasChildren objects.
@@ -70,13 +69,13 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         if children:
             for c in children:
                 path = '/'.join([node, c])
-                self._walk(path)
+                self._walk(path, node_list)
         else:
             data, stat = self.zkclient.get(node)
             if stat.ephemeralOwner == 0:  # not ephemeral
-                self._new_nodes.append(node)
+                node_list.append(node)
             else:
-                self._new_nodes.append(os.path.dirname(node))
+                node_list.append(os.path.dirname(node))
 
     @connected
     def _rewalk_tree(self, event=None):
@@ -88,26 +87,26 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         """
         if self.zkclient.exists(self.node, watch=self._rewalk_tree):
             # setting a watch on grandparent node for additional children
-            children = self.zkclient.get_children(self.node, watch=self._rewalk_tree)
-            del self._new_nodes[:]
-            self._walk(self.node)
-            self._update_children_list()
-            self._old_nodes = list(self._new_nodes)
+            self.zkclient.get_children(self.node, watch=self._rewalk_tree)
+            new_nodes = list()
+            self._walk(self.node, new_nodes)
+            self._update_children_list(new_nodes)
             map(lambda x: x.start(), self._children)
         else:
             self._children.append(self._create_dummy_predicate())
             self._log.warning('Node {0} does not exist. Will wait until it '
                               'does.'.format(self.node))
 
-    def _update_children_list(self):
-        for child in self._children:
-            if child.node in set(self._old_nodes) - set(self._new_nodes):
+    def _update_children_list(self, new_nodes):
+        existing = copy.copy(self._children)
+        for child in existing:
+            if child.node in set(existing) - set(new_nodes):
                 self._children.remove(child)
 
-        for new_node in set(self._new_nodes) - set(self._old_nodes):
+        for node in set(new_nodes) - set(existing):
             zk_child = ZookeeperHasChildren(self._comp_name,
                                             self.zkclient,
-                                            new_node,
+                                            node,
                                             met_on_delete=True,
                                             parent='zk.has.gc')
             zk_child.add_callback({"zk_hgc": self._callback})

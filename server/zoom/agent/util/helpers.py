@@ -49,14 +49,15 @@ def verify_attribute(xmlpart, attribute,
     :type none_allowed: bool
     :type cast: types.ClassType
     """
+    _log = logging.getLogger('util.verify_attribute')
     a = xmlpart.get(attribute)
     if a is None and none_allowed is False:
         raise ValueError('XML part is missing attribute "{0}".\n{1}'
                          .format(attribute, ElementTree.tostring(xmlpart)))
     else:
         if a is None:
-            logging.info('Returning default value: {0} for attribute: {1}'
-                         .format(default, attribute))
+            _log.info('Returning default value: {0} for attribute: {1}'
+                      .format(default, attribute))
             return default
         elif a.upper() == 'TRUE':
             return True
