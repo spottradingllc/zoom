@@ -31,7 +31,8 @@ __env_connections = {
 }
 
 
-ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
+# ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
+ZK_AGENT_CONFIG = '/test/sentinel'
 ZOOM_CONFIG = '/spot/software/config/application/zoom'
 
 def get_zk_conn_string(env=None):
@@ -40,3 +41,20 @@ def get_zk_conn_string(env=None):
         return __env_connections.get(env)
     else:
         return __env_connections.get(default)
+
+# This is a dictionary of available methods in Sentinel and their
+# runtime priorities. For example, we always want to run stop before start.
+SENTINEL_METHODS = {
+    "stop": 1,
+    "unregister": 2,
+    "notify": 3,
+    "start": 4,
+    "register": 5,
+    "restart": 6,
+    "dep_restart": 99,
+    "ignore": 99,
+    "react": 99,
+    "terminate": 99,
+    "start_if_ready": 99,
+    "cancel": 99
+}

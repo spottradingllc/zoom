@@ -9,8 +9,7 @@ from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
 class PredicateWeekend(SimplePredicate):
-    def __init__(self, comp_name, settings,
-                 operational=False, parent=None, interval=10):
+    def __init__(self, comp_name, operational=False, parent=None, interval=10):
         """
         :type comp_name: str
         :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
@@ -18,8 +17,7 @@ class PredicateWeekend(SimplePredicate):
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.interval = interval
         self._log = logging.getLogger('sent.{0}.weekend'.format(comp_name))
         self._log.info('Registered {0}'.format(self))

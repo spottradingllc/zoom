@@ -11,10 +11,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def log(self):
         return self.application.log
 
-    @property
-    def settings(self):
-        return self.application.app_settings
-
     def _send_work_all(self, work):
         """
         :type work: str

@@ -9,18 +9,16 @@ from zoom.common.decorators import connected, catch_exception
 
 
 class ZookeeperHasGrandChildren(SimplePredicate):
-    def __init__(self, comp_name, settings, zkclient, nodepath,
+    def __init__(self, comp_name, zkclient, nodepath,
                  operational=False, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type operational: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._children = list()
@@ -108,7 +106,6 @@ class ZookeeperHasGrandChildren(SimplePredicate):
 
         for new_node in set(self._new_nodes) - set(self._old_nodes):
             zk_child = ZookeeperHasChildren(self._comp_name,
-                                            self._settings,
                                             self.zkclient,
                                             new_node,
                                             met_on_delete=True,
@@ -125,9 +122,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             returns False.
         :rtype: zoom.agent.predicate.simple.SimplePredicate
         """
-        dummy = SimplePredicate(self._comp_name,
-                                self._settings,
-                                parent=self._parent)
+        dummy = SimplePredicate(self._comp_name, parent=self._parent)
         dummy.set_met(False)
         return dummy
 

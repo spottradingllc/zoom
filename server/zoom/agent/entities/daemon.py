@@ -3,6 +3,7 @@ import json
 import signal
 import socket
 import sys
+import time
 import pprint
 from multiprocessing import Lock
 from xml.etree import ElementTree
@@ -20,7 +21,6 @@ from zoom.common.decorators import (
     run_only_one
 )
 from zoom.common.types import PlatformType
-from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.agent.util.helpers import verify_attribute
 from zoom.agent.entities.child_process import ChildProcess
 from zoom.agent.client.task_client import TaskClient
@@ -42,7 +42,7 @@ class SentinelDaemon(object):
 
         self._port = port
         self.children = dict()
-        self._settings = ThreadSafeObject(dict())
+        self._settings = None
         self._system = get_system()
         self._hostname = socket.getfqdn()
         self._prev_state = None
@@ -61,14 +61,16 @@ class SentinelDaemon(object):
         self.zkclient.add_listener(self._zk_listener)
         # this will run self._reset_after_connection_loss
         self.zkclient.start()
+        while not self._settings:
+            self._log.info('Waiting for settings.')
+            time.sleep(1)
 
         self.task_client = None
         self.task_client = TaskClient(self.children,
                                       self.zkclient,
-                                      self._settings)
+                                      self._settings.get('zookeeper', {}).get('task'))
 
-        self._rest_server = tornado.httpserver.HTTPServer(
-            RestServer(self.children, self._settings))
+        self._rest_server = tornado.httpserver.HTTPServer(RestServer(self.children))
 
         signal.signal(signal.SIGINT, self._handle_sigint)
         signal.signal(signal.SIGTERM, self._handle_sigint)
@@ -101,10 +103,10 @@ class SentinelDaemon(object):
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
         data, stat = self.zkclient.get(ZK_AGENT_CONFIG,
-                                       watch=self._get_settings)
-        self._settings.set_value(json.loads(data))
+                                       watch=self._reset_after_connection_loss)
+        self._settings = json.loads(data)
         self._log.info('Got settings:\n{0}'
-                       .format(pprint.pformat(self._settings.value)))
+                       .format(pprint.pformat(self._settings)))
 
     @catch_exception(NodeExistsException)
     @connected
@@ -112,7 +114,8 @@ class SentinelDaemon(object):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        agent_state_path = self._settings.get('ZK_AGENT_STATE_PATH')
+        # TODO: Do something if this path is not provided
+        agent_state_path = self._settings.get('zookeeper', {}).get('agent_state')
         path = '/'.join([agent_state_path, self._hostname])
         components = {"components": self.children.keys()}
         if not self.zkclient.exists(path, watch=self._register):
@@ -138,7 +141,8 @@ class SentinelDaemon(object):
         Grab config from Zookeeper. Spawn ChildProcess instances.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        agent_config_path = self._settings.get('ZK_AGENT_CONFIG_PATH')
+        # TODO: Do something if this path is not provided
+        agent_config_path = self._settings.get('zookeeper', {}).get('agent_config')
         config_path = '/'.join([agent_config_path, self._hostname])
         try:
             if not self.zkclient.exists(config_path,

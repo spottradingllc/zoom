@@ -1,12 +1,12 @@
 import logging
 from time import sleep
+from zoom.common.constants import SENTINEL_METHODS
 
 
 class SimplePredicate(object):
-    def __init__(self, comp_name, settings, operational=False, parent=None):
+    def __init__(self, comp_name, operational=False, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type operational: bool
         :type parent: str or None
         """
@@ -18,7 +18,6 @@ class SimplePredicate(object):
         self._started = False
         self._log = logging.getLogger('sent.{0}.pred'.format(comp_name))
         self._started = False
-        self._settings = settings
 
     @property
     def met(self):
@@ -44,9 +43,8 @@ class SimplePredicate(object):
         """
         Sort callbacks based on CALLBACKS dictionary values
         """
-        priority = self._settings.get('CALLBACK_PRIORITY', {})
         self._callbacks = sorted(self._callbacks,
-                                 key=lambda item: [priority.get(k, 99)
+                                 key=lambda item: [SENTINEL_METHODS.get(k, 99)
                                                    for k in item.keys()])
 
     def set_met(self, value):

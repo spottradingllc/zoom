@@ -7,14 +7,12 @@ from zoom.agent.web.handlers import WorkHandler
 
 
 class RestServer(tornado.web.Application):
-    def __init__(self, children, settings):
+    def __init__(self, children):
         """
         :type children: dict
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
-        self.app_settings = settings
         handlers = [
             (r"/log", LogHandler),
             (r'/loglevel/(?P<level>\w+)', LogVerbosityHandler),

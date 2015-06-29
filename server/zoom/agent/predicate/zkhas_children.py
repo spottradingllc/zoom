@@ -5,19 +5,17 @@ from zoom.common.decorators import connected
 
 
 class ZookeeperHasChildren(SimplePredicate):
-    def __init__(self, comp_name, settings, zkclient, nodepath,
+    def __init__(self, comp_name, zkclient, nodepath,
                  met_on_delete=False, operational=False, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type met_on_delete: bool
         :type operational: bool
         :type parent: str or None
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self._met_on_delete = met_on_delete

@@ -19,7 +19,7 @@ class ActionFactory(object):
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
         :type app_state: zoom.agent.entities.thread_safe_object.ThreadSafeObject
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type settings: dict
         """
         self._zk = zkclient
         self._proc = proc_client

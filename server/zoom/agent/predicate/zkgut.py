@@ -11,19 +11,17 @@ from zoom.common.decorators import connected
 
 
 class ZookeeperGoodUntilTime(SimplePredicate):
-    def __init__(self, comp_name, settings, zkclient, nodepath,
+    def __init__(self, comp_name, zkclient, nodepath,
                  operational=False, parent=None, interval=5):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
         :type operational: bool
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
         self.interval = interval

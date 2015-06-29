@@ -30,7 +30,7 @@ class Action(object):
         :type mode: zoom.agent.entities.thread_safe_object.ApplicationMode
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type settings: dict
         :type disabled: bool
         :type pd_enabled: bool
         :type op_action: types.FunctionType or None

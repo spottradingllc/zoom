@@ -17,7 +17,7 @@ from zoom.agent.client.graphite_client import GraphiteClient
 class ProcessClient(object):
     def __init__(self, name=None, start_cmd=None, stop_cmd=None,
                  status_cmd=None, script=None, apptype=None, restart_logic=None,
-                 graphite_metric_names=None, settings=None, cancel_flag=None):
+                 graphite_metric_names={}, cancel_flag=None):
         """
         :type name: str or None
         :type start_cmd: str or None
@@ -27,7 +27,6 @@ class ProcessClient(object):
         :type apptype: zoom.common.types.ApplicationType
         :type restart_logic: zoom.agent.entities.restart.RestartLogic
         :type graphite_metric_names: dict
-        :type settings: dict
         """
         assert any((name, start_cmd, script)), \
             ('Cannot initialize ProcessClient if name, command, and script'
@@ -46,7 +45,6 @@ class ProcessClient(object):
 
         self.last_status = False
         self._graphite_metric_names = graphite_metric_names
-        self._settings = settings
 
     @property
     def script_name(self):
@@ -96,7 +94,7 @@ class ProcessClient(object):
         """
         self.last_status = self.status_method()
         self.restart_logic.check_for_crash(self.last_status)
-        self.send_to_graphite(self._graphite_metric_names['updown'],
+        self.send_to_graphite(self._graphite_metric_names.get('updown'),
                               (1 if self.last_status else 0))
         self._log.debug('Process {0} running: {1}, crashed={2}'
                         .format(self.name, self.last_status,
@@ -121,9 +119,9 @@ class ProcessClient(object):
             return_code = self.start_method()
             finish_time = time()
             # send runtime and return code to graphite
-            self.send_to_graphite(self._graphite_metric_names['result'],
+            self.send_to_graphite(self._graphite_metric_names.get('result'),
                                   return_code)
-            self.send_to_graphite(self._graphite_metric_names['runtime'],
+            self.send_to_graphite(self._graphite_metric_names.get('runtime'),
                                   finish_time - start_time)
 
             if return_code == 0:
@@ -166,6 +164,8 @@ class ProcessClient(object):
         return return_code
 
     def send_to_graphite(self, metric, data, tstamp=None, env=None):
+        if not metric:
+            return
         try:
             GraphiteClient.send(metric, data, tstamp=tstamp, env=env)
         except socket.timeout:
