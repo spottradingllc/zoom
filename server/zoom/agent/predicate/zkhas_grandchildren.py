@@ -3,7 +3,7 @@ import logging
 import os.path
 from kazoo.exceptions import NoNodeError
 
-from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.simple import SimplePredicate, create_dummy
 from zoom.agent.predicate.zkhas_children \
     import ZookeeperHasChildren
 from zoom.common.decorators import connected, catch_exception
@@ -93,14 +93,17 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             self._update_children_list(new_nodes)
             map(lambda x: x.start(), self._children)
         else:
-            self._children.append(self._create_dummy_predicate())
+            # This is a placeholder for when the path the ZKHGC is given a path
+            # that doesn't exist
+            self._children.append(
+                create_dummy(comp=self._comp_name, parent=self._parent))
             self._log.warning('Node {0} does not exist. Will wait until it '
                               'does.'.format(self.node))
 
     def _update_children_list(self, new_nodes):
         existing = copy.copy(self._children)
         for child in existing:
-            if child == self._create_dummy_predicate():
+            if child == create_dummy(comp=self._comp_name, parent=self._parent):
                 self._children.remove(child)
             elif child in set(existing) - set(new_nodes):
                 self._children.remove(child)
@@ -114,23 +117,11 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             zk_child.add_callback({"zk_hgc": self._callback})
             self._children.append(zk_child)
 
-    def _create_dummy_predicate(self):
-        # TODO: This is duplicate code (available in PredicateFactory)
-        """
-        This is a placeholder for when the path the ZKHGC is given a path
-            that doesn't exist
-        This will ensure that while the path doesn't exist, self.met
-            returns False.
-        :rtype: zoom.agent.predicate.simple.SimplePredicate
-        """
-        dummy = SimplePredicate(self._comp_name, parent=self._parent)
-        dummy.set_met(False, silent=True)
-        dummy.start()
-        return dummy
-
     def __repr__(self):
+        indent_count = len(self._parent.split('/'))
+        indent = '\n' + '    ' * indent_count
         return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
-                'operational={5}, met={6}, group=[\n\t\t{7}])'
+                'operational={5}, met={6}, group=[{7}{8}])'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
@@ -138,7 +129,8 @@ class ZookeeperHasGrandChildren(SimplePredicate):
                         self.started,
                         self._operational,
                         self.met,
-                        '\n\t\t'.join([str(x) for x in self._children])))
+                        indent,
+                        indent.join([str(x) for x in self._children])))
 
     def __eq__(self, other):
         return all([

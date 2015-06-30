@@ -56,8 +56,10 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
             return p
 
     def __repr__(self):
+        indent_count = len(self._parent.split('/'))
+        indent = '\n' + '    ' * indent_count
         return ('{0}(component={1}, parent={2}, glob_pattern={3}, started={4}, '
-                'operational={5}, met={6}, group=[\n\t\t{7}]))'
+                'operational={5}, met={6}, group=[{7}{8}]))'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
@@ -65,4 +67,5 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
                         self.started,
                         self._operational,
                         self.met,
-                        '\n\t\t'.join([str(x) for x in self._children])))
+                        indent,
+                        indent.join([str(x) for x in self._children])))

@@ -8,7 +8,7 @@ from zoom.agent.predicate.pred_and import PredicateAnd
 from zoom.agent.predicate.pred_not import PredicateNot
 from zoom.agent.predicate.pred_or import PredicateOr
 from zoom.agent.predicate.process import PredicateProcess
-from zoom.agent.predicate.simple import SimplePredicate
+from zoom.agent.predicate.simple import SimplePredicate, create_dummy
 from zoom.agent.predicate.time_window import TimeWindow
 from zoom.agent.predicate.weekend import PredicateWeekend
 from zoom.agent.predicate.zkglob import ZookeeperGlob
@@ -21,11 +21,11 @@ from zoom.common.decorators import catch_exception
 
 
 class PredicateFactory(object):
-    def __init__(self, component_name=None, parent=None, zkclient=None,
+    def __init__(self, component_name=None, action=None, zkclient=None,
                  proc_client=None, system=None, pred_list=None, settings=None):
         """
         :type component_name: str or None
-        :type parent: str or None
+        :type action: str or None
         :type zkclient: kazoo.client.KazooClient or None
         :type proc_client: zoom.agent.client.process_client.ProcessClient
         :type system: zoom.common.types.PlatformType
@@ -35,7 +35,7 @@ class PredicateFactory(object):
         self.zkclient = zkclient
         self._proc_client = proc_client
         self._component_name = component_name
-        self._parent = parent
+        self._action = action
         self._system = system
         self._log = logging.getLogger('sent.{0}.pred.factory'
                                       .format(component_name))
@@ -43,18 +43,21 @@ class PredicateFactory(object):
         self._holiday_path = settings.get('zookeeper', {}).get('holiday')
 
     @catch_exception(Exception)
-    def create(self, xmlpart, callback=None):
+    def create(self, xmlpart, callback=None, parent=None):
         """
         :type xmlpart: xml.etree.ElementTree.Element
         :type callback: types.FunctionType or None
         """
         if xmlpart is None:
-            return self._create_dummy_predicate()
+            return create_dummy(comp=self._component_name, parent=self._action)
 
         if isinstance(xmlpart, str):
             root = ElementTree.fromstring(xmlpart)
         else:
             root = xmlpart
+
+        if parent is None:
+            parent = self._action
 
         ptype = verify_attribute(root, 'type').lower()
         operational = bool(verify_attribute(root, 'operational',
@@ -64,7 +67,7 @@ class PredicateFactory(object):
             return self._ensure_new(
                 SimplePredicate(self._component_name,
                                 operational=operational,
-                                parent=self._parent),
+                                parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERNODEEXISTS:
@@ -73,7 +76,7 @@ class PredicateFactory(object):
                                     self.zkclient,
                                     verify_attribute(root, 'path'),
                                     operational=operational,
-                                    parent=self._parent),
+                                    parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERHASCHILDREN:
@@ -82,7 +85,7 @@ class PredicateFactory(object):
                                      self.zkclient,
                                      verify_attribute(root, 'path'),
                                      operational=operational,
-                                     parent=self._parent),
+                                     parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
@@ -91,7 +94,7 @@ class PredicateFactory(object):
                                           self.zkclient,
                                           verify_attribute(root, 'path'),
                                           operational=operational,
-                                          parent=self._parent),
+                                          parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERGLOB:
@@ -100,7 +103,7 @@ class PredicateFactory(object):
                               self.zkclient,
                               verify_attribute(root, 'path'),
                               operational=operational,
-                              parent=self._parent),
+                              parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERGOODUNTILTIME:
@@ -109,7 +112,7 @@ class PredicateFactory(object):
                                        self.zkclient,
                                        verify_attribute(root, 'path'),
                                        operational=operational,
-                                       parent=self._parent),
+                                       parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.PROCESS:
@@ -118,7 +121,7 @@ class PredicateFactory(object):
                                  self._proc_client,
                                  verify_attribute(root, 'interval', cast=float),
                                  operational=operational,
-                                 parent=self._parent),
+                                 parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.HEALTH:
@@ -128,7 +131,7 @@ class PredicateFactory(object):
                                 verify_attribute(root, 'interval', cast=float),
                                 self._system,
                                 operational=operational,
-                                parent=self._parent),
+                                parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.HOLIDAY:
@@ -136,13 +139,13 @@ class PredicateFactory(object):
                                                      self.zkclient,
                                                      path=self._holiday_path,
                                                      operational=operational,
-                                                     parent=self._parent),
+                                                     parent=parent),
                                     callback=callback
             )
         elif ptype == PredicateType.WEEKEND:
             return self._ensure_new(PredicateWeekend(self._component_name,
                                                      operational=operational,
-                                                     parent=self._parent),
+                                                     parent=parent),
                                     callback=callback
             )
         elif ptype == PredicateType.TIMEWINDOW:
@@ -154,7 +157,7 @@ class PredicateFactory(object):
                            weekdays=verify_attribute(root, 'weekdays',
                                                      none_allowed=True),
                            operational=operational,
-                           parent=self._parent),
+                           parent=parent),
                 callback=callback
             )
 
@@ -163,27 +166,32 @@ class PredicateFactory(object):
             for element in root.findall('Predicate'):
                 dep = self.create(element, callback=callback)
                 return self._ensure_new(
-                    PredicateNot(self._component_name, dep)
+                    PredicateNot(self._component_name, dep,
+                                 parent=self._parent_name(parent, 'not'))
                 )
         elif ptype == PredicateType.AND:
             deps = list()
             for element in root.findall('Predicate'):
-                deps.append(self.create(element, callback=callback))
+                deps.append(self.create(element, callback=callback,
+                                        parent=self._parent_name(parent, 'and')))
             return self._ensure_new(
-                PredicateAnd(self._component_name, deps)
+                PredicateAnd(self._component_name, deps, parent=parent)
             )
         elif ptype == PredicateType.OR:
             deps = list()
             for element in root.findall('Predicate'):
-                deps.append(self.create(element, callback=callback))
+                deps.append(self.create(element, callback=callback,
+                                        parent=self._parent_name(parent, 'or')))
             return self._ensure_new(
-                PredicateOr(self._component_name, deps)
+                PredicateOr(self._component_name, deps, parent=parent)
             )
         else:
             self._log.error('Unknown predicate type "{0}". Ignoring'
                             .format(ptype))
 
-            return self._create_dummy_predicate()
+            # A dummy predicate will be returned by the factory if there are no
+            # predicates, or if the config has an unknown predicate type.
+            return create_dummy(comp=self._component_name, parent=self._action)
 
     def _ensure_new(self, new, callback=None):
         """
@@ -197,24 +205,13 @@ class PredicateFactory(object):
             if predicate == new:
                 del new
                 if callback is not None:
-                    predicate.add_callback({self._parent: callback})
+                    predicate.add_callback({self._action: callback})
                 return predicate
 
         if callback is not None:
-            new.add_callback({self._parent: callback})
+            new.add_callback({self._action: callback})
         self._pred_list.append(new)
         return new
 
-    def _create_dummy_predicate(self):
-        # to catch the case where there are no predicates
-        """
-        A dummy predicate will be returned by the factory if there are no
-        predicates, or if the config has an unknown predicate type.
-
-        :rtype: zoom.agent.predicate.simple.SimplePredicate
-        """
-        dummy = SimplePredicate(self._component_name,
-                                parent=self._parent)
-        dummy.set_met(True, silent=True)
-        dummy.start()
-        return dummy
+    def _parent_name(self, x, y):
+        return '/'.join([str(x), str(y)])

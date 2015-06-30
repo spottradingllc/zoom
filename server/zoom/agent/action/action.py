@@ -60,7 +60,7 @@ class Action(object):
             self._stag_lock = None
 
         factory = PredicateFactory(component_name=component_name,
-                                   parent=self.name, zkclient=zkclient,
+                                   action=self.name, zkclient=zkclient,
                                    proc_client=proc_client, system=system,
                                    pred_list=pred_list, settings=settings)
         self._predicate = factory.create(xmlpart.find('./Dependency/Predicate'),
@@ -93,7 +93,7 @@ class Action(object):
         """
         :rtype: str
         """
-        return '{0}:\n\t\t{1}'.format(self, self._predicate)
+        return '{0}:\n  {1}'.format(self, self._predicate)
 
     def start(self):
         self._log.debug('Starting {0}'.format(self))

@@ -48,14 +48,17 @@ class PredicateAnd(SimplePredicate):
             self._log.debug('Already stopped {0}'.format(self))
 
     def __repr__(self):
+        indent_count = len(self._parent.split('/'))
+        indent = '\n' + '    ' * indent_count
         return ('{0}(component={1}, parent={2}, started={3}, met={4}, '
-                'group=[\n\t{5})]'
+                'group=[{5}{6})]'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.started,
                         self.met,
-                        '\n\t'.join([str(x) for x in self.dependencies])))
+                        indent,
+                        indent.join([str(x) for x in self.dependencies])))
 
     def __eq__(self, other):
         return all([

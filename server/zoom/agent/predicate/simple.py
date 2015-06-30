@@ -121,3 +121,16 @@ class SimplePredicate(object):
 
     def __hash__(self):
         return hash(self.__repr__())
+
+
+def create_dummy(comp='', parent=None):
+    """
+
+    This will ensure that while the path doesn't exist, self.met
+        returns False.
+    :rtype: zoom.agent.predicate.simple.SimplePredicate
+    """
+    dummy = SimplePredicate(comp, parent=parent)
+    dummy.set_met(False, silent=True)
+    dummy.start()
+    return dummy
