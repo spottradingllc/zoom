@@ -100,7 +100,9 @@ class ZookeeperHasGrandChildren(SimplePredicate):
     def _update_children_list(self, new_nodes):
         existing = copy.copy(self._children)
         for child in existing:
-            if child.node in set(existing) - set(new_nodes):
+            if child == self._create_dummy_predicate():
+                self._children.remove(child)
+            elif child in set(existing) - set(new_nodes):
                 self._children.remove(child)
 
         for node in set(new_nodes) - set(existing):
@@ -122,19 +124,21 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         :rtype: zoom.agent.predicate.simple.SimplePredicate
         """
         dummy = SimplePredicate(self._comp_name, parent=self._parent)
-        dummy.set_met(False)
+        dummy.set_met(False, silent=True)
+        dummy.start()
         return dummy
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
-                'operational={5}, met={6})'
+                'operational={5}, met={6}, group=[\n\t\t{7}])'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.node,
                         self.started,
                         self._operational,
-                        self.met))
+                        self.met,
+                        '\n\t\t'.join([str(x) for x in self._children])))
 
     def __eq__(self, other):
         return all([

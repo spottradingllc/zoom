@@ -35,14 +35,20 @@ class ZookeeperHasChildren(SimplePredicate):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        children = list()
         exists = self.zkclient.exists(self.node, watch=self._watch_node)
         if exists:
-            try:
-                children = self.zkclient.get_children(self.node,
-                                                      watch=self._watch_node)
-            finally:
-                self.set_met(bool(children))
+            children = self.zkclient.get_children(self.node,
+                                                  watch=self._watch_node)
+            if children:
+                for c in children:
+                    path = '/'.join([self.node, c])
+                    data, stat = self.zkclient.get(path)
+                    # we only care about ephemeral children
+                    if stat.ephemeralOwner != 0:
+                        self.set_met(True)
+                        break
+            else:
+                self.set_met(False)
         else:
             self._log.warning('Node {0} has been deleted.'.format(self.node))
             if self._met_on_delete:

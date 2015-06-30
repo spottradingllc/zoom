@@ -215,5 +215,6 @@ class PredicateFactory(object):
         """
         dummy = SimplePredicate(self._component_name,
                                 parent=self._parent)
-        dummy.set_met(True)
+        dummy.set_met(True, silent=True)
+        dummy.start()
         return dummy

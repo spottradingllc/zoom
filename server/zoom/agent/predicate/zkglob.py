@@ -34,7 +34,7 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
             list as ZookeeperHasChildren objects.
         :type node: str
         """
-        children = self.zkclient.get_children(node)
+        children = self.zkclient.get_children(node, watch=self._rewalk_tree)
         if children:
             for c in children:
                 path = zk_path_join(node, c)
@@ -56,12 +56,13 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
             return p
 
     def __repr__(self):
-        return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
-                'operational={5}, met={6})'
+        return ('{0}(component={1}, parent={2}, glob_pattern={3}, started={4}, '
+                'operational={5}, met={6}, group=[\n\t\t{7}]))'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
-                        self.node,
+                        self.nodepattern,
                         self.started,
                         self._operational,
-                        self.met))
+                        self.met,
+                        '\n\t\t'.join([str(x) for x in self._children])))

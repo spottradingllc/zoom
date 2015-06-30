@@ -88,6 +88,13 @@ class Action(object):
         """
         return self._predicate.started
 
+    @property
+    def status(self):
+        """
+        :rtype: str
+        """
+        return '{0}:\n\t\t{1}'.format(self, self._predicate)
+
     def start(self):
         self._log.debug('Starting {0}'.format(self))
         self._predicate.start()

@@ -47,17 +47,20 @@ class SimplePredicate(object):
                                  key=lambda item: [SENTINEL_METHODS.get(k, 99)
                                                    for k in item.keys()])
 
-    def set_met(self, value):
+    def set_met(self, value, silent=False):
         """
         Helper function to set the dependency 'met' value.
         :type value: bool
         """
         if self._met == value:
-            self._log.debug('"Met" value is still {0}. Skipping.'.format(value))
+            if not silent:
+                self._log.debug('"Met" value is still {0}. Skipping.'
+                                .format(value))
             return
 
-        self._log.info('Setting "met" attribute from {0} to {1} for {2} '
-                       .format(self._met, value, self))
+        if not silent:
+            self._log.info('Setting "met" attribute from {0} to {1} for {2} '
+                           .format(self._met, value, self))
         self._met = value
 
         for item in self._callbacks:
@@ -104,12 +107,17 @@ class SimplePredicate(object):
 
     def __eq__(self, other):
         return all([
+            type(self) == type(other),
             self._met == other._met,
             self._parent == other._parent,
             self._comp_name == other._comp_name])
 
     def __ne__(self, other):
         return any([
+            type(self) != type(other),
             self._met != other._met,
             self._parent != other._parent,
             self._comp_name != other._comp_name])
+
+    def __hash__(self):
+        return hash(self.__repr__())

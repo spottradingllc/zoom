@@ -283,6 +283,20 @@ class Application(object):
 
         return result
 
+    def status(self):
+        """
+        Log out the status of each configured action.
+        """
+        out = '\n'
+        out += '#' * 40 + ' STATUS ' + '#' * 40
+        out += '\n{0}'.format(self)
+        out += '\n'
+        for i in self._actions.values():
+            out += '\n{0}'.format(i.status)
+        out += '\n'
+        out += '#' * 40 + ' STATUS ' + '#' * 40
+        return self._log.info(out)
+
     def restart(self, **kwargs):
         """
         :param kwargs: passed from zoom.handlers.control_agent_handlers

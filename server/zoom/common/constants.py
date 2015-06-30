@@ -56,5 +56,6 @@ SENTINEL_METHODS = {
     "react": 99,
     "terminate": 99,
     "start_if_ready": 99,
-    "cancel": 99
+    "cancel": 99,
+    "status": 99
 }
