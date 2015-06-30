@@ -11,6 +11,8 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
     def __init__(self, comp_name, zkclient, nodepattern,
                  operational=False, parent=None):
         """
+        Predicate for watching Zookeeper nodes using unix-style glob matching.
+
         :type comp_name: str
         :type zkclient: kazoo.client.KazooClient
         :type nodepattern: str
