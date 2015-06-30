@@ -20,6 +20,7 @@ class ChildProcess(object):
         """
         :type config: xml.etree.ElementTree.Element
         :type system: zoom.common.types.PlatformType
+        :type settings: dict
         """
         self._log = logging.getLogger('sent.child')
         self.parent_conn, self.child_conn = Pipe()

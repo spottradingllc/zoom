@@ -1,12 +1,12 @@
 import logging
 from time import sleep
+from zoom.common.constants import SENTINEL_METHODS
 
 
 class SimplePredicate(object):
-    def __init__(self, comp_name, settings, operational=False, parent=None):
+    def __init__(self, comp_name, operational=False, parent=None):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type operational: bool
         :type parent: str or None
         """
@@ -18,7 +18,6 @@ class SimplePredicate(object):
         self._started = False
         self._log = logging.getLogger('sent.{0}.pred'.format(comp_name))
         self._started = False
-        self._settings = settings
 
     @property
     def met(self):
@@ -44,22 +43,24 @@ class SimplePredicate(object):
         """
         Sort callbacks based on CALLBACKS dictionary values
         """
-        priority = self._settings.get('CALLBACK_PRIORITY', {})
         self._callbacks = sorted(self._callbacks,
-                                 key=lambda item: [priority.get(k, 99)
+                                 key=lambda item: [SENTINEL_METHODS.get(k, 99)
                                                    for k in item.keys()])
 
-    def set_met(self, value):
+    def set_met(self, value, silent=False):
         """
         Helper function to set the dependency 'met' value.
         :type value: bool
         """
         if self._met == value:
-            self._log.debug('"Met" value is still {0}. Skipping.'.format(value))
+            if not silent:
+                self._log.debug('"Met" value is still {0}. Skipping.'
+                                .format(value))
             return
 
-        self._log.info('Setting "met" attribute from {0} to {1} for {2} '
-                       .format(self._met, value, self))
+        if not silent:
+            self._log.info('Setting "met" attribute from {0} to {1} for {2} '
+                           .format(self._met, value, self))
         self._met = value
 
         for item in self._callbacks:
@@ -106,12 +107,30 @@ class SimplePredicate(object):
 
     def __eq__(self, other):
         return all([
+            type(self) == type(other),
             self._met == other._met,
             self._parent == other._parent,
             self._comp_name == other._comp_name])
 
     def __ne__(self, other):
         return any([
+            type(self) != type(other),
             self._met != other._met,
             self._parent != other._parent,
             self._comp_name != other._comp_name])
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
+
+def create_dummy(comp='', parent=None):
+    """
+
+    This will ensure that while the path doesn't exist, self.met
+        returns False.
+    :rtype: zoom.agent.predicate.simple.SimplePredicate
+    """
+    dummy = SimplePredicate(comp, parent=parent)
+    dummy.set_met(False, silent=True)
+    dummy.start()
+    return dummy

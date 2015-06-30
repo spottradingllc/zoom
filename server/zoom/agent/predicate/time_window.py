@@ -13,11 +13,10 @@ class TimeWindow(SimplePredicate):
     Predicate for comparing current time to start/stop times.
     It will set the 'met' value based on start > current_time > stop.
     """
-    def __init__(self, comp_name, settings, begin=None, end=None,
+    def __init__(self, comp_name, begin=None, end=None,
                  weekdays=None, operational=False, parent=None, interval=5):
         """
         :type comp_name: str
-        :type settings: ThreadSafeObject
         :type begin: str or None
         :type end: str or None
         :type weekdays: str or None
@@ -25,8 +24,7 @@ class TimeWindow(SimplePredicate):
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.begin = self.get_datetime_object(begin)
         self.end = self.get_datetime_object(end)
         self.day_range = self.parse_range(weekdays)

@@ -59,6 +59,7 @@ define([], function () {
             ZooKeeperHasGrandChildren: 'zookeeperhasgrandchildren',
             ZooKeeperNodeExists: 'zookeepernodeexists',
             ZookeeperGoodUntilTime: 'zookeepergooduntiltime',
+            ZookeeperGlob: 'zookeeperglob',
             Weekend: 'weekend',
             Holiday: 'holiday',
             TimeWindow: 'timewindow',

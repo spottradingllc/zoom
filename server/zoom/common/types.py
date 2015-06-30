@@ -68,6 +68,7 @@ class PredicateType():
     ZOOKEEPERHASCHILDREN = "zookeeperhaschildren"
     ZOOKEEPERHASGRANDCHILDREN = "zookeeperhasgrandchildren"
     ZOOKEEPERGOODUNTILTIME = "zookeepergooduntiltime"
+    ZOOKEEPERGLOB = "zookeeperglob"
 
 
 class UpdateType():

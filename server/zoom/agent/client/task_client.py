@@ -1,34 +1,31 @@
 import logging
 import socket
-import time
 
 from kazoo.exceptions import NoNodeError
 
 from zoom.agent.entities.task import Task
 from zoom.common.types import ApplicationState, CommandType
 from zoom.common.decorators import connected
+from zoom.common.constants import SENTINEL_METHODS
 
 
 class TaskClient(object):
-    def __init__(self, children, zkclient, settings):
+    def __init__(self, children, zkclient, path):
         """
         :type children: dict
         :type zkclient: kazoo.client.KazooClient
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type path: str or None
         """
         self._log = logging.getLogger('sent.task_client')
         self._children = children
         self.zkclient = zkclient
-        self._settings = settings
         self._host = socket.getfqdn()
+        if path is None:
+            self._log.warning('Was given no path. This sentinel will not be '
+                              'able to receive commands from Zoom.')
+            return
 
-        # this is to handle a race condition
-        while not settings.get('ZK_TASK_PATH'):
-            self._log.info('Waiting for settings.')
-            time.sleep(1)
-
-        task_path = settings.get('ZK_TASK_PATH')
-        self._path = '/'.join([task_path, self._host])
+        self._path = '/'.join([path, self._host])
 
         self.reset_watches()
 
@@ -43,7 +40,7 @@ class TaskClient(object):
                     self._log.info('Task is already complete: {0}'.format(task))
                     return  # ignore tasks that are already done
 
-                if task.name in self._settings.get('ALLOWED_WORK'):
+                if task.name in SENTINEL_METHODS:
                     if task.target is not None:
                         self._send_work_single(task)
                     else:

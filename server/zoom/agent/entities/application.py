@@ -51,7 +51,7 @@ class Application(object):
                  cancel_flag):
         """
         :type config: dict (xml)
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type settings: dict
         :type conn: multiprocessing.Connection
         :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type system: zoom.common.types.PlatformType
@@ -109,7 +109,6 @@ class Application(object):
 
         self.zkclient.add_listener(self._zk_listener)
         self._proc_client = self._init_proc_client(self.config,
-                                                   settings,
                                                    application_type,
                                                    cancel_flag)
 
@@ -283,6 +282,21 @@ class Application(object):
         self._user_set_in_react = False
 
         return result
+
+    def status(self):
+        """
+        Log out the status of each configured action.
+        """
+        out = '\n'
+        out += '#' * 40 + ' STATUS ' + '#' * 40
+        out += '\n{0}'.format(self)
+        out += '\n'
+        for i in self._actions.values():
+            out += '\n{0}'.format(i.status)
+        out += '\n'
+        out += '#' * 40 + ' STATUS ' + '#' * 40
+
+        self._log.info(out)
 
     def restart(self, **kwargs):
         """
@@ -458,19 +472,19 @@ class Application(object):
             config,
             'registrationpath',
             none_allowed=True,
-            default=self._pathjoin(settings.get('ZK_STATE_PATH'), atype, self.name)
+            default=self._pathjoin(settings.get('zookeeper', {}).get('state'), atype, self.name)
         )
 
         paths['zk_state_path'] = \
             self._pathjoin(paths['zk_state_base'], self._host)
         paths['zk_config_path'] = \
-            self._pathjoin(settings.get('ZK_CONFIG_PATH'), atype, self.name)
+            self._pathjoin(settings.get('zookeeper', {}).get('config'), atype, self.name)
         paths['zk_agent_path'] = \
-            self._pathjoin(settings.get('ZK_AGENT_STATE_PATH'), self._host)
+            self._pathjoin(settings.get('zookeeper', {}).get('agent_state'), self._host)
 
         return paths
 
-    def _init_proc_client(self, config, settings, atype, cancel_flag):
+    def _init_proc_client(self, config, atype, cancel_flag):
         """Create the process client."""
         start_cmd = verify_attribute(config, 'start_cmd', none_allowed=True)
         stop_cmd = verify_attribute(config, 'stop_cmd', none_allowed=True)
@@ -488,7 +502,6 @@ class Application(object):
                              apptype=atype,
                              restart_logic=RestartLogic(restartmax),
                              graphite_metric_names=g_names,
-                             settings=settings,
                              cancel_flag=cancel_flag)
 
     def _init_actions(self, settings):
@@ -550,7 +563,13 @@ class Application(object):
         Check global run mode for the agents.
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        modepath = self._pathjoin(self._settings.get('ZK_GLOBAL_PATH'), 'mode')
+        global_path = self._settings.get('zookeeper', {}).get('global_config')
+        if global_path is None:
+            self._log.warning('Received no global config path. Zoom will be '
+                              'unable to change the global mode.')
+            return
+
+        modepath = self._pathjoin(global_path, 'mode')
         try:
             data, stat = self.zkclient.get(modepath, watch=self._check_mode)
             j = json.loads(data)
@@ -580,18 +599,23 @@ class Application(object):
         splits the state path at 'application' and returns the latter index
         :rtype: dict
         """
-        type_path = self._paths.get('zk_state_base')\
-            .split(self._settings.get('ZK_STATE_PATH') + '/', 1)[1]
-        type_metric = type_path.replace('/', '.')
-        result_path = self._settings.get('GRAPHITE_RESULT_METRIC')
-        runtime_path = self._settings.get('GRAPHITE_RUNTIME_METRIC')
-        updown_path = self._settings.get('GRAPHITE_UPDOWN_METRIC')
+        names = {"result": None, "runtime": None, "updown": None}
 
-        return {
-            "result": result_path.format(type_metric),
-            "runtime": runtime_path.format(type_metric),
-            "updown": updown_path.format(type_metric)
-        }
+        type_path = self._paths.get('zk_state_base')\
+            .split(self._settings.get('zookeeper', {}).get('state') + '/', 1)[1]
+        type_metric = type_path.replace('/', '.')
+
+        graphite = self._settings.get('graphite')
+        if graphite is not None:
+            result_path = graphite.get('result')
+            runtime_path = graphite.get('runtime')
+            updown_path = graphite.get('updown')
+
+            names["result"] = result_path.format(type_metric),
+            names["runtime"] = runtime_path.format(type_metric),
+            names["updown"] = updown_path.format(type_metric)
+
+        return names
 
     def _get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -618,12 +642,15 @@ class Application(object):
         """
         alert_details = self._get_alert_details(alert_action, reason)
         # path example: /foo/sentinel.bar.baz.HOSTFOO
-        alert_path = self._pathjoin(
-            self._settings.get('ZK_ALERT_PATH'),
-            re.sub('/', '.', alert_details['incident_key'])
-        )
+        alert = self._settings.get('zookeeper', {}).get('alert')
+        if alert is None:
+            self._log.warning('Was given no alert path. This sentinel will be '
+                              'unable to forward alerts to Zoom.')
+            return
 
-        if self._env in self._settings.get('PAGERDUTY_ENABLED_ENVIRONMENTS'):
+        alert_path = self._pathjoin(alert, re.sub('/', '.', alert_details['incident_key']))
+
+        if self._env in self._settings.get('pagerduty', {}).get('enabled_environments', []):
             self._log.info('Creating alert "{0}" node for env: {1}'
                            .format(alert_action, self._env))
 

@@ -9,20 +9,20 @@ from zoom.common.decorators import connected
 
 
 class PredicateHoliday(SimplePredicate):
-    def __init__(self, comp_name, settings, zkclient,
+    def __init__(self, comp_name, zkclient, path,
                  operational=False, parent=None, interval=10):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type zkclient: kazoo.client.KazooClient
+        :type path: str or None
         :type operational: bool
         :type parent: str or None
         :type interval: int or float
         """
-        SimplePredicate.__init__(self, comp_name, settings,
-                                 operational=operational, parent=parent)
+        SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.zkclient = zkclient
         self.interval = interval
+        self.path = path
         self._log = logging.getLogger('sent.{0}.holiday'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
 
@@ -74,16 +74,20 @@ class PredicateHoliday(SimplePredicate):
         """
         :type event: kazoo.protocol.states.WatchedEvent or None
         """
-        holiday_path = self._settings.get('ZK_HOLIDAY_PATH')
-        exists = self.zkclient.exists(holiday_path, watch=self._watch_node)
+        if self.path is None:
+            self._log.warning('No zookeeper path given. This predicate will'
+                              ' nevr be met.')
+            return
+
+        exists = self.zkclient.exists(self.path, watch=self._watch_node)
         if exists:
-            self._holidays = self.zkclient.get_children(holiday_path,
+            self._holidays = self.zkclient.get_children(self.path,
                                                         watch=self._watch_node)
             self._log.info('Got holidays {0}'.format(self._holidays))
             self._process_met()
         else:
             self._log.info('No gut node was found. Watcher is set at {0}'
-                           .format(holiday_path))
+                           .format(self.path))
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, started={3}, '

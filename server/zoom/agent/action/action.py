@@ -30,7 +30,7 @@ class Action(object):
         :type mode: zoom.agent.entities.thread_safe_object.ApplicationMode
         :type system: zoom.common.types.PlatformType
         :type pred_list: list
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type settings: dict
         :type disabled: bool
         :type pd_enabled: bool
         :type op_action: types.FunctionType or None
@@ -60,7 +60,7 @@ class Action(object):
             self._stag_lock = None
 
         factory = PredicateFactory(component_name=component_name,
-                                   parent=self.name, zkclient=zkclient,
+                                   action=self.name, zkclient=zkclient,
                                    proc_client=proc_client, system=system,
                                    pred_list=pred_list, settings=settings)
         self._predicate = factory.create(xmlpart.find('./Dependency/Predicate'),
@@ -87,6 +87,13 @@ class Action(object):
         :rtype: bool
         """
         return self._predicate.started
+
+    @property
+    def status(self):
+        """
+        :rtype: str
+        """
+        return '{0}:\n  {1}'.format(self, self._predicate)
 
     def start(self):
         self._log.debug('Starting {0}'.format(self))
