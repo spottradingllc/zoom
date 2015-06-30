@@ -31,8 +31,7 @@ __env_connections = {
 }
 
 
-# ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
-ZK_AGENT_CONFIG = '/test/sentinel'
+ZK_AGENT_CONFIG = '/spot/software/config/application/sentinel'
 ZOOM_CONFIG = '/spot/software/config/application/zoom'
 
 def get_zk_conn_string(env=None):
