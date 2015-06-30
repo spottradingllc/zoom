@@ -295,7 +295,8 @@ class Application(object):
             out += '\n{0}'.format(i.status)
         out += '\n'
         out += '#' * 40 + ' STATUS ' + '#' * 40
-        return self._log.info(out)
+
+        self._log.info(out)
 
     def restart(self, **kwargs):
         """
