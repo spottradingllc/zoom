@@ -62,12 +62,13 @@ class ZookeeperHasChildren(SimplePredicate):
 
     def __repr__(self):
         return ('{0}(component={1}, parent={2}, zkpath={3}, started={4}, '
-                'operational={5}, met={6})'
+                'ephemeral_only={5} operational={6}, met={7})'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.node,
                         self.started,
+                        self._ephemeral_only,
                         self._operational,
                         self.met))
 

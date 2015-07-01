@@ -300,9 +300,6 @@
                         <input type="text" class="form-control" placeholder="weekdays e.g., 0,1,3-5"
                                data-bind="tooltip, text: weekdays, value: weekdays, visible: beginEndVisible"
                                data-toggle="tooltip" data-placement="top" title="weekdays">
-                        <input type="text" class="form-control" placeholder="only ephemeral nodes?"
-                               data-bind="tooltip, text: ephemeralOnly, value: ephemeralOnly, visible: pathVisible"
-                               data-toggle="tooltip" data-placement="top" title="ephemeralOnly">
                         <!-- required attributes -->
                         <span class="dropdown">
                             <input type="text" class="form-control" required placeholder="path" data-toggle="dropdown"
@@ -319,6 +316,15 @@
                                 <ul class="dropdown-menu" role="menu" >
                                     <li><a href="#" data-bind="click: function(){operational('True')}">True</a></li>
                                     <li><a href="#" data-bind="click: function(){operational('False')}">False</a></li>
+                                </ul>
+                        </span>
+                        <span class="dropdown">
+                            <input type="text" class="form-control" placeholder="only ephemeral nodes?"
+                                   data-toggle="dropdown" data-bind="tooltip, value: ephemeralOnly, text: ephemeralOnly"
+                                   data-toggle="tooltip" data-placement="top" title="ephemeralOnly">
+                                <ul class="dropdown-menu" role="menu" >
+                                    <li><a href="#" data-bind="click: function(){ephemeralOnly('True')}">True</a></li>
+                                    <li><a href="#" data-bind="click: function(){ephemeralOnly('False')}">False</a></li>
                                 </ul>
                         </span>
                     </div>

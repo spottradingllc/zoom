@@ -62,12 +62,13 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
         indent_count = len(self._parent.split('/'))
         indent = '\n' + '    ' * indent_count
         return ('{0}(component={1}, parent={2}, glob_pattern={3}, started={4}, '
-                'operational={5}, met={6}, group=[{7}{8}]))'
+                'ephemeral_only={5}, operational={6}, met={7}, group=[{8}{9}]))'
                 .format(self.__class__.__name__,
                         self._comp_name,
                         self._parent,
                         self.nodepattern,
                         self.started,
+                        self._ephemeral_only,
                         self._operational,
                         self.met,
                         indent,
