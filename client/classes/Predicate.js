@@ -12,6 +12,7 @@ define(['knockout'],
             self.end = ko.observable(null);
             self.weekdays = ko.observable(null);
             self.operational = ko.observable(null);
+            self.ephemeralOnly = ko.observable(null);
 
             self.isLogicalPred = false;
 
@@ -149,6 +150,9 @@ define(['knockout'],
                 if (self.operational() !== null) {
                     XML = XML.concat('operational="' + self.operational() + '" ');
                 }
+                if (self.ephemeralOnly() !== null) {
+                    XML = XML.concat('ephemeral_only="' + self.ephemeralOnly() + '" ');
+                }
 
                 XML = XML.concat('></Predicate>');
 
@@ -164,6 +168,7 @@ define(['knockout'],
                 self.end(node.getAttribute('end'));
                 self.weekdays(node.getAttribute('weekdays'));
                 self.operational(node.getAttribute('operational'));
+                self.ephemeralOnly(node.getAttribute('ephemeral_only'));
 
             };
         };

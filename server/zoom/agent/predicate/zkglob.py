@@ -9,7 +9,7 @@ from zoom.agent.util.helpers import zk_path_join
 
 class ZookeeperGlob(ZookeeperHasGrandChildren):
     def __init__(self, comp_name, zkclient, nodepattern,
-                 operational=False, parent=None):
+                 ephemeral_only=True, operational=False, parent=None):
         """
         Predicate for watching Zookeeper nodes using unix-style glob matching.
 
@@ -21,8 +21,9 @@ class ZookeeperGlob(ZookeeperHasGrandChildren):
         """
         self.nodepattern = nodepattern
         self.node = self._get_deepest_non_glob_start(nodepattern)
-        ZookeeperHasGrandChildren.__init__(self, comp_name, zkclient,
-                                           self.node, operational=operational,
+        ZookeeperHasGrandChildren.__init__(self, comp_name, zkclient, self.node,
+                                           ephemeral_only=ephemeral_only,
+                                           operational=operational,
                                            parent=parent)
 
         self._log = logging.getLogger('sent.{0}.pred.glob'.format(comp_name))

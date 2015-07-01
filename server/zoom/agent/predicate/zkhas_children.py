@@ -5,7 +5,7 @@ from zoom.common.decorators import connected
 
 
 class ZookeeperHasChildren(SimplePredicate):
-    def __init__(self, comp_name, zkclient, nodepath,
+    def __init__(self, comp_name, zkclient, nodepath, ephemeral_only=True,
                  met_on_delete=False, operational=False, parent=None):
         """
         :type comp_name: str
@@ -18,6 +18,7 @@ class ZookeeperHasChildren(SimplePredicate):
         SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
+        self._ephemeral_only = ephemeral_only
         self._met_on_delete = met_on_delete
         self._log = logging.getLogger('sent.{0}.pred.hc'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
@@ -39,16 +40,19 @@ class ZookeeperHasChildren(SimplePredicate):
         if exists:
             children = self.zkclient.get_children(self.node,
                                                   watch=self._watch_node)
-            if children:
-                for c in children:
-                    path = '/'.join([self.node, c])
-                    data, stat = self.zkclient.get(path)
-                    # we only care about ephemeral children
-                    if stat.ephemeralOwner != 0:
-                        self.set_met(True)
-                        break
+            if self._ephemeral_only:
+                if children:
+                    for c in children:
+                        path = '/'.join([self.node, c])
+                        data, stat = self.zkclient.get(path)
+                        # we only care about ephemeral children
+                        if stat.ephemeralOwner != 0:
+                            self.set_met(True)
+                            break
+                else:
+                    self.set_met(False)
             else:
-                self.set_met(False)
+                self.set_met(bool(children))
         else:
             self._log.warning('Node {0} has been deleted.'.format(self.node))
             if self._met_on_delete:

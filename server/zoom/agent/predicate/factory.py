@@ -81,29 +81,35 @@ class PredicateFactory(object):
             )
         elif ptype == PredicateType.ZOOKEEPERHASCHILDREN:
             return self._ensure_new(
-                ZookeeperHasChildren(self._component_name,
-                                     self.zkclient,
-                                     verify_attribute(root, 'path'),
-                                     operational=operational,
-                                     parent=parent),
+                ZookeeperHasChildren(
+                    self._component_name,
+                    self.zkclient,
+                    verify_attribute(root, 'path'),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    operational=operational,
+                    parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERHASGRANDCHILDREN:
             return self._ensure_new(
-                ZookeeperHasGrandChildren(self._component_name,
-                                          self.zkclient,
-                                          verify_attribute(root, 'path'),
-                                          operational=operational,
-                                          parent=parent),
+                ZookeeperHasGrandChildren(
+                    self._component_name,
+                    self.zkclient,
+                    verify_attribute(root, 'path'),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    operational=operational,
+                    parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERGLOB:
             return self._ensure_new(
-                ZookeeperGlob(self._component_name,
-                              self.zkclient,
-                              verify_attribute(root, 'path'),
-                              operational=operational,
-                              parent=parent),
+                ZookeeperGlob(
+                    self._component_name,
+                    self.zkclient,
+                    verify_attribute(root, 'path'),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    operational=operational,
+                    parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.ZOOKEEPERGOODUNTILTIME:

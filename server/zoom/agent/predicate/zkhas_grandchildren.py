@@ -11,7 +11,7 @@ from zoom.common.decorators import connected, catch_exception
 
 class ZookeeperHasGrandChildren(SimplePredicate):
     def __init__(self, comp_name, zkclient, nodepath,
-                 operational=False, parent=None):
+                 ephemeral_only=True, operational=False, parent=None):
         """
         :type comp_name: str
         :type zkclient: kazoo.client.KazooClient
@@ -22,6 +22,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         SimplePredicate.__init__(self, comp_name, operational=operational, parent=parent)
         self.node = nodepath
         self.zkclient = zkclient
+        self._ephemeral_only = ephemeral_only
         self._children = list()
         self._log = logging.getLogger('sent.{0}.pred.hgc'.format(comp_name))
         self._log.info('Registered {0}'.format(self))
