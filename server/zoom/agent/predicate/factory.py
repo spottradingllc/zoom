@@ -85,7 +85,8 @@ class PredicateFactory(object):
                     self._component_name,
                     self.zkclient,
                     verify_attribute(root, 'path'),
-                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only',
+                                                    none_allowed=True, default=True),
                     operational=operational,
                     parent=parent),
                 callback=callback
@@ -96,7 +97,8 @@ class PredicateFactory(object):
                     self._component_name,
                     self.zkclient,
                     verify_attribute(root, 'path'),
-                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only',
+                                                    none_allowed=True, default=True),
                     operational=operational,
                     parent=parent),
                 callback=callback
@@ -107,7 +109,8 @@ class PredicateFactory(object):
                     self._component_name,
                     self.zkclient,
                     verify_attribute(root, 'path'),
-                    ephemeral_only=verify_attribute(root, 'ephemeral_only', default=True),
+                    ephemeral_only=verify_attribute(root, 'ephemeral_only',
+                                                    none_allowed=True, default=True),
                     operational=operational,
                     parent=parent),
                 callback=callback
