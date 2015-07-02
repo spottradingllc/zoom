@@ -49,7 +49,11 @@ class PredicateFactory(object):
         :type callback: types.FunctionType or None
         """
         if xmlpart is None:
-            return create_dummy(comp=self._component_name, parent=self._action)
+            # A dummy predicate will be returned if there are no predicates
+            # met is true b/c we don't want to block on no predicates
+            return create_dummy(comp=self._component_name,
+                                parent=self._action,
+                                met=True)
 
         if isinstance(xmlpart, str):
             root = ElementTree.fromstring(xmlpart)
@@ -197,10 +201,11 @@ class PredicateFactory(object):
         else:
             self._log.error('Unknown predicate type "{0}". Ignoring'
                             .format(ptype))
-
-            # A dummy predicate will be returned by the factory if there are no
-            # predicates, or if the config has an unknown predicate type.
-            return create_dummy(comp=self._component_name, parent=self._action)
+            # create dummy if it is an unknown predicate type.
+            # met is set to true b/c we don't want to block on error
+            return create_dummy(comp=self._component_name,
+                                parent=self._action,
+                                met=True)
 
     def _ensure_new(self, new, callback=None):
         """

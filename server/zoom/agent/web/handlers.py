@@ -74,6 +74,18 @@ class LogHandler(BaseHandler):
         self.render('templates/log.html', data=self.application.get_log())
 
 
+class StatusHandler(BaseHandler):
+    def post(self, target=None):
+        if target is not None:
+            self._send_work_single('status', target)
+        else:
+            result = self._send_work_all('status')
+            self.write(json.dumps(result))
+
+        data = self.application.get_log()
+        self.write('\n'.join(data))
+
+
 class LogVerbosityHandler(BaseHandler):
 
     def post(self, level):

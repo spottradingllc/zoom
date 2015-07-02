@@ -1,9 +1,12 @@
 import logging
 import tornado.web
 
-from zoom.agent.web.handlers import LogHandler
-from zoom.agent.web.handlers import LogVerbosityHandler
-from zoom.agent.web.handlers import WorkHandler
+from zoom.agent.web.handlers import (
+    LogHandler,
+    LogVerbosityHandler,
+    WorkHandler,
+    StatusHandler
+)
 
 
 class RestServer(tornado.web.Application):
@@ -16,6 +19,7 @@ class RestServer(tornado.web.Application):
         handlers = [
             (r"/log", LogHandler),
             (r'/loglevel/(?P<level>\w+)', LogVerbosityHandler),
+            (r"/status/?(?P<target>[\w|\/]+)?", StatusHandler),
             (r"/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", WorkHandler),
         ]
         tornado.web.Application.__init__(self, handlers)

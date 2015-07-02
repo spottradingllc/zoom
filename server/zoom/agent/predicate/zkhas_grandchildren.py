@@ -96,6 +96,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         else:
             # This is a placeholder for when the path the ZKHGC is given a path
             # that doesn't exist
+            # met is False b/c if the path doesn't exist we don't want to succeed.
             self._children.append(
                 create_dummy(comp=self._comp_name, parent=self._parent))
             self._log.warning('Node {0} does not exist. Will wait until it '

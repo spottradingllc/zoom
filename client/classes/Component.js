@@ -10,7 +10,7 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
             self.startCommand = ko.observable(null);
             self.stopCommand = ko.observable(null);
             self.statusCommand = ko.observable(null);
-            self.postStopSleep = ko.observable(null)
+            self.postStopSleep = ko.observable(null);
             self.restartmax = ko.observable(null);
             self.restartOnCrash = ko.observable(null);
             self.registrationpath = ko.observable(null);
@@ -69,7 +69,7 @@ define(['knockout', './Action', 'model/constants', 'bindings/tooltip'],
                 if (!checkNull(self.ID()) || !checkNull(self.compType())) {
                     errors.push('Component ID and type cannot be null.');
                 }
-                if (self.compType() === 'job' && !checkNull(self.command()) ) {
+                if (self.compType() === 'job' && !checkNull(self.startCommand()) ) {
                     errors.push('Component command cannot be null for jobs.');
                 }
                 else if (self.compType() === 'application' && !checkNull(self.script())) {

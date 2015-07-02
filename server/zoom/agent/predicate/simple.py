@@ -123,14 +123,12 @@ class SimplePredicate(object):
         return hash(self.__repr__())
 
 
-def create_dummy(comp='', parent=None):
+def create_dummy(comp='', parent=None, met=False):
     """
-
-    This will ensure that while the path doesn't exist, self.met
-        returns False.
+    Create a SimplePredicate that does nothing.
     :rtype: zoom.agent.predicate.simple.SimplePredicate
     """
     dummy = SimplePredicate(comp, parent=parent)
-    dummy.set_met(False, silent=True)
+    dummy.set_met(met, silent=True)
     dummy.start()
     return dummy
