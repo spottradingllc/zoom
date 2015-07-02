@@ -268,11 +268,6 @@ class Application(object):
 
         result = self._proc_client.stop(**kwargs)
 
-        if result != 0 and kwargs.get('argument', 'false') == 'false':
-            self._state.set_value(ApplicationState.ERROR, run_callback=False)
-        else:
-            self._state.set_value(ApplicationState.STOPPED, run_callback=False)
-
         # give everything time to catch up, not sure why anymore...
         self._log.info('Sleeping for the configured {0}s after stop.'
                        .format(self._post_stop_sleep))
@@ -280,6 +275,11 @@ class Application(object):
 
         # reset this value back to False
         self._user_set_in_react = False
+
+        if result != 0 and kwargs.get('argument', 'false') == 'false':
+            self._state.set_value(ApplicationState.ERROR)
+        else:
+            self._state.set_value(ApplicationState.STOPPED)
 
         return result
 
