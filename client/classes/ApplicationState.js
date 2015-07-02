@@ -56,6 +56,9 @@ define(
 
             self.applicationStatusBg = ko.computed(function() {
                 if (self.grayed()) { return constants.colors.disabledGray; }
+                else if (self.errorState().toLowerCase() == constants.errorStates.unknown) {
+                    return constants.colors.unknownGray;
+                }
                 else if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
                     return constants.colors.successTrans;
                 }
