@@ -27,6 +27,7 @@ class ProcessClient(object):
         :type apptype: zoom.common.types.ApplicationType
         :type restart_logic: zoom.agent.entities.restart.RestartLogic
         :type graphite_metric_names: dict
+        :type cancel_flag: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         """
         assert any((name, start_cmd, script)), \
             ('Cannot initialize ProcessClient if name, command, and script'
@@ -197,7 +198,9 @@ class ProcessClient(object):
         :rtype: bool
         """
         if self.status_cmd is not None:
-            return self._run_command(self.status_cmd, stdout=False) == 0
+            # -2 is a cancelled process run.
+            # Ignore these b/c otherwise we think it's a crash
+            return self._run_command(self.status_cmd, stdout=False) in (0, -2)
         else:
             return bool(self._find_application_processes())
 
@@ -244,7 +247,9 @@ class ProcessClient(object):
         :return: Whether the status command exited with 0
         :rtype: bool
         """
-        return self._service_interface('status') == 0
+        # -2 is a cancelled process run.
+        # Ignore these b/c otherwise we think it's a crash
+        return self._service_interface('status') in (0, -2)
 
     def _service_stop(self):
         self._log.info('Stopping {0}'.format(self.name))
