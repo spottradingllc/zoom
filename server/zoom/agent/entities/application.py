@@ -608,12 +608,12 @@ class Application(object):
 
         graphite = self._settings.get('graphite')
         if graphite is not None:
-            result_path = graphite.get('result')
-            runtime_path = graphite.get('runtime')
-            updown_path = graphite.get('updown')
+            result_path = str(graphite.get('result'))
+            runtime_path = str(graphite.get('runtime'))
+            updown_path = str(graphite.get('updown'))
 
-            names["result"] = result_path.format(type_metric),
-            names["runtime"] = runtime_path.format(type_metric),
+            names["result"] = result_path.format(type_metric)
+            names["runtime"] = runtime_path.format(type_metric)
             names["updown"] = updown_path.format(type_metric)
 
         return names
