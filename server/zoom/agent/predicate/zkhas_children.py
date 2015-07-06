@@ -1,5 +1,6 @@
 import logging
 
+from kazoo.exceptions import NoNodeError
 from zoom.agent.predicate.simple import SimplePredicate
 from zoom.common.decorators import connected
 
@@ -44,11 +45,15 @@ class ZookeeperHasChildren(SimplePredicate):
                 if children:
                     for c in children:
                         path = '/'.join([self.node, c])
-                        data, stat = self.zkclient.get(path)
-                        # we only care about ephemeral children
-                        if stat.ephemeralOwner != 0:
-                            self.set_met(True)
-                            break
+                        try:
+                            data, stat = self.zkclient.get(path)
+                            # we only care about ephemeral children
+                            if stat.ephemeralOwner != 0:
+                                self.set_met(True)
+                                break
+                        except NoNodeError:
+                            self._log.debug('Node does not exist: {0}'.format(path))
+                            continue
                 else:
                     self.set_met(False)
             else:
