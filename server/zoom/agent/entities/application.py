@@ -421,6 +421,7 @@ class Application(object):
 
         return action is not None and action.ready
 
+    @catch_exception(NoNodeError)
     @connected
     def _update_agent_node_with_app_details(self, event=None):
         """
