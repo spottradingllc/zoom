@@ -500,7 +500,7 @@ class Application(object):
                              status_cmd=status_cmd,
                              script=script,
                              apptype=atype,
-                             restart_logic=RestartLogic(restartmax),
+                             restart_logic=RestartLogic(self.name, restartmax),
                              graphite_metric_names=g_names,
                              cancel_flag=cancel_flag)
 

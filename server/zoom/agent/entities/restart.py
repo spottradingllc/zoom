@@ -5,11 +5,11 @@ class RestartLogic(object):
     """
     Determines if service restarts are allowed or not
     """
-    def __init__(self, restart_max):
+    def __init__(self, component, restart_max):
         """
         :param restart_max: int or none
         """
-        self._log = logging.getLogger('sent.restart')
+        self._log = logging.getLogger('sent.{0}.restart'.format(component))
         self._restart_max = restart_max
         self._agent_restarted = True
         self.stay_down = False
