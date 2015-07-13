@@ -644,6 +644,7 @@ define(
                         row.pdDisabled(update.pd_disabled);
                         row.grayed(update.grayed);
                         row.platform(update.platform);
+                        row.restartCount(update.restart_count);
                     }
                     else {
                         // add new item to array

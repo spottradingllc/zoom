@@ -559,6 +559,7 @@
                         <span data-bind="attr : {class : modeClass, title : mode}"></span>
                         <span data-bind="attr : {class : readOnlyClass}"  title="Read Only"></span>
                         <span data-bind="attr : {class : pdDisabledClass, title: pdDisabled() ? 'PD alerts disabled' : ''}"></span>
+                        <span data-bind="text: restartCount, visible: (restartCount() > 0 && errorState() == 'starting')"></span>
                     </td>
                     <!-- Control -->
                     <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
