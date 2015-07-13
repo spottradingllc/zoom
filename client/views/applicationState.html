@@ -462,9 +462,65 @@
             <!-- Rows -->
             <tbody data-bind="foreach: appStateModel.appsToShow">
                 <tr>
+                   <!-- UP/DOWN -->
                     <td data-bind="style : {backgroundColor : applicationStatusBg}" class="text-center">
                         <span data-bind="attr : {class : applicationStatusClass}"></span>
                     </td>
+                    <!-- Control -->
+                    <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
+                        <div class="btn-group btn-group-xs" >
+                            <button class="btn btn-default" type="button"
+                                    data-bind="click: toggleGroupControl"
+                                    data-toggle="tooltip" data-placement="top" title="Star the agent to add it to group control.">
+                                    <span data-bind="attr : {class : groupControlStar}"></span>
+                            </button>
+                            <button class="btn btn-default dropdown-toggle" type="button"
+                                    data-toggle="dropdown" data-toggle="tooltip" data-placement="top"
+                                    title="View control options for the agent.">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-left" role="menu">
+                                <li role="presentation">
+                                <a style="cursor: pointer" data-bind="click: function()
+                                    {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
+                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Stop the service.">Stop</a>
+                                </li>
+                                <li role="presentation">
+                                <a style="cursor: pointer" data-bind="click: function()
+                                    {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
+                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Restart the service.">Restart</a>
+                                </li>
+                                <li style="cursor: pointer" role="presentation">
+                                    <a data-bind="click: function()
+                                     {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Cancel running command.">Cancel</a>
+                                </li>
+                                <li style="cursor: pointer" role="presentation">
+                                    <a data-bind="click: function()
+                                      {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
+                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Command the agent to ignore Zookeeper changes.">Ignore</a>
+                                </li>
+                                <li style="cursor: pointer" role="presentation">
+                                    <a data-bind="click: function()
+                                     {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Command the agent to react to Zookeeper changes.">React</a>
+                                </li>
+                                <li style="cursor: pointer" role="presentation">
+                                    <a data-bind="click: function()
+                                     {$parent.appStateModel.displayOpdep({'componentId':componentId,
+                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
+                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Downstream Opdep</a>
+                                </li>
+                           </ul>
+                        </div>
+                    </td>
+                    <!-- END Control -->
+                    <!-- App ID -->
                     <td data-toggle="tooltip"
                         data-placement="top">
                         <span title="Toggle the display of dependencies." class="cursor-pointer" 
@@ -505,6 +561,8 @@
                              data-bind="visible: (appInfo.showInfo() && !$parent.login.elements.authenticated()), text: appInfo.data">
                         </div>
                     </td>
+                    <!-- END App ID -->
+                    <!-- Host -->
                     <td class="text-left">
                         <div class="dropdown server-opt"> 
                             <div class="dropdown-toggle"
@@ -561,60 +619,7 @@
                         <span data-bind="attr : {class : pdDisabledClass, title: pdDisabled() ? 'PD alerts disabled' : ''}"></span>
                         <span data-bind="text: restartCount, visible: (restartCount() > 0 && errorState() == 'starting')"></span>
                     </td>
-                    <!-- Control -->
-                    <td class="text-center" data-bind="visible: $parent.login.elements.authenticated">
-                        <div class="btn-group btn-group-xs" >
-                            <button class="btn btn-default" type="button"
-                                    data-bind="click: toggleGroupControl"
-                                    data-toggle="tooltip" data-placement="top" title="Star the agent to add it to group control.">
-                                    <span data-bind="attr : {class : groupControlStar}"></span>
-                            </button>
-                            <button class="btn btn-default dropdown-toggle" type="button"
-                                    data-toggle="dropdown" data-toggle="tooltip" data-placement="top"
-                                    title="View control options for the agent.">
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu pull-right" role="menu">
-                                <li role="presentation">
-                                <a style="cursor: pointer" data-bind="click: function()
-                                    {$parent.appStateModel.controlAgent({'com':'stop', 'stay_down':true}, {'componentId':componentId,
-                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Stop the service.">Stop</a>
-                                </li>
-                                <li role="presentation">
-                                <a style="cursor: pointer" data-bind="click: function()
-                                    {$parent.appStateModel.controlAgent({'com':'restart', 'stay_down':false}, {'componentId':componentId,
-                                    'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Restart the service.">Restart</a>
-                                </li>
-                                <li style="cursor: pointer" role="presentation">
-                                    <a data-bind="click: function()
-                                     {$parent.appStateModel.controlAgent({'com':'cancel'}, {'componentId':componentId,
-                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Cancel running command.">Cancel</a>
-                                </li>
-                                <li style="cursor: pointer" role="presentation">
-                                    <a data-bind="click: function()
-                                      {$parent.appStateModel.controlAgent({'com':'ignore'}, {'componentId':componentId,
-                                      'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Command the agent to ignore Zookeeper changes.">Ignore</a>
-                                </li>
-                                <li style="cursor: pointer" role="presentation">
-                                    <a data-bind="click: function()
-                                     {$parent.appStateModel.controlAgent({'com':'react'}, {'componentId':componentId,
-                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Command the agent to react to Zookeeper changes.">React</a>
-                                </li>
-                                <li style="cursor: pointer" role="presentation">
-                                    <a data-bind="click: function()
-                                     {$parent.appStateModel.displayOpdep({'componentId':componentId,
-                                     'configurationPath': configurationPath, 'applicationHost': applicationHost()})}"
-                                       data-toggle="tooltip" data-placement="top" title="Show Downstream Operational Dependencies for this service">Downstream Opdep</a>
-                                </li>
-                           </ul>
-                        </div>
-                    </td>
-                    <!-- END Control -->
+
                     <!-- Admin -->
                     <td class="text-center" data-bind="visible: $parent.appStateModel.admin.enabled">
                         <div class="btn-group btn-group-xs" >
