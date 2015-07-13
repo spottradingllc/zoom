@@ -33,6 +33,7 @@ define(
             self.lastCommand = ko.observable(data.last_command);
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
+            self.restartCount = ko.observable(data.restart_count);
 
             self.applicationStatusClass = ko.computed(function() {
                 if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {

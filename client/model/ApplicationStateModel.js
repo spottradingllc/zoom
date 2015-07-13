@@ -43,12 +43,12 @@ define(
 
             self.headers = [
                 {title: 'Up/Down', sort: true, sortPropertyName: 'applicationStatusBg', asc: ko.observable(false)},
+                {title: 'Control', sort: false, sortPropertyName: null, asc: ko.observable(true)},
                 {title: 'Application ID', sort: true, sortPropertyName: 'configurationPath', asc: ko.observable(true)},
                 {title: 'Host', sort: true, sortPropertyName: 'applicationHost', asc: ko.observable(true)},
                 {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
                 {title: 'Last Update', sort: true, sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
                 {title: 'Status', sort: true, sortPropertyName: 'errorStateClass', asc: ko.observable(true)},
-                {title: 'Control', sort: false, sortPropertyName: null, asc: ko.observable(true)},
                 {title: 'Admin', sort: false, sortPropertyName: null, asc: ko.observable(true)}
             ];
 
@@ -136,12 +136,12 @@ define(
             };
 
             self.removeFromOpdepAppStateArray = function(appState){
-                self.opdepAppStateArray.remove(appState)
+                self.opdepAppStateArray.remove(appState);
                 //close modal if no services are selected
                 if (self.opdepAppStateArray().length === 0){
                     $('#opdepModal').modal('hide');
                 }
-            }
+            };
 
             self.removeFromGroupControl = function(appState){
                 self.groupControl.remove(appState)
@@ -149,12 +149,12 @@ define(
                 if (self.groupControl().length === 0){
                     $('#groupCheckModal').modal('hide');
                 }
-            }
+            };
 
             self.removeFromClickedApp = function(){
                 self.clickedApp({});
                 $('#groupCheckModal').modal('hide');
-            }
+            };
 
             self.opdepAppStateArray = ko.observableArray([]);
 
@@ -200,7 +200,7 @@ define(
                 else {
                     console.log('No options are enabled')
                 }
-            }
+            };
 
             self.createOpdepStateArray = function(){
                 var opdep_ajax;
@@ -208,7 +208,7 @@ define(
                     //iterate groupcontrol and create array
                     for (i = 0; i < self.groupControl().length; i++){
                         ApplicationState = self.groupControl()[i]
-                        opdep_ajax = self.OpdepAjax(ApplicationState.configurationPath)
+                        opdep_ajax = self.OpdepAjax(ApplicationState.configurationPath);
                         if (i === (self.groupControl().length - 1)){
                             self.addtoOpdepArray(opdep_ajax, true)
                         }
@@ -219,7 +219,7 @@ define(
                     }
                 }
                 else{
-                    opdep_ajax = self.OpdepAjax(self.clickedApp().configurationPath)
+                    opdep_ajax = self.OpdepAjax(self.clickedApp().configurationPath);
                     self.addtoOpdepArray(opdep_ajax, true)
                 }
             };
@@ -352,7 +352,7 @@ define(
             self.path_message_paths = function(path_array){
                 var message = '';
                 ko.utils.arrayForEach(path_array.sort(), function(path)  {
-                    path = path.replace(self.constants.zkPaths.appStatePath, '')
+                    path = path.replace(self.constants.zkPaths.appStatePath, '');
                     message = message + path + '\n';
                 });
                 return message
@@ -368,7 +368,7 @@ define(
                 }
 
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
-                    path = appstate.componentId.replace(self.constants.zkPaths.appStatePath, '')
+                    path = appstate.componentId.replace(self.constants.zkPaths.appStatePath, '');
                     message = message + path + '\n';
                 });
                 return message
@@ -644,6 +644,7 @@ define(
                         row.pdDisabled(update.pd_disabled);
                         row.grayed(update.grayed);
                         row.platform(update.platform);
+                        row.restartCount(update.restart_count);
                     }
                     else {
                         // add new item to array

@@ -9,7 +9,7 @@ class ApplicationState(object):
                  last_update=None, start_stop_time=None, error_state=None,
                  local_mode=None, delete=False, login_user=None,
                  last_command=None, read_only=None, grayed=None,
-                 pd_disabled=None, platform=None):
+                 pd_disabled=None, platform=None, restart_count=None):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -25,6 +25,7 @@ class ApplicationState(object):
         self._grayed = grayed
         self._pd_disabled = pd_disabled
         self._platform = platform
+        self._restart_count = restart_count
 
     def __del__(self):
         pass
@@ -95,5 +96,6 @@ class ApplicationState(object):
             'read_only': self._read_only,
             'grayed': self._grayed,
             'pd_disabled': self._pd_disabled,
-            'platform': self._platform
+            'platform': self._platform,
+            'restart_count': self._restart_count,
         }

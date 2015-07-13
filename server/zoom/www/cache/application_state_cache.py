@@ -210,7 +210,8 @@ class ApplicationStateCache(object):
                 last_command=self._get_last_command(data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed'),
-                platform=data.get('platform', 'unknown')
+                platform=data.get('platform', 'unknown'),
+                restart_count=data.get('restart_count', 0),
             )
 
         # ephemeral node
@@ -242,7 +243,8 @@ class ApplicationStateCache(object):
                 last_command=self._get_last_command(parent_data),
                 pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
                 grayed=self._get_existing_attribute(path, 'grayed'),
-                platform=parent_data.get('platform', 'unknown')
+                platform=parent_data.get('platform', 'unknown'),
+                restart_count=parent_data.get('restart_count', 0),
             )
 
         return application_state

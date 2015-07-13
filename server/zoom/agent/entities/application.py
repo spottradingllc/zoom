@@ -92,6 +92,14 @@ class Application(object):
         self._run_check_mode = False
         self._pd_svc_key = verify_attribute(config, 'pagerduty_service',
                                             none_allowed=True)
+
+        restartmax = verify_attribute(config, 'restartmax', none_allowed=True,
+                                      cast=int, default=3)
+        self._rl = RestartLogic(
+            self.name,
+            restartmax,
+            count_callback=self._update_agent_node_with_app_details)
+
         self._read_only = False
 
         self._paths = self._init_paths(self.config, settings, application_type)
@@ -123,7 +131,8 @@ class Application(object):
                 'state': self._state.value,
                 'start_stop_time': self._start_stop_time,
                 'login_user': self._login_user,
-                'read_only': self._read_only}
+                'read_only': self._read_only,
+                'restart_count': self._rl.count}
 
     def run(self):
         """
@@ -147,8 +156,9 @@ class Application(object):
                 sleep(5)
 
             self.uninitialize()
-        except TimeoutError:
-            self._log.critical('Timed out to Zookeeper! In a bad state.')
+        except Exception as ex:
+            self._log.critical('There was an exception in the main loop. '
+                               'In a bad state. ({0})'.format(ex))
 
     @catch_exception(NodeExistsError)
     @connected
@@ -491,8 +501,7 @@ class Application(object):
         stop_cmd = verify_attribute(config, 'stop_cmd', none_allowed=True)
         status_cmd = verify_attribute(config, 'status_cmd', none_allowed=True)
         script = verify_attribute(config, 'script', none_allowed=True)
-        restartmax = verify_attribute(config, 'restartmax', none_allowed=True,
-                                      cast=int, default=3)
+
         g_names = self._get_graphite_metric_names()
 
         return ProcessClient(name=self.name,
@@ -501,7 +510,7 @@ class Application(object):
                              status_cmd=status_cmd,
                              script=script,
                              apptype=atype,
-                             restart_logic=RestartLogic(self.name, restartmax),
+                             restart_logic=self._rl,
                              graphite_metric_names=g_names,
                              cancel_flag=cancel_flag)
 

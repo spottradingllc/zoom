@@ -56,8 +56,8 @@ def verify_attribute(xmlpart, attribute,
                          .format(attribute, ElementTree.tostring(xmlpart)))
     else:
         if a is None:
-            _log.info('Returning default value: {0} for attribute: {1}'
-                      .format(default, attribute))
+            _log.debug('Returning default value: {0} for attribute: {1}'
+                       .format(default, attribute))
             return default
         elif a.upper() == 'TRUE':
             return True
