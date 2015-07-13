@@ -46,7 +46,7 @@ class ApplicationOpdepHandler(tornado.web.RequestHandler):
         app_cache = self.data_store.load_application_dependency_cache()
         item = app_cache.application_dependencies.get(parent_path, {})
 
-        for downstream in item.get("downstream", None):
+        for downstream in item.get("downstream", {}):
             item = app_cache.application_dependencies.get(downstream, {})
             for dependency in item.get('dependencies', None):
                 # Checks both HasChildren and HasGrandChildren predicates
