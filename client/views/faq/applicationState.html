@@ -97,7 +97,14 @@
                                 <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
                                 <span data-bind="attr: {class: constants.glyphs.modeAuto}"></span>
                             </td>
-                            <td width="80%">The sentinel mode has been set to 'react.' This means that it will react to dependency changes. You will most often see this if you send a dep_restart (restart with dependencies).</td>
+                            <td width="80%">The sentinel mode has been set to 'react.' This means that it will react to dependency changes. You will most often see this if you send a restart with dependencies.</td>
+                        </tr>
+                        <tr>
+                            <td width="20%" data-bind="style : {backgroundColor : constants.colors.warnOrange}">
+                                <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
+                                <span data-bind="attr: {class: constants.glyphs.modeManual}"></span>
+                            </td>
+                            <td width="80%">The sentinel mode has been set to 'ignore', and this differs from the global setting. This means that it will NOT react to dependency changes. You will most often see this if you send restart with dependencies and a few of the apps you have targeted are still in the process of stopping.</td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
