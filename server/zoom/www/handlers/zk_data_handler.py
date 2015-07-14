@@ -23,8 +23,10 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        Get data on a Zookeeper path
-        :type path: str
+        @api {get} /api/zookeeper/:path Get data on a Zookeeper path
+        @apiVersion 1.0.0
+        @apiName GetZkData
+        @apiGroup Zookeeper
         """
         ret = {"method": 'GET', "path": path, "code": httplib.OK,
                "data": None, "error": None}
@@ -47,8 +49,10 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def put(self, path):
         """
-        Set data on a Zookeeper path
-        :type path: str
+        @api {put} /api/zookeeper/:path Set data on a Zookeeper path
+        @apiVersion 1.0.0
+        @apiName SetZkData
+        @apiGroup Zookeeper
         """
         ret = {"method": 'PUT', "path": path, "code": httplib.OK,
                "data": None, "error": None}
@@ -66,8 +70,10 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def head(self, path):
         """
-        Return whether the path exists in Zookeeper
-        :type path: str
+        @api {head} /api/zookeeper/:path Return whether the path exists in Zookeeper
+        @apiVersion 1.0.0
+        @apiName CheckZkNode
+        @apiGroup Zookeeper
         """
         ret = {"method": 'HEAD', "path": path, "code": httplib.OK,
                "data": None, "error": None}
@@ -81,8 +87,11 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, path):
         """
-        Create Zookeeper node
-        :type path: str
+        @api {post} /api/zookeeper/:path Create Zookeeper node
+        @apiParam {String} [data=''] Any string of data to set in the Zookeeper node
+        @apiVersion 1.0.0
+        @apiName CreateZkNode
+        @apiGroup Zookeeper
         """
         ret = {"method": 'POST', "path": path, "code": httplib.OK,
                "data": None, "error": None}
@@ -111,9 +120,11 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self, path):
         """
-        Uses custom header in the form:
-            {'recurse': 'False'}
-        :type path: str
+        @api {delete} /api/zookeeper/:path Delete Zookeeper path
+        @apiHeader {Boolean} [recurse=False]
+        @apiVersion 1.0.0
+        @apiName DeleteZkNode
+        @apiGroup Zookeeper
         """
         ret = {"method": 'DELETE', "path": path, "code": httplib.OK,
                "data": None, "error": None}

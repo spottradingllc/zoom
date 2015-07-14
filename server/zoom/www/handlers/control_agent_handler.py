@@ -26,7 +26,15 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        Create Task from json and add to TaskServer
+        @api {post} /api/agent/ Create Task from json and add to TaskServer
+        @apiParam {Boolean} [stay_down=null] Used to signal to Sentinel that the application was brought down on purpose
+        @apiParam {String} [login_user=null] The user that submitted the task
+        @apiParam {String} command The function Sentinel should run
+        @apiParam {String} componentId The app targeted for the task
+        @apiParam {String} applicationHost The host the app is running on
+        @apiVersion 1.0.0
+        @apiName CreateTask
+        @apiGroup Task
         """
         try:
             kwarguments = {
@@ -51,14 +59,20 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self):
         """
-        Delete all tasks in queue
+        @api {delete} /api/agent/ Delete all tasks in queue
+        @apiVersion 1.0.0
+        @apiName DeleteTasks
+        @apiGroup Task
         """
         self.task_server.clear_all_tasks()
 
     @TimeThis(__file__)
     def get(self):
         """
-        Get live and queued tasks
+        @api {delete} /api/agent/ Get live and queued tasks
+        @apiVersion 1.0.0
+        @apiName GetTasks
+        @apiGroup Task
         """
         self.write({
             "queued_tasks": self.task_server.queued_tasks,

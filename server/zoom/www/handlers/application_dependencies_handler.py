@@ -25,6 +25,12 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self, path):
+        """
+        @api {get} /api/application/dependencies/[:id] Get Application's dependencies
+        @apiVersion 1.0.0
+        @apiName GetAppDep
+        @apiGroup Dependency
+        """
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))
         try:

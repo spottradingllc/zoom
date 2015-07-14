@@ -37,7 +37,13 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        Save filter
+        Save service info
+        @api {post} /tools/refactor_path/ Rename a path in Zookeeper, keeping data
+        @apiParam {String} oldPath The path to change
+        @apiParam {String} newPath What to change the oldPath to
+        @apiVersion 1.0.0
+        @apiName ChangePath
+        @apiGroup ChangePath
         """
         # check if the path exists
         if not self.zk.exists(self.old_path):

@@ -19,6 +19,13 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
     def post(self):
         """
         Save service info
+        @api {post} /api/serviceinfo/ Set server notes
+        @apiParam {String} loginName The user that submitted the task
+        @apiParam {String} configurationPath A Zookeeper path corresponding with an Application
+        @apiParam {String} serviceInfo The notes about an application
+        @apiVersion 1.0.0
+        @apiName SetNotes
+        @apiGroup ServerInfo
         """
         try:
             login_name = self.get_argument("loginName")
@@ -48,6 +55,11 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
     def get(self):
         """
         Get service info
+        @api {get} /api/serviceinfo/ Get server Notes
+        @apiParam {String} login_user The user that submitted the task
+        @apiVersion 1.0.0
+        @apiName GetNotes
+        @apiGroup ServerInfo
         """
         try:
             configuration_path = self.get_argument("configurationPath")

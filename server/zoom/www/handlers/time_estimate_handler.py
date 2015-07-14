@@ -15,6 +15,12 @@ class TimeEstimateHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
+        """
+        @api {get} /api/timingestimate Get an estimate on when all apps will be up
+        @apiVersion 1.0.0
+        @apiName GetEstimate
+        @apiGroup Estimate
+        """
         try:
             logging.info('Retrieving Timing Estimate')
 

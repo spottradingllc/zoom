@@ -34,6 +34,12 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def put(self, server):
+        """
+        @api {put} /api/config/:host Create|Update sentinel config
+        @apiVersion 1.0.0
+        @apiName UpdateSentinel
+        @apiGroup SentinelConfig
+        """
         logging.info('Updating server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         zk_path = zk_path_join(self.agent_configuration_path, server)
@@ -62,6 +68,12 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self, server):
+        """
+        @api {get} /api/config/:host Get sentinel config for server
+        @apiVersion 1.0.0
+        @apiName GetSentinel
+        @apiGroup SentinelConfig
+        """
         logging.info('Searching for server {0}'.format(server))
         path = zk_path_join(self.agent_configuration_path, server)
 
@@ -81,6 +93,13 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def post(self, server):
+        """
+        @api {post} /api/config/:host Create sentinel config
+        @apiParam {String} XML A string containing the XML of the Sentinel Config
+        @apiVersion 1.0.0
+        @apiName CreateSentinel
+        @apiGroup SentinelConfig
+        """
         logging.info('Adding server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         path = zk_path_join(self.agent_configuration_path, server)
@@ -104,6 +123,12 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def delete(self, server):
+        """
+        @api {put} /api/config/:host Delete sentinel config
+        @apiVersion 1.0.0
+        @apiName DeleteSentinel
+        @apiGroup SentinelConfig
+        """
         logging.info('Deleting server {0} for client'
                      .format(server, self.request.remote_ip))
         path = zk_path_join(self.agent_configuration_path, server)

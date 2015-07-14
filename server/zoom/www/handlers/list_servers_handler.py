@@ -23,6 +23,12 @@ class ListServersHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
+        """
+        @api {get} /api/config/list_servers/ List pillar servers
+        @apiVersion 1.0.0
+        @apiName ListSentServers
+        @apiGroup SentinelConfig
+        """
         logging.info('Generating list of nodes')
 
         # get all nodes at the root config path

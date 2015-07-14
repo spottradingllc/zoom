@@ -34,6 +34,12 @@ class GlobalModeHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
+        """
+        @api {get} /api/mode/ Get global mode
+        @apiVersion 1.0.0
+        @apiName GetMode
+        @apiGroup Mode
+        """
         try:
             message = self.data_store.get_global_mode()
 
@@ -49,7 +55,12 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        Set global Mode
+        @api {post} /api/mode/ Set global Mode
+        @apiParam {String} command What to set the mode to (auto|manual)
+        @apiParam {String} user The user that submitted the task
+        @apiVersion 1.0.0
+        @apiName SetMode
+        @apiGroup Mode
         """
         try:
             # parse JSON dictionary from POST
