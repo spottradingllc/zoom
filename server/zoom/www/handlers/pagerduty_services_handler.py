@@ -17,6 +17,12 @@ class PagerDutyServicesHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
+        """
+        @api {get} /api/pagerduty/services/ Get PagerDuty Services
+        @apiVersion 1.0.0
+        @apiName GetPDSvc
+        @apiGroup PagerDuty
+        """
         try:
             self.write(json.dumps(self.data_store.pagerduty_services))
 

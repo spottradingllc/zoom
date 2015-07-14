@@ -21,7 +21,11 @@ class FiltersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        Retrieve filter
+        @api {get} /api/filters Retrieve filters for user
+        @apiParam {String} loginName The user that submitted the task
+        @apiVersion 1.0.0
+        @apiName GetFilters
+        @apiGroup Filters
         """
         try:
             login_name = self.get_argument("loginName")
@@ -42,7 +46,16 @@ class FiltersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        Save filter
+        @api {post} /api/filters Save|Delete filter for user
+        @apiParam {String} operation add|remove
+        @apiParam {String} name The name of the filter
+        @apiParam {String} loginName The user that submitted the task
+        @apiParam {String} parameter The type of search filter
+        @apiParam {String} searchTerm The search variable
+        @apiParam {Boolean} inversed Whether to inverse the search
+        @apiVersion 1.0.0
+        @apiName ManageFilter
+        @apiGroup Filters
         """
         try:
             operation = self.get_argument("operation")

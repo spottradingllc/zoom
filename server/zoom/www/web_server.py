@@ -89,11 +89,13 @@ class WebServer(tornado.web.Application):
             # tornado-specific
             (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": ""}),
             (r'/front-end/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.client_path}),
+            (r'/doc/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.doc_path}),
             (r'/(.*\.html)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),
             (r'/images/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.images_path}),
             (r'/(.*\.json)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),
 
-            (r'/', tornado.web.RedirectHandler, {"url": "/index.html"})
+            (r'/', tornado.web.RedirectHandler, {"url": "/index.html"}),
+            (r'/doc', tornado.web.RedirectHandler, {"url": "/doc/index.html"})
         ]
 
         settings = dict(

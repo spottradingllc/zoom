@@ -39,6 +39,7 @@ class Configuration(object):
 
             self._application_path = os.getcwd()
             self._client_path = zk_path_join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), 'client')
+            self._doc_path = zk_path_join((os.path.normpath(os.getcwd() + os.sep + os.pardir)), "doc")
             self._html_path = zk_path_join(self._client_path, "views")
             self._images_path = zk_path_join(self._client_path, "images")
             self._pid = os.getpid()
@@ -115,6 +116,10 @@ class Configuration(object):
     @property
     def application_path(self):
         return self._application_path
+
+    @property
+    def doc_path(self):
+        return self._doc_path
 
     @property
     def client_path(self):

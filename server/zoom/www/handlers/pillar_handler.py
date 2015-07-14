@@ -1,6 +1,5 @@
 import json
 import logging
-import os.path
 import re
 import tornado.web
 import tornado.httpclient
@@ -30,12 +29,10 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, data):
         """
-        :type data: str
-
-        GET /{minion} > All data
-        GET /{minion}/{project} > Project data
-        GET /{minion}/{project}/subtype > subtype
-        GET /{minion}/{project}/version > version
+        @api {get} /api/pillar/:minion[/:project][/:key] Get a host's pillar values
+        @apiVersion 1.0.0
+        @apiName GetPillarData
+        @apiGroup Pillar
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
@@ -71,6 +68,7 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, data):
         """
+        @apiIgnore To be documented
         :type data: str
 
         JSON-only for creating a project with arb. data
@@ -119,6 +117,7 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def put(self, data):
         """
+        @apiIgnore To be documented
         :type data: str
 
         PUT /{minion}/{project}/{key}/{value} > update arbitrary key-value pair
@@ -144,6 +143,7 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self, data):
         """
+        @apiIgnore To be documented
         :type data: str
         DELETE /{minion} > Delete minion
         DELETE /{minion}/{project} > Delete project

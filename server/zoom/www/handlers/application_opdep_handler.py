@@ -24,6 +24,12 @@ class ApplicationOpdepHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self, path):
+        """
+        @api {get} /api/application/opdep/[:id] Get Application's operational dependencies
+        @apiVersion 1.0.0
+        @apiName GetAppOpDep
+        @apiGroup Dependency
+        """
         opdep_array = []
         opdep_dict = {}
 

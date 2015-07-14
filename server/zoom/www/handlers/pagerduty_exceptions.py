@@ -1,8 +1,6 @@
 import httplib
 import json
 import logging
-import os.path
-
 import tornado.web
 
 from zoom.common.decorators import TimeThis
@@ -33,6 +31,12 @@ class PagerExceptionsHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self, comp_id):
+        """
+        @api {get} /api/pagerduty/exceptions/:id Get PagerDuty Exception
+        @apiVersion 1.0.0
+        @apiName GetPDEx
+        @apiGroup PagerDuty
+        """
         try:
             self.write(json.dumps(self.alert_exceptions))
 
@@ -43,6 +47,12 @@ class PagerExceptionsHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def post(self, comp_id):
+        """
+        @api {post} /api/pagerduty/exceptions/:id Set PagerDuty Exception
+        @apiVersion 1.0.0
+        @apiName SetPDEx
+        @apiGroup PagerDuty
+        """
         try:
             if comp_id is not None and comp_id not in self.alert_exceptions:
                 logging.info('Adding PD exception for {0}'.format(comp_id))
@@ -56,6 +66,12 @@ class PagerExceptionsHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def delete(self, comp_id):
+        """
+        @api {delete} /api/pagerduty/exceptions/:id Delete PagerDuty Exception
+        @apiVersion 1.0.0
+        @apiName DeletePDEx
+        @apiGroup PagerDuty
+        """
         try:
             if comp_id is not None and comp_id in self.alert_exceptions:
                 logging.info('Removing PD exception for {0}'.format(comp_id))

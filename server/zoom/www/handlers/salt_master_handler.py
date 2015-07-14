@@ -23,6 +23,12 @@ class SaltMasterHandler(tornado.web.RequestHandler):
 
     @TimeThis(__file__)
     def get(self):
+        """
+        @api {get} /api/saltmaster/ Get salt settings
+        @apiVersion 1.0.0
+        @apiName GetSaltSettings
+        @apiGroup Salt
+        """
         try:
             self.write({'salt': self.salt()})
 
