@@ -94,7 +94,8 @@ class WebServer(tornado.web.Application):
             (r'/images/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.images_path}),
             (r'/(.*\.json)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),
 
-            (r'/', tornado.web.RedirectHandler, {"url": "/index.html"})
+            (r'/', tornado.web.RedirectHandler, {"url": "/index.html"}),
+            (r'/doc', tornado.web.RedirectHandler, {"url": "/doc/index.html"})
         ]
 
         settings = dict(
