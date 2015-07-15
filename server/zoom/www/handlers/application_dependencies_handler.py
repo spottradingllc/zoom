@@ -27,9 +27,32 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
     def get(self, path):
         """
         @api {get} /api/application/dependencies/[:id] Get Application's dependencies
+        @apiDescription Retrieve the upstream and downstream dependencies for an app.
+        You can provide the full path in Zookeeper or the ComponentID.
         @apiVersion 1.0.0
         @apiName GetAppDep
         @apiGroup Dependency
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "configuration_path": "/spot/software/state/application/foo",
+                "dependencies": [
+                    {
+                        "path": "/spot/software/state/application/bar",
+                        "type": "zookeeperhaschildren",
+                        "operational": true
+                    },
+                    {
+                        "path": "/spot/software/state/application/baz",
+                        "type": "zookeeperhasgrandchildren",
+                        "operational": false
+                    }
+                ],
+                "downstream": [
+                    "/spot/software/state/application/qux",
+                    "/spot/software/state/application/quux",
+                ]
+            }
         """
         logging.info('Retrieving Application Dependency Cache for client {0}'
                      .format(self.request.remote_ip))

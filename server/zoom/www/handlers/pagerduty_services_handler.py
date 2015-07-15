@@ -22,6 +22,12 @@ class PagerDutyServicesHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetPDSvc
         @apiGroup PagerDuty
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "foo": "00000000000000000000000000000000"
+                "bar": "11111111111111111111111111111111",
+            }
         """
         try:
             self.write(json.dumps(self.data_store.pagerduty_services))

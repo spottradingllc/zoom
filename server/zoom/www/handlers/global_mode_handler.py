@@ -39,6 +39,13 @@ class GlobalModeHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetMode
         @apiGroup Mode
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "operation_type": null,
+                "global_mode": "{\"mode\":\"manual\"}",
+                "update_type": "global_mode"
+            }
         """
         try:
             message = self.data_store.get_global_mode()

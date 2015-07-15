@@ -37,6 +37,32 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetAppState
         @apiGroup ApplicationState
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "environment": "Staging",
+                "update_type": "application_state",
+                "application_states": [
+                    {
+                    "read_only": false,
+                    "configuration_path": "/spot/software/state/application/foo",
+                    "delete": false,
+                    "pd_disabled": null,
+                    "login_user": "Zoom",
+                    "restart_count": 0,
+                    "local_mode": "manual",
+                    "last_update": "2015-01-01 00:00:01",
+                    "platform": 0,
+                    "last_command": "Start",
+                    "application_status": "running",
+                    "application_name": "foo",
+                    "error_state": "started",
+                    "grayed": null,
+                    "start_stop_time": "2015-01-01 00:00:01",
+                    "application_host": "foo.example.com"
+                    }
+                ]
+            }
         """
         try:
             logging.info('Retrieving Application State Cache for client {0}'

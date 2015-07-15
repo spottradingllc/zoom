@@ -25,7 +25,7 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
         @apiParam {String} serviceInfo The notes about an application
         @apiVersion 1.0.0
         @apiName SetNotes
-        @apiGroup ServerInfo
+        @apiGroup Server Notes
         """
         try:
             login_name = self.get_argument("loginName")
@@ -59,7 +59,7 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
         @apiParam {String} login_user The user that submitted the task
         @apiVersion 1.0.0
         @apiName GetNotes
-        @apiGroup ServerInfo
+        @apiGroup Server Notes
         """
         try:
             configuration_path = self.get_argument("configurationPath")

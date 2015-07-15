@@ -23,7 +23,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/zookeeper/:path Get data on a Zookeeper path
+        @api {get} /api/zookeeper/:path Get data in a Zookeeper node
         @apiVersion 1.0.0
         @apiName GetZkData
         @apiGroup Zookeeper

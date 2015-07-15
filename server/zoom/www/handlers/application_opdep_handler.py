@@ -29,6 +29,14 @@ class ApplicationOpdepHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetAppOpDep
         @apiGroup Dependency
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "opdep": [
+                    "/spot/software/state/application/foo",
+                    "/spot/software/state/application/bar"
+                ]
+            }
         """
         opdep_array = []
         opdep_dict = {}

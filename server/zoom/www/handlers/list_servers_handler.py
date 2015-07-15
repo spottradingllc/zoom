@@ -24,10 +24,16 @@ class ListServersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/config/list_servers/ List pillar servers
+        @api {get} /api/config/list_servers/ List sentinel servers
         @apiVersion 1.0.0
         @apiName ListSentServers
-        @apiGroup SentinelConfig
+        @apiGroup Sentinel Config
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            [
+                "foo.example.com",
+                "bar.example.com"
+            ]
         """
         logging.info('Generating list of nodes')
 
