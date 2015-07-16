@@ -83,8 +83,9 @@ class TaskServer(object):
             if self._zoo_keeper.exists(task_path):
                 # if the node exists, the callback _on_update will submit the
                 # next task.
-                logging.info("{0} already exists. Waiting to submit task: {0}"
-                             .format(task))
+                logging.info("Task '{0}' for '{1}' already exists. "
+                             "Waiting to submit task: {2}"
+                             .format(task.name, task.host, task))
             else:
                 logging.info("Creating task node for path {0}: {1}"
                              .format(task_path, task))

@@ -22,6 +22,11 @@ class EnvironmentHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetEnv
         @apiGroup Env
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "environment": "Staging"
+            }
         """
         try:
 

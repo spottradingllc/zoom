@@ -21,6 +21,12 @@ class ListPillarServersHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetPilServers
         @apiGroup Pillar
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            [
+                "foo.example.com",
+                "bar.example.com"
+            ]
         """
         logging.info("Generating list of servers")
         # get all nodes at the root config path

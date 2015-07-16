@@ -16,7 +16,7 @@ STARTCMD="python $APPPATH/zoom.py"
 PROCESS_START_TIMEOUT=10
 PROCESS_STOP_TIMEOUT=30
 WEB_AVAILABLE_TIMEOUT=90
-TEST_URI="http://localhost:8889"
+TEST_URI="http://localhost:8889/ruok"
 RUNLOG="$APPPATH/logs/web_stdout"
 #RUNLOG="/dev/null"
 

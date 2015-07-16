@@ -73,6 +73,12 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetTasks
         @apiGroup Task
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+                "queued_tasks": { },
+                "live_tasks": { }
+            }
         """
         self.write({
             "queued_tasks": self.task_server.queued_tasks,

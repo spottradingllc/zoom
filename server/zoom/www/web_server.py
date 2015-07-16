@@ -30,6 +30,7 @@ from zoom.www.handlers.time_estimate_handler import TimeEstimateHandler
 from zoom.www.handlers.zk_data_handler import ZooKeeperDataHandler
 from zoom.www.handlers.zoom_ws_handler import ZoomWSHandler
 from zoom.www.handlers.tools_refactor_paths import ToolsRefactorPathHandler
+from zoom.common.handlers import RUOKHandler
 
 
 class WebServer(tornado.web.Application):
@@ -47,6 +48,7 @@ class WebServer(tornado.web.Application):
 
         # initialize Tornado
         handlers = [
+            (r'/ruok', RUOKHandler),
             (r'/login', LoginHandler),
             (r'/zoom/ws', ZoomWSHandler),
             # global mode

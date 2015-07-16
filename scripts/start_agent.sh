@@ -32,7 +32,7 @@ STARTCMD="python sentinel.py"
 PROCESS_START_TIMEOUT=10
 PROCESS_STOP_TIMEOUT=30
 WEB_AVAILABLE_TIMEOUT=90
-TEST_URI="http://localhost:9000/log"
+TEST_URI="http://localhost:9000/ruok"
 RUNLOG=$APPPATH/logs/stdout
 
 export PATH=$PATH:/bin

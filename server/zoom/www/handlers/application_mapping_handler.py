@@ -21,6 +21,15 @@ class HostMappingHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetAppMapping
         @apiGroup Mapping
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+            "query": "/foo/bar",
+            "code": 200,
+            "data": "foo.example.com",
+            "method": "GET",
+            "error": null
+            }
         """
         ret = {"method": 'GET', "query": path, "code": httplib.OK,
                "data": None, "error": None}
@@ -73,6 +82,15 @@ class ApplicationMappingHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetHostMapping
         @apiGroup Mapping
+        @apiSuccessExample {json} Success-Response:
+            HTTP/1.1 200 OK
+            {
+            "query": "foo.example.com",
+            "code": 200,
+            "data": ["foo/bar"],
+            "method": "GET",
+            "error": null
+            }
         """
         ret = {"method": 'GET', "query": path, "code": httplib.OK,
                "data": None, "error": None}
