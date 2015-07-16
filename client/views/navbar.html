@@ -33,9 +33,9 @@
                             <strong class="caret"></strong>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation"><a data-bind="click: function() { kibana.ProdErrorsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Errors</a></li>
-                            <li role="presentation"><a data-bind="click: function() { kibana.ProdStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Stats</a></li>
-                            <li role="presentation"><a data-bind="click: function() { kibana.StagingStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.stg">Staging Stats</a></li>
+                            <li role="presentation"><a data-bind="click: function() { exlink.ProdErrorsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Errors</a></li>
+                            <li role="presentation"><a data-bind="click: function() { exlink.ProdStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.prod">Production Stats</a></li>
+                            <li role="presentation"><a data-bind="click: function() { exlink.StagingStatsURL()}, visible: environment.env().toLowerCase() == environment.envType.stg">Staging Stats</a></li>
                         </ul>
                     </li>
                     <li role="presentation" class="dropdown">
@@ -43,9 +43,13 @@
                             <span>FAQ</span>
                             <strong class="caret"></strong>
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="faqDropDown" data-bind="foreach: router.navigationModel()">
-                            <li data-bind="visible: $parent.isFAQ(title), css: { active: isActive }">
+                        <ul class="dropdown-menu" aria-labelledby="faqDropDown" >
+                            <!-- 3 maps to appFAQ in the router -->
+                            <li role="presentation" data-bind="with: router.navigationModel()[3]">
                                 <a data-bind="attr: { href: hash }, text: title"></a>
+                            </li>
+                            <li role="presentation">
+                                <a data-bind="click: function() { exlink.apiDoc()} ">API Documentation</a>
                             </li>
                         </ul>
                     </li>

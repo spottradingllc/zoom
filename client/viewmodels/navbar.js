@@ -10,10 +10,10 @@
         'model/environmentModel',
         'model/pillarModel',
         'model/toolsModel',
-        'model/kibanaModel',
+        'model/externalLinkModel',
         'bootstrap'
     ],
-    function(router, app, $, ko, service, login, admin, environment, pillar, tools, kibana) {
+    function(router, app, $, ko, service, login, admin, environment, pillar, tools, exlink) {
         var self = this;
         self.connection = {};
 
@@ -40,7 +40,7 @@
             environment: environment,
             pillar: pillar,
             tools: tools,
-            kibana: kibana,
+            exlink: exlink,
             connection: self.connection,
             isFAQ: function(title) {return title.search('FAQ') !== -1;},
             activate: function() {
@@ -49,7 +49,7 @@
                     { route: 'config(/:server)', title: 'Sentinel Config', moduleId: 'viewmodels/sentinelConfig', nav: true, hash: '#config' },
                     { route: 'pillar', title: 'Pillar Config', moduleId: 'viewmodels/pillarConfig', nav: true },
                     { route: 'tools', title: 'ZK Tools', moduleId: 'viewmodels/tools'},
-                    { route: 'appFAQ', title: 'App State FAQ', moduleId: 'viewmodels/faq/applicationState', nav: true },
+                    { route: 'appFAQ', title: 'App State FAQ', moduleId: 'viewmodels/faq/applicationState', nav: true }
 //                    { route: 'configFAQ', title: 'Sentinel Config FAQ', moduleId: 'viewmodels/faq/sentinelConfig', nav: true }
                 ]).buildNavigationModel();
 
