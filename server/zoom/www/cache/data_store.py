@@ -98,6 +98,12 @@ class DataStore(object):
         """
         return self._time_estimate_cache.load()
 
+    def get_start_time(self, path):
+        """
+        :rtype: dict
+        """
+        return self._time_estimate_cache.get_graphite_data(path)
+
     @connected_with_return(GlobalModeMessage('{"mode":"Unknown"}'))
     def get_global_mode(self):
         """

@@ -135,7 +135,7 @@ class TimeEstimateCache(object):
         # greatest cost of its dependencies
         if(self.states.get(path, None) is not None
            and self.states[path].get('application_status', None) != "running"):
-            graphite_data = self._get_graphite_data(path)
+            graphite_data = self.get_graphite_data(path)
             self._add_data(greatest_cost, graphite_data)
 
         searchdata.update({path: greatest_cost})
@@ -160,7 +160,7 @@ class TimeEstimateCache(object):
         for i in ['ave', 'min', 'max']:
             d1[i] += d2[i]
 
-    def _get_graphite_data(self, path):
+    def get_graphite_data(self, path):
         """
         Grab startup times from graphite for a path.
         :type path: str

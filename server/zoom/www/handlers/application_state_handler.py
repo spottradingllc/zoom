@@ -1,3 +1,4 @@
+import fnmatch
 import httplib
 import json
 import logging
@@ -72,8 +73,12 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
                 if not path.startswith(self.app_state_path):
                     # be able to search by comp id, not full path
                     path = os.path.join(self.app_state_path, path[1:])
-                item = result.application_states.get(path, {})
-                self.write(item)
+
+                # item = result.application_states.get(path, {})
+                item = [result.application_states.get(i) for i in result.application_states
+                        if fnmatch.fnmatch(i, path)]
+                result._application_states = item
+                self.write(result.to_json())
             else:
                 self.write(result.to_json())
 

@@ -9,7 +9,7 @@ class ApplicationState(object):
                  last_update=None, start_stop_time=None, error_state=None,
                  local_mode=None, delete=False, login_user=None,
                  last_command=None, read_only=None, grayed=None,
-                 pd_disabled=None, platform=None, restart_count=None):
+                 pd_disabled=None, platform=None, restart_count=None, load_times=None):
         self._application_name = application_name
         self._configuration_path = configuration_path
         self._application_status = application_status
@@ -26,6 +26,7 @@ class ApplicationState(object):
         self._pd_disabled = pd_disabled
         self._platform = platform
         self._restart_count = restart_count
+        self._load_times =  load_times
 
     def __del__(self):
         pass
@@ -73,8 +74,7 @@ class ApplicationState(object):
 
     @property
     def last_update(self):
-        if self._last_update is not None and \
-                self._error_state not in ('starting', 'stopping'):
+        if self._last_update is not None:
             return datetime.fromtimestamp(
                 self._last_update).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -98,4 +98,5 @@ class ApplicationState(object):
             'pd_disabled': self._pd_disabled,
             'platform': self._platform,
             'restart_count': self._restart_count,
+            'load_times': self._load_times
         }

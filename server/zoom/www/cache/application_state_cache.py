@@ -212,6 +212,7 @@ class ApplicationStateCache(object):
                 grayed=self._get_existing_attribute(path, 'grayed'),
                 platform=data.get('platform', 'unknown'),
                 restart_count=data.get('restart_count', 0),
+                load_times=self._time_estimate_cache.get_graphite_data(path)
             )
 
         # ephemeral node
@@ -245,6 +246,7 @@ class ApplicationStateCache(object):
                 grayed=self._get_existing_attribute(path, 'grayed'),
                 platform=parent_data.get('platform', 'unknown'),
                 restart_count=parent_data.get('restart_count', 0),
+                load_times=self._time_estimate_cache.get_graphite_data(config_path)
             )
 
         return application_state
