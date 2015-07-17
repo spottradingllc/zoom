@@ -41,9 +41,11 @@ define(
             self._resetProgress = ko.computed(function() {
                 // if we're not starting, stop the interval function and reset progress to 0
                 if (self.restartCount() == 0 || self.errorState() != constants.errorStates.starting) {
-                    clearInterval(self.countdownid());
+                    if (self.countdownid() !== null) {
+                        clearInterval(self.countdownid());
+                        self.countdownid(null)
+                    }
                     self.progress(0);
-                    self.countdownid(null)
                 }
             });
 
@@ -274,6 +276,10 @@ define(
 
             self.startCountdown = function(){
                 var avgStartTime = parseInt(self.loadTimes.ave);
+                if (avgStartTime === 0) {
+                    self.progress('Not enough data');
+                    return
+                }
                 // bake in 5s to run the methods on sentinel/get update from Zoom
                 var adjustment = 5;
                 if (self.lastUpdate() !== "") {
