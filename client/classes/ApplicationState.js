@@ -34,6 +34,20 @@ define(
             self.grayed = ko.observable(data.grayed);
             self.pdDisabled = ko.observable(data.pd_disabled);
             self.restartCount = ko.observable(data.restart_count);
+            self.progress = ko.observable(0);
+            self.countdownid = ko.observable(null);
+            self.loadTimes = data.load_times;
+            
+            self._resetProgress = ko.computed(function() {
+                // if we're not starting, stop the interval function and reset progress to 0
+                if (self.restartCount() == 0 || self.errorState() != constants.errorStates.starting) {
+                    if (self.countdownid() !== null) {
+                        clearInterval(self.countdownid());
+                        self.countdownid(null)
+                    }
+                    self.progress(0);
+                }
+            });
 
             self.applicationStatusClass = ko.computed(function() {
                 if (self.applicationStatus().toLowerCase() === constants.applicationStatuses.running) {
@@ -252,6 +266,49 @@ define(
             self.onControlAgentError = function() {
                 swal('Error controlling agent.');
             };
+
+            var countdown = function() {
+                // decrement the progress integer. progress starts as the average start time of the app
+                newsec = self.progress();
+                newsec--;
+                self.progress(newsec)
+            };
+
+            self.startCountdown = function(){
+                var avgStartTime = parseInt(self.loadTimes.ave);
+                if (avgStartTime === 0) {
+                    self.progress('Not enough data');
+                    return
+                }
+                // bake in 5s to run the methods on sentinel/get update from Zoom
+                var adjustment = 5;
+                if (self.lastUpdate() !== "") {
+                    var last = Date.parse(self.lastUpdate());
+                    var now = new Date();
+                    timeFromUpdate = parseInt(((now.getTime() - last))/ 1000)
+                }
+                // if you load the page n seconds after a start, decrement n seconds from the progress number
+                var sec = avgStartTime - timeFromUpdate + adjustment;
+                
+                self.progress(sec);
+                var cdID = setInterval(countdown, 1000);
+                // keep track of this id so we can stop the countdown later
+                self.countdownid(cdID)
+            };
+
+            self._startCountdownAtRestart = ko.computed(function() {
+                // only show when admin is enabled
+                if (!parent.admin.showProgress()) {return}
+
+                if (self.restartCount() > 0 && self.errorState() == constants.errorStates.starting) {
+                    // if we already have an existing countdown, we need to stop it and start over
+                    if (self.countdownid() !== null) {
+                        clearInterval(self.countdownid());
+                        self.countdownid(null)
+                    }
+                    self.startCountdown();
+                }
+            });
 
             var deleteFromZK = function() {
                 // delete path from Zookeeper

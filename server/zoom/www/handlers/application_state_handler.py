@@ -72,6 +72,7 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
                 if not path.startswith(self.app_state_path):
                     # be able to search by comp id, not full path
                     path = os.path.join(self.app_state_path, path[1:])
+
                 item = result.application_states.get(path, {})
                 self.write(item)
             else:

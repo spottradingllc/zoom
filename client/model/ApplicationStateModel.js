@@ -49,6 +49,7 @@ define(
                 {title: 'Start/Stop Time', sort: true, sortPropertyName: 'startStopTime', asc: ko.observable(true)},
                 {title: 'Last Update', sort: true, sortPropertyName: 'lastUpdate', asc: ko.observable(false)},
                 {title: 'Status', sort: true, sortPropertyName: 'errorStateClass', asc: ko.observable(true)},
+                {title: 'Progress', sort: false, sortPropertyName: null, asc: ko.observable(true)},
                 {title: 'Admin', sort: false, sortPropertyName: null, asc: ko.observable(true)}
             ];
 
@@ -66,11 +67,11 @@ define(
             });
 
             self.showHeader = function(index) {
-                if (self.headers[index].title === 'Control' && !self.login.elements.authenticated()) {
-                    return false;
-                }
-                return !(self.headers[index].title === 'Admin' && !self.admin.enabled());
-
+                var title = self.headers[index].title;
+                if (title === 'Control' && !self.login.elements.authenticated()) {return false}
+                else if (title === 'Admin' && !self.admin.enabled()) {return false}
+                else if (title === 'Progress' && !self.admin.showProgress()) {return false}
+                else {return true}
             };
 
             self.showSentinelConfig = function(hostname) {
@@ -645,6 +646,7 @@ define(
                         row.grayed(update.grayed);
                         row.platform(update.platform);
                         row.restartCount(update.restart_count);
+                        row.loadTimes = update.load_times
                     }
                     else {
                         // add new item to array

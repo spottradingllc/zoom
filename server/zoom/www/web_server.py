@@ -78,7 +78,7 @@ class WebServer(tornado.web.Application):
             (r"/api/pagerduty/exceptions/(?P<comp_id>.*)", PagerExceptionsHandler),
             (r"/api/pagerduty/services/", PagerDutyServicesHandler),
             # timing
-            (r"/api/timingestimate", TimeEstimateHandler),
+            (r"/api/timingestimate(?P<path>.*)", TimeEstimateHandler),
             # pillar
             (r"/api/pillar/list_servers/", ListPillarServersHandler),
             (r"/api/pillar/(?P<data>.*)", PillarHandler),

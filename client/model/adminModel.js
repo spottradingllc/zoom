@@ -4,6 +4,7 @@ define(['knockout', 'jquery', './loginModel'],
 
         admin._login = login;
         admin._enabled = ko.observable(false);
+        admin.showProgress = ko.observable(false);
         admin.disable = function() {
             admin._enabled(false);
         };
@@ -30,6 +31,10 @@ define(['knockout', 'jquery', './loginModel'],
                     success: function(data) { swal('Tasks cleared') },
                     error: function(data) { swal('Failure Clearing Tasks ', '', 'error'); }
                 });
+        };
+
+        admin.toggleProgress = function() {
+            admin.showProgress(!admin.showProgress())
         };
 
         return admin;
