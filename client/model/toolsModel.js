@@ -12,12 +12,10 @@ define( [
             self.newPath = ko.observable(constants.zkPaths.appStatePath);
 
             self.setOldPath = function(path){
-                console.log("replace old path");
                 self.oldPath(path)
             };
             
 	    self.setNewPath = function(path){
-                console.log("replaced new path");
                 self.newPath(path)
             };
 
@@ -27,7 +25,6 @@ define( [
                     'oldPath': self.oldPath(),
                     'newPath': self.newPath()
                 };
-                console.log("in show paths");
                 if (self.oldPath() === '' || self.newPath() === ''){
                     swal('Please specify both paths!');
                 }
