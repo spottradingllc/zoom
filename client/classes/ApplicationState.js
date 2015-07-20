@@ -6,9 +6,10 @@ define(
         'model/graphiteModel',
         'model/appInfoModel',
         'model/dependencyModel',
+        'model/toolsModel',
         'model/constants'
     ],
-    function($, ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel, constants) {
+    function($, ko, ApplicationStateArray, GraphiteModel, AppInfoModel, DependencyModel, ToolsModel, constants) {
         return function ApplicationState(data, parent) {
             var self = this;
 
@@ -28,6 +29,7 @@ define(
             self.graphite = new GraphiteModel(parent.environment.env().toLowerCase(), self.applicationHostShort(), self.configurationPath, self.platform());
             self.appInfo = new AppInfoModel(self.configurationPath, parent.login);
             self.dependencyModel = new DependencyModel(parent.applicationStateArray, self);
+            self.toolsModel =  new ToolsModel(parent.login);
             self.loginUser = ko.observable(data.login_user);
             self.readOnly = ko.observable(data.read_only);
             self.lastCommand = ko.observable(data.last_command);
@@ -236,6 +238,9 @@ define(
                 }
             };
 
+
+            
+
             self.toggleGrayed = function() {
                 var dict = {
                     'key': 'grayed',
@@ -261,6 +266,26 @@ define(
                     error: function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data.responseText)); }
                 });
 
+            };
+
+            self.changeAppPath = function(){
+                swal({   title: "Change Application Path",   
+                         text:  "Current Path: "+self.configurationPath,   
+                         type: "input",  
+                         inputValue: "/spot/software/state/application/<add new paths>", 
+                         showCancelButton: true,   
+                         closeOnConfirm: false,   
+                         inputPlaceholder: "New Path Here" },
+                         function(inputValue) {  
+                             if (inputValue === false) return false;      
+                             if ((inputValue === "") || (inputValue === self.configurationPath)) {     
+                                swal.showInputError("You need to write a New Path or Cancel");     
+                                return false;   
+                             }
+                             self.toolsModel.setOldPath(self.configurationPath);
+                             self.toolsModel.setNewPath(inputValue);
+                             self.toolsModel.showPaths();
+                          });
             };
 
             self.onControlAgentError = function() {

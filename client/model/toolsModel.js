@@ -14,13 +14,17 @@ define( [
             self.setOldPath = function(path){
                 self.oldPath(path)
             };
+            
+	    self.setNewPath = function(path){
+                self.newPath(path)
+            };
+
 
             self.showPaths = function() {
                 var paths_dict = {
                     'oldPath': self.oldPath(),
                     'newPath': self.newPath()
                 };
-
                 if (self.oldPath() === '' || self.newPath() === ''){
                     swal('Please specify both paths!');
                 }
