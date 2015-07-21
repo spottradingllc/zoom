@@ -43,11 +43,8 @@ class BaseHandler(RequestHandler):
             result = '?'
             try:
                 process = child['process']
-                process.add_work(Task(work, block=True, pipe=True, retval=True),
+                process.add_work(Task(work, block=True, retval=True),
                                  immediate=True)
-                result = process.parent_conn.recv()  # will block until done
-                # synthetically create result dictionary
-                # it's not directly available yet
             except EOFError:
                 self.log.warning('There is nothing left to receive from the '
                                  'work manager and the other end of the Pipe '

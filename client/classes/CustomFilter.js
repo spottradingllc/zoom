@@ -216,13 +216,14 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
             };
 
             if (self.filterName() === '') {
-                alert('You must enter a filter name in order to save the filter remotely.');
+                swal('Missing filter name', 'You must enter a filter name in order to save the filter remotely.', 'error');
             }
             else {
                 $.post('/api/filters/', dict, function(data) {
-                    alert(data);
+                    swal(data);
                 }).fail(function(data) {
-                    alert('Error Posting Save Filter ' + JSON.stringify(data));
+                    var res = JSON.parse(data.responseText);
+                    swal('Error Posting Save Filter', res.errorText, 'error');
                 });
             }
         };
@@ -237,9 +238,10 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
                 inversed: self.inversed()
             };
             $.post('/api/filters/', dict, function(returnData) {
-                alert(returnData);
+                swal(returnData);
             }).fail(function(data) {
-                alert('Error Posting Delete Filter ' + JSON.stringify(data));
+                var res = JSON.parse(data.responseText);
+                swal('Error Posting Delete Filter', res.errorText, 'error');
             });
 
         };

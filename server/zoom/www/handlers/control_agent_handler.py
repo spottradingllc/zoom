@@ -5,6 +5,7 @@ import tornado.web
 from httplib import INTERNAL_SERVER_ERROR
 
 from zoom.common.decorators import TimeThis
+from zoom.common.types import CommandType
 from zoom.agent.entities.task import Task
 
 
@@ -44,12 +45,13 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             task = Task(self.get_argument("command"),
                         target=self.get_argument("componentId"),
                         kwargs=kwarguments,
-                        pipe=True,
                         host=self.get_argument("applicationHost"))
 
             logging.info("Received task request from client {0}: {1}"
                          .format(self.request.remote_ip, task))
-            self.task_server.add_task(task)
+
+            cancel = task.name == CommandType.CANCEL
+            self.task_server.add_task(task, is_cancel=cancel)
 
         except Exception as e:
             self.set_status(INTERNAL_SERVER_ERROR)
