@@ -339,6 +339,7 @@ define(
                 // delete path from Zookeeper
                 var dict = {
                     'loginName': parent.login.elements.username(),
+                    'recurse': 'true',
                     'delete': self.configurationPath
                 };
 
