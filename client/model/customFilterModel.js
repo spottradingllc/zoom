@@ -1,4 +1,4 @@
-define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFilter) {
+define(['jquery', 'knockout', 'classes/CustomFilter', 'model/constants' ], function($, ko, CustomFilter, constants) {
     return function CustomFilterModel(parent) {
         var self = this;
         // Custom Filtering
@@ -104,12 +104,12 @@ define(['jquery', 'knockout', 'classes/CustomFilter' ], function($, ko, CustomFi
         downFilter.parameter(downFilter.parameters.applicationStatus);
         downFilter.searchTerm(downFilter.searchTerms.stopped);
         self.defaultFilters.push(downFilter);
-//        self.all.push(downFilter);  // enable this by default
 
         var errorFilter = new CustomFilter(self, parent);
-        errorFilter.filterName('Error');
+        errorFilter.filterName('not_ok');
         errorFilter.parameter(errorFilter.parameters.errorState);
-        errorFilter.searchTerm(errorFilter.searchTerms.error);
+        errorFilter.searchTerm([constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped]);
+        errorFilter.inversed(true);
         self.defaultFilters.push(errorFilter);
 
         self.time = ko.observable(Date.now());
