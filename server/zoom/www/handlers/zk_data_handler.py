@@ -130,6 +130,14 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
                "data": None, "error": None}
         recurse = self._check_bool_str(self.request.headers.get('recurse', 'False'))
 
+        if recurse is None:
+            ret['error'] = "Please provide 'recurse' as a custom header. " \
+                           "E.g., curl -H 'recurse: True' "
+            ret['code'] = httplib.BAD_REQUEST
+            self.write(ret)
+            self.set_status(ret['code'])
+            return
+
         try:
             self.zk.delete(path, recursive=recurse)
             logging.info("Delete initiated. Path={0}, recursive={1}"
@@ -159,6 +167,12 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
             self.set_status(ret['code'])
 
     def _check_bool_str(self, string):
+        if string is None:
+            return None
+
         if string.lower() == 'true':
             return True
-        return False
+        elif string.lower() == 'false':
+            return False
+        else:
+            return None
