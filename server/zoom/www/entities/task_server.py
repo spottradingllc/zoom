@@ -48,15 +48,27 @@ class TaskServer(object):
 
         return tasks
 
-    def add_task(self, task):
+    def add_task(self, task, is_cancel=False):
         """
         Add Task to UniqueQueue. Submit task node to ZooKeeper.
+        If `is_cancel` clear the queue, and submit only cancel.
         :type task: zoom.agent.entities.task.Task
+        :type is_cancel: bool
         """
         if task.host not in self._task_queue:
             self._task_queue[task.host] = UniqueQueue()
 
         host_q = self._task_queue.get(task.host)
+
+        if is_cancel:
+            host_q.clear()
+            task_path = zk_path_join(self._configuration.task_path, task.host)
+
+            try:
+                self._zoo_keeper.delete(task_path)
+            except NoNodeError:
+                pass
+
         host_q.append_unique(task, sender=task.host)
         self._submit_task(task)
 

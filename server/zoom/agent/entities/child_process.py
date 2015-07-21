@@ -1,5 +1,4 @@
 import logging
-from multiprocessing import Pipe
 from threading import Thread
 
 from zoom.common.types import ApplicationType
@@ -23,7 +22,6 @@ class ChildProcess(object):
         :type settings: dict
         """
         self._log = logging.getLogger('sent.child')
-        self.parent_conn, self.child_conn = Pipe()
         self._action_queue = UniqueQueue()
         self._cancel_flag = ThreadSafeObject(False)
 
@@ -40,11 +38,6 @@ class ChildProcess(object):
         """
         added = self._action_queue.append_unique(work, sender=str(self),
                                                  first=immediate)
-        # Here we are assuming that the work submitted is already in the queue.
-        # In this case, we still need to alert the TaskManager that the work
-        # was submitted (even if it was already there)
-        if not added:
-            self.child_conn.send('OK')
 
     def cancel_current_task(self):
         """
@@ -80,13 +73,12 @@ class ChildProcess(object):
         self._log.debug('Starting worker process for %s' % self.name)
         
         if self._application_type == ApplicationType.APPLICATION:
-            s = Application(self._config, self._settings, self.child_conn,
-                            self._action_queue, self._system,
-                            self._application_type, self._cancel_flag)
+            s = Application(self._config, self._settings, self._action_queue,
+                            self._system, self._application_type,
+                            self._cancel_flag)
         elif self._application_type == ApplicationType.JOB:
-            s = Job(self._config, self._settings, self.child_conn,
-                    self._action_queue, self._system, self._application_type,
-                    self._cancel_flag)
+            s = Job(self._config, self._settings, self._action_queue,
+                    self._system, self._application_type, self._cancel_flag)
             
         t = Thread(target=s.run, name=self.name)
         t.daemon = True

@@ -95,7 +95,6 @@ class TaskClient(object):
                 result = '?'
                 try:
                     process.add_work(task, immediate=False)
-                    result = process.parent_conn.recv()  # will block until done
                 except EOFError:
                     self._log.warning('There is nothing left to receive from '
                                       'the work manager and the other end of '

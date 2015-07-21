@@ -23,7 +23,8 @@ from zoom.common.types import (
     AlertActionType,
     AlertReason,
     ApplicationType,
-    ApplicationState
+    ApplicationState,
+    ApplicationStatus
 )
 from zoom.common.decorators import (
     connected,
@@ -47,12 +48,11 @@ class Application(object):
     """
     Service object to represent an deployed service.
     """
-    def __init__(self, config, settings, conn, queue, system, application_type,
+    def __init__(self, config, settings, queue, system, application_type,
                  cancel_flag):
         """
         :type config: dict (xml)
         :type settings: dict
-        :type conn: multiprocessing.Connection
         :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type system: zoom.common.types.PlatformType
         :type application_type: zoom.common.types.ApplicationType
@@ -121,7 +121,7 @@ class Application(object):
                                                    cancel_flag)
 
         self._actions = self._init_actions(settings)
-        self._work_manager = self._init_work_manager(self._action_queue, conn)
+        self._work_manager = self._init_work_manager(self._action_queue)
 
     def app_details(self):
         return {'name': self.name,
@@ -248,7 +248,7 @@ class Application(object):
             self._check_mode()
             self._run_check_mode = False
 
-        if result == 0:
+        if result == 0 or result == ApplicationStatus.CANCELLED:
             self._state.set_value(ApplicationState.STARTED)
         else:
             self._state.set_value(ApplicationState.ERROR)
@@ -278,15 +278,18 @@ class Application(object):
 
         result = self._proc_client.stop(**kwargs)
 
-        # give everything time to catch up, not sure why anymore...
-        self._log.info('Sleeping for the configured {0}s after stop.'
+        if result != ApplicationStatus.CANCELLED:
+            # give everything time to catch up, not sure why anymore...
+            self._log.info('Sleeping for the configured {0}s after stop.'
                        .format(self._post_stop_sleep))
-        sleep(self._post_stop_sleep)
+            sleep(self._post_stop_sleep)
 
         # reset this value back to False
         self._user_set_in_react = False
 
-        if result != 0 and kwargs.get('argument', 'false') == 'false':
+        if result == ApplicationStatus.CANCELLED:
+            self._state.set_value(ApplicationState.STOPPED)
+        elif (result != 0 and kwargs.get('argument', 'false') == 'false'):
             self._state.set_value(ApplicationState.ERROR)
         else:
             self._state.set_value(ApplicationState.STOPPED)
@@ -324,7 +327,7 @@ class Application(object):
 
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()
-        self._action_queue.append(Task('start_if_ready', kwargs=kwargs, pipe=False))
+        self._action_queue.append(Task('start_if_ready', kwargs=kwargs))
 
     def start_if_ready(self, **kwargs):
         if self._action_is_ready('start'):
@@ -333,7 +336,7 @@ class Application(object):
         elif self._actions.get('start', None) is None:
             self.start(**kwargs)
         else:
-            self._action_queue.append(Task('react', kwargs=kwargs, pipe=False))
+            self._action_queue.append(Task('react', kwargs=kwargs))
 
     @time_this
     @connected
@@ -544,7 +547,7 @@ class Application(object):
         else:
             self._read_only = False
 
-    def _init_work_manager(self, queue, pipe):
+    def _init_work_manager(self, queue):
         """
         :rtype: zoom.agent.entities.work_manager.WorkManager
         """
@@ -563,7 +566,7 @@ class Application(object):
                     self._log.debug('Method {0} already assigned to action.'
                                     .format(attribute))
 
-        manager = WorkManager(self.name, queue, pipe, acceptable_work)
+        manager = WorkManager(self.name, queue, acceptable_work)
         manager.start()
         return manager
 

@@ -24,7 +24,7 @@ class ThreadWithReturn(Thread):
 
 
 class WorkManager(object):
-    def __init__(self, comp_name, queue, pipe, work_dict):
+    def __init__(self, comp_name, queue, work_dict):
         """
         :type comp_name: str
         :type pipe: multiprocessing.Connection
@@ -34,7 +34,7 @@ class WorkManager(object):
         self._operate = ThreadSafeObject(True)
         self._thread = Thread(target=self._run,
                               name='work_manager',
-                              args=(self._operate, queue, pipe, work_dict))
+                              args=(self._operate, queue, work_dict))
         self._thread.daemon = True
         self._log = logging.getLogger('sent.{0}.wm'.format(comp_name))
 
@@ -48,7 +48,7 @@ class WorkManager(object):
         self._thread.join()
         self._log.info('Stopped work manager.')
 
-    def _run(self, operate, queue, pipe, work_dict):
+    def _run(self, operate, queue, work_dict):
         while operate == True:
             if queue:  # if queue is not empty
                 self._log.info('Current Task Queue:\n{0}'
@@ -67,21 +67,11 @@ class WorkManager(object):
                     t = ThreadWithReturn(target=func_to_run, name=task.name,
                                          args=task.args, kwargs=task.kwargs)
                     t.start()
-                    # the block should come before the pipe if we want to
-                    # capture the result and send it off
 
                     if task.block:
                         retval = t.join()
 
-                    if task.pipe:
-                        if task.retval and retval is not None:
-                            pipe.send(retval)
-                        else:
-                            pipe.send('OK')
-
                 else:
-                    if task.pipe:
-                        pipe.send('404: Not Found')
                     self._log.warning('Cannot do "{0}", it is not a valid '
                                       'action.'.format(task.name))
                 try:
