@@ -71,7 +71,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {delete} /api/agent/ Get live and queued tasks
+        @api {get} /api/agent/ Get live and queued tasks
         @apiVersion 1.0.0
         @apiName GetTasks
         @apiGroup Task
