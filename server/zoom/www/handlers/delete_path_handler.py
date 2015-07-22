@@ -12,6 +12,13 @@ class DeletePathHandler(tornado.web.RequestHandler):
         """
         return self.application.zk
 
+    @property
+    def app_state_path(self):
+        """
+        :rtype: str
+        """
+        return self.application.configuration.application_state_path
+
     @TimeThis(__file__)
     def post(self):
         """
@@ -24,6 +31,15 @@ class DeletePathHandler(tornado.web.RequestHandler):
         """
         login_name = self.get_argument("loginName")
         path = self.get_argument("delete")
-        logging.info("Recieved delete request from {0}:({1}) for path {2}"
-                     .format(login_name, self.request.remote_ip, path))
-        self.zk.delete(path)
+        split_path = path.split('/')
+        scounter = len(split_path)
+        while scounter != 0:
+            new_path = '/'.join(split_path[0:scounter])
+            if new_path == self.app_state_path:
+                break
+            elif not self.zk.get_children(new_path):
+                self.zk.delete(new_path)
+                logging.info("Delete initiated. Path={0}".format(new_path))
+            else:
+                break
+            scounter -= 1
