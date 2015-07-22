@@ -3,8 +3,8 @@ define([],
         var externalLink = {};
 
         var urls = {
-            prodErrors: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Errors',
-            prodStats: 'http://kibanaproduction:9292/index.html#/dashboard/elasticsearch/Zoom_Production_stats',
+            prodErrors: 'http://kibanaproduction/index.html#/dashboard/elasticsearch/Errors',
+            prodStats: 'http://kibanaproduction/index.html#/dashboard/elasticsearch/Zoom_Production_stats',
             stagingStats: 'http://kibanastaging:9292/index.html#/dashboard/elasticsearch/Zoom_Staging_stats',
             apiDoc: "http://" + document.location.host + "/doc"
          };
