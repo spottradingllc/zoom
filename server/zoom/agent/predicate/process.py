@@ -63,7 +63,10 @@ class PredicateProcess(SimplePredicate):
 
     def _run_loop(self):
         while self._operate == True:
-            self.set_met(self.running())
+            if self._proc_client.cancel_flag == False:
+                self.set_met(self.running())
+            else:
+                self._log.info('Cancel Flag detected, skipping status check.')
             sleep(self.interval)
         self._log.info('Done watching process.')
 

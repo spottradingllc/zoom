@@ -37,7 +37,7 @@ class TaskClient(object):
                 task = Task.from_json(data)
                 self._log.info('Found work to do: {0}'.format(task))
                 if task.result == ApplicationState.OK:
-                    self._log.info('Task is already complete: {0}'.format(task))
+                    self._log.debug('Task is already complete: {0}'.format(task))
                     return  # ignore tasks that are already done
 
                 if task.name in SENTINEL_METHODS:

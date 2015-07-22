@@ -43,9 +43,15 @@ class ChildProcess(object):
         """
         Set the cancel flag that is used in the process client.
         """
+        # this seems like a hack. There must be a better way of cancelling while
+        #   still allowing the agent to report up/down status
+        DONT_REMOVE = ('register', 'unregister')
         self._log.info('Setting Cancel Flag and clearing queue.')
         self._cancel_flag.set_value(True)
-        self._action_queue.clear()
+        for i in list(self._action_queue):
+            if i.name not in DONT_REMOVE:
+                self._action_queue.remove(i)
+                self._log.info('Removing task {0}'.format(i))
 
     def stop(self):
         """
