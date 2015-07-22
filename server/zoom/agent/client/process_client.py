@@ -42,7 +42,7 @@ class ProcessClient(object):
         self._script = script
         self._apptype = apptype
         self.restart_logic = restart_logic
-        self._cancel_flag = cancel_flag
+        self.cancel_flag = cancel_flag
 
         self.last_status = False
         self._graphite_metric_names = graphite_metric_names
@@ -290,11 +290,11 @@ class ProcessClient(object):
                         'Returning with 0'.format(cmd))
                     return_code = 0
                     break
-                elif self._cancel_flag == True:
+                elif self.cancel_flag == True:
                     p.terminate()
                     return_code = -2
                     self._log.info('Command {0} was cancelled.'.format(cmd))
-                    self._cancel_flag.set_value(False)
+                    self.cancel_flag.set_value(False)
                     break
                 sleep(1)
 
