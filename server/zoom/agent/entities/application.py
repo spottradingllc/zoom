@@ -10,7 +10,7 @@ from time import sleep
 
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
-from kazoo.handlers.threading import SequentialThreadingHandler, TimeoutError
+from kazoo.handlers.threading import SequentialThreadingHandler
 
 from zoom.agent.action.factory import ActionFactory
 from zoom.common.constants import get_zk_conn_string

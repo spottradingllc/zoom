@@ -15,14 +15,16 @@ class Action(object):
                  pd_enabled=True, op_action=None, pd_reason=None,
                  app_state=None):
         """
+        :param action: The function to run when all the action's predicates are met
+        :param xmlpart: The part of XML pertaining to this Action
+        :param mode_controlled: Whether or not the action will run based on the ApplicationMode
+        :param op_action: The function to run if this action's operation dependencies go down.
         :type name: str
         :type component_name: str
-        :type action: func
+        :type action: types.FunctionType
         :type xmlpart: xml.etree.ElementTree.Element
         :type staggerpath: str
         :type staggertime: int
-        :param mode_controlled: Whether or not the action will run based on the
-                                ApplicationMode
         :type mode_controlled: bool
         :type action_q: zoom.agent.entities.unique_queue.UniqueQueue
         :type zkclient: kazoo.client.KazooClient

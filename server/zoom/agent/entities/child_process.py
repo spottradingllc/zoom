@@ -12,8 +12,8 @@ from zoom.agent.util.helpers import verify_attribute
 
 class ChildProcess(object):
     """
-    Wraps a multiprocess.Process instance, providing a Pipe and a Queue for
-    communication between the SentinelDaemon and the ChildProcess.
+    Wraps a threading.Thread, providing a Queue for communication between
+    the SentinelDaemon and the ChildProcess.
     """
     def __init__(self, config, system, settings):
         """
