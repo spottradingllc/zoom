@@ -15,10 +15,9 @@ define( [
                 self.oldPath(path)
             };
             
-	    self.setNewPath = function(path){
+	        self.setNewPath = function(path){
                 self.newPath(path)
             };
-
 
             self.showPaths = function() {
                 var paths_dict = {
@@ -80,32 +79,6 @@ define( [
                 return message
             };
 
-            // getting all state paths in the applicationStateArray
-            self.statePaths = (function() {
-                var paths = [];
-                $.ajax({
-                    url: '/api/application/states',
-                    success: function(data) {
-                        ko.utils.arrayForEach(data.application_states, function(state) {
-                            paths.push(state.configuration_path);
-                        });
-                    },
-                    async: false
-                });
-                paths.sort();
-                return paths;
-            }());  // run immediately, and store as an array
-
-            // filtering by paths
-            self.pathOptions = ko.computed(function() {
-                var paths = self.statePaths;
-
-                if (self.oldPath() === null || self.oldPath() === '') { return paths; }
-
-                return ko.utils.arrayFilter(paths, function(path) {
-                    return path.indexOf(self.oldPath()) !== -1;
-                });
-            });
         }
-    })
+    });
     

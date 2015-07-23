@@ -1,3 +1,4 @@
+import datetime
 import logging
 import json
 import tornado.web
@@ -45,7 +46,8 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             task = Task(self.get_argument("command"),
                         target=self.get_argument("componentId"),
                         kwargs=kwarguments,
-                        host=self.get_argument("applicationHost"))
+                        host=self.get_argument("applicationHost"),
+                        submitted=datetime.datetime.now().strftime('%Y%m%d %H:%M:%S'))
 
             logging.info("Received task request from client {0}: {1}"
                          .format(self.request.remote_ip, task))

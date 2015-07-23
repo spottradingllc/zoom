@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 
@@ -5,7 +6,8 @@ import logging
 class Task(object):
     def __init__(self, name,
                  func=None, args=(), kwargs={}, block=True,
-                 retval=True, target=None, host=None, result=None):
+                 retval=True, target=None, host=None, result=None,
+                 submitted=None):
         """
         :type name: str
         :type func: types.FunctionType or None
@@ -16,6 +18,7 @@ class Task(object):
         :type target: str or None
         :type host: str or None
         :type result: str or None
+        :type submitted: str or None
         """
         self.name = name
         self.func = func
@@ -26,6 +29,7 @@ class Task(object):
         self.target = target
         self.host = host
         self.result = result
+        self.submitted = submitted
 
     def to_json(self):
         """
@@ -62,6 +66,7 @@ class Task(object):
                     target=json_data.get('target', None),
                     host=json_data.get('host', None),
                     result=json_data.get('result', None),
+                    submitted=json_data.get('submitted', datetime.datetime.now().strftime('%Y%m%d %H:%M:%S')),
                     )
 
     def __eq__(self, other):
@@ -85,7 +90,7 @@ class Task(object):
 
     def __repr__(self):
         return ('{0}(name={1}, args={2}, kwargs={3}, block={4}, '
-                'target={5}, host={6}, result={7})'
+                'target={5}, host={6}, result={7}, submitted={8})'
                 .format(self.__class__.__name__,
                         self.name,
                         self.args,
@@ -93,4 +98,5 @@ class Task(object):
                         self.block,
                         self.target,
                         self.host,
-                        self.result))
+                        self.result,
+                        self.submitted))

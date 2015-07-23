@@ -62,11 +62,19 @@ class PredicateProcess(SimplePredicate):
             self._log.debug('Already stopped {0}'.format(self))
 
     def _run_loop(self):
+        cancel_counter = 0
         while self._operate == True:
             if self._proc_client.cancel_flag == False:
                 self.set_met(self.running())
+                cancel_counter = 0
+            elif cancel_counter > 5:
+                self._log.info('Waited long enough. Resetting cancel flag.')
+                self._proc_client.cancel_flag.set_value(False)
+                cancel_counter = 0
             else:
+                cancel_counter += 1
                 self._log.info('Cancel Flag detected, skipping status check.')
+
             sleep(self.interval)
         self._log.info('Done watching process.')
 
