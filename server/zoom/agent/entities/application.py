@@ -289,7 +289,7 @@ class Application(object):
 
         if result == ApplicationStatus.CANCELLED:
             self._state.set_value(ApplicationState.STOPPED)
-        elif (result != 0 and kwargs.get('argument', 'false') == 'false'):
+        elif result != 0:
             self._state.set_value(ApplicationState.ERROR)
         else:
             self._state.set_value(ApplicationState.STOPPED)
