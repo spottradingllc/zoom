@@ -4,7 +4,7 @@ import json
 from zoom.agent.entities.task import Task
 from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.common.decorators import connected_with_return
-from kazoo.exceptions import NoNodeError
+from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.retry import KazooRetry
 from zoom.agent.util.helpers import zk_path_join
 
@@ -104,7 +104,7 @@ class TaskServer(object):
                 self._zoo_keeper.create(task_path, value=task.to_json())
                 self._zoo_keeper.get(task_path, watch=self._on_update)
 
-        except NoNodeError:
+        except (NoNodeError, NodeExistsError):
             pass
 
     def _on_update(self, event):
