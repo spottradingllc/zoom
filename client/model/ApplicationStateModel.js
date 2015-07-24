@@ -173,13 +173,13 @@ define(
                                 }
                             }
                         })
-                    })
-
+                    });
+                    var confirmButtonText;
                     if (self.opdepRestartEnabled()){
-                        var confirmButtonText = 'Yes, Restart them!'
+                        confirmButtonText = 'Yes, Restart them!'
                     }
                     else if (self.opdepStopEnabled()){
-                        var confirmButtonText = 'Yes, Stop them!'
+                        confirmButtonText = 'Yes, Stop them!'
                     }
 
                     $('#opdepModal').modal('show');
@@ -216,7 +216,6 @@ define(
                         else{
                             self.addtoOpdepArray(opdep_ajax, false)
                         }
-
                     }
                 }
                 else{
@@ -361,11 +360,12 @@ define(
 
             // create string with a appstate.componentId
             self.path_message_appstate = function(){
+                var message;
                 if (self.opdepRestartEnabled()){
-                    var message = 'You will be restarting: \n'
+                    message = 'You will be restarting: \n'
                 }
                 else if (self.opdepStopEnabled()){
-                    var message = 'You will be stopping: \n'
+                    message = 'You will be stopping: \n'
                 }
 
                 ko.utils.arrayForEach(self.opdepAppStateArray(), function(appstate)  {
@@ -389,22 +389,27 @@ define(
                 clearInterval(interval);
                 var appsNotStopped;
                 if (self.opdepRestartEnabled()){
-                    appsNotStopped = ko.utils.arrayFirst(self.opdepAppStateArray(), function(item) {
-                        return item.applicationStatus() !== 'stopped';
+                    appsNotStopped = ko.utils.arrayFilter(self.opdepAppStateArray(), function(item) {
+                        return (item.applicationStatus() !== 'stopped');
                     });
                 }
                 else if (!self.groupMode()) {
                     var clickedAppState = self.getClickedAppState();
                     // true if app is not stopped and false if app is stopped
-                    appsNotStopped = (clickedAppState.applicationStatus() !== 'stopped');
+                    if (clickedAppState.applicationStatus() !== 'stopped') {
+                        appsNotStopped = [clickedAppState]
+                    } else {
+                        appsNotStopped = []
+                    }
                 }
                 else{
-                    appsNotStopped = ko.utils.arrayFirst(self.groupControl(), function(item) {
-                        return item.applicationStatus() !== 'stopped';
+                    appsNotStopped = ko.utils.arrayFilter(self.groupControl(), function(item) {
+                        return (item.applicationStatus() !== 'stopped');
                     });
                 }
 
-                if (appsNotStopped) {
+                if (appsNotStopped.length > 0) {
+                    console.log('Waiting to stop: ' + appsNotStopped.map(function(i) {return i.componentId}));
                     interval = setInterval(self.checkStopped, 5000);
                 } else {
                     // all selected apps stopped
