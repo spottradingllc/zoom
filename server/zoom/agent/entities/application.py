@@ -264,7 +264,9 @@ class Application(object):
     def stop(self, **kwargs):
         """
         Stop actual process
-        :param kwargs: passed from zoom.handlers.control_agent_handlers
+        :param kwargs: Passed from:
+            zoom.www.handlers.control_agent_handler.ControlAgentHandler,
+            zoom.agent.action.action.Action
         """
 
         if kwargs.get('reset', True):
