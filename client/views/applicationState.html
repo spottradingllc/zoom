@@ -608,10 +608,13 @@
                                                            data-bind="click: function(){graphite.modalShow([graphite.bufferErrorsURL])}">Buffer Errors</a></li>
                             </ul>
                         </div>
+                    <!-- Start/Stop time -->
                     <td class="text-left">
-                        <span data-bind="text: startStopTime, attr: {title : startStopTimeTitle}"></span>
+                        <span data-bind="text: startStopTime, tooltip: {title : startStopTimeTitle}"></span>
                     </td>
+                    <!-- END Start/Stop time -->
                     <td data-bind="text: lastUpdate"></td>
+                    <!-- Status -->
                     <td class="text-center" data-bind="style : {backgroundColor : errorStateBg}" >
                         <span data-bind="attr : {class : errorStateClass, title : errorStateTitle}"></span>
                         <span data-bind="attr : {class : modeClass, title : mode}"></span>
@@ -619,6 +622,7 @@
                         <span data-bind="attr : {class : pdDisabledClass, title: pdDisabled() ? 'PD alerts disabled' : ''}"></span>
                         <span data-bind="text: restartCount, visible: (restartCount() > 0 && errorState() == 'starting')"></span>
                     </td>
+                    <!-- END Status -->
                     <td data-bind="visible: $parent.appStateModel.admin.showProgress, text: (countdownid() != null) ? progress : ''"></td>
                     <!-- Admin -->
                     <td class="text-center" data-bind="visible: $parent.appStateModel.admin.enabled">

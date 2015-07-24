@@ -9,7 +9,8 @@ define(
         'model/ApplicationStateModel',
         'model/GlobalMode',
         'viewmodels/navbar',
-        'bindings/radio'
+        'bindings/radio',
+        'bindings/tooltip'
     ],
     function(app, ko, service, $, d3, login, ApplicationStateModel, GlobalMode, navbar) {
         var self = this;

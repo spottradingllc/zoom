@@ -202,7 +202,7 @@ define(
             }, self);
 
             self.startStopTimeTitle = ko.computed(function() {
-                return 'Last Command: ' + self.lastCommand() + '\nTriggered by: ' + self.loginUser();
+                return 'Last: ' + self.lastCommand() + '<br>Who: ' + self.loginUser();
             });
 
             self.errorStateTitle = ko.computed(function() {
