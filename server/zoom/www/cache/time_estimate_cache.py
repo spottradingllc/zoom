@@ -173,7 +173,7 @@ class TimeEstimateCache(object):
         try:
             app_path = path.split('/spot/software/state/')[1]
             app_path = app_path.replace('/', '.')
-            url = ("http://{0}/render?format=json&from=-5d"
+            url = ("http://{0}/render?format=json&from=-7d"
                    "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'max'),'max')"
                    "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'min'),'min')"
                    "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')"
