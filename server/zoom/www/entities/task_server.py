@@ -7,6 +7,7 @@ from zoom.common.decorators import connected_with_return
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.retry import KazooRetry
 from zoom.agent.util.helpers import zk_path_join
+from kazoo.protocol.states import WatchedEvent
 
 
 class TaskServer(object):
@@ -93,19 +94,23 @@ class TaskServer(object):
             task_path = zk_path_join(self._configuration.task_path, task.host)
 
             if self._zoo_keeper.exists(task_path):
-                # if the node exists, the callback _on_update will submit the
-                # next task.
-                logging.info("Task '{0}' for '{1}' already exists. "
-                             "Waiting to submit task: {2}"
-                             .format(task.name, task.host, task))
+                # if the node exists, check if it is done
+                e = WatchedEvent(None, None, task_path)
+                self._on_update(e)
+
             else:
                 logging.info("Creating task node for path {0}: {1}"
                              .format(task_path, task))
-                self._zoo_keeper.create(task_path, value=task.to_json())
+                try:
+                    self._zoo_keeper.create(task_path, value=task.to_json())
+                except NodeExistsError:
+                    pass
+
                 self._zoo_keeper.get(task_path, watch=self._on_update)
 
-        except (NoNodeError, NodeExistsError):
+        except NoNodeError:
             pass
+
 
     def _on_update(self, event):
         """

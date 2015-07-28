@@ -67,7 +67,7 @@ class PredicateProcess(SimplePredicate):
             if self._proc_client.cancel_flag == False:
                 self.set_met(self.running())
                 cancel_counter = 0
-            elif cancel_counter > 5:
+            elif cancel_counter > 1:
                 self._log.info('Waited long enough. Resetting cancel flag.')
                 self._proc_client.cancel_flag.set_value(False)
                 cancel_counter = 0
