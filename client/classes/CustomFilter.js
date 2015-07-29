@@ -25,19 +25,19 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
             readOnly: 'readOnly'
         };
 
-        self.filterButtons = [
-            {'term': [constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped], 'glyph': constants.glyphs.thumpsUp, 'title': 'Filter services whose status is ok.'},
-            {'term': constants.errorStates.starting, 'glyph': constants.glyphs.startingRetweet, 'title': 'Filter services whose status is starting.'},
-            {'term': constants.errorStates.stopping, 'glyph': constants.glyphs.stoppingDown, 'title': 'Filter services whose status is stopping.'},
-            {'term': constants.errorStates.error, 'glyph': constants.glyphs.errorWarning, 'title': 'Filter services whose status is error.'},
-            {'term': constants.errorStates.unknown, 'glyph': constants.glyphs.unknownQMark, 'title': 'Filter services whose status is unknown.'},
-            {'term': self.searchTerms.grayed, 'glyph': constants.glyphs.grayed, 'title': 'Filter services that are grayed out.'},
-            {'term': self.searchTerms.pdDisabled, 'glyph': constants.glyphs.pdWrench, 'title': 'Filter services that have PD disabled.'},
-            {'term': self.searchTerms.readOnly, 'glyph': constants.glyphs.readOnly, 'title': 'Filter services that are read only.'},
-            {'term': constants.errorStates.staggered, 'glyph': constants.glyphs.staggeredClock, 'title': 'Filter services that are currently staggered.'},
-            {'term': constants.errorStates.notify, 'glyph': constants.glyphs.notifyExclamation, 'title': 'Filter services that are crashed.'},
-            {'term': constants.errorStates.invalid, 'glyph': constants.glyphs.invalidTrash, 'title': 'Filter services that are invalid.'}
-        ];
+        self.filterOptions = ko.observableArray([
+            {'term': String([constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped]), 'glyph': constants.glyphs.thumpsUp, 'desc': 'Working as expected'},
+            {'term': constants.errorStates.starting, 'glyph': constants.glyphs.startingRetweet, 'desc': 'Apps that are starting'},
+            {'term': constants.errorStates.stopping, 'glyph': constants.glyphs.stoppingDown, 'desc': 'Apps that are stopping.'},
+            {'term': constants.errorStates.error, 'glyph': constants.glyphs.errorWarning, 'desc': 'Apps that have failed to start/stop'},
+            {'term': constants.errorStates.unknown, 'glyph': constants.glyphs.unknownQMark, 'desc': 'Apps whose sentinel is disconnected from Zookeeper'},
+            {'term': self.searchTerms.grayed, 'glyph': constants.glyphs.grayed, 'desc': 'Apps that are grayed out'},
+            {'term': self.searchTerms.pdDisabled, 'glyph': constants.glyphs.pdWrench, 'desc': 'Apps that have Zoom PagerDuty alerts disabled'},
+            {'term': self.searchTerms.readOnly, 'glyph': constants.glyphs.readOnly, 'desc': 'Apps that are read only (not started in Zoom)'},
+            {'term': constants.errorStates.staggered, 'glyph': constants.glyphs.staggeredClock, 'desc': 'Apps that are staggered'},
+            {'term': constants.errorStates.notify, 'glyph': constants.glyphs.notifyExclamation, 'desc': 'Apps that have crashed.'},
+            {'term': constants.errorStates.invalid, 'glyph': constants.glyphs.invalidTrash, 'desc': 'Apps that are invalid (do not match anything in their sentinel configs)'}
+        ]);
 
         // member variables and getters/setters
         self.filterName = ko.observable('');
@@ -96,6 +96,12 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
             }
         };
 
+        self.glyph = ko.computed(function() {
+            var fb = ko.utils.arrayFirst(self.filterOptions(), function(f) {return f.term === self.searchTerm()});
+            if (fb !== null) { return fb.glyph }
+            else {return ""}
+        });
+
         self.applyFilter = ko.computed(function() {
             self.matchedItems.removeAll();
 
@@ -150,7 +156,7 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
             }
         };
 
-        self.applyBoolFilter = function (param, appState) {
+        self.applyBoolFilter = function(param, appState) {
             // assuming these are ko.observables that are booleans
             if (appState[param]() && !self.inversed()) {
                 self.pushMatchedItem(appState);
