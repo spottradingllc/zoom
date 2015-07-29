@@ -242,8 +242,8 @@ class ApplicationStateCache(object):
                 login_user=parent_data.get('login_user', 'Zoom'),
                 read_only=parent_data.get('read_only', False),
                 last_command=self._get_last_command(parent_data),
-                pd_disabled=self._get_existing_attribute(path, 'pd_disabled'),
-                grayed=self._get_existing_attribute(path, 'grayed'),
+                pd_disabled=self._get_existing_attribute(config_path, 'pd_disabled'),
+                grayed=self._get_existing_attribute(config_path, 'grayed'),
                 platform=parent_data.get('platform', 'unknown'),
                 restart_count=parent_data.get('restart_count', 0),
                 load_times=self._time_estimate_cache.get_graphite_data(config_path)
@@ -314,8 +314,6 @@ class ApplicationStateCache(object):
         If there is an override value, use that. Else use the existing state.
         :type path: str
         :type attr: str
-        :param default: the default value to return if the state dict or the
-            key (attr) does not exist
         """
         state = self._cache._application_states.get(path, None)
         override = {}
@@ -328,6 +326,7 @@ class ApplicationStateCache(object):
                              'override cache: {0}'.format(err))
 
         setting = override.get(path, {}).get(attr, None)
+
         if setting is not None:
             return setting
         elif state is None:

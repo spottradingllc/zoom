@@ -238,9 +238,6 @@ define(
                 }
             };
 
-
-            
-
             self.toggleGrayed = function() {
                 var dict = {
                     'key': 'grayed',
@@ -251,21 +248,12 @@ define(
             };
 
             self.togglePDDisabled = function() {
-                var method;
-                if (self.pdDisabled()) {
-                    method = 'DELETE';
-                }
-                else {
-                    method = 'POST';
-                }
-
-                $.ajax({
-                    url: '/api/pagerduty/exceptions/' + self.componentId,
-                    type: method,
-                    success: function(data) { self.pdDisabled(!self.pdDisabled()); },
-                    error: function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data.responseText)); }
-                });
-
+                var dict = {
+                    'key': 'pd_disabled',
+                    'value': !self.pdDisabled()
+                };
+                $.post('/api/application/states' + self.configurationPath, JSON.stringify(dict))
+                    .fail(function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data)); });
             };
 
             self.changeAppPath = function(){

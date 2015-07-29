@@ -12,14 +12,18 @@ from zoom.common.types import AlertActionType
 from zoom.agent.util.helpers import zk_path_join
 
 class AlertManager(object):
-    def __init__(self, alert_path, zk, pd, exceptions):
+    def __init__(self, alert_path, override_path, state_path, zk, pd, exceptions):
         """
         :type alert_path: str
+        :type override_path: str
+        :type state_path: str
         :type zk: zoom.www.zoo_keeper.ZooKeeper
         :type pd: zoom.entities.pagerduty.PagerDuty
         :type exceptions: list
         """
         self._path = alert_path
+        self._override_path = override_path
+        self._state_path = state_path
         self._zk = zk
         self._pd = pd
         self._exceptions = exceptions
@@ -97,20 +101,30 @@ class AlertManager(object):
 
     def _has_exception(self, key):
         """
+        Check the override node to see if pagerduty alerts should be disabled
         :type key: str
         :rtype: bool
         """
+        # TODO: change the key or add a different field so that we don't have to
+        # do that messy construction below...
         try:
             app_id = '/'.join(key.split('/')[1:-1])
-            return app_id in self._exceptions
-        except (AttributeError, IndexError):
+            app_state_path = zk_path_join(self._state_path, app_id)
+            data, stat = self._zk.get(self._override_path)
+            d = json.loads(data)
+            return d.get(app_state_path, {}).get('pd_disabled', False)
+
+        except ValueError:
+            logging.error('Node {0} has malformed JSON.'
+                          .format(self._override_path))
+            return False
+        except NoNodeError:
             return False
 
     def _clean_up_threads(self):
         """
         Clean up threads that have finished.
         """
-
         for thread in [t for t in self._threads if not t.is_alive()]:
             try:
                 self._threads.remove(thread)

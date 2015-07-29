@@ -34,6 +34,8 @@ class DataStore(object):
                       alert_footer=self._configuration.pagerduty_alert_footer)
 
         self._alert_manager = AlertManager(configuration.alert_path,
+                                           configuration.override_node,
+                                           configuration.application_state_path,
                                            zoo_keeper, self._pd,
                                            self._alert_exceptions)
 
