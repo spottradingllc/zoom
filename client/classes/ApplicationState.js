@@ -205,16 +205,30 @@ define(
                 return 'Last: ' + self.lastCommand() + '<br>Who: ' + self.loginUser();
             });
 
-            self.errorStateTitle = ko.computed(function() {
-                if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.started) {
-                    return constants.errorStates.ok;
-                }
-                else if (self.errorState() && self.errorState().toLowerCase() === constants.errorStates.stopped) {
-                    return constants.errorStates.ok;
+            var getDescription = function(prop) {
+                if (constants.descriptions.hasOwnProperty(prop)) {
+                    return constants.descriptions[prop]
                 }
                 else {
-                    return self.errorState()
+                    return prop
                 }
+            };
+
+            self.errorStateTitle = ko.computed(function() {
+                if (self.grayed()) {return getDescription('grayed')}
+                else {return getDescription(self.errorState())}
+            });
+            self.modeTitle = ko.computed(function() {
+                return getDescription(self.mode())
+            });
+            self.statusTitle = ko.computed(function() {
+                return getDescription(self.applicationStatus())
+            });
+            self.readOnlyTitle = ko.computed(function() {
+                return getDescription('readOnly')
+            });
+            self.PDTitle = ko.computed(function() {
+                return getDescription('pdDisabled')
             });
 
             // Creates group for sending commands

@@ -54,6 +54,26 @@ define([], function () {
             invalid: 'invalid'
         },
 
+        descriptions: {
+            'ok': 'Everything is working as expected.',
+            'staggered': 'The application is attempting to start, but it is being staggered. This is a means of limiting applications from starting up all at once.',
+            'starting': 'The application is starting.',
+            'started': 'The application started correctly.',
+            'running': 'The application is running.',
+            'stopping': 'The application is being stopped.',
+            'stopped': 'The application is NOT running.',
+            'error': 'The last stop/restart command returned a non-zero exit code.',
+            'notify': 'The application has crashed or was brought down outside of Zoom.',
+            'config_error': 'Two sentinel agents have configs with the same ID. The configs will need to be updated and the agents will need to be restarted to resolve.',
+            'unknown': 'The sentinel agent has lost connection to Zookeeper.',
+            'invalid': 'The application was once mapped to this host, but is no longer in that host\'s config. The row/app should likely be deleted.',
+            'manual': 'The application is currently ignoring updates from its dependencies.',
+            'auto': 'The application will react to updates from its dependencies.',
+            'readOnly': 'The application is Read-Only. This means it is brought up/down outside of the normal Zookeeper startup. Zoom only reports whether it is up or down.',
+            'grayed': 'Someone has indicated that this application can be ignored. It could be up or down.',
+            'pdDisabled': 'PagerDuty alerts originating from Zoom will be ignored.'
+        },
+
         predicateTypes: {
             ZooKeeperHasChildren: 'zookeeperhaschildren',
             ZooKeeperHasGrandChildren: 'zookeeperhasgrandchildren',

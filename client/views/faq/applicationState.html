@@ -12,7 +12,7 @@
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.disabledGray}">
                                 <span data-bind="attr: {class: constants.glyphs.stoppedX}"></span>
                             </td>
-                            <td width="80%">Someone has indicated that this application can be ignored. It could be up or down.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.grayed"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.allDepsUpYellow}">
@@ -53,70 +53,70 @@
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.errorRed}">
                                 <span data-bind="attr: {class: constants.glyphs.errorWarning}"></span>
                             </td>
-                            <td width="80%">The last stop/restart command returned a non-zero exit code.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.error"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
                                 <span data-bind="attr: {class: constants.glyphs.unknownQMark}"></span>
                             </td>
-                            <td width="80%">The sentinel agent has lost connection to Zookeeper.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.unknown"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.warnOrange}">
                                 <span data-bind="attr: {class: constants.glyphs.notifyExclamation}"></span>
                             </td>
-                            <td width="80%">The 'notify' action has triggered. Most commonly this means that the application has crashed.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.notify"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.configErrPink}">
                                 <span data-bind="attr: {class: constants.glyphs.configErr}"></span>
                             </td>
-                            <td width="80%">Two sentinel agents have configs with the same ID. The configs will need to be updated and the agents will need to be restarted to resolve.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.config_error"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.disabledGray}">
                                 <span data-bind="attr: {class: constants.glyphs.grayed}"></span>
                             </td>
-                            <td width="80%">Someone has indicated that this application can be ignored. It could be up or down.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.grayed"></td>
                         </tr>
                         <tr>
                             <td width="20%">
                                 <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
                             </td>
-                            <td width="80%">Everything is working as expected.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.ok"></td>
                         </tr>
                         <tr>
                             <td width="20%">
                                 <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
                                 <span data-bind="attr: {class: constants.glyphs.readOnly}"></span>
                             </td>
-                            <td width="80%">The application is Read-Only. This means it is brought up/down outside of the normal Zookeeper startup. Zoom only reports whether it is up or down.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.readOnly"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.warnOrange}">
                                 <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
                                 <span data-bind="attr: {class: constants.glyphs.modeAuto}"></span>
                             </td>
-                            <td width="80%">The sentinel mode has been set to 'react.' This means that it will react to dependency changes. You will most often see this if you send a restart with dependencies.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.auto"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.warnOrange}">
                                 <span data-bind="attr: {class: constants.glyphs.thumpsUp}"></span>
                                 <span data-bind="attr: {class: constants.glyphs.modeManual}"></span>
                             </td>
-                            <td width="80%">The sentinel mode has been set to 'ignore', and this differs from the global setting. This means that it will NOT react to dependency changes. You will most often see this if you send restart with dependencies and a few of the apps you have targeted are still in the process of stopping.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.manual"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
                                 <span data-bind="attr: {class: constants.glyphs.staggeredClock}"></span>
                             </td>
-                            <td width="80%">The application is attempting to start, but it is being staggered. This is a means of limiting applications from starting up all at once.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.staggered"></td>
                         </tr>
                         <tr>
                             <td width="20%" data-bind="style : {backgroundColor : constants.colors.unknownGray}">
                                 <span data-bind="attr: {class: constants.glyphs.invalidTrash}"></span>
                             </td>
-                            <td width="80%">The application was once mapped to this host, but is no longer in that host's config. The row/app should likely be deleted.</td>
+                            <td width="80%" data-bind="text: constants.descriptions.invalid"></td>
                         </tr>
                     </tbody>
                 </table>
