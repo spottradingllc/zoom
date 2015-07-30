@@ -56,12 +56,12 @@ define([], function () {
 
         descriptions: {
             'ok': 'Everything is working as expected.',
+            'started': 'Everything is working as expected.',
+            'stopped': 'Everything is working as expected.',
             'staggered': 'The application is attempting to start, but it is being staggered. This is a means of limiting applications from starting up all at once.',
             'starting': 'The application is starting.',
-            'started': 'The application started correctly.',
             'running': 'The application is running.',
             'stopping': 'The application is being stopped.',
-            'stopped': 'The application is NOT running.',
             'error': 'The last stop/restart command returned a non-zero exit code.',
             'notify': 'The application has crashed or was brought down outside of Zoom.',
             'config_error': 'Two sentinel agents have configs with the same ID. The configs will need to be updated and the agents will need to be restarted to resolve.',
