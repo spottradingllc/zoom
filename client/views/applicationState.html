@@ -404,9 +404,7 @@
                                     Status
                                 </button>
                                 <button data-bind="click: function(){setParameter('dependency')},
-                                        attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || 
-                                                       parameter() == 'upstream' ||
-                                                       parameter() == 'downstream') ? ' active' : ''))}"
+                                        attr: {class : ('btn btn-default' + ((parameter() == 'dependency' || parameter() == 'upstream' || parameter() == 'downstream') ? ' active' : ''))}"
                                         data-toggle="tooltip"
                                         data-placement="top"
                                         title="Filter by dependent on.">
@@ -735,9 +733,9 @@
 </script>
 
 <script type="text/html" id="error-filter-template">
-    <div class="btn-group btn-group" >
+    <div class="btn-group" >
         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            <span  data-bind="attr: {class: glyph}"></span>
+            <span data-bind="attr: {class: glyph}"></span>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu" data-bind="foreach: filterOptions">

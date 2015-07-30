@@ -26,7 +26,7 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
         };
 
         self.filterOptions = ko.observableArray([
-            {'term': String([constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped]), 'glyph': constants.glyphs.thumpsUp, 'desc': 'Working as expected'},
+            {'term': [constants.errorStates.ok, constants.errorStates.started, constants.errorStates.stopped], 'glyph': constants.glyphs.thumpsUp, 'desc': 'Working as expected'},
             {'term': constants.errorStates.starting, 'glyph': constants.glyphs.startingRetweet, 'desc': 'Apps that are starting'},
             {'term': constants.errorStates.stopping, 'glyph': constants.glyphs.stoppingDown, 'desc': 'Apps that are stopping.'},
             {'term': constants.errorStates.error, 'glyph': constants.glyphs.errorWarning, 'desc': 'Apps that have failed to start/stop'},
