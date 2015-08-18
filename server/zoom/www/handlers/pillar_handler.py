@@ -22,7 +22,7 @@ class PillarHandler(tornado.web.RequestHandler):
     @property
     def zk(self):
         """
-        :rtype: zoom.www.zoo_keeper.ZooKeeper
+        :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         """
         return self.application.zk
 

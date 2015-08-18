@@ -19,7 +19,7 @@ class ApplicationDependencyCache(object):
                  time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: zoom.www.zoo_keeper.ZooKeeper
+        :type zoo_keeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
         self._cache = ApplicationDependenciesMessage()

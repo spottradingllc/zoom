@@ -633,6 +633,10 @@
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li role="presentation">
+                                <a style="cursor: pointer" data-bind="click: toggleDisabled, text: readOnly() ? 'Enable startup' : 'Disable Startup'"
+                                   data-toggle="tooltip" data-placement="top" title="Disable Zoom startup & monitoring for this application"></a>
+                                </li>
+                                <li role="presentation">
                                 <a style="cursor: pointer" data-bind="click: deleteRow"
                                    data-toggle="tooltip" data-placement="top" title="Permanently delete this application">Delete</a>
                                 </li>

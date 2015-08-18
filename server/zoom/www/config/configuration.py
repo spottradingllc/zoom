@@ -12,7 +12,7 @@ from zoom.common.types import PlatformType
 class Configuration(object):
     def __init__(self, zookeeper, **kwargs):
         """
-        :type zookeeper: zoom.www.zoo_keeper.ZooKeeper
+        :type zookeeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         """
         self._zookeeper = zookeeper
         self._settings = kwargs

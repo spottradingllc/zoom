@@ -14,6 +14,7 @@ from zoom.www.handlers.application_mapping_handler import (
 from zoom.www.handlers.control_agent_handler import ControlAgentHandler
 from zoom.www.handlers.environment_handler import EnvironmentHandler
 from zoom.www.handlers.delete_path_handler import DeletePathHandler
+from zoom.www.handlers.disable_app_handler import DisableAppHandler
 from zoom.www.handlers.filters_handler import FiltersHandler
 from zoom.www.handlers.global_mode_handler import GlobalModeHandler
 from zoom.www.handlers.list_servers_handler import ListServersHandler
@@ -38,7 +39,7 @@ class WebServer(tornado.web.Application):
         :type configuration: zoom.www.config.configuration.Configuration
         :type data_store: zoom.www.cache.data_store.DataStore
         :type task_server: zoom.www.entities.task_server.TaskServer
-        :type zk: zoom.www.zoo_keeper.ZooKeeper
+        :type zk: zoom.www.entities.zoo_keeper.ZooKeeper
         """
         self._configuration = configuration
         self._data_store = data_store
@@ -67,6 +68,8 @@ class WebServer(tornado.web.Application):
             (r"/api/config/(?P<server>.*)", SentinelConfigHandler),
             # delete app
             (r"/api/delete/", DeletePathHandler),
+            # disable app
+            (r"/api/disable", DisableAppHandler),
             # environment
             (r"/api/environment/", EnvironmentHandler),
             # filters

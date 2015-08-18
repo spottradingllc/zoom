@@ -10,7 +10,7 @@ class ListPillarServersHandler(tornado.web.RequestHandler):
     @property
     def zk(self):
         """
-        :rtype: spot.zoom.www.zoo_keeper.ZooKeeper
+        :rtype: spot.:rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         """
         return self.application.zk
 
