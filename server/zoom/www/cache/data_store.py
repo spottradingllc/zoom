@@ -19,7 +19,7 @@ class DataStore(object):
     def __init__(self, configuration, zoo_keeper, task_server):
         """
         :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: zoom.www.zoo_keeper.ZooKeeper
+        :type zoo_keeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         :type task_server: zoom.www.entities.task_server.TaskServer
         """
         self._configuration = configuration

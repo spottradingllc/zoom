@@ -17,7 +17,7 @@ class AlertManager(object):
         :type alert_path: str
         :type override_path: str
         :type state_path: str
-        :type zk: zoom.www.zoo_keeper.ZooKeeper
+        :type zk: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
         :type pd: zoom.entities.pagerduty.PagerDuty
         :type exceptions: list
         """

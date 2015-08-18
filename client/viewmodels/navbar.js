@@ -47,7 +47,7 @@
                 router.map([
                     { route: '', title: 'Application State', moduleId: 'viewmodels/applicationState', nav: true },
                     { route: 'config(/:server)', title: 'Sentinel Config', moduleId: 'viewmodels/sentinelConfig', nav: true, hash: '#config' },
-                    { route: 'pillar', title: 'Pillar Config', moduleId: 'viewmodels/pillarConfig', nav: true },
+                    { route: 'pillar(/:server)', title: 'Pillar Config', moduleId: 'viewmodels/pillarConfig', nav: true, hash: '#pillar'},
                     { route: 'appFAQ', title: 'App State FAQ', moduleId: 'viewmodels/faq/applicationState', nav: true }
 //                    { route: 'configFAQ', title: 'Sentinel Config FAQ', moduleId: 'viewmodels/faq/sentinelConfig', nav: true }
                 ]).buildNavigationModel();

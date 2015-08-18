@@ -573,7 +573,12 @@
                             <ul class="dropdown-menu" role=menu >
                                 <li role="presentation">
                                     <a role="menuitem" style="cursor:pointer" tabindex="-1" href='#'
-                                        data-bind="click: function(){$parent.appStateModel.showSentinelConfig(applicationHost)}">Go to Sentinel Config</a></li>
+                                        data-bind="click: function(){$parent.appStateModel.showSentinelConfig(applicationHost)}">Go to Sentinel Config</a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" style="cursor:pointer" tabindex="-1" href='#'
+                                        data-bind="click: function(){$parent.appStateModel.showPillarConfig(applicationHost)}">Go to Pillar Config</a>
+                                </li>
                                     
                                 <li role="presentation" class="divider"></li>    
                                 <li role="presentation">
@@ -632,6 +637,10 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu">
+                                <li role="presentation">
+                                <a style="cursor: pointer" data-bind="click: toggleDisabled, text: readOnly() ? 'Enable startup' : 'Disable Startup'"
+                                   data-toggle="tooltip" data-placement="top" title="Disable Zoom startup & monitoring for this application"></a>
+                                </li>
                                 <li role="presentation">
                                 <a style="cursor: pointer" data-bind="click: deleteRow"
                                    data-toggle="tooltip" data-placement="top" title="Permanently delete this application">Delete</a>

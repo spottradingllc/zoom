@@ -270,6 +270,19 @@ define(
                     .fail(function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data)); });
             };
 
+            self.toggleDisabled = function() {
+                var dict = {
+                    'host': self.applicationHost(),
+                    'disable': !self.readOnly(),
+                    'id': self.componentId,
+                    'user': parent.login.elements.username()
+                };
+
+                $.post('/api/disable', dict)
+                    .success(function(data) {swal('Read-Only Toggled Successfully', 'Give it a few seconds for the change to propogate.')})
+                    .fail(function(data) { swal('Failure En/Disabling app ', JSON.stringify(data)); });
+            };
+
             self.changeAppPath = function(){
                 swal({   title: "Change Application Path",   
                          text:  "Current Path: "+self.configurationPath,   
