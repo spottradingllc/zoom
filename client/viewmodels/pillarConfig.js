@@ -18,6 +18,9 @@ define(
         self.attached = function() {
             self.pillarModel.pillarApiModel.loadServers(true);
         };
+        self.activate = function(host) {
+            self.pillarModel.searchVal(host)
+        };
         self.detached = function() {
             // do something here??
         };
@@ -25,6 +28,7 @@ define(
         return {
             pillarModel: self.pillarModel,
             detached: self.detached,
-            attached: self.attached
+            attached: self.attached,
+            activate: self.activate
         };
     });

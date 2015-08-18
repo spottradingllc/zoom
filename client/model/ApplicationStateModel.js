@@ -78,6 +78,10 @@ define(
                 router.navigate('#config/' + hostname(), {trigger: true });
             };
 
+            self.showPillarConfig = function(hostname) {
+                router.navigate('#pillar/' + hostname(), {trigger: true });
+            };
+
             // control agent
             self.isHostEmpty = function() {
                 if (self.clickedApp.applicationHost === '') {
