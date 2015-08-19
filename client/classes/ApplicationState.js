@@ -277,10 +277,37 @@ define(
                     'id': self.componentId,
                     'user': parent.login.elements.username()
                 };
-
-                $.post('/api/disable', dict)
-                    .success(function(data) {swal('Read-Only Toggled Successfully', 'Give it a few seconds for the change to propogate.')})
-                    .fail(function(data) { swal('Failure En/Disabling app ', JSON.stringify(data)); });
+                var t, c;
+                if (self.readOnly()) {
+                    c = 'Yes, enable it!';
+                    t = 'This will enable startup for ' + self.componentId +'.'
+                } else {
+                    c = 'Yes, disable it!';
+                    t = 'This will disable startup for ' + self.componentId +'. It will now be read-only.\n';
+                    if (self.dependencyModel.downstream().length > 0) {
+                        t += self.dependencyModel.downstream().length + ' application(s) depend on this.\n';
+                        t += 'This will PREVENT these applications from starting up!'
+                    }
+                }
+                swal({
+                    title: 'Are you sure?',
+                    text: t,
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: c,
+                    cancelButtonText: 'It\'s a trap, abort!',
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                }, function(isConfirm) {
+                    if (isConfirm) {
+                        $.post('/api/disable', dict)
+                            .success(function(data) {swal('Success!', 'Read-Only was toggled. Give it a few seconds for the change to propagate.')})
+                            .fail(function(data) { swal('Failure En/Disabling app ', JSON.stringify(data)); });
+                        }
+                    else {
+                        swal('Cancelled', 'Nothing was changed.');
+                    }
+                });
             };
 
             self.changeAppPath = function(){
