@@ -36,7 +36,7 @@ define( [
             self.allProjects = ko.observableArray([]);
             self.selectedProjects = ko.observableArray([]);
             self.allKeys= ko.observableArray([]);
-            self.new_pairs = ko.observableArray([{"key": "subtype", "value": null}, {"key": "version", "value": null}]);
+            self.new_pairs = ko.observableArray([{"key": null, "value": null} ]);
 
             self.searchVal = ko.observable("");
             self.newNodeName= ko.observable("").extend({uppercase: true});
@@ -468,6 +468,10 @@ define( [
                 ko.utils.arrayForEach(self.allNodes(), function(_assoc) {
                     addProjects(_assoc, self.allProjects);
                 });
+                self.allProjects.sort(function(l, r) {
+                    return l.proj_name == r.proj_name ? 0: (l.proj_name < r.proj_name ? -1: 1)
+                    }
+                )
             };
 
             self.createObjForProjects = function (_assoc) {

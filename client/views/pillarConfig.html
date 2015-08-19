@@ -215,17 +215,8 @@
                     <form class="form-inline text-center" style="margin-top: 10px; margin-bottom: 20px;">
                         <div style="margin-bottom: 15px;">
                             Select an existing application:
-                            <select data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'None Selected' ">
+                            <select class="form-control" data-bind="value: updateSelected, options: allProjects, optionsText: function(item) { return item.proj_name }, optionsCaption: 'None Selected' ">
                             </select>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-3">
-                                Key
-                            </div>
-                            <div class="col-md-3">
-                                Value
-                            </div>
                         </div>
                         <!-- ko foreach: new_pairs() -->
                         <div class="form-group">
@@ -281,18 +272,24 @@
                 <div class="modal-body" data-bind="with: pillarModel">
                      <div>
                          <form class="form-inline text-center">
-                             <span> Application name: </span>
-                             <input class="form-control" type="text" placeholder="Application Name" data-bind="textInput: new_project">
-                             <!-- ko foreach: new_pairs() -->
-                             <div class="form-group">
-                                 <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
-                                 <textarea class="form-control mt resize" type="text" placeholder="JSON-formatted Value"
-                                    data-bind="textInput: value" style="min-height:50px">
-                                 </textarea>
+                             <div>
+                                <span> Application name: </span>
+                                <input class="form-control" type="text" placeholder="Application Name" data-bind="textInput: new_project">
                              </div>
+                             <div>
+                             <!-- ko foreach: new_pairs() -->
+                                 <div class="form-group">
+                                     <input class="form-control mt mr" type="text" placeholder="Key" data-bind="textInput: key">
+                                     <textarea class="form-control mt resize" type="text" placeholder="JSON-formatted Value"
+                                        data-bind="textInput: value" style="min-height:50px">
+                                     </textarea>
+                                 </div>
                              <!-- /ko-->
-                             <button class="btn btn-danger mt mr" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
-                             <button class="btn btn-primary mt" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                             </div>
+                             <div>
+                                 <button class="btn btn-danger mt mr" data-bind="click: function() {removePair()}">Remove a key-value pair</button>
+                                 <button class="btn btn-primary mt" data-bind="click: function() {addPair()}">Add another key-value pair</button>
+                             </div>
                          </form>
                          <div data-bind="visible: checkedNodes().length > 0 && indivAction() == false">
                              Changes will affect ALL of the following hosts.
