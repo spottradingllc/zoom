@@ -53,7 +53,9 @@ class DisableAppHandler(RequestHandler):
                         update = True
                         for action in component.iter('Action'):
                             aid = action.attrib.get('id')
-                            if aid not in ('register', 'unregister'):
+                            # we want the app to register/unregister/stop
+                            #   even if it is disabled
+                            if aid not in ('register', 'unregister', 'stop'):
                                 action.attrib['disabled'] = disable
                                 logging.info('{0}abled {1}:{2}'.format(('Dis' if disable else 'En'), cid, aid))
 
