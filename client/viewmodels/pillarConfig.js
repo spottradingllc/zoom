@@ -19,10 +19,13 @@ define(
             self.pillarModel.pillarApiModel.loadServers(true);
         };
         self.activate = function(host) {
-            self.pillarModel.searchVal(host)
+            if (host !== null) {
+                self.pillarModel.searchVal(host)
+            }
         };
         self.detached = function() {
-            // do something here??
+            self.pillarModel.searchVal("");
+            self.pillarModel.newNodeName("");
         };
         
         return {
