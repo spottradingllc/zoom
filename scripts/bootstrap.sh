@@ -44,7 +44,7 @@ function install_package () {
 }
 
 for PACKAGE in tornado-3.1.1.tar.gz \
-        kazoo-2.0.zip \
+        kazoo-2.2.1.tar.gz \
         setproctitle-1.1.8.tar.gz \
         requests-2.2.1.tar.gz \
         nose-1.3.0.tar.gz \

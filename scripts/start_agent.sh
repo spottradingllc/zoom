@@ -36,9 +36,7 @@ TEST_URI="http://localhost:9000/ruok"
 RUNLOG=$APPPATH/logs/stdout
 
 export PATH=$PATH:/bin
-if [ -f /etc/profile.d/spotdev.sh ]; then
-    source /etc/profile.d/spotdev.sh
-fi
+if [ -f /etc/profile.d/spotdev.sh ]; then source /etc/profile.d/spotdev.sh; fi
 
 function die () {
     # There was an error, we should exit
@@ -48,15 +46,17 @@ function die () {
 
 function getpid()
 {
-    local pidnum=$(/usr/bin/pgrep "$APP");
-    /bin/echo $pidnum;
+    /usr/bin/pgrep "$APP";
+}
+
+function is_running() {
+    [ -n "$(getpid)" ]
 }
 
 function getstatus()
 {
-    pid=$(getpid);
-    if [ -n "$pid" ]; then
-        /bin/echo "$APP is running with pid $pid.";
+    if is_running; then
+        /bin/echo "$APP is running with pid $(getpid).";
     else
         /bin/echo "$APP is stopped.";
         exit 1
@@ -68,7 +68,7 @@ function check_api_availability()
     /bin/echo -n "Waiting $WEB_AVAILABLE_TIMEOUT seconds for API availability."
     code=1
     counter=0
-    while [[ $code -ne 0 ]] && [[ $counter -lt $WEB_AVAILABLE_TIMEOUT ]]; do
+    while [[ $code -ne 0 ]] && [[ $counter -lt $WEB_AVAILABLE_TIMEOUT ]] && is_running; do
         /usr/bin/curl $TEST_URI > /dev/null 2>&1
         code=$?
         /bin/sleep 5
@@ -78,7 +78,7 @@ function check_api_availability()
 
     if [ $code -ne 0 ]; then
         echo "Fail!"
-        echo "Process has started, but API not available after $WEB_AVAILABLE_TIMEOUT seconds."
+        echo "API not available after $WEB_AVAILABLE_TIMEOUT seconds, or the process has died."
         exit 1
     else
         echo "UP!"
@@ -87,9 +87,8 @@ function check_api_availability()
 
 function dostart()
 {
-    pid=$(getpid);
-    if [ -n "$pid" ]; then
-        die "$APP is already running with pid(s) $pid. \nEither stop the APP or run \"restart\" instead of \"start\".";
+    if is_running; then
+        die "$APP is already running with pid(s) $(getpid). \nEither stop the APP or run \"restart\" instead of \"start\".";
     fi;
     # check for virtual environment creation
     if [ ! -f ${VENV_PATH}/bin/activate ]; then
@@ -115,13 +114,13 @@ function dostart()
         /bin/sleep 1
     done;
 
-    pid=$(getpid);
-    if [ -z "$pid" ]; then
+    if is_running; then
         /bin/echo
-        die "There was some issue starting $APP.";
+        /bin/echo "Started with pid $(getpid)";
     else
+        die "There was some issue starting $APP.";
         /bin/echo
-        /bin/echo "Started with pid $pid";
+
     fi;
 
     # Check that web server is available
@@ -133,16 +132,15 @@ function dostop()
     COUNTER=0
     /bin/echo -n "Stopping $APP.";
     /usr/bin/pkill -f $APP
-    while [[ $(getpid) ]] && [[ $COUNTER -lt $PROCESS_STOP_TIMEOUT ]]; do
+    while is_running && [[ $COUNTER -lt $PROCESS_STOP_TIMEOUT ]]; do
         /bin/sleep 5
         let COUNTER+=5
         /bin/echo -n " ."
     done
     echo
-    pid=$(getpid);
-    if [ -n "$pid" ]; then
+    if is_running; then
         /bin/echo -n " Failed to kill! Sending SIGKILL..."
-        /bin/kill -s 9 "$pid"
+        /bin/kill -s 9 "$(getpid)"
         /bin/sleep 5
     fi;
     /bin/echo "Killed $APP"
