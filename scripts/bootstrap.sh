@@ -44,6 +44,7 @@ function install_package () {
 }
 
 for PACKAGE in tornado-3.1.1.tar.gz \
+        six-1.9.0.tar.gz \
         kazoo-2.2.1.tar.gz \
         setproctitle-1.1.8.tar.gz \
         requests-2.2.1.tar.gz \
