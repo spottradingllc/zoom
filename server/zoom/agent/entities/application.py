@@ -182,6 +182,11 @@ class Application(object):
                 self._proc_client.reset_counters()
 
                 self._state.set_value(ApplicationState.STARTED)
+            else:
+                self._log.info('Action {0} is not ready. Not registering.'
+                               .format(action_name))
+        else:
+            self._log.info('Already registered (node exists).')
 
     @catch_exception(NoNodeError)
     @connected

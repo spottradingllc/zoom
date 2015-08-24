@@ -47,6 +47,7 @@ class SentinelDaemon(object):
         self._hostname = socket.getfqdn()
         self._prev_state = None
         self.listener_lock = Lock()
+        self.task_client = None
 
         if self._system == PlatformType.LINUX:
             self.zkclient = KazooClient(hosts=get_zk_conn_string(),
@@ -65,7 +66,6 @@ class SentinelDaemon(object):
             self._log.info('Waiting for settings.')
             time.sleep(1)
 
-        self.task_client = None
         self.task_client = TaskClient(self.children,
                                       self.zkclient,
                                       self._settings.get('zookeeper', {}).get('task'))
