@@ -322,11 +322,9 @@ class WindowsProcessClient(ProcessClient):
     def __init__(self, *args, **kwargs):
         ProcessClient.__init__(self, *args, **kwargs)
 
-        from zoom.agent.client.win_svc_client import WindowsServiceClient
-        from zoom.agent.client.win_svc_client import WinSvcStates
-
+        from zoom.agent.entities.wsservice import WinSvcStates, WService
         self._states = WinSvcStates
-        self._wsc = WindowsServiceClient(self.script_name)
+        self._wsc = WService(self.script_name)
 
     def _service_start(self):
         self._log.info('Starting service {0}'.format(self.script_name))

@@ -3,13 +3,35 @@ Module for manipulating WinNT, Win2k & WinXP services.
 Requires the win32all package which can be retrieved
 from => http://starship.python.net/crew/mhammond
 
-From:
+Based largely on:
 http://code.activestate.com/recipes/115875-controlling-windows-services/
 """
-import sys, time
-import win32api as wa, win32con as wc, win32service as ws
+import logging
+import re
+import time
+from subprocess import Popen, PIPE
+import win32api as wa
+import win32con as wc
+import win32service as ws
 
-class WService:
+
+class WinSvcStates():
+    RUNNING = 'RUNNING'
+    STOPPED = 'STOPPED'
+    TIMEDOUT = 'TIMEDOUT'
+    STARTING = 'STARTING'
+    STOPPING = 'STOPPING'
+    NOSERVICE = 'NOSERVICE'
+
+
+EXPECTED_STATUS_MAP = {
+    WinSvcStates.RUNNING: ws.SERVICE_RUNNING,
+    WinSvcStates.STOPPED: ws.SERVICE_STOPPED,
+    WinSvcStates.STARTING: ws.SERVICE_START_PENDING,
+    WinSvcStates.STOPPING: ws.SERVICE_STOP_PENDING,
+}
+
+class WService(object):
     """
     The WService Class is used for controlling WinNT, Win2k & WinXP like
     services. Just pass the name of the service you wish to control to the
@@ -59,156 +81,252 @@ class WService:
     """
 
     def __init__(self, service, machinename=None, dbname=None):
+        self._log = logging.getLogger('WService.{0}'.format(service.replace(' ', '')))
         self.userv = service
-        self.scmhandle = ws.OpenSCManager(machinename, dbname, ws.SC_MANAGER_ALL_ACCESS)
-        self.sserv, self.lserv = self.getname()
-        if (self.sserv or self.lserv) == None: sys.exit()
-        self.handle = ws.OpenService(self.scmhandle, self.sserv, ws.SERVICE_ALL_ACCESS)
+        self.machinename = machinename
+        self.dbname = dbname
+        self._scmhandle = None
+        self.sserv = None
+        self.lserv = None
         self.sccss = "SYSTEM\\CurrentControlSet\\Services\\"
 
+        if self.handle is None:
+            self._log.error('The service %s does not exist!' % service)
+
+    @property
+    def scmhandle(self):
+        """
+        Connection to the service manager. Refresh the connection on every
+        request if the service name is None (service doesn't exist). The service
+        may have been created after startup.
+        """
+        if self._scmhandle is None or None in (self.sserv, self.lserv):
+            self._scmhandle = ws.OpenSCManager(self.machinename, self.dbname,
+                                               ws.SC_MANAGER_ALL_ACCESS)
+
+        return self._scmhandle
+
+    @property
+    def handle(self):
+        """
+        If the service names are None, try to get them again. If they are STILL
+        None, the service doesn't exist yet, and return a None handle.
+        """
+        if None in (self.sserv, self.lserv):
+            self.sserv, self.lserv = self.getname()
+
+        if None in (self.sserv, self.lserv):
+            return None
+        else:
+            return ws.OpenService(self.scmhandle, self.sserv, ws.SERVICE_ALL_ACCESS)
+
     def start(self):
-        ws.StartService(self.handle, None)
+        return ws.StartService(self.handle, None)
+
+    def start_wait(self, wait_for_status=None, timeout=None):
+        if self.handle is None:
+            self._log.error('Cannot start. Service %s does not exist!' % self.userv)
+            return -1
+
+        retcode = 0
+        self.start()
+        if wait_for_status is not None:
+            state = self.fetchstatus(wait_for_status, timeout=timeout)
+            if state == WinSvcStates.TIMEDOUT:
+                retcode = 1
+
+        return retcode
 
     def stop(self):
-        self.stat = ws.ControlService(self.handle, ws.SERVICE_CONTROL_STOP)
+        return ws.ControlService(self.handle, ws.SERVICE_CONTROL_STOP)
+
+    def stop_wait(self, wait_for_status=None, timeout=None, force=False):
+        if self.handle is None:
+            self._log.error('Cannot stop. Service %s does not exist!' % self.userv)
+            return -1
+
+        retcode = 0
+
+        if self.status() == WinSvcStates.STOPPED:
+            return retcode
+
+        self.stop()
+        if wait_for_status is not None:
+            state = self.fetchstatus(wait_for_status, timeout=timeout)
+            if state == WinSvcStates.TIMEDOUT and force:
+                retcode = self.kill(self.get_pid())
+
+        return retcode
 
     def restart(self):
         self.stop()
-        self.fetchstatus("STOPPED")
+        self.fetchstatus(WinSvcStates.STOPPED)
         self.start()
 
     def pause(self):
-        self.stat = ws.ControlService(self.handle, ws.SERVICE_CONTROL_PAUSE)
+        return ws.ControlService(self.handle, ws.SERVICE_CONTROL_PAUSE)
 
     def resume(self):
-        self.stat = ws.ControlService(self.handle, ws.SERVICE_CONTROL_CONTINUE)
+        return ws.ControlService(self.handle, ws.SERVICE_CONTROL_CONTINUE)
 
-    def status(self, prn = 0):
-        self.stat = ws.QueryServiceStatus(self.handle)
-        if self.stat[1]==ws.SERVICE_STOPPED:
+    def status(self, prn=0):
+        stat = self._query_status()
+        if stat is None:
+            self._log.debug('The %s service does not exist.' % self.userv)
+            return WinSvcStates.NOSERVICE
+        if stat[1] == ws.SERVICE_STOPPED:
             if prn == 1:
-                print "The %s service is stopped." % self.lserv
+                self._log.info("The %s service is stopped." % self.lserv)
             else:
-                return "STOPPED"
-        elif self.stat[1]==ws.SERVICE_START_PENDING:
+                return WinSvcStates.STOPPED
+        elif stat[1] == ws.SERVICE_START_PENDING:
             if prn == 1:
-                print "The %s service is starting." % self.lserv
+                self._log.info("The %s service is starting." % self.lserv)
             else:
-                return "STARTING"
-        elif self.stat[1]==ws.SERVICE_STOP_PENDING:
+                return WinSvcStates.STARTING
+        elif stat[1] == ws.SERVICE_STOP_PENDING:
             if prn == 1:
-                print "The %s service is stopping." % self.lserv
+                self._log.info("The %s service is stopping." % self.lserv)
             else:
-                return "STOPPING"
-        elif self.stat[1]==ws.SERVICE_RUNNING:
+                return WinSvcStates.STOPPING
+        elif stat[1] == ws.SERVICE_RUNNING:
             if prn == 1:
-                print "The %s service is running." % self.lserv
+                self._log.debug("The %s service is running." % self.lserv)
             else:
-                return "RUNNING"
+                return WinSvcStates.RUNNING
+
+    def status_bool(self):
+        return self.status() in [WinSvcStates.RUNNING, WinSvcStates.STARTING]
 
     def fetchstatus(self, fstatus, timeout=None):
-        self.fstatus = fstatus.upper()
-        if timeout != None:
-            timeout = int(timeout); timeout *= 2
+        _status = fstatus.upper()
+        if timeout is not None:
+            timeout = int(timeout)
+            timeout *= 2
+
         def to(timeout):
             time.sleep(.5)
-            if timeout != None:
+            if timeout is not None:
                 if timeout > 1:
-                    timeout -= 1; return timeout
+                    timeout -= 1
+                    return timeout
                 else:
                     return "TO"
-        if self.fstatus == "STOPPED":
-            while 1:
-                self.stat = ws.QueryServiceStatus(self.handle)
-                if self.stat[1]==ws.SERVICE_STOPPED:
-                    self.fstate = "STOPPED"; break
-                else:
-                    timeout=to(timeout)
-                    if timeout == "TO":
-                        return "TIMEDOUT"; break
-        elif self.fstatus == "STOPPING":
-            while 1:
-                self.stat = ws.QueryServiceStatus(self.handle)
-                if self.stat[1]==ws.SERVICE_STOP_PENDING:
-                    self.fstate = "STOPPING"; break
-                else:
-                    timeout=to(timeout)
-                    if timeout == "TO":
-                        return "TIMEDOUT"; break
-        elif self.fstatus == "RUNNING":
-            while 1:
-                self.stat = ws.QueryServiceStatus(self.handle)
-                if self.stat[1]==ws.SERVICE_RUNNING:
-                    self.fstate = "RUNNING"; break
-                else:
-                    timeout=to(timeout)
-                    if timeout == "TO":
-                        return "TIMEDOUT"; break
-        elif self.fstatus == "STARTING":
-            while 1:
-                self.stat = ws.QueryServiceStatus(self.handle)
-                if self.stat[1]==ws.SERVICE_START_PENDING:
-                    self.fstate = "STARTING"; break
-                else:
-                    timeout=to(timeout)
-                    if timeout == "TO":
-                        return "TIMEDOUT"; break
+
+        while 1:
+            stat = self._query_status()
+            if stat is None:
+                return WinSvcStates.NOSERVICE
+            elif stat[1] == EXPECTED_STATUS_MAP.get(_status):
+                return _status
+            else:
+                timeout = to(timeout)
+                if timeout == "TO":
+                    return WinSvcStates.TIMEDOUT
 
     def infotype(self):
-        self.stat = ws.QueryServiceStatus(self.handle)
-        if self.stat[0] and ws.SERVICE_WIN32_OWN_PROCESS:
-            print "The %s service runs in its own process." % self.lserv
-        if self.stat[0] and ws.SERVICE_WIN32_SHARE_PROCESS:
-            print "The %s service shares a process with other services." % self.lserv
-        if self.stat[0] and ws.SERVICE_INTERACTIVE_PROCESS:
-            print "The %s service can interact with the desktop." % self.lserv
+        stat = self._query_status()
+        if stat is None:
+            self._log.info('The %s service does not exist.' % self.userv)
+        if stat[0] and ws.SERVICE_WIN32_OWN_PROCESS:
+            self._log.info("The %s service runs in its own process." % self.lserv)
+        if stat[0] and ws.SERVICE_WIN32_SHARE_PROCESS:
+            self._log.info("The %s service shares a process with other services." % self.lserv)
+        if stat[0] and ws.SERVICE_INTERACTIVE_PROCESS:
+            self._log.info("The %s service can interact with the desktop." % self.lserv)
 
     def infoctrl(self):
-        self.stat = ws.QueryServiceStatus(self.handle)
-        if self.stat[2] and ws.SERVICE_ACCEPT_PAUSE_CONTINUE:
-            print "The %s service can be paused." % self.lserv
-        if self.stat[2] and ws.SERVICE_ACCEPT_STOP:
-            print "The %s service can be stopped."  % self.lserv
-        if self.stat[2] and ws.SERVICE_ACCEPT_SHUTDOWN:
-            print "The %s service can be shutdown." % self.lserv
+        stat = self._query_status()
+        if stat is None:
+            self._log.info('The %s service does not exist.' % self.userv)
+        if stat[2] and ws.SERVICE_ACCEPT_PAUSE_CONTINUE:
+            self._log.info("The %s service can be paused." % self.lserv)
+        if stat[2] and ws.SERVICE_ACCEPT_STOP:
+            self._log.info("The %s service can be stopped." % self.lserv)
+        if stat[2] and ws.SERVICE_ACCEPT_SHUTDOWN:
+            self._log.info("The %s service can be shutdown." % self.lserv)
 
     def infostartup(self):
-        self.isuphandle = wa.RegOpenKeyEx(wc.HKEY_LOCAL_MACHINE, self.sccss + self.sserv, 0, wc.KEY_READ)
-        self.isuptype = wa.RegQueryValueEx(self.isuphandle, "Start")[0]
-        wa.RegCloseKey(self.isuphandle)
-        if self.isuptype == 0:
-            return "boot"
-        elif self.isuptype == 1:
-            return "system"
-        elif self.isuptype == 2:
-            return "automatic"
-        elif self.isuptype == 3:
-            return "manual"
-        elif self.isuptype == 4:
-            return "disabled"
+        isuphandle = wa.RegOpenKeyEx(wc.HKEY_LOCAL_MACHINE,
+                                     self.sccss + self.sserv, 0, wc.KEY_READ)
+        isuptype = wa.RegQueryValueEx(isuphandle, "Start")[0]
+        wa.RegCloseKey(isuphandle)
+
+        return {
+            0: "boot",
+            1: "system",
+            2: "automatic",
+            3: "manual",
+            4: "disabled",
+        }.get(isuptype, 'Unknown')
 
     def setstartup(self, startuptype):
-        self.startuptype = startuptype.lower()
-        if self.startuptype == "boot":
-            self.suptype = 0
-        elif self.startuptype == "system":
-            self.suptype = 1
-        elif self.startuptype == "automatic":
-            self.suptype = 2
-        elif self.startuptype == "manual":
-            self.suptype = 3
-        elif self.startuptype == "disabled":
-            self.suptype = 4
-        self.snc = ws.SERVICE_NO_CHANGE
-        ws.ChangeServiceConfig(self.handle, self.snc, self.suptype, \
-        self.snc, None, None, 0, None, None, None, self.lserv)
+        sut = startuptype.lower()
+
+        if sut == "boot":
+            suptype_id = 0
+        elif sut == "system":
+            suptype_id = 1
+        elif sut == "automatic":
+            suptype_id = 2
+        elif sut == "manual":
+            suptype_id = 3
+        elif sut == "disabled":
+            suptype_id = 4
+
+        if self.handle is None:
+            self._log.info('The %s service does not exist.' % self.userv)
+        else:
+            ws.ChangeServiceConfig(self.handle, ws.SERVICE_NO_CHANGE,
+                                   suptype_id, ws.SERVICE_NO_CHANGE, None, None,
+                                   0, None, None, None, self.lserv)
 
     def getname(self):
-        self.snames=ws.EnumServicesStatus(self.scmhandle)
-        for i in self.snames:
+        for i in ws.EnumServicesStatus(self.scmhandle):
             if i[0].lower() == self.userv.lower():
-                return i[0], i[1]; break
+                return i[0], i[1]
             if i[1].lower() == self.userv.lower():
-                return i[0], i[1]; break
-        print "Error: The %s service doesn't seem to exist." % self.userv
+                return i[0], i[1]
+
         return None, None
+
+    def kill(self, pid):
+        """
+        Kill process with console command.
+        :type pid: int
+        """
+        if pid == 0:
+            return 0
+        command = r'TASKKILL /PID /F %d '.format(pid)
+        retcode, stdout = self._run_cmd(command)
+        return retcode
+
+    def get_pid(self):
+        """
+        Run SC command to return the 'state' of the service.
+        """
+        process_id = 0
+        command = r'SC queryex "{0}"'.format(self.userv)
+
+        retcode, stdout = self._run_cmd(command)
+
+        match = re.search('PID\s+:\s(\d+)', stdout)
+        if match:
+            process_id = int(match.group(1))
+
+        return process_id
+
+    def _run_cmd(self, cmd):
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+
+        if stderr:
+            self._log.warning('From STDERR: {0}'.format(stderr))
+
+        return p.returncode, stdout
+
+    def _query_status(self):
+        if self.handle is None:
+            return None
+        else:
+            return ws.QueryServiceStatus(self.handle)
