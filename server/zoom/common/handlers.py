@@ -23,7 +23,9 @@ class LogVerbosityHandler(RequestHandler):
         else:
             return
 
-        logging.info('Changed log level to {0}'.format(level))
+        msg = 'Changed log level to {0}'.format(level)
+        logging.info(msg)
+        self.write(msg)
 
 
 class RUOKHandler(RequestHandler):
