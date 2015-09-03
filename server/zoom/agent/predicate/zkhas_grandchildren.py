@@ -114,6 +114,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
             zk_child = ZookeeperHasChildren(self._comp_name,
                                             self.zkclient,
                                             node,
+                                            operational=self._operational,
                                             met_on_delete=True,
                                             parent='zk.has.gc')
             zk_child.add_callback({"zk_hgc": self._callback})
