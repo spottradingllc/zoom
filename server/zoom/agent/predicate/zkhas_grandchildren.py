@@ -4,8 +4,7 @@ import os.path
 from kazoo.exceptions import NoNodeError
 
 from zoom.agent.predicate.simple import SimplePredicate, create_dummy
-from zoom.agent.predicate.zkhas_children \
-    import ZookeeperHasChildren
+from zoom.agent.predicate.zkhas_children import ZookeeperHasChildren as zkhc
 from zoom.common.decorators import connected, catch_exception
 
 
@@ -103,20 +102,39 @@ class ZookeeperHasGrandChildren(SimplePredicate):
                               'does.'.format(self.node))
 
     def _update_children_list(self, new_nodes):
-        existing = copy.copy(self._children)
-        for child in existing:
+        """
+        Remove any dummy predicates from children.
+        Using the list of paths found in the tree walk, if we have an object
+        that matches that path, keep it, add new objects, delete any extras.
+
+        :type new_nodes: list of str
+        """
+        # remove dummy predicates
+        existing_objs = copy.copy(self._children)
+        for child in existing_objs:
             if child == create_dummy(comp=self._comp_name, parent=self._parent):
-                self._children.remove(child)
-            elif child in set(existing) - set(new_nodes):
+                logging.info('removing dummy {0}'.format(child))
                 self._children.remove(child)
 
-        for node in set(new_nodes) - set(existing):
-            zk_child = ZookeeperHasChildren(self._comp_name,
-                                            self.zkclient,
-                                            node,
-                                            operational=self._operational,
-                                            met_on_delete=True,
-                                            parent='zk.has.gc')
+        # remove extra objects
+        existing_nodes = [i.node for i in self._children]
+        for n in existing_nodes:
+            if n in set(existing_nodes) - set(new_nodes):
+                temp = zkhc('', '', n)  # create a dummy
+                self._children.remove(temp)
+
+        # add new
+        # This currently has a limitation that nodes created at a deeper level
+        # are not picked up. for example if the base node is /A, static nodes
+        # at /A/B or /A/D WILL be picked up, but if /A/B/C is added later it
+        # WILL NOT be picked up.
+        for node in set(new_nodes) - set(existing_nodes):
+            zk_child = zkhc(self._comp_name,
+                            self.zkclient,
+                            node,
+                            operational=self._operational,
+                            met_on_delete=True,
+                            parent='zk.has.gc')
             zk_child.add_callback({"zk_hgc": self._callback})
             self._children.append(zk_child)
 
