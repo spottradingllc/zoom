@@ -34,7 +34,7 @@ class ChildProcess(object):
 
     def add_work(self, work, immediate=False):
         """
-        :type work: zoom.agent.entities.task.Task
+        :type work: zoom.agent.task.task.Task
         """
         added = self._action_queue.append_unique(work, sender=str(self),
                                                  first=immediate)

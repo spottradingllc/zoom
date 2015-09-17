@@ -36,7 +36,7 @@ class BaseTaskClient(object):
     def send_work_single(self, task, wait=False, immediate=False, timeout=None):
         """
         Send work to targeted child.
-        :type task: zoom.agent.entities.task.Task
+        :type task: zoom.agent.task.task.Task
         :type wait: bool
         :param wait: Whether to wait for the function to finish before exiting
         :type immediate: bool
