@@ -20,7 +20,6 @@ from zoom.common.decorators import (
     catch_exception,
     run_only_one
 )
-from zoom.common.types import PlatformType
 from zoom.agent.util.helpers import verify_attribute
 from zoom.agent.entities.child_process import ChildProcess
 from zoom.agent.client.task_client import TaskClient
@@ -49,15 +48,10 @@ class SentinelDaemon(object):
         self.listener_lock = Lock()
         self.task_client = None
 
-        if self._system == PlatformType.LINUX:
-            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
-                                        timeout=60.0,
-                                        handler=SequentialThreadingHandler(),
-                                        logger=logging.getLogger('kazoo.daemon'))
-        elif self._system == PlatformType.WINDOWS:
-            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
-                                        timeout=60.0,
-                                        handler=SequentialThreadingHandler())
+        self.zkclient = KazooClient(hosts=get_zk_conn_string(),
+                                    timeout=60.0,
+                                    handler=SequentialThreadingHandler(),
+                                    logger=logging.getLogger('kazoo.daemon'))
 
         self.zkclient.add_listener(self._zk_listener)
         # this will run self._reset_after_connection_loss

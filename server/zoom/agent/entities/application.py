@@ -105,15 +105,11 @@ class Application(object):
         self._paths = self._init_paths(self.config, settings, application_type)
 
         # clients
-        if self._system == PlatformType.LINUX:
-            self.zkclient = KazooClient(
-                hosts=get_zk_conn_string(),
-                handler=SequentialThreadingHandler(),
-                logger=logging.getLogger('kazoo.app.{0}'.format(self.name)))
-        elif self._system == PlatformType.WINDOWS:
-            self.zkclient = KazooClient(hosts=get_zk_conn_string(),
-                                        timeout=60.0,
-                                        handler=SequentialThreadingHandler())
+        self.zkclient = KazooClient(
+            hosts=get_zk_conn_string(),
+            timeout=60.0,
+            handler=SequentialThreadingHandler(),
+            logger=logging.getLogger('kazoo.app.{0}'.format(self.name)))
 
         self.zkclient.add_listener(self._zk_listener)
         self._proc_client = self._init_proc_client(self.config,
