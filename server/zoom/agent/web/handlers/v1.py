@@ -1,59 +1,10 @@
 import json
 from tornado.web import RequestHandler
-from zoom.agent.entities.task import Task
+from zoom.agent.task.task import Task
+from zoom.agent.util.helpers import get_log
 
 
-class BaseHandler(RequestHandler):
-    @property
-    def log(self):
-        return self.application.log
-
-    def _get_log(self, count=100):
-        """
-        :rtype: list of str
-        """
-        logfile = 'logs/sentinel.log'
-        with open(logfile, 'r') as f:
-            lines = f.readlines()
-            # return last `count` rows
-            return [l.rstrip('\n') for l in lines[-count:]]
-
-    def _send_work_all(self, work):
-        """
-        :type work: str
-        :rtype: list
-        """
-        result = list()
-        for child in self.application.children.keys():
-            result.append(self._send_work_single(work, child))
-        return result
-
-    def _send_work_single(self, work, target):
-        """
-        :type work: str
-        :type target: str
-        :rtype: dict
-        """
-        child = self.application.children.get(target, None)
-        if child is None:
-            self.log.warning('The targeted child "{0}" does not exists.'
-                             .format(target))
-            return {'target': target, 'work': work, 'result': '404: Not Found'}
-        else:
-            result = '?'
-            try:
-                process = child['process']
-                process.add_work(Task(work, block=True, retval=True),
-                                 immediate=True)
-            except EOFError:
-                self.log.warning('There is nothing left to receive from the '
-                                 'work manager and the other end of the Pipe '
-                                 'is closed.')
-            finally:
-                return {'target': target, 'work': work, 'result': result}
-
-
-class TaskHandler(BaseHandler):
+class TaskHandler(RequestHandler):
     def post(self, work=None, target=None):
         """
         @api {post} /api/v1/:work[/:target] Submit a task to Sentinel
@@ -63,15 +14,19 @@ class TaskHandler(BaseHandler):
         @apiName SubmitTask
         @apiGroup Sentinel Agent
         """
+        tc = self.application.task_client
+        task = Task(work, target=target, block=True, retval=True)
+
         if target is not None:
-            result = self._send_work_single(work, target)
+            result = tc.send_work_single(task, immediate=True)
             self.write(json.dumps(result))
         else:
-            result = self._send_work_all(work)
-            self.write(json.dumps(result))
+            result = tc.send_work_all(task, immediate=True)
+
+        self.write(json.dumps(result))
 
 
-class LogHandler(BaseHandler):
+class LogHandler(RequestHandler):
     def post(self, count):
         """
         @api {post} /api/v1/log[/:linecount] Retrieve lines from the logfile (plaintext)
@@ -84,7 +39,7 @@ class LogHandler(BaseHandler):
         """
         if count is None:
             count = 100
-        data = self._get_log(count=count)
+        data = get_log(count=count)
         self.write('\n'.join(data))
 
     def get(self, count):
@@ -97,16 +52,15 @@ class LogHandler(BaseHandler):
         @apiName WebLogLines
         @apiGroup Sentinel Agent
         """
-        print count
         if count is None:
             count = 100
         else:
             count = int(count.lstrip('/'))
         self.render('../templates/log.html',
-                    data=self._get_log(count=count))
+                    data=get_log(count=count))
 
 
-class StatusHandler(BaseHandler):
+class StatusHandler(RequestHandler):
     def get(self, target=None):
         """
         @api {get} /api/v1/status[/:target] Log out and retrieve status of components (html)
@@ -116,15 +70,16 @@ class StatusHandler(BaseHandler):
         @apiName WebGetStatus
         @apiGroup Sentinel Agent
         """
+        tc = self.application.task_client
+        task = Task('status', target=target, block=True, retval=True)
         if target is not None:
-            self._send_work_single('status', target)
+            tc.send_work_single(task, wait=True, immediate=True)
         else:
-            result = self._send_work_all('status')
-            self.write(json.dumps(result))
+            tc.send_work_all(task, wait=True, immediate=True)
 
         line_count = 50 * len(self.application.children.keys())
         self.render('../templates/log.html',
-                    data=self._get_log(count=line_count))
+                    data=get_log(count=line_count))
 
     def post(self, target=None):
         """
@@ -135,12 +90,12 @@ class StatusHandler(BaseHandler):
         @apiName CurlGetStatus
         @apiGroup Sentinel Agent
         """
+        tc = self.application.task_client
+        task = Task('status', target=target, block=True, retval=True)
         if target is not None:
-            self._send_work_single('status', target)
+            result = tc.send_work_single(task, wait=True, immediate=True)
+            self.write(result.get('result'))
         else:
-            result = self._send_work_all('status')
-            self.write(json.dumps(result))
-
-        line_count = 50 * len(self.application.children.keys())
-        data = self._get_log(count=line_count)
-        self.write('\n'.join(data))
+            result = tc.send_work_all(task, wait=True,  immediate=True)
+            for i in result.values():
+                self.write(i.get('result'))

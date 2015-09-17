@@ -1,13 +1,14 @@
 import logging
 import json
 
-from zoom.agent.entities.task import Task
-from zoom.agent.entities.unique_queue import UniqueQueue
-from zoom.common.decorators import connected_with_return
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.retry import KazooRetry
-from zoom.agent.util.helpers import zk_path_join
 from kazoo.protocol.states import WatchedEvent
+
+from zoom.agent.task.task import Task
+from zoom.agent.entities.unique_queue import UniqueQueue
+from zoom.common.decorators import connected_with_return
+from zoom.agent.util.helpers import zk_path_join
 
 
 class TaskServer(object):

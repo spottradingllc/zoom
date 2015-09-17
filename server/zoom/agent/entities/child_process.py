@@ -4,7 +4,7 @@ from threading import Thread
 from zoom.common.types import ApplicationType
 from zoom.agent.entities.application import Application
 from zoom.agent.entities.job import Job
-from zoom.agent.entities.task import Task
+from zoom.agent.task.task import Task
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.agent.util.helpers import verify_attribute

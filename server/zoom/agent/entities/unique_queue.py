@@ -1,6 +1,7 @@
 import logging
 from collections import deque
-from zoom.agent.entities.task import Task
+
+from zoom.agent.task.task import Task
 
 
 class UniqueQueue(deque):

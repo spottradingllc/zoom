@@ -1,13 +1,13 @@
 import datetime
 import logging
 import json
-import tornado.web
-
 from httplib import INTERNAL_SERVER_ERROR
+
+import tornado.web
 
 from zoom.common.decorators import TimeThis
 from zoom.common.types import CommandType
-from zoom.agent.entities.task import Task
+from zoom.agent.task.task import Task
 
 
 class ControlAgentHandler(tornado.web.RequestHandler):

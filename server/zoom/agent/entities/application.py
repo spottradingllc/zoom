@@ -1,13 +1,13 @@
 import logging
 import json
-import os.path
 import platform
-import re
 import socket
 from datetime import datetime
 from multiprocessing import Lock
 from time import sleep
 
+import os.path
+import re
 from kazoo.client import KazooClient, KazooState
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.handlers.threading import SequentialThreadingHandler
@@ -35,7 +35,8 @@ from zoom.common.decorators import (
 from zoom.agent.util.helpers import verify_attribute
 from zoom.agent.entities.restart import RestartLogic
 from zoom.agent.entities.work_manager import WorkManager
-from zoom.agent.entities.task import Task
+from zoom.agent.task.task import Task
+
 
 if 'Linux' in platform.platform():
     from zoom.agent.client.process_client import ProcessClient
@@ -183,6 +184,7 @@ class Application(object):
                                .format(action_name))
         else:
             self._log.info('Already registered (node exists).')
+        return 0
 
     @catch_exception(NoNodeError)
     @connected
@@ -192,6 +194,7 @@ class Application(object):
         if self._action_is_ready(action_name):
             self._log.info('Un-registering %s from state tree.' % self.name)
             self.zkclient.delete(self._paths['zk_state_path'])
+        return 0
 
     @catch_exception(RuntimeError)
     def uninitialize(self):
@@ -204,6 +207,7 @@ class Application(object):
         map(lambda x: x.stop(), self._actions.values())  # stop actions
         self.zkclient.stop()
         self.zkclient.close()
+        return 0
 
     @time_this
     def start(self, **kwargs):
@@ -302,6 +306,7 @@ class Application(object):
     def status(self):
         """
         Log out the status of each configured action.
+        :rtype: str
         """
         out = '\n'
         out += '#' * 40 + ' STATUS ' + '#' * 40
@@ -311,8 +316,10 @@ class Application(object):
             out += '\n{0}'.format(i.status)
         out += '\n'
         out += '#' * 40 + ' STATUS ' + '#' * 40
+        out += '\n'
 
         self._log.info(out)
+        return out
 
     def restart(self, **kwargs):
         """
@@ -327,10 +334,12 @@ class Application(object):
         self._action_queue.append_unique(Task('stop', kwargs=kwargs))
         self._action_queue.append_unique(Task('unregister'))
         self._action_queue.append_unique(Task('start', kwargs=kwargs))
+        return 0
 
     def dep_restart(self, **kwargs):
         self._run_check_mode = True  # only used in self.start()
         self._action_queue.append(Task('start_if_ready', kwargs=kwargs))
+        return 0
 
     def start_if_ready(self, **kwargs):
         if self._action_is_ready('start'):
@@ -340,6 +349,7 @@ class Application(object):
             self.start(**kwargs)
         else:
             self._action_queue.append(Task('react', kwargs=kwargs))
+        return 0
 
     @time_this
     @connected
@@ -380,13 +390,15 @@ class Application(object):
 
         if not self._action_is_ready(action_name):
             self._log.info('notify action not defined or not ready.')
-            return
+            return 1
 
         self._state.set_value(ApplicationState.NOTIFY)
         if pd_enabled:
             self._create_alert_node(AlertActionType.TRIGGER, pd_reason)
         else:
             self._log.debug('PD is disabled, not sending alert.')
+
+        return 0
 
     @time_this
     @connected
@@ -396,7 +408,7 @@ class Application(object):
         """
         # Application failed to start. Already sent PD alert
         if self._state == ApplicationState.ERROR:
-            return
+            return 1
 
         action_name = kwargs.get('action_name', 'ensure_running')
         pd_enabled = kwargs.get('pd_enabled', True)
@@ -419,9 +431,12 @@ class Application(object):
         else:
             self._log.debug("Service shut down gracefully")
 
+        return 0
+
     def terminate(self):
         """Terminate child thread/process"""
-        self._running = False   
+        self._running = False
+        return 0
 
     def _action_is_ready(self, action_name, allow_undefined=False):
         """

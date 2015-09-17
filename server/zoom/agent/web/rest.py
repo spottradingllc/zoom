@@ -1,6 +1,8 @@
 import logging
+
 import tornado.web
 
+from zoom.agent.task.base_task_client import BaseTaskClient
 from zoom.agent.web.handlers.v1 import (
     LogHandler,
     TaskHandler,
@@ -11,6 +13,7 @@ from zoom.common.handlers import (
     RUOKHandler
 )
 
+
 class RestServer(tornado.web.Application):
     def __init__(self, children):
         """
@@ -18,6 +21,7 @@ class RestServer(tornado.web.Application):
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
+        self.task_client = BaseTaskClient(children)
         handlers = [
             # Versioned
             (r"/api/v1/log/?(?P<count>\d+)?", LogHandler),
