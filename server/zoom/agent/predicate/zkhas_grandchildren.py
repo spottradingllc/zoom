@@ -4,7 +4,7 @@ import os.path
 from kazoo.exceptions import NoNodeError
 
 from zoom.agent.predicate.simple import SimplePredicate, create_dummy
-from zoom.agent.predicate.zkhas_children import ZookeeperHasChildren as zkhc
+from zoom.agent.predicate.zkhas_children import ZookeeperHasChildren
 from zoom.common.decorators import connected, catch_exception
 
 
@@ -15,6 +15,7 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         :type comp_name: str
         :type zkclient: kazoo.client.KazooClient
         :type nodepath: str
+        :type ephemeral_only: bool
         :type operational: bool
         :type parent: str or None
         """
@@ -109,32 +110,33 @@ class ZookeeperHasGrandChildren(SimplePredicate):
 
         :type new_nodes: list of str
         """
-        # remove dummy predicates
+        # remove dummy predicates if they exist
         existing_objs = copy.copy(self._children)
         for child in existing_objs:
             if child == create_dummy(comp=self._comp_name, parent=self._parent):
-                logging.info('removing dummy {0}'.format(child))
                 self._children.remove(child)
 
-        # remove extra objects
+        # remove obsolete objects
         existing_nodes = [i.node for i in self._children]
         for n in existing_nodes:
             if n in set(existing_nodes) - set(new_nodes):
-                temp = zkhc('', '', n)  # create a dummy
+                self._log.debug('Removing obsolete node: {0}'.format(n))
+                temp = ZookeeperHasChildren('', '', n)  # create a dummy
                 self._children.remove(temp)
 
         # add new
         # This currently has a limitation that nodes created at a deeper level
-        # are not picked up. for example if the base node is /A, static nodes
-        # at /A/B or /A/D WILL be picked up, but if /A/B/C is added later it
-        # WILL NOT be picked up.
+        # are not picked up automatically. For example if the base node is /A,
+        # static nodes at /A/B or /A/D WILL be picked up, but if /A/B/C is
+        # added later it WILL NOT be picked up until the next restart
         for node in set(new_nodes) - set(existing_nodes):
-            zk_child = zkhc(self._comp_name,
-                            self.zkclient,
-                            node,
-                            operational=self._operational,
-                            met_on_delete=True,
-                            parent='zk.has.gc')
+            self._log.debug('Adding new node: {0}'.format(node))
+            zk_child = ZookeeperHasChildren(self._comp_name,
+                                            self.zkclient,
+                                            node,
+                                            operational=self._operational,
+                                            met_on_delete=True,
+                                            parent='zk.has.gc')
             zk_child.add_callback({"zk_hgc": self._callback})
             self._children.append(zk_child)
 
