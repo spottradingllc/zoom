@@ -63,13 +63,12 @@ class WorkManager(object):
                 if func_to_run is not None:
                     self._log.info('Found work "{0}" in queue.'
                                    .format(task.name))
-                    retval = None
                     t = ThreadWithReturn(target=func_to_run, name=task.name,
                                          args=task.args, kwargs=task.kwargs)
                     t.start()
 
                     if task.block:
-                        retval = t.join()
+                        task.result = t.join()
 
                 else:
                     self._log.warning('Cannot do "{0}", it is not a valid '

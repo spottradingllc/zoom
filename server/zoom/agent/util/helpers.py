@@ -85,3 +85,14 @@ def zk_path_join(*args):
     :return: string
     """
     return os.path.join(*args).replace("\\", "/")
+
+
+def get_log(count=100):
+    """
+    :rtype: list of str
+    """
+    logfile = 'logs/sentinel.log'
+    with open(logfile, 'r') as f:
+        lines = f.readlines()
+        # return last `count` rows
+        return [l.rstrip('\n') for l in lines[-count:]]

@@ -1,13 +1,14 @@
 import logging
 import json
 
-from zoom.agent.entities.task import Task
-from zoom.agent.entities.unique_queue import UniqueQueue
-from zoom.common.decorators import connected_with_return
 from kazoo.exceptions import NoNodeError, NodeExistsError
 from kazoo.retry import KazooRetry
-from zoom.agent.util.helpers import zk_path_join
 from kazoo.protocol.states import WatchedEvent
+
+from zoom.agent.task.task import Task
+from zoom.agent.entities.unique_queue import UniqueQueue
+from zoom.common.decorators import connected_with_return
+from zoom.agent.util.helpers import zk_path_join
 
 
 class TaskServer(object):
@@ -53,7 +54,7 @@ class TaskServer(object):
         """
         Add Task to UniqueQueue. Submit task node to ZooKeeper.
         If `is_cancel` clear the queue, and submit only cancel.
-        :type task: zoom.agent.entities.task.Task
+        :type task: zoom.agent.task.task.Task
         :type is_cancel: bool
         """
         if task.host not in self._task_queue:
@@ -88,7 +89,7 @@ class TaskServer(object):
     def _submit_task(self, task):
         """
         If node does not exist in ZK, create node. Set data watch on that node.
-        :type task: zoom.agent.entities.task.Task
+        :type task: zoom.agent.task.task.Task
         """
         try:
             task_path = zk_path_join(self._configuration.task_path, task.host)
@@ -135,7 +136,7 @@ class TaskServer(object):
     def _remove(self, task, path, clear_queue=False):
         """
         Remove from self._task_queue. Delete node in ZooKeeper.
-        :type task: zoom.agent.entities.task.Task
+        :type task: zoom.agent.task.task.Task
         :type path: str
         :type clear_queue: bool
         """

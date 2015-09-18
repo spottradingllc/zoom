@@ -3,7 +3,7 @@ import logging
 from zoom.agent.predicate.factory import PredicateFactory
 from zoom.agent.entities.stagger_lock import StaggerLock
 from zoom.agent.entities.thread_safe_object import ApplicationMode
-from zoom.agent.entities.task import Task
+from zoom.agent.task.task import Task
 from zoom.agent.entities.thread_safe_object import ThreadSafeObject
 
 
