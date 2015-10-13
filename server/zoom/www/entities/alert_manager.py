@@ -11,14 +11,15 @@ from kazoo.exceptions import (
 from zoom.common.types import AlertActionType
 from zoom.agent.util.helpers import zk_path_join
 
+
 class AlertManager(object):
     def __init__(self, alert_path, override_path, state_path, zk, pd, exceptions):
         """
         :type alert_path: str
         :type override_path: str
         :type state_path: str
-        :type zk: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
-        :type pd: zoom.entities.pagerduty.PagerDuty
+        :type zk: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type pd: zoom.common.pagerduty.PagerDuty
         :type exceptions: list
         """
         self._path = alert_path
@@ -81,7 +82,7 @@ class AlertManager(object):
                 elif action == AlertActionType.RESOLVE:
                     t = Thread(target=self._pd.resolve,
                                name='pd_{0}'.format(i_key),
-                               args=(alert_data.get('api_key'), i_key),
+                               args=(alert_data.get('service_key'), i_key),
                                )
                     t.daemon = True
                     t.start()
