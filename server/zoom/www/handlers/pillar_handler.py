@@ -33,6 +33,9 @@ class PillarHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName GetPillarData
         @apiGroup Pillar
+        @apiParam {string} minion The FQDN hostname
+        @apiParam {string} project String describing the project
+        @apiParam {string} key Arbitrary string key under the project
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
@@ -68,7 +71,10 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, data):
         """
-        @api {post} /api/pillar/{minion}[/{project}]
+        :type data: str
+        @api {post} /api/pillar/[:minion][/:project] Create and update a host's pillar values
+        @apiParam {String} minion The FQDN hostname
+        @apiParam {string} project String describing the project
         @apiVersion 1.0.0
         @apiName SetPillarData
         @apiGroup Pillar
@@ -76,11 +82,16 @@ class PillarHandler(tornado.web.RequestHandler):
             Create the minion(host) if necessary, then create a
             project name under that host, if specified.
             Either can have JSON in request body where you can add
-            n-number key-value fields more easily. This is the pre-
-            ferred way of editing existing ones as well. There is no
-            'put' endpoint.
-            JSON: {minion: name, project: name, key_n: value_n...}
-        :type data: tornado data?
+            n-number key-value fields more easily. This is the preferred
+            way of editing existing ones as well. There is no
+            'put' endpoint. Placing minion name and project in the URI
+            is not required, they can be put into the JSON header.
+        @apiHeaderExample {json} Pass params with json:
+            {
+              minion: CHIVLXFOO,
+              project: FOO,
+              key_n: value_n...
+            }
         """
 
         try:
@@ -122,11 +133,19 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self, data):
         """
-        @apiIgnore To be documented
         :type data: str
-        DELETE /{minion} > Delete minion
-        DELETE /{minion}/{project} > Delete project
-        DELETE /{minion}/{project}/{key} > Delete Key
+        @apiVersion 1.0.0
+        @apiName DeletePillarData
+        @apiGroup Pillar
+        @api {delete} /api/pillar/:minion[/:project][/:key] Delete Minion/Project/Key
+        @apiParam {string} minion The FQDN hostname
+        @apiParam {string} project String describing the project
+        @apiParam {string} key Arbitrary string key under the project
+        @apiDescription
+            Deletes the path specified.
+            If only minion specified - delete an entire minion zk node,
+            If minion and project specified - delete a project from the JSON
+            If minion, project and key specified - delete a key from the JSON
         """
         minion, project, data_key, data_val = self._parse_uri(data)
         minion_data = self._get_minion_data(minion)
