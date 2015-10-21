@@ -68,16 +68,21 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, data):
         """
-        @apiIgnore To be documented
-        :type data: str
-
-        JSON-only for creating a project with arb. data
-        POST /
+        @api {post} /api/pillar/{minion}[/{project}]
+        @apiVersion 1.0.0
+        @apiName SetPillarData
+        @apiGroup Pillar
+        @apiDescription
+            Create the minion(host) if necessary, then create a
+            project name under that host, if specified.
+            Either can have JSON in request body where you can add
+            n-number key-value fields more easily. This is the pre-
+            ferred way of editing existing ones as well. There is no
+            'put' endpoint.
             JSON: {minion: name, project: name, key_n: value_n...}
-
-        POST /{minion} > Create new minion
-        POST /{minion}/{project} > Create new project
+        :type data: tornado data?
         """
+
         try:
             minion, project, data_key, data_val = self._parse_uri(data)
             minion_data = ""
@@ -113,32 +118,6 @@ class PillarHandler(tornado.web.RequestHandler):
             self.actionLog(username, "Created new server node", minion)
 
         self.write(minion_data)
-
-    @TimeThis(__file__)
-    def put(self, data):
-        """
-        @apiIgnore To be documented
-        :type data: str
-
-        PUT /{minion}/{project}/{key}/{value} > update arbitrary key-value pair
-
-        Not implemented, but can be done with POST and JSON:
-            PUT /{minion}/{project} {data} > update project with data {data}
-            PUT /{minion}/{project}/data_val/{[data_key]} > update/create data_val and key???
-        """
-        minion, project, data_key, data_val = self._parse_uri(data)
-        minion_data = self._get_minion_data(minion)
-
-        try:
-            if all([minion, project, data_key, data_val]):
-                minion_data[project][data_key] = data_val
-                self._set_minion_data(minion, minion_data)
-
-            self.write(minion_data)
-        except KeyError as ex:
-            self.set_status(INTERNAL_SERVER_ERROR)
-            logging.warning("KeyError: {0}".format(ex))
-            self.write({"errorText": "KeyError: {0}".format(ex)})
 
     @TimeThis(__file__)
     def delete(self, data):
