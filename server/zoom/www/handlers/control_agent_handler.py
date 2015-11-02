@@ -28,7 +28,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @property
     def config(self):
         """
-        :rtype: zoom.www.conifg.configuration.Configuration
+        :rtype: zoom.www.config.configuration.Configuration
         """
         return self.application.configuration
 
