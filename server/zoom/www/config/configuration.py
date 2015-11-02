@@ -79,7 +79,6 @@ class Configuration(object):
             self._ldap_server = ad_settings.get('host')
             self._ldap_port = ad_settings.get('port')
 
-
             # environment specific
             env_settings = config.get(self._environment.lower())
             self._read_write_groups = env_settings.get('read_write_groups')
@@ -90,7 +89,6 @@ class Configuration(object):
             self._chatops_url = chatops_settings.get('url')
             self._chatops_group = chatops_settings.get('group')
             self._chatops_commands_to_chat = chatops_settings.get('commands_to_chat')
-
 
             # message throttling
             throttle_settings = config.get('message_throttle')
