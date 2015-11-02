@@ -58,7 +58,7 @@ class Configuration(object):
             self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override')
             self._zookeeper_host = get_zk_conn_string(self._environment)
 
-            #pagerduty
+            # pagerduty
             pagerduty_settings = config.get('pagerduty')
             self._pagerduty_default_svc_key = pagerduty_settings.get('pagerduty_default_svc_key')
             self._pagerduty_api_token = pagerduty_settings.get('pagerduty_api_token')
@@ -79,10 +79,18 @@ class Configuration(object):
             self._ldap_server = ad_settings.get('host')
             self._ldap_port = ad_settings.get('port')
 
+
             # environment specific
             env_settings = config.get(self._environment.lower())
             self._read_write_groups = env_settings.get('read_write_groups')
             self._graphite_host = env_settings.get('graphite_host')
+
+            # chatops
+            chatops_settings = env_settings.get('chatops', {})
+            self._chatops_url = chatops_settings.get('url')
+            self._chatops_group = chatops_settings.get('group')
+            self._chatops_commands_to_chat = chatops_settings.get('commands_to_chat')
+
 
             # message throttling
             throttle_settings = config.get('message_throttle')
@@ -232,3 +240,15 @@ class Configuration(object):
     @property
     def graphite_host(self):
         return self._graphite_host
+
+    @property
+    def chatops_url(self):
+        return self._chatops_url
+
+    @property
+    def chatops_group(self):
+        return self._chatops_group
+
+    @property
+    def chatops_commands_to_chat(self):
+        return self._chatops_commands_to_chat

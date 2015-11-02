@@ -1,9 +1,9 @@
 import datetime
 import logging
 import json
-from httplib import INTERNAL_SERVER_ERROR
-
+import requests
 import tornado.web
+from httplib import INTERNAL_SERVER_ERROR, OK
 
 from zoom.common.decorators import TimeThis
 from zoom.common.types import CommandType
@@ -25,6 +25,13 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         """
         return self.application.zk
 
+    @property
+    def config(self):
+        """
+        :rtype: zoom.www.conifg.configuration.Configuration
+        """
+        return self.application.configuration
+
     @TimeThis(__file__)
     def post(self):
         """
@@ -39,12 +46,16 @@ class ControlAgentHandler(tornado.web.RequestHandler):
         @apiGroup Task
         """
         try:
+            user = self.get_argument("user", default=None)
+            command = self.get_argument("command")
+            app = self.get_argument("componentId")
+
             kwarguments = {
                 'stay_down': self.get_argument("stay_down", default=None),
-                'login_user': self.get_argument("user", default=None),
+                'login_user': user,
             }
-            task = Task(self.get_argument("command"),
-                        target=self.get_argument("componentId"),
+            task = Task(command,
+                        target=app,
                         kwargs=kwarguments,
                         host=self.get_argument("applicationHost"),
                         submitted=datetime.datetime.now().strftime('%Y%m%d %H:%M:%S'))
@@ -54,6 +65,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
 
             cancel = task.name == CommandType.CANCEL
             self.task_server.add_task(task, is_cancel=cancel)
+            self._send_to_chat_server(user, app, command)
 
         except Exception as e:
             self.set_status(INTERNAL_SERVER_ERROR)
@@ -88,3 +100,18 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             "queued_tasks": self.task_server.queued_tasks,
             "live_tasks": self.task_server.live_tasks
         })
+
+    def _send_to_chat_server(self, user, app, command):
+        """
+        Send chat to chat server
+        """
+        if all((self.config.chatops_url, self.config.chatops_group)):
+            if (self.config.chatops_commands_to_chat and
+                    command not in self.config.chatops_commands_to_chat):
+                return
+
+            msg = 'user={0}, app={1}, command={2}'.format(user, app, command)
+            payload = {'group': self.config.chatops_group, 'message': msg}
+            r = requests.put(self.config.chatops_url, params=payload, timeout=2)
+            if r.status_code != OK:
+                logging.error('Could not send to chat server: {0}'.format(r.content))
