@@ -90,7 +90,7 @@ class WebServer(tornado.web.Application):
             # zookeeper tools
             (r"/tools/refactor_path/", ToolsRefactorPathHandler),
             # tornado-specific
-            (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": self._configuration.images_path}),
+            (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": self._configuration.favicon_path}),
             (r'/front-end/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.client_path}),
             (r'/doc/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.doc_path}),
             (r'/(.*\.html)', NoCacheStaticFileHandler, {"path": self._configuration.html_path}),

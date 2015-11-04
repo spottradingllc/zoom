@@ -140,6 +140,11 @@ class Configuration(object):
         return self._images_path
 
     @property
+    def favicon_path(self):
+        path = ('stg' if self.environment == 'Staging' else 'prod')
+        return os.path.join(self._images_path, path)
+
+    @property
     def environment(self):
         return self._environment
 
