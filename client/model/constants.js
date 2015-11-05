@@ -83,7 +83,9 @@ define([], function () {
             Weekend: 'weekend',
             Holiday: 'holiday',
             TimeWindow: 'timewindow',
-            Process: 'process'
+            Process: 'process',
+            Health: 'health',
+            API: 'api'
         },
 
         zkPaths: {

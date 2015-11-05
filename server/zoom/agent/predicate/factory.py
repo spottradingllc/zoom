@@ -2,6 +2,7 @@ import logging
 from xml.etree import ElementTree
 
 from zoom.common.types import PredicateType
+from zoom.agent.predicate.apiok import APIPredicate
 from zoom.agent.predicate.health import PredicateHealth
 from zoom.agent.predicate.holiday import PredicateHoliday
 from zoom.agent.predicate.pred_and import PredicateAnd
@@ -135,6 +136,20 @@ class PredicateFactory(object):
                                  verify_attribute(root, 'interval', cast=float),
                                  operational=operational,
                                  parent=parent),
+                callback=callback
+            )
+        elif ptype == PredicateType.API:
+            return self._ensure_new(
+                APIPredicate(self._component_name,
+                             verify_attribute(root, 'url'),
+                             verb=verify_attribute(root, 'verb', none_allowed=True,
+                                                   default='GET'),
+                             expected_code=verify_attribute(root, 'expected_code',
+                                                            none_allowed=True,
+                                                            cast=int, default=200),
+                             interval=verify_attribute(root, 'interval', cast=float),
+                             operational=operational,
+                             parent=parent),
                 callback=callback
             )
         elif ptype == PredicateType.HEALTH:
