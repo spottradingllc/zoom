@@ -2,6 +2,7 @@ import datetime
 import logging
 import json
 import requests
+import socket
 import tornado.web
 from httplib import INTERNAL_SERVER_ERROR, OK
 
@@ -109,9 +110,12 @@ class ControlAgentHandler(tornado.web.RequestHandler):
             if (self.config.chatops_commands_to_chat and
                     command not in self.config.chatops_commands_to_chat):
                 return
-
-            msg = 'user={0}, app={1}, command={2}'.format(user, app, command)
-            payload = {'group': self.config.chatops_group, 'message': msg}
-            r = requests.put(self.config.chatops_url, params=payload, timeout=2)
-            if r.status_code != OK:
-                logging.error('Could not send to chat server: {0}'.format(r.content))
+            try:
+                msg = 'user={0}, app={1}, command={2}'.format(user, app, command)
+                payload = {'group': self.config.chatops_group, 'message': msg}
+                r = requests.put(self.config.chatops_url, params=payload, timeout=2)
+                if r.status_code != OK:
+                    logging.error('Could not send to chat server: {0}'.format(r.content))
+            except (requests.ConnectionError, socket.error, requests.Timeout) as ex:
+                logging.error('There was some error sending to the chat server:'
+                              ' {0}'.format(ex))

@@ -59,6 +59,7 @@ class PredicateType():
     AND = "and"
     OR = "or"
     NOT = "not"
+    API = 'api'
     HEALTH = "health"
     HOLIDAY = "holiday"
     PROCESS = "process"

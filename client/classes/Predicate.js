@@ -13,6 +13,9 @@ define(['knockout'],
             self.weekdays = ko.observable(null);
             self.operational = ko.observable(null);
             self.ephemeralOnly = ko.observable(null);
+            self.apiUrl = ko.observable(null);
+            self.verb = ko.observable(null);
+            self.expectedCode = ko.observable(null);
 
             self.isLogicalPred = false;
 
@@ -28,7 +31,7 @@ define(['knockout'],
             self.intervalVisible = ko.computed(function() {
                 if (self.predType() != null) {
                     var predLower = self.predType().toLowerCase();
-                    return predLower === 'process';
+                    return ['process', 'health', 'api'].indexOf(predLower) !== -1
                 }
                 else {
                     return true;
@@ -47,6 +50,15 @@ define(['knockout'],
                 if (self.predType() != null) {
                     var predLower = self.predType().toLowerCase();
                     return predLower === 'timewindow';
+                }
+                else {
+                    return true;
+                }
+            });
+            self.URLVisible = ko.computed(function() {
+                if (self.predType() != null) {
+                    var predLower = self.predType().toLowerCase();
+                    return predLower === 'api';
                 }
                 else {
                     return true;
@@ -112,7 +124,12 @@ define(['knockout'],
                 if (self.predType() === null) {
                     errors.push('Predicate type cannot be null.');
                 }
-
+                else if (self.predType().toLowerCase() === 'api' && self.apiUrl() === null) {
+                    errors.push('URL cannot be null for the API predicate.');
+                }
+                else if (self.predType().toLowerCase().indexOf('zookeeper') !== -1 && !self.path()) {
+                    errors.push('The Zookeeper predicates cannot have an empty path.')
+                }
                 return errors;
             };
 
@@ -153,6 +170,15 @@ define(['knockout'],
                 if (self.ephemeralOnly() !== null) {
                     XML = XML.concat('ephemeral_only="' + self.ephemeralOnly() + '" ');
                 }
+                if (self.apiUrl() !== null) {
+                    XML = XML.concat('url="' + self.apiUrl() + '" ');
+                }
+                if (self.verb() !== null) {
+                    XML = XML.concat('verb="' + self.verb() + '" ');
+                }
+                if (self.expectedCode() !== null) {
+                    XML = XML.concat('expected_code="' + self.expectedCode() + '" ');
+                }
 
                 XML = XML.concat('></Predicate>');
 
@@ -169,6 +195,9 @@ define(['knockout'],
                 self.weekdays(node.getAttribute('weekdays'));
                 self.operational(node.getAttribute('operational'));
                 self.ephemeralOnly(node.getAttribute('ephemeral_only'));
+                self.apiUrl(node.getAttribute('url'));
+                self.verb(node.getAttribute('verb'));
+                self.expectedCode(node.getAttribute('expected_code'));
 
             };
         };
