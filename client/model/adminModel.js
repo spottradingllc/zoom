@@ -4,7 +4,7 @@ define(['knockout', 'jquery', './loginModel'],
 
         admin._login = login;
         admin._enabled = ko.observable(false);
-        admin.showProgress = ko.observable(false);
+        admin.showProgress = ko.observable(true);
         admin.disable = function() {
             admin._enabled(false);
         };
