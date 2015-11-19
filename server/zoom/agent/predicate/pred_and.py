@@ -44,6 +44,7 @@ class PredicateAnd(SimplePredicate):
             self._log.debug('Stopping {0}'.format(self))
             self._started = False
             map(lambda x: x.stop(), self.dependencies)
+            del self.dependencies[:]
         else:
             self._log.debug('Already stopped {0}'.format(self))
 

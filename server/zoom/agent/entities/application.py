@@ -205,6 +205,7 @@ class Application(object):
         self._log.info('Stopping Zookeeper client')
         self._work_manager.stop()
         map(lambda x: x.stop(), self._actions.values())  # stop actions
+        del self._predicates[:]  # make sure we delete old predicates
         self.zkclient.stop()
         self.zkclient.close()
         return 0
@@ -288,7 +289,7 @@ class Application(object):
         if result != ApplicationStatus.CANCELLED:
             # give everything time to catch up, not sure why anymore...
             self._log.info('Sleeping for the configured {0}s after stop.'
-                       .format(self._post_stop_sleep))
+                           .format(self._post_stop_sleep))
             sleep(self._post_stop_sleep)
 
         # reset this value back to False
@@ -727,20 +728,15 @@ class Application(object):
                            .format(self._prev_state, state))
             if self._prev_state is None and state == KazooState.CONNECTED:
                 pass
-            elif (self._prev_state == KazooState.LOST
-                  and state == KazooState.CONNECTED):
+            elif self._prev_state == KazooState.LOST and state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.SUSPENDED):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.SUSPENDED:
                 pass
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.CONNECTED):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
             elif state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
@@ -750,8 +746,9 @@ class Application(object):
                 return
             self._prev_state = state
 
-        except Exception:
-            self._log.exception('An uncaught exception has occurred')
+        except Exception as ex:
+            self._log.exception('An uncaught exception has occurred in the '
+                                'listener: {0}'.format(ex))
 
     def __str__(self):
         return self.__repr__()

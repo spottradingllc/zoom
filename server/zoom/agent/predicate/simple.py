@@ -51,6 +51,7 @@ class SimplePredicate(object):
         """
         Helper function to set the dependency 'met' value.
         :type value: bool
+        :type silent: bool
         """
         if self._met == value:
             if not silent:
@@ -126,6 +127,9 @@ class SimplePredicate(object):
 def create_dummy(comp='', parent=None, met=False):
     """
     Create a SimplePredicate that does nothing.
+    :type comp: str
+    :type parent: str or None
+    :type met: bool
     :rtype: zoom.agent.predicate.simple.SimplePredicate
     """
     dummy = SimplePredicate(comp, parent=parent)

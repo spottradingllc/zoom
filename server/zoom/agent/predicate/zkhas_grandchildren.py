@@ -50,6 +50,15 @@ class ZookeeperHasGrandChildren(SimplePredicate):
         else:
             self._log.debug('Already started {0}'.format(self))
 
+    def stop(self):
+        if self._started is True:
+            self._log.debug('Stopping {0}'.format(self))
+            self._started = False
+            map(lambda x: x.stop(), self._children)
+            del self._children[:]
+        else:
+            self._log.debug('Already stopped {0}'.format(self))
+
     def _callback(self):
         # TODO: This is the same logic as in SimplePrecicate.
         # We should change it so that we only have to update in one place

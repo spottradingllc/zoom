@@ -222,20 +222,15 @@ class SentinelDaemon(object):
         try:
             self._log.info('Zookeeper Connection went from {0} to {1}'
                            .format(self._prev_state, state))
-            if (self._prev_state == KazooState.LOST
-                  and state == KazooState.CONNECTED):
+            if self._prev_state == KazooState.LOST and state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.SUSPENDED):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.SUSPENDED:
                 pass
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.LOST:
                 pass
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.CONNECTED):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
             elif state == KazooState.CONNECTED:
                 self.zkclient.handler.spawn(self._reset_after_connection_loss)
