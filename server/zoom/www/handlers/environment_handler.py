@@ -18,7 +18,7 @@ class EnvironmentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/environment/ Get Environment
+        @api {get} /api/v1/environment/ Get Environment
         @apiVersion 1.0.0
         @apiName GetEnv
         @apiGroup Env

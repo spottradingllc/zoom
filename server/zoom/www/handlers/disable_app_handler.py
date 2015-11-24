@@ -25,7 +25,7 @@ class DisableAppHandler(RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/disable Enable/Disable Zoom startup for an application
+        @api {post} /api/v1/disable Enable/Disable Zoom startup for an application
         @apiParam {String} host The user that submitted the task
         @apiParam {String} id The application id to disable/enable
         @apiParam {Boolean} Whether to disable Zoom startup

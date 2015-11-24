@@ -29,7 +29,7 @@ define(
         SentinelConfigViewModel.searchUpdateViewModel = new SearchUpdateViewModel(SentinelConfigViewModel);
 
         SentinelConfigViewModel.getAllServerNames = function() {
-            $.getJSON('/api/config/list_servers/', function(data) {
+            $.getJSON('/api/v1/config/list_servers/', function(data) {
                 SentinelConfigViewModel.serverList.removeAll();
                 for (var i = 0; i < data.length; i++) {
                     SentinelConfigViewModel.serverList.push(data[i]);

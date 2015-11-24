@@ -26,7 +26,7 @@ class ApplicationDependenciesHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/application/dependencies/[:id] Get Application's dependencies
+        @api {get} /api/v1/application/dependencies/[:id] Get Application's dependencies
         @apiDescription Retrieve the upstream and downstream dependencies for an app.
         You can provide the full path in Zookeeper or the ComponentID.
         @apiVersion 1.0.0

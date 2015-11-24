@@ -64,11 +64,11 @@ define(
         };
 
         self.getGlobalMode = function() {
-            return service.get('api/mode/', self.handleModeUpdate, onGlobalModeError);
+            return service.get('api/v1/mode/', self.handleModeUpdate, onGlobalModeError);
         };
 
         self.getTimingEstimate = function() {
-            return service.get('api/timingestimate',
+            return service.get('api/v1/timingestimate',
                 self.handleTimingUpdate,
                 function() {
                     swal('Well shoot...', 'An Error has occurred while getting the initial time estimate', 'error');
@@ -81,7 +81,7 @@ define(
                     'command': mode,
                     'user': self.login.elements.username()
                 };
-                $.post('/api/mode/', dict).fail(function(data) {
+                $.post('/api/v1/mode/', dict).fail(function(data) {
                     swal('Error Posting Mode Control.', JSON.stringify(data), 'error');
                 });
             }

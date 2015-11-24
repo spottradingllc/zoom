@@ -18,7 +18,7 @@ class PagerDutyServicesHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/pagerduty/services/ Get PagerDuty Services
+        @api {get} /api/v1/pagerduty/services/ Get PagerDuty Services
         @apiVersion 1.0.0
         @apiName GetPDSvc
         @apiGroup PagerDuty

@@ -35,7 +35,7 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/mode/ Get global mode
+        @api {get} /api/v1/mode/ Get global mode
         @apiVersion 1.0.0
         @apiName GetMode
         @apiGroup Mode
@@ -62,7 +62,7 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/mode/ Set global Mode
+        @api {post} /api/v1/mode/ Set global Mode
         @apiParam {String} command What to set the mode to (auto|manual)
         @apiParam {String} user The user that submitted the task
         @apiVersion 1.0.0

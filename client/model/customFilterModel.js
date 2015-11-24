@@ -69,7 +69,7 @@ define(['jquery', 'knockout', 'classes/CustomFilter', 'model/constants' ], funct
 
             if (parent.login.elements.authenticated()) {
                 self.remoteCustomFilters.removeAll();
-                $.getJSON('/api/filters/', dict, function(data) {
+                $.getJSON('/api/v1/filters/', dict, function(data) {
                     $.each(data, function(index, filterDict) {
                         var filter = new CustomFilter(self, parent);
                         filter.filterName(filterDict.name);

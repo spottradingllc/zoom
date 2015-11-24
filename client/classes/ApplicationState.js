@@ -257,7 +257,7 @@ define(
                     'key': 'grayed',
                     'value': !self.grayed()
                 };
-                $.post('/api/application/states' + self.configurationPath, JSON.stringify(dict))
+                $.post('/api/v1/application/states' + self.configurationPath, JSON.stringify(dict))
                     .fail(function(data) { swal('Failure Toggling grayed ', JSON.stringify(data)); });
             };
 
@@ -266,7 +266,7 @@ define(
                     'key': 'pd_disabled',
                     'value': !self.pdDisabled()
                 };
-                $.post('/api/application/states' + self.configurationPath, JSON.stringify(dict))
+                $.post('/api/v1/application/states' + self.configurationPath, JSON.stringify(dict))
                     .fail(function(data) { swal('Failure Toggling pdDisabled ', JSON.stringify(data)); });
             };
 
@@ -300,7 +300,7 @@ define(
                     closeOnCancel: false
                 }, function(isConfirm) {
                     if (isConfirm) {
-                        $.post('/api/disable', dict)
+                        $.post('/api/v1/disable', dict)
                             .success(function(data) {swal('Success!', 'Read-Only was toggled. Give it a few seconds for the change to propagate.')})
                             .fail(function(data) { swal('Failure En/Disabling app ', JSON.stringify(data)); });
                         }
@@ -386,7 +386,7 @@ define(
                 };
 
                 $.ajax({
-                    url: '/api/delete/',
+                    url: '/api/v1/delete/',
                     async: false,
                     data: dict,
                     type: 'POST',
@@ -398,7 +398,7 @@ define(
 
             var deleteFromConfig = function() {
                 // try to remove component from sentinel config
-                $.get('/api/config/' + self.applicationHost(), function(data) {
+                $.get('/api/v1/config/' + self.applicationHost(), function(data) {
                     if (data !== 'Node does not exist.') {
                         var parser = new DOMParser();
                         var xmlDoc = parser.parseFromString(data, 'text/xml');
@@ -426,7 +426,7 @@ define(
                             };
                             $.ajax(
                                 {
-                                    url: '/api/config/' + self.applicationHost(),
+                                    url: '/api/v1/config/' + self.applicationHost(),
                                     async: false,
                                     type: 'PUT',
                                     data: JSON.stringify(params),

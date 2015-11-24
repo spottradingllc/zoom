@@ -17,7 +17,7 @@ class HostMappingHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/application/mapping/app/[:id] Get app:host mapping
+        @api {get} /api/v1/application/mapping/app/[:id] Get app:host mapping
         @apiVersion 1.0.0
         @apiName GetAppMapping
         @apiGroup Mapping
@@ -78,7 +78,7 @@ class ApplicationMappingHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/application/mapping/host/[:host] Get host:app mapping
+        @api {get} /api/v1/application/mapping/host/[:host] Get host:app mapping
         @apiVersion 1.0.0
         @apiName GetHostMapping
         @apiGroup Mapping

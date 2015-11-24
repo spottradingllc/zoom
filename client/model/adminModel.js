@@ -26,7 +26,7 @@ define(['knockout', 'jquery', './loginModel'],
 
         admin.clearTasks = function() {
             $.ajax({
-                    url: '/api/agent/',
+                    url: '/api/v1/agent/',
                     type: 'DELETE',
                     success: function(data) { swal('Tasks cleared') },
                     error: function(data) { swal('Failure Clearing Tasks ', '', 'error'); }

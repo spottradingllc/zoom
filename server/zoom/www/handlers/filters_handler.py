@@ -21,7 +21,7 @@ class FiltersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/filters Retrieve filters for user
+        @api {get} /api/v1/filters Retrieve filters for user
         @apiParam {String} loginName The user that submitted the task
         @apiVersion 1.0.0
         @apiName GetFilters
@@ -46,7 +46,7 @@ class FiltersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/filters Save|Delete filter for user
+        @api {post} /api/v1/filters Save|Delete filter for user
         @apiParam {String} operation add|remove
         @apiParam {String} name The name of the filter
         @apiParam {String} loginName The user that submitted the task

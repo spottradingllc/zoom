@@ -19,7 +19,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                 }
                 else {
                     // get XML configuration, catch callback message (allow editing on success)
-                    $.get('/api/config/' + SentinelConfigViewModel.serverName(), function(data) {
+                    $.get('/api/v1/config/' + SentinelConfigViewModel.serverName(), function(data) {
                         if (data !== 'Node does not exist.') {
                             self.setXML(data);
                         }
@@ -59,7 +59,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                             'serverName': SentinelConfigViewModel.serverName()
                         };
                         $.ajax({
-                                url: '/api/config/' + SentinelConfigViewModel.serverName(),
+                                url: '/api/v1/config/' + SentinelConfigViewModel.serverName(),
                                 type: 'PUT',
                                 data: JSON.stringify(params),
                                 success: function (returnData) {
@@ -111,7 +111,7 @@ define(['jquery', 'knockout', './alertsViewModel', './treeViewModel', 'model/con
                     if (isConfirm) {
                         // attempt to delete the sentinel configuration, catch callback message
                         $.ajax({
-                            url: '/api/config/' + SentinelConfigViewModel.serverName(),
+                            url: '/api/v1/config/' + SentinelConfigViewModel.serverName(),
                             type: 'DELETE',
                             success: function (data) {
                                 if (data === 'Node successfully deleted.') {

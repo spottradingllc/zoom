@@ -29,7 +29,7 @@ class PillarHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, data):
         """
-        @api {get} /api/pillar/:minion[/:project][/:key] Get a host's pillar values
+        @api {get} /api/v1/pillar/:minion[/:project][/:key] Get a host's pillar values
         @apiVersion 1.0.0
         @apiName GetPillarData
         @apiGroup Pillar
@@ -72,7 +72,7 @@ class PillarHandler(tornado.web.RequestHandler):
     def post(self, data):
         """
         :type data: str
-        @api {post} /api/pillar/[:minion][/:project] Create and update a host's pillar values
+        @api {post} /api/v1/pillar/[:minion][/:project] Create and update a host's pillar values
         @apiParam {String} minion The FQDN hostname
         @apiParam {string} project String describing the project
         @apiVersion 1.0.0
@@ -137,7 +137,7 @@ class PillarHandler(tornado.web.RequestHandler):
         @apiVersion 1.0.0
         @apiName DeletePillarData
         @apiGroup Pillar
-        @api {delete} /api/pillar/:minion[/:project][/:key] Delete Minion/Project/Key
+        @api {delete} /api/v1/pillar/:minion[/:project][/:key] Delete Minion/Project/Key
         @apiParam {string} minion The FQDN hostname
         @apiParam {string} project String describing the project
         @apiParam {string} key Arbitrary string key under the project

@@ -24,9 +24,9 @@ class RestServer(tornado.web.Application):
         self.task_client = BaseTaskClient(children)
         handlers = [
             # Versioned
-            (r"/api/v1/log/?(?P<count>\d+)?", LogHandler),
-            (r"/api/v1/status/?(?P<target>[\w|\/]+)?", StatusHandler),
-            (r"/api/v1/task/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", TaskHandler),
+            (r"/api/v1/v1/log/?(?P<count>\d+)?", LogHandler),
+            (r"/api/v1/v1/status/?(?P<target>[\w|\/]+)?", StatusHandler),
+            (r"/api/v1/v1/task/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", TaskHandler),
             # Unversioned
             (r'/loglevel/(?P<level>\w+)', LogVerbosityHandler),
             (r"/ruok", RUOKHandler)

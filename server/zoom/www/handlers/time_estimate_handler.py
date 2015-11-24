@@ -24,7 +24,7 @@ class TimeEstimateHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/timingestimate[/:path] Get an estimate on when all apps will be up
+        @api {get} /api/v1/timingestimate[/:path] Get an estimate on when all apps will be up
         @apiVersion 1.0.0
         @apiName GetEstimate
         @apiGroup Estimate

@@ -24,7 +24,7 @@ class ListServersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/config/list_servers/ List sentinel servers
+        @api {get} /api/v1/config/list_servers/ List sentinel servers
         @apiVersion 1.0.0
         @apiName ListSentServers
         @apiGroup Sentinel Config
