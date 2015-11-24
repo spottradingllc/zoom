@@ -7,9 +7,9 @@ from zoom.agent.util.helpers import get_log
 class TaskHandler(RequestHandler):
     def post(self, work=None, target=None):
         """
-        @api {post} /api/v1/v1/:work[/:target] Submit a task to Sentinel
+        @api {post} /api/v1/:work[/:target] Submit a task to Sentinel
         @apiDescription You can use this to mimic the tasks sent from Zoom.
-        For example: /api/v1/v1/stop/foo will stop the application foo.
+        For example: /api/v1/stop/foo will stop the application foo.
         @apiVersion 1.0.0
         @apiName SubmitTask
         @apiGroup Sentinel Agent
@@ -29,10 +29,10 @@ class TaskHandler(RequestHandler):
 class LogHandler(RequestHandler):
     def post(self, count):
         """
-        @api {post} /api/v1/v1/log[/:linecount] Retrieve lines from the logfile (plaintext)
+        @api {post} /api/v1/log[/:linecount] Retrieve lines from the logfile (plaintext)
         @apiDescription This will retrieve the lines in plaintext. Best if used by curl.
         You can optionally provide the number of lines you would like to receive.
-        For example: /api/v1/v1/log/40
+        For example: /api/v1/log/40
         @apiVersion 1.0.0
         @apiName CurlLogLines
         @apiGroup Sentinel Agent
@@ -44,10 +44,10 @@ class LogHandler(RequestHandler):
 
     def get(self, count):
         """
-        @api {get} /api/v1/v1/log[/:linecount] Retrieve lines from the logfile (html)
+        @api {get} /api/v1/log[/:linecount] Retrieve lines from the logfile (html)
         @apiDescription This will retrieve the lines in HTML. Best if used by a browser.
         You can optionally provide the number of lines you would like to receive.
-        For example: /api/v1/v1/log/40
+        For example: /api/v1/log/40
         @apiVersion 1.0.0
         @apiName WebLogLines
         @apiGroup Sentinel Agent
@@ -63,7 +63,7 @@ class LogHandler(RequestHandler):
 class StatusHandler(RequestHandler):
     def get(self, target=None):
         """
-        @api {get} /api/v1/v1/status[/:target] Log out and retrieve status of components (html)
+        @api {get} /api/v1/status[/:target] Log out and retrieve status of components (html)
         @apiDescription This will retrieve the status of all the Sentinel objections
         (Components, Actions, Predicates). The GET is best used from a browser.
         @apiVersion 1.0.0
@@ -83,7 +83,7 @@ class StatusHandler(RequestHandler):
 
     def post(self, target=None):
         """
-        @api {post} /api/v1/v1/status[/:target] Log out and retrieve status of components (plaintext)
+        @api {post} /api/v1/status[/:target] Log out and retrieve status of components (plaintext)
         @apiDescription This will retrieve the status of all the Sentinel objections
         (Components, Actions, Predicates). The POST is best used from curl.
         @apiVersion 1.0.0
