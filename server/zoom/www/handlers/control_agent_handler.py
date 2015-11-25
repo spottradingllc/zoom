@@ -36,7 +36,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/agent/ Create Task from json and add to TaskServer
+        @api {post} /api/v1/agent/ Create Task from json and add to TaskServer
         @apiParam {Boolean} [stay_down=null] Used to signal to Sentinel that the application was brought down on purpose
         @apiParam {String} [login_user=null] The user that submitted the task
         @apiParam {String} command The function Sentinel should run
@@ -76,7 +76,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self):
         """
-        @api {delete} /api/agent/ Delete all tasks in queue
+        @api {delete} /api/v1/agent/ Delete all tasks in queue
         @apiVersion 1.0.0
         @apiName DeleteTasks
         @apiGroup Task
@@ -86,7 +86,7 @@ class ControlAgentHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/agent/ Get live and queued tasks
+        @api {get} /api/v1/agent/ Get live and queued tasks
         @apiVersion 1.0.0
         @apiName GetTasks
         @apiGroup Task

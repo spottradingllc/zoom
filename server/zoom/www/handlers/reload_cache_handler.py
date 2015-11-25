@@ -16,7 +16,7 @@ class ReloadCacheHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/cache/reload/ Reload data from Zookeeper
+        @api {post} /api/v1/cache/reload/ Reload data from Zookeeper
         @apiParam {String} user The user that submitted the task
         @apiParam {String} command Can be anything...currently only used for logging
         @apiVersion 1.0.0

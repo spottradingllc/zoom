@@ -33,7 +33,7 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/application/states/[:id] Get Application State
+        @api {get} /api/v1/application/states/[:id] Get Application State
         @apiVersion 1.0.0
         @apiName GetAppState
         @apiGroup ApplicationState
@@ -88,7 +88,7 @@ class ApplicationStateHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, path):
         """
-        @api {post} /api/application/states/:id Manually over-ride some value for an app state
+        @api {post} /api/v1/application/states/:id Manually over-ride some value for an app state
         @apiParam {String} key The Application State key to over-ride
         @apiParam {String} value The Value to over-ride it with
         @apiVersion 1.0.0

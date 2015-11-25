@@ -102,7 +102,7 @@ define(
                         'stay_down': options.stay_down,
                         'user': self.login.elements.username()
                     };
-                    $.post('/api/agent/', dict, function() {
+                    $.post('/api/v1/agent/', dict, function() {
                         $('#groupCheckModal').modal('hide');
                     })
                         .fail(function(data) {
@@ -128,7 +128,7 @@ define(
                         swal('Empty host', 'Skipping the agent with configuration path ' + applicationState.configurationPath);
                     }
                     else {
-                        $.post('/api/agent/', dict).fail(function(data) {
+                        $.post('/api/v1/agent/', dict).fail(function(data) {
                             swal('Error Posting Group Control.', JSON.stringify(data), 'error');
                         });
                     }
@@ -333,7 +333,7 @@ define(
 
             self.OpdepAjax = function(componentID) {
                 return $.ajax({
-                        url: '/api/application/opdep' + componentID,
+                        url: '/api/v1/application/opdep' + componentID,
                         type: 'GET'
                     });
             };
@@ -684,7 +684,7 @@ define(
                         'user': self.login.elements.username()
                     };
                     self.applicationStateArray.removeAll();
-                    $.post('/api/cache/reload/', dict, function(data) {
+                    $.post('/api/v1/cache/reload/', dict, function(data) {
                         swal(data);
                     }).fail(function(data) {
                         swal('Error Posting Clear Cache.', JSON.stringify(data), 'error');
@@ -707,7 +707,7 @@ define(
             };
 
             self.loadApplicationStates = function() {
-                return service.synchronousGet('api/application/states',
+                return service.synchronousGet('api/v1/application/states',
                     onApplicationStatesSuccess,
                     onApplicationStatesError);
             };
@@ -717,7 +717,7 @@ define(
             };
 
             self.loadApplicationDependencies = function() {
-                return service.synchronousGet('api/application/dependencies',
+                return service.synchronousGet('api/v1/application/dependencies',
                     self.handleApplicationDependencyUpdate,
                     onApplicationDependenciesError);
             };

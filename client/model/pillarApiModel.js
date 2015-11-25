@@ -7,7 +7,7 @@ define(
     function(ko, service, $) {
         return function pillarApiModel(pillarModel) {
             var self = this;
-            var pillarURI = "api/pillar/";
+            var pillarURI = "api/v1/pillar/";
 
             // Updates data for a node - either the entire node or adding a project
             self.api_post_json = function(_assoc, update_salt, array_to_update, data_type, project){
@@ -283,7 +283,7 @@ define(
             };
 
             self.loadServers = function () {
-                service.get('api/pillar/list_servers/', onSuccess, onFailure);
+                service.get('api/v1/pillar/list_servers/', onSuccess, onFailure);
             };
         };
     }

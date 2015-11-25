@@ -10,7 +10,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
             self.statePaths = (function() {
                 var paths = [];
                 $.ajax({
-                    url: '/api/application/states',
+                    url: '/api/v1/application/states',
                     success: function(data) {
                         ko.utils.arrayForEach(data.application_states, function(state) {
                             paths.push(state.configuration_path);
@@ -24,7 +24,7 @@ define(['knockout', 'jquery', 'classes/Component', 'model/adminModel', 'vkbeauti
 
             // will fill in self.pagerDutyServices when the call finishes
             $.ajax({
-                url: '/api/pagerduty/services/',
+                url: '/api/v1/pagerduty/services/',
                 success: function(data) {
                     self.pagerDutyServices = JSON.parse(data);
                 },

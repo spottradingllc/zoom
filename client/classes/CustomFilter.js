@@ -225,7 +225,7 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
                 swal('Missing filter name', 'You must enter a filter name in order to save the filter remotely.', 'error');
             }
             else {
-                $.post('/api/filters/', dict, function(data) {
+                $.post('/api/v1/filters/', dict, function(data) {
                     swal(data);
                 }).fail(function(data) {
                     var res = JSON.parse(data.responseText);
@@ -243,7 +243,7 @@ define(['jquery', 'knockout', 'model/constants'], function($, ko, constants) {
                 searchTerm: self.searchTerm(),
                 inversed: self.inversed()
             };
-            $.post('/api/filters/', dict, function(returnData) {
+            $.post('/api/v1/filters/', dict, function(returnData) {
                 swal(returnData);
             }).fail(function(data) {
                 var res = JSON.parse(data.responseText);

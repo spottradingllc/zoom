@@ -17,7 +17,7 @@ class ListPillarServersHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self):
         """
-        @api {get} /api/pillar/list_servers/ List pillar servers
+        @api {get} /api/v1/pillar/list_servers/ List pillar servers
         @apiVersion 1.0.0
         @apiName GetPilServers
         @apiGroup Pillar

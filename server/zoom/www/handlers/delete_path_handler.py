@@ -22,7 +22,7 @@ class DeletePathHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self):
         """
-        @api {post} /api/delete/ Delete path in Zookeeper
+        @api {post} /api/v1/delete/ Delete path in Zookeeper
         @apiParam {String} login_user The user that submitted the task
         @apiParam {String} delete The Zookeeper path to delete
         @apiVersion 1.0.0

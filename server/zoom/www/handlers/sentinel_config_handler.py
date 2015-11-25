@@ -35,7 +35,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def put(self, server):
         """
-        @api {put} /api/config/:host Create|Update sentinel config
+        @api {put} /api/v1/config/:host Create|Update sentinel config
         @apiVersion 1.0.0
         @apiName UpdateSentinel
         @apiGroup Sentinel Config
@@ -69,7 +69,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, server):
         """
-        @api {get} /api/config/:host Get sentinel config for server
+        @api {get} /api/v1/config/:host Get sentinel config for server
         @apiVersion 1.0.0
         @apiName GetSentinel
         @apiGroup Sentinel Config
@@ -94,7 +94,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, server):
         """
-        @api {post} /api/config/:host Create sentinel config
+        @api {post} /api/v1/config/:host Create sentinel config
         @apiParam {String} XML A string containing the XML of the Sentinel Config
         @apiVersion 1.0.0
         @apiName CreateSentinel
@@ -124,7 +124,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self, server):
         """
-        @api {put} /api/config/:host Delete sentinel config
+        @api {put} /api/v1/config/:host Delete sentinel config
         @apiVersion 1.0.0
         @apiName DeleteSentinel
         @apiGroup Sentinel Config

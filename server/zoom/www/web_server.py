@@ -46,50 +46,33 @@ class WebServer(tornado.web.Application):
         self._task_server = task_server
         self.zk = zk
 
-        # initialize Tornado
         handlers = [
             (r'/ruok', RUOKHandler),
             (r'/login', LoginHandler),
             (r'/zoom/ws', ZoomWSHandler),
-            # global mode
-            (r'/api/mode/', GlobalModeHandler),
-            # application
-            (r'/api/application/states(?P<path>.*)', ApplicationStateHandler),
-            (r'/api/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
-            (r'/api/application/opdep(?P<path>.*)', ApplicationOpdepHandler),
-            (r'/api/application/mapping/app(?P<path>.*)', ApplicationMappingHandler),
-            (r'/api/application/mapping/host/(?P<path>.*)', HostMappingHandler),
-            # agent
-            (r'/api/agent/', ControlAgentHandler),
-            # cache
-            (r'/api/cache/reload/', ReloadCacheHandler),
-            # config
-            (r"/api/config/list_servers/", ListServersHandler),
-            (r"/api/config/(?P<server>.*)", SentinelConfigHandler),
-            # delete app
-            (r"/api/delete/", DeletePathHandler),
-            # disable app
-            (r"/api/disable", DisableAppHandler),
-            # environment
-            (r"/api/environment/", EnvironmentHandler),
-            # filters
-            (r"/api/filters/", FiltersHandler),
-            # service info
-            (r"/api/serviceinfo/", ServiceInfoHandler),
-            # pagerduty
-            (r"/api/pagerduty/services/", PagerDutyServicesHandler),
-            # timing
-            (r"/api/timingestimate(?P<path>.*)", TimeEstimateHandler),
-            # pillar
-            (r"/api/pillar/list_servers/", ListPillarServersHandler),
-            (r"/api/pillar/(?P<data>.*)", PillarHandler),
-            # salt master rest api
-            (r"/api/saltmaster/", SaltMasterHandler),
-            # zookeeper data
-            (r"/api/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
-            # zookeeper tools
+            (r'/api/v1/mode/', GlobalModeHandler),
+            (r'/api/v1/application/states(?P<path>.*)', ApplicationStateHandler),
+            (r'/api/v1/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
+            (r'/api/v1/application/opdep(?P<path>.*)', ApplicationOpdepHandler),
+            (r'/api/v1/application/mapping/app(?P<path>.*)', ApplicationMappingHandler),
+            (r'/api/v1/application/mapping/host/(?P<path>.*)', HostMappingHandler),
+            (r'/api/v1/agent/', ControlAgentHandler),
+            (r'/api/v1/cache/reload/', ReloadCacheHandler),
+            (r"/api/v1/config/list_servers/", ListServersHandler),
+            (r"/api/v1/config/(?P<server>.*)", SentinelConfigHandler),
+            (r"/api/v1/delete/", DeletePathHandler),
+            (r"/api/v1/disable", DisableAppHandler),
+            (r"/api/v1/environment/", EnvironmentHandler),
+            (r"/api/v1/filters/", FiltersHandler),
+            (r"/api/v1/serviceinfo/", ServiceInfoHandler),
+            (r"/api/v1/pagerduty/services/", PagerDutyServicesHandler),
+            (r"/api/v1/timingestimate(?P<path>.*)", TimeEstimateHandler),
+            (r"/api/v1/pillar/list_servers/", ListPillarServersHandler),
+            (r"/api/v1/pillar/(?P<data>.*)", PillarHandler),
+            (r"/api/v1/saltmaster/", SaltMasterHandler),
+            (r"/api/v1/zookeeper(?P<path>.*)", ZooKeeperDataHandler),
             (r"/tools/refactor_path/", ToolsRefactorPathHandler),
-            # tornado-specific
+
             (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": self._configuration.favicon_path}),
             (r'/front-end/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.client_path}),
             (r'/doc/(.*)', NoCacheStaticFileHandler, {"path": self._configuration.doc_path}),

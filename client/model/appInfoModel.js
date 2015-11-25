@@ -23,7 +23,7 @@ define(['jquery', 'knockout' ], function($, ko) {
                 serviceInfo: self.data()
             };
 
-            $.post('/api/serviceinfo/', dict).fail(function(data) {
+            $.post('/api/v1/serviceinfo/', dict).fail(function(data) {
                 swal('Error Posting ServiceInfo.', JSON.stringify(data), 'error');
             });
         };
@@ -32,7 +32,7 @@ define(['jquery', 'knockout' ], function($, ko) {
             if (self.showInfo()) {
                 var dict = {configurationPath: configPath};
                 if (self.showInfo()) {
-                    $.getJSON('/api/serviceinfo/', dict, function(data) {
+                    $.getJSON('/api/v1/serviceinfo/', dict, function(data) {
                         self.data(data.servicedata);
                     }).fail(function(data) {
                         swal('Failed GET for ServiceInfo.', JSON.stringify(data), 'error');

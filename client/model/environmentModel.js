@@ -48,7 +48,7 @@ define(['knockout', 'service' ], function(ko, service) {
         swal('Well shoot...', 'There was an error getting environment', 'error');
     };
 
-    service.get('api/environment/', onSuccess, onFailure);
+    service.get('api/v1/environment/', onSuccess, onFailure);
 
     return environment;
 });

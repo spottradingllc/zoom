@@ -23,7 +23,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def get(self, path):
         """
-        @api {get} /api/zookeeper/:path Get data in a Zookeeper node
+        @api {get} /api/v1/zookeeper/:path Get data in a Zookeeper node
         @apiVersion 1.0.0
         @apiName GetZkData
         @apiGroup Zookeeper
@@ -49,7 +49,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def put(self, path):
         """
-        @api {put} /api/zookeeper/:path Set data on a Zookeeper path
+        @api {put} /api/v1/zookeeper/:path Set data on a Zookeeper path
         @apiVersion 1.0.0
         @apiName SetZkData
         @apiGroup Zookeeper
@@ -70,7 +70,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def head(self, path):
         """
-        @api {head} /api/zookeeper/:path Return whether the path exists in Zookeeper
+        @api {head} /api/v1/zookeeper/:path Return whether the path exists in Zookeeper
         @apiVersion 1.0.0
         @apiName CheckZkNode
         @apiGroup Zookeeper
@@ -87,7 +87,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def post(self, path):
         """
-        @api {post} /api/zookeeper/:path Create Zookeeper node
+        @api {post} /api/v1/zookeeper/:path Create Zookeeper node
         @apiParam {String} [data=''] Any string of data to set in the Zookeeper node
         @apiVersion 1.0.0
         @apiName CreateZkNode
@@ -120,7 +120,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
     @TimeThis(__file__)
     def delete(self, path):
         """
-        @api {delete} /api/zookeeper/:path Delete Zookeeper path
+        @api {delete} /api/v1/zookeeper/:path Delete Zookeeper path
         @apiHeader {Boolean} [recurse=False]
         @apiVersion 1.0.0
         @apiName DeleteZkNode

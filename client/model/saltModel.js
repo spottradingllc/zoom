@@ -25,7 +25,7 @@ define([
                 console.log(data);
             };
                 
-            service.get('api/saltmaster/', onSuccess, onFailure);
+            service.get('api/v1/saltmaster/', onSuccess, onFailure);
 
             var _valdata = function(update_list, pillar_lookup, update_type, data_type, project, _assocArray) {
                 var self = this;
