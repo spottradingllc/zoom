@@ -1,5 +1,7 @@
+import datetime
 import httplib
 import logging
+import re
 import requests
 import socket
 
@@ -20,10 +22,11 @@ class TimeEstimateCache(object):
         self._web_socket_clients = web_socket_clients
         self._message_throttle = MessageThrottle(configuration,
                                                  web_socket_clients)
+        self.graphite = GraphiteAvailability(configuration.graphite_host,
+                                             recheck=configuration.graphite_recheck)
         self.graphite_cache = {}
         self.dependencies = {}
         self.states = {}
-        self._graphite_available = None
 
     def start(self):
         self._message_throttle.start()
@@ -58,16 +61,13 @@ class TimeEstimateCache(object):
         """
         logging.debug("Recomputing Timing Estimates...")
         try:
-            if self._graphite_available is None:
-                self._check_graphite_available()
-
             message = TimeEstimateMessage()
 
             cost = self._get_default_data()
             maxpath = "None"
             searchdata = {}
 
-            if self.states and self._graphite_available:
+            if self.states and self.graphite.available:
                 for path in self.dependencies.iterkeys():
                     data = self._get_max_cost(path, searchdata)
                     if data['max'] > cost['max']:
@@ -88,17 +88,6 @@ class TimeEstimateCache(object):
 
         except Exception as e:
             logging.exception(e)
-
-    def _check_graphite_available(self):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.configuration.graphite_host, 80))
-            s.close()
-            self._graphite_available = True
-        except Exception as ex:
-            logging.error('Could not connect to {0}:80. Error: {1}.'
-                          .format(self.configuration.graphite_host, ex))
-            self._graphite_available = False
 
     def _get_max_cost(self, path, searchdata):
         """
@@ -201,3 +190,74 @@ class TimeEstimateCache(object):
             logging.exception('Error getting startup data from graphite for '
                               'path: {0}'.format(path))
             return self._get_default_data()
+
+
+class GraphiteAvailability(object):
+    def __init__(self, graphite_host, recheck='5m'):
+        """
+        Class to manage whether graphite is available.
+        :param graphite_host: the graphite host to try to connect to
+        :param recheck: (str) How long to wait before checking if graphite is
+            available again
+        """
+        recheck_in_sec = self.convert_to_seconds(recheck)
+        self._recheck_delta = datetime.timedelta(seconds=recheck_in_sec)
+        self._host = graphite_host
+        self._last_check_time = datetime.datetime.now() - self._recheck_delta
+        self._last_result = False
+
+    @property
+    def available(self):
+        """
+        Check for graphite availability on an interval. If we haven't reached
+        the interval, return the last result.
+        :rtype: bool
+        """
+        if (self._last_check_time + self._recheck_delta) < datetime.datetime.now():
+            self._last_result = self._check()
+            self._last_check_time = datetime.datetime.now()
+
+        return self._last_result
+
+    @staticmethod
+    def convert_to_seconds(string):
+        """
+        Convert a string like '2m' to the integer of seconds it (120 in this case)
+        :type string: str
+        :rtype: int
+        """
+        _unit_dit = {
+            's': 1,
+            'm': 60,
+            'h': 60 * 60,
+            'd': 60 * 60 * 24,
+            'w': 60 * 60 * 24 * 7,
+        }
+        lstring = string.lower()
+        match = re.search('(\d+)\s?(\w+)?', lstring)
+        if not match:
+            logging.warning('String {0} was not in the proper format. '
+                            'Expecting something like 15, 1m, 1h, 1d, 1w. '
+                            'Defaulting to 5 min.'.format(string))
+            value = 5
+            multiplier = 60
+        else:
+            value = int(match.group(1))
+            multiplier = _unit_dit.get(match.group(2), 1)
+
+        return value * multiplier
+
+    def _check(self):
+        """
+        Check graphite available on port 80
+        :rtype: bool
+        """
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self._host, 80))
+            s.close()
+            return True
+        except Exception as ex:
+            logging.error('Could not connect to {0}:80. Error: {1}.'
+                          .format(self._host, ex))
+            return False

@@ -83,6 +83,7 @@ class Configuration(object):
             env_settings = config.get(self._environment.lower())
             self._read_write_groups = env_settings.get('read_write_groups')
             self._graphite_host = env_settings.get('graphite_host')
+            self._graphite_recheck = env_settings.get('graphite_recheck', '5m')
 
             # chatops
             chatops_settings = env_settings.get('chatops', {})
@@ -243,6 +244,10 @@ class Configuration(object):
     @property
     def graphite_host(self):
         return self._graphite_host
+
+    @property
+    def graphite_recheck(self):
+        return self._graphite_recheck
 
     @property
     def chatops_url(self):
