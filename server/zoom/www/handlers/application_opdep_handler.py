@@ -87,5 +87,3 @@ class ApplicationOpdepHandler(tornado.web.RequestHandler):
                                       .format(parent_path, downstream))
 
         return opdep_array
-
-

@@ -67,7 +67,7 @@ class ServiceInfoHandler(tornado.web.RequestHandler):
             db = Database(self.configuration)
             query = db.fetch_service_info(configuration_path)
 
-            self.write({'servicedata':query})
+            self.write({'servicedata': query})
 
         except Exception as e:
             self.set_status(INTERNAL_SERVER_ERROR)

@@ -83,8 +83,7 @@ class GraphiteClient(object):
             environment = os.environ.get('EnvironmentToUse', None)
             
         assert environment in GraphiteClient.VALID_ENVIRONMENTS, \
-                ("Invalid 'EnvironmentToUse' variable: {0} "
-                 .format(environment))
+            ("Invalid 'EnvironmentToUse' variable: {0} ".format(environment))
 
         if haproxy:
             return 'haproxy{0}'.format(environment.lower())
@@ -119,4 +118,3 @@ class GraphiteClient(object):
         """
         p = time.mktime(dt.timetuple())
         return int(p)
-

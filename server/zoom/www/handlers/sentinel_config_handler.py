@@ -173,7 +173,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
                             self.write(
                                 'Config is not valid! Registration path {0} '
                                 'matches existing config on server {1}.'
-                                 .format(reg_path, app_host))
+                                .format(reg_path, app_host))
                         break
 
                 else:

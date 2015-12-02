@@ -48,6 +48,7 @@ def verify_attribute(xmlpart, attribute,
     :type attribute: str
     :type none_allowed: bool
     :type cast: types.ClassType
+    :type default: object
     """
     _log = logging.getLogger('util.verify_attribute')
     a = xmlpart.get(attribute)
@@ -89,6 +90,7 @@ def zk_path_join(*args):
 
 def get_log(count=100):
     """
+    :type count: int
     :rtype: list of str
     """
     logfile = 'logs/sentinel.log'

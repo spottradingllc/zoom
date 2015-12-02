@@ -39,7 +39,8 @@ class DeletePathHandler(tornado.web.RequestHandler):
                 break
             elif not self.zk.get_children(new_path):
                 self.zk.delete(new_path)
-                logging.info("Delete initiated. Path={0}".format(new_path))
+                logging.info("Delete initiated by user {0} for path {1}"
+                             .format(login_name, new_path))
             else:
                 break
             scounter -= 1

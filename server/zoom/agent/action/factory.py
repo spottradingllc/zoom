@@ -94,5 +94,4 @@ class ActionFactory(object):
                 self._log.error('Invalid action ID or func specified: '
                                 'ID: {0}, func: {1}'.format(name, func))
 
-
         return actions

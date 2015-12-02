@@ -38,4 +38,3 @@ class SaltMasterHandler(tornado.web.RequestHandler):
             logging.exception(e)
 
         self.set_header('Content-Type', 'application/json')
-

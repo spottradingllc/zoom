@@ -48,6 +48,7 @@ class PredicateFactory(object):
         """
         :type xmlpart: xml.etree.ElementTree.Element
         :type callback: types.FunctionType or None
+        :type parent: str or None
         """
         if xmlpart is None:
             # A dummy predicate will be returned if there are no predicates
@@ -169,13 +170,13 @@ class PredicateFactory(object):
                                                      operational=operational,
                                                      parent=parent),
                                     callback=callback
-            )
+                                    )
         elif ptype == PredicateType.WEEKEND:
             return self._ensure_new(PredicateWeekend(self._component_name,
                                                      operational=operational,
                                                      parent=parent),
                                     callback=callback
-            )
+                                    )
         elif ptype == PredicateType.TIMEWINDOW:
             return self._ensure_new(
                 TimeWindow(self._component_name,

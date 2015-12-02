@@ -26,7 +26,7 @@ class ApplicationState(object):
         self._pd_disabled = pd_disabled
         self._platform = platform
         self._restart_count = restart_count
-        self._load_times =  load_times
+        self._load_times = load_times
 
     def __del__(self):
         pass

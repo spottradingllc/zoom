@@ -133,8 +133,8 @@ class TimeEstimateCache(object):
 
         # if application is not running, add its cost (from graphite) to the
         # greatest cost of its dependencies
-        if(self.states.get(path, None) is not None
-           and self.states[path].get('application_status', None) != "running"):
+        if (self.states.get(path, None) is not None and
+                self.states[path].get('application_status', None) != "running"):
             graphite_data = self.get_graphite_data(path)
             self._add_data(greatest_cost, graphite_data)
 

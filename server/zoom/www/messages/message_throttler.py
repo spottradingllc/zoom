@@ -5,9 +5,9 @@ from threading import Thread
 
 
 class MessageThrottle(object):
-    '''
+    """
     Send at most throttle_interval message per second to zoom clients
-    '''
+    """
     def __init__(self, configuration, clients):
         self._interval = configuration.throttle_interval
         self._lock = Lock()

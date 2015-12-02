@@ -38,4 +38,3 @@ class TimeEstimateMessage(object):
         _dict.update(self.contents)
 
         return json.dumps(_dict)
-

@@ -41,7 +41,7 @@ class BaseTaskClient(object):
         :param wait: Whether to wait for the function to finish before exiting
         :type immediate: bool
         :param immediate: Whether to put the task at the head of the queue
-
+        :type timeout: int or None
         :rtype: dict
         """
         child = self._children.get(task.target, None)

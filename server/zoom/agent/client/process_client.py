@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 import psutil
 import socket
 
@@ -308,7 +307,6 @@ class ProcessClient(object):
         :rtype: str
         """
         if not stdout:
-            # _file = os.devnull
             dt = datetime.date.today().strftime('%Y%m%d')
             _file = 'logs/{0}_status_output.{1}.log'.format(self.script_name, dt)
         else:

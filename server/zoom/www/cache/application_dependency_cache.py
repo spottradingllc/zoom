@@ -19,7 +19,7 @@ class ApplicationDependencyCache(object):
                  time_estimate_cache):
         """
         :type configuration: zoom.config.configuration.Configuration
-        :type zoo_keeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type zoo_keeper: zoom.www.entities.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
         self._cache = ApplicationDependenciesMessage()
@@ -203,8 +203,7 @@ class ApplicationDependencyCache(object):
                 # pretend this is a weekend predicate for convenience
                 if weekdays is not None:
                     day_range = TimeWindow.parse_range(weekdays)
-                    if Weekdays.SATURDAY in day_range or \
-                                    Weekdays.SUNDAY in day_range:
+                    if Weekdays.SATURDAY in day_range or Weekdays.SUNDAY in day_range:
                         wk_msg = 'Runs on weekends'
                     else:
                         wk_msg = 'Does NOT run on weekends'
@@ -268,4 +267,5 @@ class ApplicationDependencyCache(object):
                 self._cache.application_dependencies)
 
         except Exception:
-            logging.exception('An unhandled Exception has occurred')
+            logging.exception('An unhandled Exception has occurred for path: '
+                              '{0}'.format(path))

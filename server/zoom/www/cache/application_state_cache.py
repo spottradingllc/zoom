@@ -100,11 +100,10 @@ class ApplicationStateCache(object):
         """
         Manual override from client of specific value
         :type path: str
-        :param key: str
+        :type key: str
+        :type value: str
         """
-        # Set the permanent storage
-
-        state = self._cache._application_states.get(path, None)
+        state = self._cache.application_states.get(path, None)
         if state is not None:
             self._update_override_info(path, key, value)
             message = ApplicationStatesMessage()
@@ -144,13 +143,13 @@ class ApplicationStateCache(object):
         :type path: str
         :rtype: dict, kazoo.protocol.states.ZnodeStat
         """
-        rawData, stat = self._zoo_keeper.get(path, watch=self._on_update)
+        raw_data, stat = self._zoo_keeper.get(path, watch=self._on_update)
 
         data = {}
 
-        if rawData:  # if '' or None
+        if raw_data:
             try:
-                data = json.loads(rawData)
+                data = json.loads(raw_data)
             except ValueError:
                 pass
 
@@ -315,7 +314,7 @@ class ApplicationStateCache(object):
         :type path: str
         :type attr: str
         """
-        state = self._cache._application_states.get(path, None)
+        state = self._cache.application_states.get(path, None)
         override = {}
 
         try:
@@ -333,4 +332,3 @@ class ApplicationStateCache(object):
             return None
         else:
             return state.get(attr)
-

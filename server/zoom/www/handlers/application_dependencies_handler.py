@@ -2,12 +2,12 @@ import os.path
 import json
 import logging
 import httplib
-import tornado.web
+from tornado.web import RequestHandler
 
 from zoom.common.decorators import TimeThis
 
 
-class ApplicationDependenciesHandler(tornado.web.RequestHandler):
+class ApplicationDependenciesHandler(RequestHandler):
 
     @property
     def data_store(self):

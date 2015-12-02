@@ -12,7 +12,6 @@ class PredicateWeekend(SimplePredicate):
     def __init__(self, comp_name, operational=False, parent=None, interval=10):
         """
         :type comp_name: str
-        :type settings: zoom.agent.entities.thread_safe_object.ThreadSafeObject
         :type operational: bool
         :type parent: str or None
         :type interval: int or float

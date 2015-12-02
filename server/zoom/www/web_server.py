@@ -130,9 +130,11 @@ class WebServer(tornado.web.Application):
         """
         return self._task_server
 
-# subclass the StaticFileHandler to prevent caching in browsers
-# http://stackoverflow.com/questions/12031007/disable-static-file-caching-in-tornado
+
 class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
+    """
+    subclass the StaticFileHandler to prevent caching in browsers
+    http://stackoverflow.com/questions/12031007/disable-static-file-caching-in-tornado
+    """
     def set_extra_headers(self, path):
         self.set_header('Cache-control', 'no-store, no-cache, must-revalidate, max-age=0')
-

@@ -8,7 +8,7 @@ class GlobalCache(object):
     def __init__(self, configuration, zoo_keeper, web_socket_clients):
         """
         :type configuration: zoom.www.config.configuration.Configuration
-        :type zoo_keeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type zoo_keeper: zoom.www.entities.zoo_keeper.ZooKeeper
         :type web_socket_clients: list
         """
         self._configuration = configuration

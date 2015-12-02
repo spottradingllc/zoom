@@ -87,6 +87,7 @@ class WMIServiceClient(object):
     def status(self, pid=False):
         """
         Make WMI call to server to get whether the service is running.
+        :type pid: bool
         :rtype: int or bool
         """
         process_id = 0

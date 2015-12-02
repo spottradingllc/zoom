@@ -35,9 +35,12 @@ class ChildProcess(object):
     def add_work(self, work, immediate=False):
         """
         :type work: zoom.agent.task.task.Task
+        :type immediate: bool
+        :rtype: bool
         """
-        added = self._action_queue.append_unique(work, sender=str(self),
-                                                 first=immediate)
+        return self._action_queue.append_unique(work,
+                                                sender=str(self),
+                                                first=immediate)
 
     def cancel_current_task(self):
         """

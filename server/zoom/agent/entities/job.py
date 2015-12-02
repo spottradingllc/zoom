@@ -19,12 +19,6 @@ from zoom.common.decorators import (
 
 class Job(Application):
     def __init__(self, *args, **kwargs):
-        """
-        :type config: dict (json)
-        :type queue: zoom.agent.entities.unique_queue.UniqueQueue
-        :type system: zoom.common.types.PlatformType
-        :type application_type: zoom.common.types.ApplicationType
-        """
         Application.__init__(self, *args, **kwargs)
         self._paths['zk_state_path'] = \
             self._pathjoin(self._paths['zk_state_base'], 'gut')

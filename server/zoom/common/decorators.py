@@ -19,7 +19,7 @@ class TimeThis(object):
             out = function(*args, **kwargs)
             stop = time.time()
             logging.info(":timethis: {0} {1}, {2:0.6f}"
-                         .format(self.filename,function.__name__, stop - start))
+                         .format(self.filename, function.__name__, stop - start))
             return out
 
         return new_function
@@ -28,7 +28,7 @@ class TimeThis(object):
 def connected_with_return(return_object):
     """
     Decorator for ensuring zookeeper client is connected.
-    If it is not, return the default object 'return_object' and log a warning.
+    :param return_object: object to return if the zk client is disconnected
     """
     # TODO: merge the two connected decorators
     def conn(method):
@@ -114,7 +114,7 @@ def time_this(method):
 
         duration = end_time - start_time
 
-        _log.info('%r: %2.2f sec' % (method.__name__,  duration))
+        _log.info('%r: %2.2f sec' % (method.__name__, duration))
         return result
 
     return time_this_wrapper

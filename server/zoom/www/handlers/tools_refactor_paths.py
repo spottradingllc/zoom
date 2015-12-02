@@ -50,7 +50,7 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
             self.set_status(httplib.NOT_FOUND)
             self.write({'errorText': 'Old path does not exist'})
             return
-        #if the old path has children or not
+        # if the old path has children or not
         children = self.zk.get_children(self.old_path)
         if not children:
             self._test_full_path_refactor()
@@ -114,6 +114,3 @@ class ToolsRefactorPathHandler(tornado.web.RequestHandler):
 
         except Exception as e:
             logging.info('Exception in Refactor Path Handler: {0}'.format(e))
-
-
-

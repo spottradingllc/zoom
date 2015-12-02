@@ -112,7 +112,6 @@ class TaskServer(object):
         except NoNodeError:
             pass
 
-
     def _on_update(self, event):
         """
         Callback for the data watch on the task node

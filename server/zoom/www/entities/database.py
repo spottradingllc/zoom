@@ -119,6 +119,7 @@ class SQLDatabase(Database):
 
     def fetch_service_info(self, configuration_path):
         """
+        :type configuration_path: str
         :rtype: str
         """
         connection = pyodbc.connect(self.connection_string)

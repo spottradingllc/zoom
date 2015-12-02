@@ -4,7 +4,6 @@ import re
 import tornado.web
 import tornado.httpclient
 
-from httplib import INTERNAL_SERVER_ERROR
 from kazoo.exceptions import NoNodeError
 
 from zoom.common.decorators import TimeThis
@@ -52,21 +51,20 @@ class PillarHandler(tornado.web.RequestHandler):
         self.write(data_val)
 
     @TimeThis(__file__)
-    def actionLog(self, username, action, affected, data=""):
+    def action_log(self, username, action, affected, data=""):
         """
         :type username: str
         :type action: str
         :type affected: str
         :type data: str
         """
-
-        logString = "!!PILLAR EDITOR:"
-        logString += " " + username
-        logString += " " + action
-        logString += " for server " + affected
+        log_string = "!!PILLAR EDITOR:"
+        log_string += " " + username
+        log_string += " " + action
+        log_string += " for server " + affected
         if data:
-            logString += ". Entire pillar: " + data
-        logging.info(logString)
+            log_string += ". Entire pillar: " + data
+        logging.info(log_string)
 
     @TimeThis(__file__)
     def post(self, data):
@@ -121,12 +119,12 @@ class PillarHandler(tornado.web.RequestHandler):
         # update existing minion
         if minion_data != {"DOES_NOT_EXIST": "true"}:
             self._set_minion_data(minion, minion_data)
-            self.actionLog(username, update_phrase, minion, json.dumps(minion_data))
+            self.action_log(username, update_phrase, minion, json.dumps(minion_data))
         # create a new minion
         else:
             minion_data = {}
             self._set_minion_data(minion, minion_data)
-            self.actionLog(username, "Created new server node", minion)
+            self.action_log(username, "Created new server node", minion)
 
         self.write(minion_data)
 
@@ -161,7 +159,7 @@ class PillarHandler(tornado.web.RequestHandler):
                 pass
 
             self._set_minion_data(minion, minion_data)
-            self.actionLog(username, del_phrase, minion, json.dumps(minion_data))
+            self.action_log(username, del_phrase, minion, json.dumps(minion_data))
 
         elif all([minion, project]):
             try:
@@ -171,11 +169,11 @@ class PillarHandler(tornado.web.RequestHandler):
 
             self._set_minion_data(minion, minion_data)
             self.write(minion_data)
-            self.actionLog(username, del_phrase, minion, json.dumps(minion_data))
+            self.action_log(username, del_phrase, minion, json.dumps(minion_data))
 
         elif all([minion]):
             self._del_minion(minion)
-            self.actionLog(username, del_phrase, minion)
+            self.action_log(username, del_phrase, minion)
 
     def _parse_uri(self, data):
         """
@@ -217,8 +215,8 @@ class PillarHandler(tornado.web.RequestHandler):
         :rtype: dict
         """
         data_dict = dict()
+        path = self._assemble_path(minion)
         try:
-            path = self._assemble_path(minion)
             data, stat = self.zk.get(path)
             data_dict = json.loads(data)
         except NoNodeError:

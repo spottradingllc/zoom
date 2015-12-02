@@ -96,6 +96,6 @@ class StatusHandler(RequestHandler):
             result = tc.send_work_single(task, wait=True, immediate=True)
             self.write(result.get('result'))
         else:
-            result = tc.send_work_all(task, wait=True,  immediate=True)
+            result = tc.send_work_all(task, wait=True, immediate=True)
             for i in result.values():
                 self.write(i.get('result'))

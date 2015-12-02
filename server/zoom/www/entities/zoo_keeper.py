@@ -62,9 +62,17 @@ class ZooKeeper(object):
         return self.kazoo.exists(path=path, watch=watch)
 
     def upsert(self, path, value, version=-1, watch=None,
-               ephemeral=False, sequence=False,makepath=False):
+               ephemeral=False, sequence=False, makepath=False):
         """
         Update if exists, create if doesn't
+
+        :type path: str
+        :type value: str
+        :type version: int
+        :type watch: types.FunctionType or None
+        :type ephemeral: bool
+        :type sequence: bool
+        :type makepath: bool
         """
         # if exists, update
         if self.exists(path=path, watch=watch):

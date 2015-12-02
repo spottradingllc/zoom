@@ -17,6 +17,9 @@ class StaggerLock(object):
         """
         :type temp_path: str
         :type timeout: int
+        :type parent: str
+        :type acquire_lock: zoom.agent.entities.thread_safe_object.ThreadSafeObject or None
+        :type app_state: zoom.agent.entities.thread_safe_object.ThreadSafeObject or None
         """
         self._path = temp_path
         self._timeout = timeout
@@ -67,7 +70,7 @@ class StaggerLock(object):
                     self._log.info('No connection to ZK. Will not try to '
                                    'acquire stagger lock.')
 
-        except LockTimeout as e:
+        except LockTimeout:
             self._log.debug('Lock timed out. Trying to acquire lock again.')
             self._acquire()
 
@@ -81,7 +84,7 @@ class StaggerLock(object):
             self._zk.close()
 
         # TypeError happens when stop() is called when already stopping
-        except TypeError as e:
+        except TypeError:
             pass
         except Exception as e:
             self._log.debug('Unhandled exception: {0}'.format(e))
@@ -110,20 +113,15 @@ class StaggerLock(object):
                            .format(self._prev_state, state))
             if self._prev_state is None and state == KazooState.CONNECTED:
                 pass
-            elif (self._prev_state == KazooState.LOST
-                  and state == KazooState.CONNECTED):
+            elif self._prev_state == KazooState.LOST and state == KazooState.CONNECTED:
                 pass
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.SUSPENDED):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.SUSPENDED:
                 self._zk.handler.spawn(self._close_connection)
-            elif (self._prev_state == KazooState.CONNECTED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.CONNECTED and state == KazooState.LOST:
                 self._zk.handler.spawn(self._close_connection)
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.LOST):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.LOST:
                 self._zk.handler.spawn(self._close_connection)
-            elif (self._prev_state == KazooState.SUSPENDED
-                  and state == KazooState.CONNECTED):
+            elif self._prev_state == KazooState.SUSPENDED and state == KazooState.CONNECTED:
                 pass
             elif state == KazooState.CONNECTED:
                 self._zk.handler.spawn(self._close_connection)

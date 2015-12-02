@@ -8,12 +8,10 @@ class CustomFilter(object):
         self.inversed = inversed
 
     def to_dictionary(self):
-        result = {
+        return {
             'name': self.name,
             'loginName': self.login_name,
             'parameter': self.parameter,
             'searchTerm': self.search_term,
             'inversed': self.inversed
         }
-
-        return result

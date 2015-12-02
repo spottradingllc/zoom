@@ -27,7 +27,6 @@ class WorkManager(object):
     def __init__(self, comp_name, queue, work_dict):
         """
         :type comp_name: str
-        :type pipe: multiprocessing.Connection
         :type queue: zoom.agent.entities.unique_queue.UniqueQueue
         :type work_dict: dict
         """
@@ -49,6 +48,11 @@ class WorkManager(object):
         self._log.info('Stopped work manager.')
 
     def _run(self, operate, queue, work_dict):
+        """
+        :type operate: zoom.agent.entities.thread_safe_object.ThreadSafeObject
+        :type queue: zoom.agent.entities.unique_queue.UniqueQueue
+        :type work_dict: dict
+        """
         while operate == True:
             if queue:  # if queue is not empty
                 self._log.info('Current Task Queue:\n{0}'
