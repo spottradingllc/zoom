@@ -99,7 +99,7 @@ class ZooKeeperDataHandler(tornado.web.RequestHandler):
             data = self.get_argument('data', '')
 
             self.zk.create(path, value=json.dumps(data), makepath=True)
-            logging.debug('Path created. path={1}'.format(path))
+            logging.debug('Path created. path={0}'.format(path))
             ret['code'] = httplib.CREATED
             self.write(ret)
             self.set_status(ret['code'])
