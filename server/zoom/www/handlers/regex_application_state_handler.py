@@ -35,6 +35,11 @@ class RegexApplicationStateHandler(tornado.web.RequestHandler):
     def get(self, path):
         """
         @api {get} /api/v2/application/states/[:id] Get Application State
+        @apiDescription
+            Get the state of applications using regex matching. This will
+            return multiple application states in a JSON array. Useful for
+            querying the state of several applications without knowing the
+            full path of each one (or multiple related sub-paths).
         @apiVersion 2.0.0
         @apiName GetAppState
         @apiGroup ApplicationState
