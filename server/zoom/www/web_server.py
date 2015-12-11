@@ -7,6 +7,7 @@ import tornado.websocket
 from zoom.www.handlers.application_dependencies_handler import ApplicationDependenciesHandler
 from zoom.www.handlers.application_opdep_handler import ApplicationOpdepHandler
 from zoom.www.handlers.application_state_handler import ApplicationStateHandler
+from zoom.www.handlers.regex_application_state_handler import RegexApplicationStateHandler
 from zoom.www.handlers.application_mapping_handler import (
     ApplicationMappingHandler,
     HostMappingHandler
@@ -52,6 +53,7 @@ class WebServer(tornado.web.Application):
             (r'/zoom/ws', ZoomWSHandler),
             (r'/api/v1/mode/', GlobalModeHandler),
             (r'/api/v1/application/states(?P<path>.*)', ApplicationStateHandler),
+            (r'/api/v2/application/states(?P<path>.*)', RegexApplicationStateHandler),
             (r'/api/v1/application/dependencies(?P<path>.*)', ApplicationDependenciesHandler),
             (r'/api/v1/application/opdep(?P<path>.*)', ApplicationOpdepHandler),
             (r'/api/v1/application/mapping/app(?P<path>.*)', ApplicationMappingHandler),
