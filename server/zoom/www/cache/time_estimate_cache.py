@@ -60,6 +60,8 @@ class TimeEstimateCache(object):
         :rtype: zoom.www.messages.global_mode_message.TimeEstimateMessage
         """
         logging.debug("Recomputing Timing Estimates...")
+        # Pre-define path in case we except out before it's declared
+        path = None
         try:
             message = TimeEstimateMessage()
 
@@ -84,6 +86,14 @@ class TimeEstimateCache(object):
             if all((send, self.dependencies, self.states)):
                 self._message_throttle.add_message(message)
 
+            return message
+
+        except RuntimeError as e:
+            message = TimeEstimateMessage()
+            logging.exception(e)
+            message.update({'error_msg': 'Likely circular dependency on ' + path})
+            if all((send, self.dependencies, self.states)):
+                self._message_throttle.add_message(message)
             return message
 
         except Exception as e:
