@@ -38,11 +38,11 @@ from zoom.agent.entities.work_manager import WorkManager
 from zoom.agent.task.task import Task
 
 
-if 'Linux' in platform.platform():
-    from zoom.agent.client.process_client import ProcessClient
-else:
-    from zoom.agent.client.process_client \
-        import WindowsProcessClient as ProcessClient
+#if 'Linux' in platform.platform():
+from zoom.agent.client.process_client import ProcessClient
+#else:
+#    from zoom.agent.client.process_client \
+#        import WindowsProcessClient as ProcessClient
 
 
 class Application(object):
@@ -625,6 +625,9 @@ class Application(object):
             return os.path.join(*args)
         elif self._system == PlatformType.WINDOWS:
             return '/'.join(args)
+        else:
+            return os.path.join(*args)
+
 
     def _get_graphite_metric_names(self):
         """

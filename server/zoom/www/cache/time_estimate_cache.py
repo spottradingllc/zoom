@@ -86,6 +86,12 @@ class TimeEstimateCache(object):
 
             return message
 
+        except RuntimeError as e:
+            message = TimeEstimateMessage()
+            message.update({'error_msg': 'Likely circular dependency on ' + path})
+            if all((send, self.dependencies, self.states)):
+                self._message_throttle.add_message(message)
+            return message
         except Exception as e:
             logging.exception(e)
 

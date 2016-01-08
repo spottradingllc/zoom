@@ -88,6 +88,7 @@ class ZooKeeper(object):
         return self.kazoo.delete(path=path, recursive=recursive)
 
     def get_children(self, path, watch=None):
+        print path
         return self.kazoo.get_children(path=path, watch=watch)
 
     def create(self, path,

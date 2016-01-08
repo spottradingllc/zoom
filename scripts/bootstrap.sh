@@ -28,7 +28,7 @@ if [ -d ${VENV_DIR} ]; then
     rm -rf ${VENV_DIR} || exit 1
 fi
 
-/opt/python-2.7.3/bin/virtualenv ${VENV_DIR} || exit 1
+virtualenv ${VENV_DIR} || exit 1
 
 source ${VENV_DIR}/bin/activate || exit 1
 

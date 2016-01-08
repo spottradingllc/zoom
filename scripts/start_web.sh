@@ -4,14 +4,16 @@ APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
 LOGTIME=`date +%H%M%S`
 
-if [ -d /opt/spot/zoom/server ]; then
-    PROJ_PATH="/opt/spot/zoom";
-elif [ -d /opt/spot/zoom/current/server ]; then
-    PROJ_PATH="/opt/spot/zoom/current";
-fi
+#if [ -d /opt/spot/zoom/server ]; then
+#    PROJ_PATH="/opt/spot/zoom";
+#elif [ -d /opt/spot/zoom/current/server ]; then
+#    PROJ_PATH="/opt/spot/zoom/current";
+#fi
+
+PROJ_PATH=$PWD
 
 APPPATH="${PROJ_PATH}/server"
-VENV_PATH="/opt/spot/zoom/venv"
+VENV_PATH="../macvenv"
 STARTCMD="python $APPPATH/zoom.py"
 PROCESS_START_TIMEOUT=10
 PROCESS_STOP_TIMEOUT=30

@@ -39,6 +39,12 @@ define(
         };
 
         self.handleTimingUpdate = function(data) {
+            var error_msg = data.error_msg;
+            if (error_msg !== undefined) {
+                swal('Well shoot...', error_msg, 'error');
+                return;
+            }
+
             var maxtime = JSON.parse(data.maxtime);
             var endMs = Date.now() + maxtime * 1000;
             var end = new Date(endMs);
