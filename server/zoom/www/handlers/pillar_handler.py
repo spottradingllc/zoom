@@ -182,7 +182,7 @@ class PillarHandler(tornado.web.RequestHandler):
         """
         minion = project = data_key = data_val = None
 
-        regex = ('(?P<minion>[\w|\-]+.spottrading.com)'
+        regex = ('(?P<minion>[\w|\-]+(\.spottrading.com)?)'
                  '(\/(?P<project>[\w|\-|\_]+))?'
                  '(\/(?P<data_key>[\w|\-|\_]+))?'
                  '(\/(?P<data_val>[\w|\-|\_|\.]+))?')
