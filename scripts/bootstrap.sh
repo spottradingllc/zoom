@@ -13,16 +13,6 @@ echo "VENV_DIR=$VENV_DIR"
 WEB_SERVER=http://spotpypi01.spottrading.com/pypi
 PY_3RDPARTY=${WEB_SERVER}/3rdparty/python
 
-
-/bin/cat >  ~/.pydistutils.cfg << EOF
-[easy_install]
-index-url = http://spotpypi01.spottrading.com/pypi/3rdparty/python/simple
-
-[global]
-index-url = http://spotpypi01.spottrading.com/pypi/3rdparty/python/simple
-EOF
-
-
 # if exists, delete virtual environment
 if [ -d ${VENV_DIR} ]; then
     rm -rf ${VENV_DIR} || exit 1
@@ -32,8 +22,11 @@ fi
 
 source ${VENV_DIR}/bin/activate || exit 1
 
-linux_version=`awk 'NR==1{print $(NF-1)}' /etc/issue`
-
+if [ -f /usr/bin/lsb_release ]; then
+    linux_version=$(lsb_release -a | awk '/^Release/ {print $NF}')
+else
+    linux_version=$(awk 'NR==1{print $(NF-1)}' /etc/issue)
+fi
 
 function install_package () {
 # $1 = package name
