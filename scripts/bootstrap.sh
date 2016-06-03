@@ -53,7 +53,7 @@ for PACKAGE in tornado-3.1.1.tar.gz \
     done
 
 # these packages do not install correctly on CentOS 5.x machines
-if [ $(echo "$linux_version >= 6" | bc) -eq 1 ]; then
+if [ $(echo "${linux_version:0:3} >= 6" | bc) -eq 1 ]; then
     echo
     echo 'Linux version equal or greater than 6. Installing additional packages.'
 
