@@ -69,6 +69,8 @@ define(
                 setTimeout(function() { self.appStateModel.sort(self.appStateModel.headers[0]); }, 3000);
                 callbackInstance = new callbackObj;
                 callbackInstance.callback();
+                // Select the search box so clients can begin typing immediately
+                $('#searchBox').select();
             }
 
         };
