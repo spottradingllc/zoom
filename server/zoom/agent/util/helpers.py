@@ -111,6 +111,8 @@ def cap_hostname(host):
     Returns:
         string as HOSTNAME.spottrading.com
     """
+    # TODO: What about NODE.spottrading?
+    # TODO: This makes zero sense for non-spottrading people.
     if '.spottrading.com' not in host:
         host = host + '.spottrading.com'
     _split = host.split('.')
