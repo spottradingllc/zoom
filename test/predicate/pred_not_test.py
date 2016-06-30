@@ -109,13 +109,13 @@ class PredicateNotTest(unittest.TestCase):
 
         self.mox.VerifyAll()
 
-    def _create_pred_not(self, predicate):
-        return PredicateNot(self.comp_name, {}, predicate)
+    def _create_pred_not(self, predicate, parent='foo'):
+        return PredicateNot(self.comp_name, predicate, parent=parent)
 
     def _create_simple_pred(self, cname=None, met=None):
         if cname is None:
             cname = self.comp_name
-        s = SimplePredicate(cname, {})
+        s = SimplePredicate(cname, parent='foo')
         if met is not None:
             s.set_met(met)
 

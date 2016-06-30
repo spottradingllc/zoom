@@ -2,21 +2,25 @@ import mox
 import time
 
 from unittest import TestCase
+from multiprocessing import Lock
 from zoom.agent.predicate.process import PredicateProcess
+from zoom.agent.client.process_client import ProcessClient
 
 
 class PredicateProcessTest(TestCase):
     def setUp(self):
         self.mox = mox.Mox()
         self.interval = 0.1
-        self.proc_client = mox.MockAnything()
+        self.proc_client = self.mox.CreateMock(ProcessClient)
+        self.proc_client.process_client_lock = Lock()
+        self.proc_client.cancel_flag = False
 
     def tearDown(self):
         self.mox.UnsetStubs()
 
     def test_start(self):
 
-        pred = PredicateProcess("/path", {}, None, interval=self.interval)
+        pred = PredicateProcess("/path", self.proc_client, interval=self.interval)
         self.mox.StubOutWithMock(pred, "running")
         pred.running().MultipleTimes().AndReturn(True)
 
@@ -32,7 +36,7 @@ class PredicateProcessTest(TestCase):
 
     def test_stop(self):
 
-        pred = PredicateProcess("/path", {}, None, interval=self.interval)
+        pred = PredicateProcess("/path", self.proc_client, interval=self.interval)
         self.mox.StubOutWithMock(pred, "running")
         pred.running().MultipleTimes().AndReturn(True)
 

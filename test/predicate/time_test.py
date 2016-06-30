@@ -11,7 +11,7 @@ class TimeWindowTest(TestCase):
         """
         Test that when all parameters are None 'met' is False
         """
-        p = TimeWindow('test', {}, begin=None, end=None, weekdays=None,
+        p = TimeWindow('test', begin=None, end=None, weekdays=None,
                        parent=None, interval=0.1)
         p._process_met()
         self.assertEqual(p.met, False)
@@ -24,9 +24,9 @@ class TimeWindowTest(TestCase):
         midnight = '00:00:00'
         one = '01:00:00'
 
-        p1 = TimeWindow('test', {}, begin=one, end=None, weekdays=None,
+        p1 = TimeWindow('test', begin=one, end=None, weekdays=None,
                         parent=None, interval=0.1)
-        p2 = TimeWindow('test', {}, begin=midnight, end=None, weekdays=None,
+        p2 = TimeWindow('test', begin=midnight, end=None, weekdays=None,
                         parent=None, interval=0.1)
 
         mid_time = datetime.datetime.strptime(midnight, '%H:%M:%S').time()
@@ -57,9 +57,9 @@ class TimeWindowTest(TestCase):
         midnight = '00:00:00'
         one = '01:00:00'
 
-        p1 = TimeWindow('test', {}, begin=None, end=one, weekdays=None,
+        p1 = TimeWindow('test', begin=None, end=one, weekdays=None,
                            parent=None, interval=0.1)
-        p2 = TimeWindow('test', {}, begin=None, end=midnight, weekdays=None,
+        p2 = TimeWindow('test', begin=None, end=midnight, weekdays=None,
                            parent=None, interval=0.1)
 
         mid_time = datetime.datetime.strptime(midnight, '%H:%M:%S').time()
@@ -90,9 +90,9 @@ class TimeWindowTest(TestCase):
         m = mox.Mox()
         m_to_fri = '0-4'
 
-        p1 = TimeWindow('test', {}, begin=None, end=None, weekdays=m_to_fri,
+        p1 = TimeWindow('test', begin=None, end=None, weekdays=m_to_fri,
                            parent=None, interval=0.1)
-        p2 = TimeWindow('test', {}, begin=None, end=None, weekdays=m_to_fri,
+        p2 = TimeWindow('test', begin=None, end=None, weekdays=m_to_fri,
                            parent=None, interval=0.1)
 
         m.StubOutWithMock(p1, 'weekday')
@@ -215,9 +215,9 @@ class TimeWindowTest(TestCase):
         """
         Test object equality between two objects
         """
-        p1 = TimeWindow('test', {}, begin='00:00:00', end='11:11:11',
+        p1 = TimeWindow('test', begin='00:00:00', end='11:11:11',
                         weekdays='6', parent=None, interval=0.1)
-        p2 = TimeWindow('test', {}, begin='00:00:00', end='11:11:11',
+        p2 = TimeWindow('test', begin='00:00:00', end='11:11:11',
                         weekdays='6', parent=None, interval=0.1)
 
         self.assertEqual(p1, p2)
@@ -226,9 +226,9 @@ class TimeWindowTest(TestCase):
         """
         Test object inequality between two objects
         """
-        p1 = TimeWindow('test', {}, begin='00:00:00', end='11:11:11',
+        p1 = TimeWindow('test', begin='00:00:00', end='11:11:11',
                         weekdays='6', parent=None, interval=0.1)
-        p2 = TimeWindow('test', {}, begin='11:11:11', end='12:22:22',
+        p2 = TimeWindow('test', begin='11:11:11', end='12:22:22',
                         weekdays=None, parent=None, interval=5.0)
 
         self.assertNotEquals(p1, p2)
