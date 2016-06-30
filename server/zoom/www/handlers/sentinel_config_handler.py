@@ -7,7 +7,7 @@ from xml.etree import ElementTree
 from kazoo.exceptions import NoNodeError
 
 from zoom.common.decorators import TimeThis
-from zoom.agent.util.helpers import zk_path_join
+from zoom.agent.util.helpers import zk_path_join, cap_hostname
 
 
 class SentinelConfigHandler(tornado.web.RequestHandler):
@@ -40,6 +40,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
         @apiName UpdateSentinel
         @apiGroup Sentinel Config
         """
+        server = cap_hostname(server)
         logging.info('Updating server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         zk_path = zk_path_join(self.agent_configuration_path, server)
@@ -74,6 +75,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
         @apiName GetSentinel
         @apiGroup Sentinel Config
         """
+        server = cap_hostname(server)
         logging.info('Searching for server {0}'.format(server))
         path = zk_path_join(self.agent_configuration_path, server)
 
@@ -100,6 +102,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
         @apiName CreateSentinel
         @apiGroup Sentinel Config
         """
+        server = cap_hostname(server)
         logging.info('Adding server {0} for client {1}'
                      .format(server, self.request.remote_ip))
         path = zk_path_join(self.agent_configuration_path, server)
@@ -129,6 +132,7 @@ class SentinelConfigHandler(tornado.web.RequestHandler):
         @apiName DeleteSentinel
         @apiGroup Sentinel Config
         """
+        server = cap_hostname(server)
         logging.info('Deleting server {0} for client'
                      .format(server, self.request.remote_ip))
         path = zk_path_join(self.agent_configuration_path, server)

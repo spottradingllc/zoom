@@ -98,3 +98,22 @@ def get_log(count=100):
         lines = f.readlines()
         # return last `count` rows
         return [l.rstrip('\n') for l in lines[-count:]]
+
+def cap_hostname(host):
+    """Helper function that translates hostnames to a consistent
+    all caps name followed by lowercase .spottrading.com
+    Args:
+        host: a string hostname in one of the following formats:
+              HOSTNAME
+              hostname
+              HOSTNAME.spottrading.com
+              hostname.spottrading.com
+    Returns:
+        string as HOSTNAME.spottrading.com
+    """
+    if '.spottrading.com' not in host:
+        host = host + '.spottrading.com'
+    _split = host.split('.')
+    server = '.'.join([_split[0].upper()] + _split[1:])
+    logging.debug('Converted: {0} to {1}'.format(host, server))
+    return server
