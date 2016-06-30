@@ -7,7 +7,7 @@ import tornado.httpclient
 from kazoo.exceptions import NoNodeError
 
 from zoom.common.decorators import TimeThis
-from zoom.agent.util.helpers import zk_path_join
+from zoom.agent.util.helpers import zk_path_join, cap_hostname
 
 class PillarHandler(tornado.web.RequestHandler):
 
@@ -189,7 +189,8 @@ class PillarHandler(tornado.web.RequestHandler):
 
         match = re.search(regex, data)
         if match:
-            minion = match.group('minion')
+            _minion = match.group('minion')
+            minion = cap_hostname(_minion)
             project = match.group('project')
             data_key = match.group('data_key')
             data_val = match.group('data_val')
