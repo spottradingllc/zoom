@@ -20,10 +20,9 @@ class PredicateFactoryTest(TestCase):
 
         self.list = [self.predaf, self.predbf, self.predat, self.predbt]
 
-        self.factory = PredicateFactory(component_name="factory", parent=None,
-                                        zkclient=None, proc_client=None,
-                                        system=None, pred_list=self.list,
-                                        settings={})
+        self.factory = PredicateFactory(component_name="factory", zkclient=None,
+                                        proc_client=None, system=None,
+                                        pred_list=self.list, settings={})
 
     def tearDown(self):
         pass

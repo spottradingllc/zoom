@@ -145,16 +145,16 @@ class PredicateOrTest(unittest.TestCase):
 
         self.mox.VerifyAll()
 
-    def _create_pred_or(self, predicate_list, cname=None, parent=None):
+    def _create_pred_or(self, predicate_list, cname=None, parent='foo'):
         if cname is None:
             cname = self.comp_name
 
-        return PredicateOr(cname, {}, predicate_list, parent=parent)
+        return PredicateOr(cname, predicate_list, parent=parent)
 
     def _create_simple_pred(self, cname=None, met=None):
         if cname is None:
             cname = self.comp_name
-        s = SimplePredicate(cname, {})
+        s = SimplePredicate(cname, parent='foo')
         if met is not None:
             s.set_met(met)
 

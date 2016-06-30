@@ -71,7 +71,7 @@ class Configuration(object):
             self._db_type = db_settings.get('db_type')
             if running_os == PlatformType.WINDOWS:
                 self._sql_connection = db_settings.get('sql_connection_windows')
-            elif running_os == PlatformType.LINUX:
+            else:
                 self._sql_connection = db_settings.get('sql_connection')
 
             # authentication

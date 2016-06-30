@@ -3,6 +3,7 @@ import time
 import unittest
 
 from zoom.agent.predicate.health import PredicateHealth
+from zoom.common.types import PlatformType
 
 
 class PredicateHealthTest(unittest.TestCase):
@@ -15,7 +16,7 @@ class PredicateHealthTest(unittest.TestCase):
 
     def test_start(self):
 
-        pred = PredicateHealth("test", {}, "echo", self.interval, None)
+        pred = PredicateHealth("test", "echo", self.interval, PlatformType.LINUX)
         self.mox.StubOutWithMock(pred, "_run")
         pred._run().MultipleTimes()
 
@@ -32,7 +33,7 @@ class PredicateHealthTest(unittest.TestCase):
 
     def test_stop(self):
 
-        pred = PredicateHealth("test", {}, "echo", self.interval, None)
+        pred = PredicateHealth("test", "echo", self.interval, PlatformType.LINUX)
         self.mox.StubOutWithMock(pred, "_run")
         pred._run().MultipleTimes()
 

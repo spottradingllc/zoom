@@ -72,8 +72,9 @@ class ApplicationStateCacheTest(unittest.TestCase):
         cache._cache.update({path: state.to_dictionary()})
 
         self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
-        self.zoo_keeper.set(self.configuration.override_node, '{"application_host": {"/foo": "bar"}}')
-        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{"application_host": {"/foo": "bar"}}', None))
+        self.zoo_keeper.set(self.configuration.override_node, '{"/foo": {"application_host": "bar"}}')
+        self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{"/foo": {"application_host": "bar"}}', None))
+        self.time_estimate_cache.get_graphite_data('/foo/bar/head').AndReturn({})
         self.mox.ReplayAll()
 
         # test that the state's attribute actually changes
@@ -153,6 +154,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.zoo_keeper.exists(test_unknown, watch=mox.IgnoreArg()).InAnyOrder()
         self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
         self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
+        self.time_estimate_cache.get_graphite_data('/foo/bar/head').AndReturn({})
 
         self.mox.ReplayAll()
 
@@ -176,6 +178,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.zoo_keeper.get_children(foobar, watch=mox.IgnoreArg()).InAnyOrder()
         self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
         self.zoo_keeper.get(self.configuration.override_node).AndReturn(('{}', None))
+        self.time_estimate_cache.get_graphite_data('/foo/bar').AndReturn({})
 
         self.mox.ReplayAll()
 
@@ -209,7 +212,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         event = EventMock()
         event.path = '/foo/host'
 
-        cache._path_to_host_mapping['host'] = '/path/bar'
+        cache._path_to_host_mapping['host'] = {'/path/bar': {}}
 
         self.mox.ReplayAll()
         cache._on_agent_state_update(event)
@@ -258,12 +261,12 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.assertEqual(host, result)
 
         # state exists, attribute does not
-        result = cache._get_existing_attribute(path, 'foo', default=default_val)
-        self.assertEqual(default_val, result)
+        result = cache._get_existing_attribute(path, 'foo')
+        self.assertEqual(None, result)
 
         # state does not exist
         result = cache._get_existing_attribute('', 'application_host')
-        self.assertEqual(False, result)
+        self.assertEqual(None, result)
 
     def _create_app_state_cache(self):
         return ApplicationStateCache(self.configuration, self.zoo_keeper,

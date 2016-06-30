@@ -22,6 +22,8 @@ class ConfigurationMock:
         self.pagerduty_alert_footer = "footer"
         self.alert_path = "/path"
         self.override_node = "/override_foo"
+        self.graphite_host = 'graphite_host'
+        self.graphite_recheck = '5m'
 
 
 class ApplicationStateMock:

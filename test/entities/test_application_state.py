@@ -18,6 +18,8 @@ class TestApplicationState(TestCase):
                                       pd_disabled=False,
                                       grayed=True,
                                       read_only=True,
+                                      load_times=1,
+                                      restart_count=0,
                                       platform=0)
 
     def test_to_dictionary(self):
@@ -37,6 +39,8 @@ class TestApplicationState(TestCase):
                 'pd_disabled': False,
                 'grayed': True,
                 'read_only': True,
+                'load_times': 1,
+                'restart_count': 0,
                 'platform': 0
             },
             self.state.to_dictionary()
