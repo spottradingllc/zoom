@@ -8,6 +8,7 @@ from kazoo.protocol.states import WatchedEvent
 from zoom.agent.task.task import Task
 from zoom.agent.entities.unique_queue import UniqueQueue
 from zoom.common.decorators import connected_with_return
+from zoom.common.types import CommandType
 from zoom.agent.util.helpers import zk_path_join
 
 
@@ -120,14 +121,17 @@ class TaskServer(object):
         try:
             data, stat = self._zoo_keeper.get(event.path)
             task = Task.from_json(data)
-            if task.result is not None:
-                self._remove(task, event.path)
-                self._submit_next(task.host)
-
-            else:
+            if task.result is None:
                 logging.info('Task result is {0}. Resetting watch'
                              .format(task.result))
                 self._zoo_keeper.get(event.path, watch=self._on_update)
+            elif task.result == CommandType.CANCEL:
+                logging.info('Sentinel {0} requested task clear.'
+                             .format(task.host))
+                self._remove(task, event.path, clear_queue=True)
+            else:
+                self._remove(task, event.path)
+                self._submit_next(task.host)
 
         except NoNodeError:
             pass

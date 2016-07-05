@@ -2,7 +2,7 @@ from kazoo.exceptions import NoNodeError
 
 from zoom.agent.task.task import Task
 from zoom.agent.task.base_task_client import BaseTaskClient
-from zoom.common.types import ApplicationState
+from zoom.common.types import ApplicationState, CommandType
 from zoom.common.decorators import connected
 from zoom.common.constants import SENTINEL_METHODS
 
@@ -22,6 +22,7 @@ class ZKTaskClient(BaseTaskClient):
             return
 
         self._path = '/'.join([path, self._host])
+        self.clear_task_queue()
         self.reset_watches()
 
     @connected
@@ -55,3 +56,11 @@ class ZKTaskClient(BaseTaskClient):
 
     def reset_watches(self):
         self.on_exist()
+
+    def clear_task_queue(self):
+        self._log.info('Starting, so clearing task queue.')
+        if self.zkclient.exists(self._path):
+            data, stat = self.zkclient.get(self._path)
+            task = Task.from_json(data)
+            task.result = CommandType.CANCEL
+            self.zkclient.set(self._path, task.to_json())
