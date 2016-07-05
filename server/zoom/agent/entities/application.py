@@ -581,6 +581,7 @@ class Application(object):
             if hasattr(obj, '__call__'):
                 if attribute not in acceptable_work:
                     acceptable_work[attribute] = obj
+                    self._log.debug('Added method {0}'.format(attribute))
                 else:
                     self._log.debug('Method {0} already assigned to action.'
                                     .format(attribute))
