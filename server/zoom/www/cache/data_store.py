@@ -63,6 +63,7 @@ class DataStore(object):
 
     def start(self):
         logging.info('Starting data store.')
+        self._task_server.clear_all_tasks() # Clear queue on startup
         self._global_cache.start()
         self._application_state_cache.start()
         self._application_dependency_cache.start()
