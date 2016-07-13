@@ -105,7 +105,7 @@ def get_version():
     Return the version of sentinel running
     :return: str
     """
-    vfile = os.path.join(os.path.split(os.getcwd())[0:-1][0], 'version.txt')
+    vfile = os.path.join(os.path.dirname(os.getcwd()), 'version.txt')
     data = ''
     try:
         with open(vfile, 'rb') as f:
