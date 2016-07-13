@@ -1,6 +1,8 @@
 import logging
 import os
 import platform
+import glob
+from pepper import Pepper
 
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
@@ -98,6 +100,23 @@ def get_log(count=100):
         lines = f.readlines()
         # return last `count` rows
         return [l.rstrip('\n') for l in lines[-count:]]
+
+
+def get_version():
+    """
+    Return the version of sentinel running
+    :return: str
+    """
+    vfile = os.path.join(os.path.split(os.getcwd())[0:-1][0], 'version.txt')
+    data = ''
+    try:
+        with open(vfile, 'rb') as f:
+            data = f.read().decode("utf-8")
+    except IOError:
+        # No file
+        data = 'unknown'
+    return data
+
 
 def cap_hostname(host):
     """Helper function that translates hostnames to a consistent
