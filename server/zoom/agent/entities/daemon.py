@@ -27,7 +27,7 @@ from zoom.common.constants import (
     get_zk_conn_string,
     ZK_AGENT_CONFIG,
 )
-from zoom.agent.util.helpers import get_system
+from zoom.agent.util.helpers import get_system, get_version
 
 
 class SentinelDaemon(object):
@@ -46,6 +46,7 @@ class SentinelDaemon(object):
         self._hostname = socket.getfqdn()
         self._prev_state = None
         self.listener_lock = Lock()
+        self.version = get_version()
         self.task_client = None
 
         self.zkclient = KazooClient(hosts=get_zk_conn_string(),
@@ -71,9 +72,10 @@ class SentinelDaemon(object):
         self._log.info('Created Sentinel')
 
     def __enter__(self):
-        logging.info('Starting Sentinel')
+        logging.info('Starting Sentinel, listening on port {}'.format(self._port))
         self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
+        print 'Started Sentinel'
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
@@ -241,3 +243,4 @@ class SentinelDaemon(object):
             self._prev_state = state
         except Exception as e:
             self._log.error('Listener excepted out with error: {0}'.format(e))
+
