@@ -1,6 +1,5 @@
 import logging
 from tornado.web import RequestHandler
-from zoom.agent.util.helpers import get_version
 
 
 class LogVerbosityHandler(RequestHandler):
@@ -50,7 +49,4 @@ class VersionHandler(RequestHandler):
         @apiName Version
         @apiGroup Common
         """
-
-        version = get_version()
-
-        self.write(version)
+        self.write(self.application.version)

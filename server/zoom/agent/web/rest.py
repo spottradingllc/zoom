@@ -16,12 +16,13 @@ from zoom.common.handlers import (
 
 
 class RestServer(tornado.web.Application):
-    def __init__(self, children):
+    def __init__(self, children, version):
         """
         :type children: dict
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
+        self.version = version
         self.task_client = BaseTaskClient(children)
         handlers = [
             # Versioned

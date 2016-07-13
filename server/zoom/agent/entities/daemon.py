@@ -65,7 +65,7 @@ class SentinelDaemon(object):
                                         self.zkclient,
                                         self._settings.get('zookeeper', {}).get('task'))
 
-        self._rest_server = tornado.httpserver.HTTPServer(RestServer(self.children))
+        self._rest_server = tornado.httpserver.HTTPServer(RestServer(self.children, self.version))
 
         signal.signal(signal.SIGINT, self._handle_sigint)
         signal.signal(signal.SIGTERM, self._handle_sigint)
