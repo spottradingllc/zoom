@@ -99,6 +99,23 @@ def get_log(count=100):
         # return last `count` rows
         return [l.rstrip('\n') for l in lines[-count:]]
 
+
+def get_version():
+    """
+    Return the version of sentinel running
+    :return: str
+    """
+    vfile = os.path.join(os.path.dirname(os.getcwd()), 'version.txt')
+    data = ''
+    try:
+        with open(vfile, 'rb') as f:
+            data = f.read().decode("utf-8")
+    except IOError:
+        # No file
+        data = 'unknown'
+    return data
+
+
 def cap_hostname(host):
     """Helper function that translates hostnames to a consistent
     all caps name followed by lowercase .spottrading.com

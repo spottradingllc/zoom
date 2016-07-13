@@ -10,17 +10,19 @@ from zoom.agent.web.handlers.v1 import (
 )
 from zoom.common.handlers import (
     LogVerbosityHandler,
-    RUOKHandler
+    RUOKHandler,
+    VersionHandler
 )
 
 
 class RestServer(tornado.web.Application):
-    def __init__(self, children):
+    def __init__(self, children, version):
         """
         :type children: dict
         """
         self.log = logging.getLogger('sent.rest')
         self.children = children
+        self.version = version
         self.task_client = BaseTaskClient(children)
         handlers = [
             # Versioned
@@ -29,7 +31,8 @@ class RestServer(tornado.web.Application):
             (r"/api/v1/task/(?P<work>\w+)/?(?P<target>[\w|\/]+)?", TaskHandler),
             # Unversioned
             (r'/loglevel/(?P<level>\w+)', LogVerbosityHandler),
-            (r"/ruok", RUOKHandler)
+            (r"/ruok", RUOKHandler),
+            (r"/version", VersionHandler)
         ]
         tornado.web.Application.__init__(self, handlers)
         self.log.info('Created Rest Server...')

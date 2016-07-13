@@ -39,3 +39,14 @@ class RUOKHandler(RequestHandler):
         @apiGroup Common
         """
         self.write('ok')
+
+class VersionHandler(RequestHandler):
+    def get(self):
+        """
+        @api {get} /version Return the version of the software
+        @apiDescription Return the running version of the software
+        @apiVersion 1.0.0
+        @apiName Version
+        @apiGroup Common
+        """
+        self.write(self.application.version)
