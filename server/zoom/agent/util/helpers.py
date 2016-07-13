@@ -1,8 +1,6 @@
 import logging
 import os
 import platform
-import glob
-from pepper import Pepper
 
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
