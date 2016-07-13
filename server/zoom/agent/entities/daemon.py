@@ -75,7 +75,6 @@ class SentinelDaemon(object):
         logging.info('Starting Sentinel, listening on port {}'.format(self._port))
         self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
-        print 'Started Sentinel'
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
