@@ -14,7 +14,7 @@ class GlobalModeHandler(tornado.web.RequestHandler):
     @property
     def zk(self):
         """
-        :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
+        :rtype: kazoo.client.KazooClient
         """
         return self.application.zk
 

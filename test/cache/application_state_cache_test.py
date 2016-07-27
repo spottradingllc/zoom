@@ -1,10 +1,10 @@
 import mox
 
 import unittest
+from kazoo.client import KazooClient
 from zoom.www.cache.time_estimate_cache import TimeEstimateCache
 from zoom.www.cache.application_state_cache import ApplicationStateCache
 from zoom.www.messages.application_states import ApplicationStatesMessage
-from zoom.www.entities.zoo_keeper import ZooKeeper
 from zoom.www.entities.application_state import ApplicationState
 from test.test_utils import (
     StatMock,
@@ -27,7 +27,7 @@ class ApplicationStateCacheTest(unittest.TestCase):
         self.configuration.environment = "Testing"
         self.configuration.agent_state_path = "/test"
 
-        self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
+        self.zoo_keeper = self.mox.CreateMock(KazooClient)
 
         self.time_estimate_cache = self.mox.CreateMock(TimeEstimateCache)
 

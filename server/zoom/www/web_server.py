@@ -40,7 +40,7 @@ class WebServer(tornado.web.Application):
         :type configuration: zoom.www.config.configuration.Configuration
         :type data_store: zoom.www.cache.data_store.DataStore
         :type task_server: zoom.www.entities.task_server.TaskServer
-        :type zk: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type zk: kazoo.client.KazooClient
         """
         self._configuration = configuration
         self._data_store = data_store

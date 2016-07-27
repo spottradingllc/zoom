@@ -16,7 +16,7 @@ class TaskServer(object):
     def __init__(self, config, zookeeper):
         """
         :type config: zoom.config.configuration.Configuration
-        :type zookeeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type zookeeper: kazoo.client.KazooClient
         """
         self._configuration = config
         self._zoo_keeper = zookeeper
