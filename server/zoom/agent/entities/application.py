@@ -343,10 +343,11 @@ class Application(object):
         return 0
 
     def start_if_ready(self, **kwargs):
-        if self._action_is_ready('start'):
-            self.start(**kwargs)
+        start_action = self._actions.get('start', None)
+        if start_action is not None and start_action.ready:
+            start_action.run(**kwargs)
         # if start action doesn't exist, a.k.a. read only
-        elif self._actions.get('start', None) is None:
+        elif start_action is None:
             self.start(**kwargs)
         else:
             self._action_queue.append(Task('react', kwargs=kwargs))
