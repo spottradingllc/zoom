@@ -4,6 +4,7 @@ import logging.config
 import os
 import socket
 
+from kazoo.exceptions import NoNodeError
 from zoom.common.constants import get_zk_conn_string, ZOOM_CONFIG
 from zoom.agent.util.helpers import get_system, zk_path_join
 from zoom.common.types import PlatformType
@@ -12,7 +13,7 @@ from zoom.common.types import PlatformType
 class Configuration(object):
     def __init__(self, zookeeper, **kwargs):
         """
-        :type zookeeper: :rtype: zoom.www.entities.zoo_keeper.ZooKeeper
+        :type zookeeper: kazoo.client.KazooClient
         """
         self._zookeeper = zookeeper
         self._settings = kwargs
@@ -48,6 +49,7 @@ class Configuration(object):
 
             # zookeeper
             zookeeper_settings = config.get('zookeeper')
+            self._zookeeper_paths = zookeeper_settings
             self._agent_configuration_path = zookeeper_settings.get('agent_configuration_path')
             self._agent_state_path = zookeeper_settings.get('agent_state_path')
             self._task_path = zookeeper_settings.get('task_path')
@@ -100,6 +102,9 @@ class Configuration(object):
 
         except ValueError as e:
             logging.error('Data at {0} is not valid JSON.'.format(ZOOM_CONFIG))
+            raise e
+        except NoNodeError as e:
+            logging.error('Config node missing: {}'.format(ZOOM_CONFIG))
             raise e
         except Exception as e:
             logging.exception('An unhandled exception occurred.')
@@ -168,6 +173,10 @@ class Configuration(object):
     @property
     def pid(self):
         return self._pid
+
+    @property
+    def zookeeper_paths(self):
+        return self._zookeeper_paths
 
     @property
     def agent_configuration_path(self):

@@ -1,8 +1,8 @@
 import mox
 
 from unittest import TestCase
+from kazoo.client import KazooClient
 from zoom.www.cache.global_cache import GlobalCache
-from zoom.www.entities.zoo_keeper import ZooKeeper
 from test.test_utils import ConfigurationMock, EventMock, FakeMessage
 
 
@@ -15,7 +15,7 @@ class GlobalCacheTest(TestCase):
 
         self.web_socket_clients = [self.socket_client1, self.socket_client2]
         self.configuration = ConfigurationMock
-        self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
+        self.zoo_keeper = self.mox.CreateMock(KazooClient)
 
     def tearDown(self):
         self.mox.UnsetStubs()

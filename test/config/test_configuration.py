@@ -1,8 +1,8 @@
 import mox
 from unittest import TestCase
 
+from kazoo.client import KazooClient
 from zoom.www.config.configuration import Configuration
-from zoom.www.entities.zoo_keeper import ZooKeeper
 from zoom.common.constants import ZOOM_CONFIG
 
 
@@ -15,7 +15,7 @@ class TestConfiguration(TestCase):
             '"production": {}, "zookeeper": {}, "pagerduty": {}, "database": '
             '{}, "message_throttle": {}, "logging": {"version": 1}}')
 
-        self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
+        self.zoo_keeper = self.mox.CreateMock(KazooClient)
         self.zoo_keeper.get(ZOOM_CONFIG).AndReturn((self.zoom_config, None))
 
         self.comp_name = "Test Predicate Or"

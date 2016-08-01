@@ -1,7 +1,7 @@
 import mox
 
 from unittest import TestCase
-from zoom.www.entities.zoo_keeper import ZooKeeper
+from kazoo.client import KazooClient
 from zoom.www.entities.task_server import TaskServer
 from zoom.www.cache.data_store import DataStore
 from zoom.www.cache.global_cache import GlobalCache
@@ -15,7 +15,7 @@ class DataStoreTest(TestCase):
         self.mox = mox.Mox()
         self.configuration = ConfigurationMock()
 
-        self.zoo_keeper = self.mox.CreateMock(ZooKeeper)
+        self.zoo_keeper = self.mox.CreateMock(KazooClient)
         self.zoo_keeper.connected = True
 
         self.task_server = self.mox.CreateMock(TaskServer)

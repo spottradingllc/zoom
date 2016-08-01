@@ -1,13 +1,13 @@
 import logging
 import signal
 
-from kazoo.client import KazooState
+from kazoo.client import KazooState, KazooClient
 
 from zoom.www.cache.data_store import DataStore
 from zoom.www.web_server import WebServer
-from zoom.www.entities.zoo_keeper import ZooKeeper
 from zoom.www.config.configuration import Configuration
 from zoom.www.entities.task_server import TaskServer
+from zoom.common.constants import get_zk_conn_string
 
 
 class Session(object):
@@ -16,9 +16,12 @@ class Session(object):
         signal.signal(signal.SIGTERM, self._handle_sig_event)
 
         self._prev_connection_state = None
-        self._zoo_keeper = ZooKeeper(self._zk_listener, env=kwargs.get('environment'))
+        self._zoo_keeper = KazooClient(hosts=get_zk_conn_string(kwargs.get('environment')),
+                                       timeout=60.0)
         self._zoo_keeper.start()
         self._configuration = Configuration(self._zoo_keeper, **kwargs)
+
+        self._bootstrap_zookeeper_paths()
 
         self._task_server = TaskServer(self._configuration, self._zoo_keeper)
         self._data_store = DataStore(self._configuration, self._zoo_keeper,
@@ -33,10 +36,15 @@ class Session(object):
     def stop(self):
         self._web_server.stop()
         self._zoo_keeper.stop()
+        self._zoo_keeper.close()
 
     def _handle_sig_event(self, signum, frame):
         logging.info("Signal handler called with signal {0}".format(signum))
         self.stop()
+
+    def _bootstrap_zookeeper_paths(self):
+        for path in self._configuration.zookeeper_paths.values():
+            self._zoo_keeper.ensure_path(path)
 
     def _zk_listener(self, state):
         """
@@ -54,7 +62,7 @@ class Session(object):
             elif self._prev_connection_state == KazooState.LOST \
                     and state == KazooState.CONNECTED:
                 logging.info('Connection restored. Initiating data reload.')
-                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+                self._zoo_keeper.handler.spawn(self._data_store.reload)
             elif self._prev_connection_state == KazooState.CONNECTED \
                     and state == KazooState.SUSPENDED:
                 pass
@@ -67,10 +75,10 @@ class Session(object):
             elif self._prev_connection_state == KazooState.SUSPENDED \
                     and state == KazooState.CONNECTED:
                 logging.info('Connection restored. Initiating data reload.')
-                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+                self._zoo_keeper.handler.spawn(self._data_store.reload)
             elif state == KazooState.CONNECTED:
                 logging.info('Connection restored. Initiating data reload.')
-                self._zoo_keeper.kazoo.handler.spawn(self._data_store.reload)
+                self._zoo_keeper.handler.spawn(self._data_store.reload)
             else:
                 logging.info('Zookeeper Connection in unknown state: {0}'
                              .format(state))
