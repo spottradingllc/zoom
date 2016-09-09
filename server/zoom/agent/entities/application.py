@@ -567,7 +567,6 @@ class Application(object):
             if start_action.disabled is True and restart_action.disabled is True:
                 self._read_only = True
             else:
-                self._log.warning('Start and restart have opposite settings, readonly shown as False')
                 self._read_only = False
             return
 
