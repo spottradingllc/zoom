@@ -558,13 +558,38 @@ class Application(object):
         return actions
 
     def _determine_read_only(self, actions):
+        # Sentinel config may include either start or restart blocks, if either are disabled show as read-only
         start_action = actions.get('start', None)
+        restart_action = actions.get('restart', None)
 
+        # Two special cases - both start and restart and neither
+        if start_action is not None and restart_action is not None:
+            if start_action.disabled is True and restart_action.disabled is True:
+                self._read_only = True
+            else:
+                self._log.warning('Start and restart have opposite settings, readonly shown as False')
+                self._read_only = False
+            return
+
+        elif start_action is None and restart_action is None:
+            self._log.warning('Sentinel config contains neither start nor restart predicates, assuming readonly')
+            self._read_only = True
+            return
+
+        # At this point either start action or restart action must exist
         if start_action is None:
-            self._read_only = True
-        elif start_action.disabled is True:
-            self._read_only = True
+            if restart_action.disabled is True:
+                self._read_only = True
+            else:
+                self._read_only = False
+
+        elif restart_action is None:
+            if start_action.disabled is True:
+                self._read_only = True
+            else:
+                self._read_only = False
         else:
+            self._log.warning('Unhandled read-only configuration')
             self._read_only = False
 
     def _init_work_manager(self, queue):
