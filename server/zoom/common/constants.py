@@ -3,7 +3,11 @@ import os
 
 __env_connections = {
     "local": "localhost:2181",
-    "Staging": ('zk:2181'),
+    "Staging": ('ZooStaging01:2181,'
+                'ZooStaging02:2181,'
+                'ZooStaging03:2181,'
+                'ZooStaging04:2181,'
+                'ZooStaging05:2181'),
     "QA": ('ZooStaging01:2181,'
            'ZooStaging02:2181,'
            'ZooStaging03:2181,'
