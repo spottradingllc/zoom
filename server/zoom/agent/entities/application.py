@@ -134,7 +134,7 @@ class Application(object):
     def run(self):
         """
         - Start the zookeeper client
-        - Check for already running instances. 
+        - Check for already running instances.
         - Start main loop, periodically checking whether the process has failed.
         """
         try:
@@ -199,7 +199,7 @@ class Application(object):
     @catch_exception(RuntimeError)
     def uninitialize(self):
         """
-        Gracefully stop this Zookeeper session, then free any resentinels 
+        Gracefully stop this Zookeeper session, then free any resentinels
         held by the client.
         """
         self._log.info('Stopping Zookeeper client')
@@ -563,27 +563,27 @@ class Application(object):
         restart_action = actions.get('restart', None)
 
         # Two special cases - both start and restart and neither
-        if start_action is not None and restart_action is not None:
-            if start_action.disabled is True and restart_action.disabled is True:
+        if start_action and restart_action:
+            if start_action.disabled and restart_action.disabled:
                 self._read_only = True
             else:
                 self._read_only = False
             return
 
-        elif start_action is None and restart_action is None:
+        elif not start_action and not restart_action:
             self._log.warning('Sentinel config contains neither start nor restart predicates, assuming readonly')
             self._read_only = True
             return
 
         # At this point either start action or restart action must exist
-        if start_action is None:
-            if restart_action.disabled is True:
+        if not start_action:
+            if restart_action.disabled:
                 self._read_only = True
             else:
                 self._read_only = False
 
-        elif restart_action is None:
-            if start_action.disabled is True:
+        elif not restart_action:
+            if start_action.disabled:
                 self._read_only = True
             else:
                 self._read_only = False
@@ -777,7 +777,7 @@ class Application(object):
 
     def __str__(self):
         return self.__repr__()
-    
+
     def __repr__(self):
         return ("{0}(name={1}, runmode={2})"
                 .format(self.__class__.__name__, self.name, self._mode))
