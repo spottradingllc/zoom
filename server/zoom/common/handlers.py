@@ -46,6 +46,7 @@ class RUOKHandler(RequestHandler):
         if _ret:
             self.write('ok')
         else:
+            self.set_status(503)
             self.write('bad_state')
 
 class VersionHandler(RequestHandler):
