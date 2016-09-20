@@ -41,9 +41,6 @@ class RUOKHandler(RequestHandler):
         @apiGroup Common
         """
         # Verify connectivity
-        # print 'handler.hostname', self.application.hostname
-        print 'handler.tmp_dir', self.application.temp_dir
-
         _ret = create_temporary_znode(self.application.zk, self.application.temp_dir,
                                       self.application.hostname)
         if _ret:
