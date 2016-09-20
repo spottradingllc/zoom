@@ -62,7 +62,7 @@ class SentinelDaemon(object):
             self._log.info('Waiting for settings.')
             time.sleep(1)
 
-        self._tmp_dir = os.path.join(self._settings.get('zookeeper').get('temp_directory'), 'ruok')
+        self._tmp_dir = os.path.join(self._settings.get('zookeeper').get('temp_directory', '/'), 'ruok')
 
         self.task_client = ZKTaskClient(self.children,
                                         self.zkclient,
