@@ -159,9 +159,9 @@ def create_temporary_znode(zk_connection, zk_path, hostname):
         zk_connection.delete(_path)
         _ret = True
     except NoNodeError, ex:
-        _log.critical('Unable to create temporary zk node at {0}: {1}'.format(_path, ex))
+        _log.critical('Unable to delete temporary znode as it no longer exists at {0}: {1}'.format(_path, ex))
     except NodeExistsError, ex:
-        _log.critical('{0} existed already. This is very strange: {1}'.format(_path, ex))
+        _log.critical('{0} existed already. {1}'.format(_path, ex))
     except SessionExpiredError, ex:
         _log.info('Disconnected from ZooKeeper.')
 
