@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 from xml.etree import ElementTree
 from zoom.common.types import PlatformType
-from kazoo.client import NoNodeError, NodeExistsError, SessionExpiredError
+from kazoo.client import SessionExpiredError
 
 
 def parse_args():
@@ -158,12 +158,7 @@ def create_temporary_znode(zk_connection, zk_path, hostname):
         zk_connection.create(_path, hostname, makepath=True)
         zk_connection.delete(_path)
         _ret = True
-    except NoNodeError, ex:
-        _log.critical('Unable to delete temporary znode as it no longer exists at {0}: {1}'.format(_path, ex))
-    except NodeExistsError, ex:
-        _log.critical('{0} existed already. {1}'.format(_path, ex))
-    except SessionExpiredError, ex:
+    except SessionExpiredError:
         _log.info('Disconnected from ZooKeeper.')
-
     return _ret
 
