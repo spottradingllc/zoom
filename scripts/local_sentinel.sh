@@ -9,11 +9,7 @@ echo $(git rev-parse --short --verify HEAD) > $PROJ_PATH/version.txt
 
 APPPATH="${PROJ_PATH}/server"
 VENV_PATH="/opt/spot/zoom/venv"
-STARTCMD="python sentinel.py"
-PROCESS_START_TIMEOUT=10
-PROCESS_STOP_TIMEOUT=30
-WEB_AVAILABLE_TIMEOUT=90
-TEST_URI="http://localhost:9000/ruok"
+STARTCMD="python sentinel.py -v"
 RUNLOG=$APPPATH/logs/stdout
 
 export PATH=$PATH:/bin
