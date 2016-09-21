@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 import signal
 import socket
 import sys
@@ -61,11 +62,17 @@ class SentinelDaemon(object):
             self._log.info('Waiting for settings.')
             time.sleep(1)
 
+        self._tmp_dir = os.path.join(self._settings.get('zookeeper').get('temp_directory', '/'), 'ruok')
+
         self.task_client = ZKTaskClient(self.children,
                                         self.zkclient,
                                         self._settings.get('zookeeper', {}).get('task'))
 
-        self._rest_server = tornado.httpserver.HTTPServer(RestServer(self.children, self.version))
+        self._rest_server = tornado.httpserver.HTTPServer(RestServer(self.children,
+                                                                     self.version,
+                                                                     self._tmp_dir,
+                                                                     self._hostname,
+                                                                     self.zkclient))
 
         signal.signal(signal.SIGINT, self._handle_sigint)
         signal.signal(signal.SIGTERM, self._handle_sigint)

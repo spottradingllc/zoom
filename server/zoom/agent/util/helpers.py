@@ -1,11 +1,13 @@
 import logging
 import os
 import platform
+import uuid
 
 from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 from xml.etree import ElementTree
 from zoom.common.types import PlatformType
+from kazoo.client import SessionExpiredError
 
 
 def parse_args():
@@ -117,7 +119,8 @@ def get_version():
 
 
 def cap_hostname(host):
-    """Helper function that translates hostnames to a consistent
+    """
+    Helper function that translates hostnames to a consistent
     all caps name followed by lowercase .spottrading.com
     Args:
         host: a string hostname in one of the following formats:
@@ -136,3 +139,26 @@ def cap_hostname(host):
     server = '.'.join([_split[0].upper()] + _split[1:])
     logging.debug('Converted: {0} to {1}'.format(host, server))
     return server
+
+def create_temporary_znode(zk_connection, zk_path, hostname):
+    """
+    Function to create a znode with a UUID to test sentinel -> zookeeper
+    connectivity. Record the hostname in the znode for debugging if one
+    gets left behind
+    :type zk_connection: KazooClient
+    :type zk_path: str
+    :return: bool
+    """
+    _log = logging.getLogger('util.create_temporary_znode')
+    _path = os.path.join(zk_path, str(uuid.uuid4()))
+    _log.debug('Using {0} as path'.format(_path))
+    _ret = False
+
+    try:
+        zk_connection.create(_path, hostname, makepath=True)
+        zk_connection.delete(_path)
+        _ret = True
+    except SessionExpiredError:
+        _log.info('Disconnected from ZooKeeper.')
+    return _ret
+
