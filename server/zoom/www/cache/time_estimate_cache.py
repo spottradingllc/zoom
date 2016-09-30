@@ -3,7 +3,7 @@ import httplib
 import logging
 import re
 import requests
-import socket
+import grequests
 
 from zoom.common.types import PredicateType
 from zoom.common.decorators import TimeThis
@@ -178,7 +178,8 @@ class TimeEstimateCache(object):
                    "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')"
                    .format(self.configuration.graphite_host, app_path))
 
-            response = requests.post(url, timeout=5.0)
+            logging.info("**** {0}".format(url))
+            response = grequests.get(url, timeout=1.0)
 
             self.graphite_cache[path] = self._get_default_data()
 
@@ -226,7 +227,7 @@ class GraphiteAvailability(object):
         if (self._last_check_time + self._recheck_delta) < datetime.datetime.now():
             self._last_result = self._check()
             self._last_check_time = datetime.datetime.now()
-
+        logging.debug('Returning {0} for _last_result'.format(self._last_result))
         return self._last_result
 
     @staticmethod
@@ -263,10 +264,8 @@ class GraphiteAvailability(object):
         :rtype: bool
         """
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self._host, 80))
-            s.close()
-            return True
+            r = requests.head(self.host, timeout=.1)
+            return r.ok
         except Exception as ex:
             logging.error('Could not connect to {0}:80. Error: {1}.'
                           .format(self._host, ex))
