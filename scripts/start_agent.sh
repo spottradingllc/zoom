@@ -33,6 +33,8 @@ PROCESS_START_TIMEOUT=10
 PROCESS_STOP_TIMEOUT=30
 WEB_AVAILABLE_TIMEOUT=90
 TEST_URI="http://localhost:9000/ruok"
+CURL_BIN=$(which curl)
+CURL_STATUS_TIMEOUT=2
 RUNLOG=$APPPATH/logs/stdout
 
 export PATH=$PATH:/bin
@@ -56,7 +58,13 @@ function is_running() {
 function getstatus()
 {
     if is_running; then
-        /bin/echo "$APP is running with pid $(getpid).";
+        /bin/echo -n "$APP is running with pid $(getpid)";
+        response=$($CURL_BIN -m $CURL_STATUS_TIMEOUT -s -o /dev/null -w "%{http_code}" $TEST_URI)
+        if [ "x$response" == "x200" ]; then
+            /bin/echo " and responded to /ruok check."
+        else
+            die "$APP did not respond correctly to /ruok check."
+        fi;
     else
         /bin/echo "$APP is stopped.";
         exit 1
@@ -69,7 +77,7 @@ function check_api_availability()
     code=1
     counter=0
     while [[ $code -ne 0 ]] && [[ $counter -lt $WEB_AVAILABLE_TIMEOUT ]] && is_running; do
-        /usr/bin/curl $TEST_URI > /dev/null 2>&1
+        $CURL_BIN $TEST_URI > /dev/null 2>&1
         code=$?
         /bin/sleep 5
         let counter+=5
@@ -152,7 +160,7 @@ function post () {
     fi;
 
     # Send POST command with curl
-    /usr/bin/curl --connect-timeout 10 -X POST http://localhost:9000/$1;
+    $CURL_BIN --connect-timeout 10 -X POST http://localhost:9000/$1;
     local retcode=$?
     if [ $retcode -ne 0 ];
     then

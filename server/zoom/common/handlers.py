@@ -1,6 +1,7 @@
 import logging
 from tornado.web import RequestHandler
 
+from zoom.agent.util.helpers import create_temporary_znode
 
 class LogVerbosityHandler(RequestHandler):
     def post(self, level):
@@ -32,13 +33,21 @@ class RUOKHandler(RequestHandler):
     def get(self):
         """
         @api {get} /ruok Return whether the web server is available
-        @apiDescription This is currently only used by the init script so that it
-        will block until the web server is available.
+        @apiDescription This is currently used by the init script so that it
+        will block until the web server is available and verify sentinel is
+        connected to ZooKeeper.
         @apiVersion 1.0.0
         @apiName WebAvailable
         @apiGroup Common
         """
-        self.write('ok')
+        # Verify connectivity
+        _ret = create_temporary_znode(self.application.zk, self.application.temp_dir,
+                                      self.application.hostname)
+        if _ret:
+            self.write('ok')
+        else:
+            self.set_status(503)
+            self.write('bad_state')
 
 class VersionHandler(RequestHandler):
     def get(self):
