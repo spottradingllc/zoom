@@ -65,5 +65,3 @@ if [ $(echo "${linux_version:0:3} >= 6" | bc) -eq 1 ]; then
     done
 
 fi
-
-pip install grequests

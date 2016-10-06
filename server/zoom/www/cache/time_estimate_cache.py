@@ -3,7 +3,6 @@ import httplib
 import logging
 import re
 import requests
-import grequests
 
 from zoom.common.types import PredicateType
 from zoom.common.decorators import TimeThis
@@ -179,7 +178,7 @@ class TimeEstimateCache(object):
                    .format(self.configuration.graphite_host, app_path))
 
             logging.info("**** {0}".format(url))
-            response = grequests.get(url, timeout=1.0)
+            response = requests.get(url, timeout=.5)
 
             self.graphite_cache[path] = self._get_default_data()
 
@@ -264,7 +263,7 @@ class GraphiteAvailability(object):
         :rtype: bool
         """
         try:
-            r = requests.head(self.host, timeout=.1)
+            r = requests.head(self.host, timeout=.1) # this might be too low.
             return r.ok
         except Exception as ex:
             logging.error('Could not connect to {0}:80. Error: {1}.'
