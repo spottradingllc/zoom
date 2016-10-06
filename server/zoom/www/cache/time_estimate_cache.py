@@ -177,7 +177,6 @@ class TimeEstimateCache(object):
                    "&target=alias(aggregateLine(Infrastructure.startup.{1}.runtime,'avg'),'avg')"
                    .format(self.configuration.graphite_host, app_path))
 
-            logging.info("**** {0}".format(url))
             response = requests.get(url, timeout=.5)
 
             self.graphite_cache[path] = self._get_default_data()
