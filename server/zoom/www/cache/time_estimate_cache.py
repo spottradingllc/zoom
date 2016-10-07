@@ -225,7 +225,6 @@ class GraphiteAvailability(object):
         if (self._last_check_time + self._recheck_delta) < datetime.datetime.now():
             self._last_result = self._check()
             self._last_check_time = datetime.datetime.now()
-        logging.debug('Returning {0} for _last_result'.format(self._last_result))
         return self._last_result
 
     @staticmethod
