@@ -58,6 +58,7 @@ class Configuration(object):
             self._pillar_path = zookeeper_settings.get('pillar_path')
             self._alert_path = zookeeper_settings.get('alert_path')
             self._override_node = zookeeper_settings.get('override_node', '/spot/software/config/override')
+            self._temp_directory = zookeeper_settings.get('temp_directory')
             self._zookeeper_host = get_zk_conn_string(self._environment)
 
             # pagerduty
@@ -249,6 +250,10 @@ class Configuration(object):
     @property
     def override_node(self):
         return self._override_node
+
+    @property
+    def temp_directory(self):
+        return self._temp_directory
 
     @property
     def graphite_host(self):
