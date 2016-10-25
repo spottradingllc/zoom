@@ -123,10 +123,6 @@ class Configuration(object):
             return default
 
     @property
-    def hostname(self):
-        return self._host
-
-    @property
     def salt_settings(self):
         return self._salt_settings
 
