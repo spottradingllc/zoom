@@ -1,4 +1,5 @@
 import logging
+import os
 
 import tornado.ioloop
 import tornado.web
@@ -45,6 +46,8 @@ class WebServer(tornado.web.Application):
         self._configuration = configuration
         self._data_store = data_store
         self._task_server = task_server
+        self.temp_dir = os.path.join(configuration.temp_directory, 'ruok')
+        self.hostname = configuration.hostname
         self.zk = zk
 
         handlers = [
