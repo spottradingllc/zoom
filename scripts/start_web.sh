@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# chkconfig: 2345 20 80
+# description: zoom
+
+. /etc/rc.d/init.d/functions
+
 APP="Zoom"
 LOGDATE=`date +%C%y%m%d`
 LOGTIME=`date +%H%M%S`
