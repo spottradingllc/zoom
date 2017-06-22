@@ -85,6 +85,7 @@ class SentinelDaemon(object):
             import resource
             try:
                 resource.setrlimit(resource.rlimit_core, (resource.rlim_infinity, resource.rlim_infinity))
+                logging.info('Set rlimit_core to unlimited. Core files can be requested on this system.')
             except ValueError, ve:
                 logging.info('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
             except AttributeError, ae:
