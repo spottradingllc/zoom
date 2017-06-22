@@ -86,9 +86,9 @@ class SentinelDaemon(object):
             try:
                 resource.setrlimit(resource.rlimit_core, (resource.rlim_infinity, resource.rlim_infinity))
             except ValueError, ve:
-                logging.critical('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
+                logging.info('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
             except AttributeError, ae:
-                logging.critical('AttributeError experienced: {0}'.format(ae))
+                logging.info('AttributeError experienced: {0}'.format(ae))
         self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
 
