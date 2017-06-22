@@ -1,6 +1,7 @@
 import logging
 import json
 import os
+import platform
 import resource
 import signal
 import socket
@@ -81,10 +82,11 @@ class SentinelDaemon(object):
 
     def __enter__(self):
         logging.info('Starting Sentinel, listening on port {}'.format(self._port))
-        try:
-            resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
-        except ValueError, ve:
-            logging.critical('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
+        if platform.system() == 'Linux':
+            try:
+                resource.setrlimit(resource.rlimit_core, (resource.rlim_infinity, resource.rlim_infinity))
+            except ValueError, ve:
+                logging.critical('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
         self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
 
