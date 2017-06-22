@@ -2,7 +2,6 @@ import logging
 import json
 import os
 import platform
-import resource
 import signal
 import socket
 import sys
@@ -83,6 +82,7 @@ class SentinelDaemon(object):
     def __enter__(self):
         logging.info('Starting Sentinel, listening on port {}'.format(self._port))
         if platform.system() == 'Linux':
+            import resource
             try:
                 resource.setrlimit(resource.rlimit_core, (resource.rlim_infinity, resource.rlim_infinity))
             except ValueError, ve:
