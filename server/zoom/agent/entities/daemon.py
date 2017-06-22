@@ -89,6 +89,8 @@ class SentinelDaemon(object):
                 logging.info('Invalid resource limit specified. Core files will not be generated for apps: {0}'.format(ve))
             except AttributeError, ae:
                 logging.info('AttributeError experienced: {0}'.format(ae))
+        else:
+            logging.info('Resource limits not supported on this OS. Skipping.')
         self._rest_server.listen(self._port)
         logging.info('Started Sentinel')
 
